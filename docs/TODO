@@ -14,34 +14,18 @@ TELECO:
 
 /////////////////
 
-=> Parsing des scenes
-=> Scenario distinct sur différent groupe
-=> Scene commander
+INTERFACE:
+- sort Libs
 
-=> Synchro scènes // Key frames ?
+=> Scene commander
+=> Synchro scènes w/ Key frames
 
 Module
-=> Carte [Mercredi]
-=> Alsa mixer / Alsaequal [Mardi]
-=> Video [Mardi]
-=> Son [Mardi]
+=> Alsa mixer / Alsaequal
+=> Video
+=> Son
 => Synchro media
-=> Telecommande
 
-
-Interface [Jeudi]
-=> Liste des modules pour librairie de fonctions
-=> Parser 
-	les étapes (les ID sont pas interessant, car 1 Etape = 1 Fonction)
-	les transitions après
-
-
-
-Architecture
-=> Synchro horloges
-=> Communication inter devices
-=> Synchro ordres
-=> Synchro scenario
 
 
 

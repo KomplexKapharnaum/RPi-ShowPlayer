@@ -71,9 +71,9 @@ class KxkmCard(ExternalProcess):
 
     def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None, fade=None):
         cmd = 'setlight'
-        if strob is not None:
+        if strob is not None and strob != '' and int(strob) > 0:
             cmd += ' -strob {0}'.format(int(strob))
-        if fade is not None:
+        if fade is not None and fade != '' and int(fade) > 0:
             cmd += ' -fade {0}'.format(int(fade))
         if rgb is not None:
             rgb = re.split('\W+', rgb)
