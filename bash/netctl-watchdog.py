@@ -45,7 +45,7 @@ def restart_netctl():
     global no_signal, bad_signal, sleeptime, status, exec_error, DONE
     try:
         subprocess.check_call("systemctl restart netctl-auto@wlan0.service", shell=True)
-        time.sleep(10)
+        time.sleep(15)
         no_signal = 0
         bad_signal = 0
         sleeptime = SleepTimeNone

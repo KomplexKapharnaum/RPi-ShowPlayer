@@ -21,6 +21,8 @@ done
 
 if [ $screen -eq 0 ]; then      # There is the GNU screen binary
     echo "Using GNU screen.."
+    
+    # DNC Already Running
     if [ "$(screen -ls | grep dnc)" = "" ]; then
         sleep 0.01
     else
@@ -35,12 +37,16 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
             sleep 3
         fi
     fi
+
+    # DNC Start
     echo "Start in a GNU screen session named 'dnc'"
     if ((USER_START)); then
         screen -S dnc -d -m /dnc/dnc.sh -o -u
     else
         screen -S dnc -d -m /dnc/dnc.sh -o
     fi
+
+    # NETCTL-WD Already Running
     if [ "$(screen -ls | grep netctl)" = "" ]; then
         sleep 0.2
     else
@@ -48,11 +54,14 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
         screen -X -S netctl quit
         sleep 3
     fi
+
+    # NETCTL-WD Start
     echo "Start in a GNU screen session named 'netctl'"
     screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
+
 else
     echo "Start in a classic shell so without the -o option"
-    netctl -d -m /dnc/bash/netctl-watchdog.py &
+    /dnc/bash/netctl-watchdog.py &
     /dnc/dnc.sh &
 fi
 
