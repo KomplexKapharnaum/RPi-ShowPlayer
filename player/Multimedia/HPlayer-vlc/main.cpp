@@ -1,4 +1,5 @@
 #include "main.h"
+using std::endl;
 /*
 COMPILE && RUN
 g++ hplayer.c -o hplayer -lvlc && ./hplayer
@@ -33,14 +34,15 @@ void parseInput(string input) {
 	else if (command == "repeat") {
 		if (argument == "1") player->setRepeat(true);
 		else if (argument == "0") player->setRepeat(false);
-		else cout << "#ERROR_REPEAT " << argument << "\n";
+		else cout << "#REPEAT_ERROR " << argument << "\n";
 	}
 	else if (command == "volume") 
 	{
+		cout << "#VOLUME_SUPPLIED" << argument << endl;
 		std::string::size_type sz;
 		int vol = atoi(argument.c_str());
 		if (vol >= 0 and vol <= 200) player->setVolume(vol);
-		else cout << "#ERROR_VOLUME " << argument << "\n";
+		else cout << "#VOLUME_ERROR " << argument << "\n";
 	}
 	else if (command == "volup") player->volumeUp();
 	else if (command == "voldown") player->volumeDown();

@@ -110,7 +110,7 @@ void dualPlayer::applyVolume()
 void dualPlayer::setVolume(int v)
 {
 	if (v >= 0 and v <= 200) this->volume = v;
-	cout << "#VOLUME" << this->volume << endl;
+	cout << "#VOLUME_SET" << this->volume << " / " << v << endl;
 	this->applyVolume();
 }
 
