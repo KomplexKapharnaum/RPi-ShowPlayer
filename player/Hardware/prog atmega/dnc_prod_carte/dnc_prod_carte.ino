@@ -96,11 +96,6 @@ void setup (void) {
 
 void poweroff(){
   // disable ADC
-  for (byte i = 0; i <= A5; i++)
-  {
-    pinMode (i, OUTPUT);    // changed as per below
-    digitalWrite (i, LOW);  //     ditto
-  }
   ADCSRA = 0;
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);
   sleep_enable();
@@ -108,6 +103,7 @@ void poweroff(){
 }
 
 void initpin() {
+  ADCSRA = 1;
   byte i = 0;
   for (i = 0; i < DECINPIN; i++) {
     pinMode(outpin[i], OUTPUT);
