@@ -55,9 +55,9 @@ class VlcPlayer(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@link({"/video/play": "video_play",
-        "/video/pause": "video_pause",
-        "/video/stop": "video_stop"})
+@link({"/video/play [media] [dispo] [repeat]": "video_play",
+        "/video/pause [dispo]": "video_pause",
+        "/video/stop [dispo]": "video_stop"})
 def video_player(flag, **kwargs):
     if "video" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["video"] = VlcPlayer()

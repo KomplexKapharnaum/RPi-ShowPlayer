@@ -9,12 +9,12 @@ from engine.threads import patcher
 from engine.tools import register_thread, unregister_thread
 from engine.fsm import Flag
 from engine.setting import settings
-from engine.log import init_log
+from engine.log import init_log, dumpclean
 log = init_log("modules")
 
 
 # GENERIC THREAD TO HANDLE EXTERNAL PROCESS
-class ExternalProcess:
+class ExternalProcess(object):
     """
     Watchdog thread to control external processes
     """
@@ -88,12 +88,10 @@ class ExternalProcess:
         for line in lines_iterator:
             line = line.strip()
             # log.log("raw",self.name.upper()+" SAYS: "+line)
-            cmd = line.split(' ', 1)[0]
-            args = line.split(' ', 1)[1:]
-            if cmd[0] == '#':
-                signal_name = (self.name+"_"+cmd[1:]).upper()
-                log.log("raw",cmd+" => "+signal_name)
-                patcher.patch(Flag(signal_name).get())
+            # cmd = line.split(' ')[0]
+            # args = line.split(' ')[1:]
+            if line[0] == '#':
+                self.onEvent(line.split(' '))
         if self.onClose:
             patcher.patch(Flag(self.onClose).get())
         self._running.clear()
@@ -107,6 +105,28 @@ class ExternalProcess:
         if not self._watchdog:
             return True
         return self._watchdog.join(timeout=timeout)
+
+    @staticmethod
+    def setFilters():
+        return {}
+
+    def onEvent(self, args=dict()):
+        args[0] = args[0][1:]
+        doEmmit = True
+        filters = self.setFilters()
+        if args[0] in filters.keys():
+            filz = filters[ args[0] ][0]
+            if not isinstance(filz, list):
+                filz = [filz]
+            for fn in filz:
+                doEmmit = fn(self, args) and doEmmit
+        if doEmmit:
+            self.emmit(args)
+
+    def emmit(self, args=dict()):
+        signal_name = args[0].upper()
+        log.log("raw", signal_name+' '+' '.join(args[1:]))
+        patcher.patch(Flag(signal_name).get(args={"args": args[1:]}))
 
     def __del__(self):
         log.log("raw", "Module thread destroyed")

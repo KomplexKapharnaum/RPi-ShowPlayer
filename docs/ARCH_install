@@ -17,7 +17,7 @@ nano /boot/config.txt #add overclocking options
 
 pacman -S --noconfirm wget nfs-utils htop openssh autofs alsa-utils alsa-firmware alsa-lib alsa-plugins 
 pacman -S --noconfirm git zsh base-devel libtool diffutils libnewt polkit
-pacman -S --noconfirm mesa-libgl 
+pacman -S --noconfirm mesa-libgl  ttf-freefont
 
 timedatectl set-timezone Europe/Paris
 timedatectl ste-ntp true

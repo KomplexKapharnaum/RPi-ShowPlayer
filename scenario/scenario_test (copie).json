@@ -41,7 +41,7 @@
 			"INIT_ETAPES" : [
 				{
 					"carte" : "CarteTEST",
-					"etapes" : ["BOX1"]
+					"etapes" : ["INIT_SCENE_1"]
 				}
 			]
 		}

@@ -14,6 +14,7 @@ DECLARED_PATCHER = dict()
 DECLARED_OSCROUTES = dict()
 DECLARED_TRANSITION = dict()
 DECLARED_MANAGER = []
+DECLARED_PUBLICSIGNALS = []
 
 
 def init_declared_objects():
@@ -23,6 +24,31 @@ def init_declared_objects():
     import modules
     global DECLARED_ETAPES, DECLARED_FUNCTIONS, DECLARED_SIGNALS, DECLARED_PATCHER, DECLARED_TRANSITION, DECLARED_OSCROUTES
     #dumpclean(DECLARED_TRANSITION)
+    
+    # ..
+    # Import declared elements to Poll
+    pool.Etapes_and_Functions.update(DECLARED_FUNCTIONS)
+    
+    #..
+    # Import declared OSC routes in one common patcher
+    if len(DECLARED_OSCROUTES.keys()) > 0:
+        fn_sgn_patcher = pool.Etapes_and_Functions["MSG_SIGNAL_PATCHER"]
+        oscroutes_patch = dict()
+        for path, route in DECLARED_OSCROUTES.items():
+            oscroutes_patch[path] = route['signal']
+        DECLARED_PATCHER["DECLARED_OSCROUTES"] = Patch("DECLARED_OSCROUTES", "RECV_MSG", (fn_sgn_patcher, oscroutes_patch))
+        #..
+        # Create Etape Senders for OSCROUTES
+        fn_sgn_sender = pool.Etapes_and_Functions["ADD_SIGNAL"]
+        for path, route in DECLARED_OSCROUTES.items():
+            etape_sender = Etape('SEND_'+route['signal'], actions=((fn_sgn_sender, {'signal':route['signal']}),))
+            DECLARED_ETAPES[etape_sender.uid] = etape_sender
+
+    #..
+    # Import declared Patches
+    pool.Patchs.update(DECLARED_PATCHER)
+
+
     # ..
     # Attach declared Transition to declared Etapes and create corresponding signals
     for etape_uid, transition in DECLARED_TRANSITION.items():
@@ -46,19 +72,15 @@ def init_declared_objects():
                         log.warning("Etape {0}: No destination {1} for declared transition".format(etape_uid, goto_uid))
             else:
                 log.warning("Can't find Etape {0} to attach a declared transition".format(etape_uid))
+    
+
     # ..
     # Import declared elements to Poll
-    pool.Etapes_and_Functions.update(DECLARED_FUNCTIONS)
     pool.Etapes_and_Functions.update(DECLARED_ETAPES)
     pool.Signals.update(DECLARED_SIGNALS)
-    #..
-    # Import declared OSC routes in one common patcher
-    if len(DECLARED_OSCROUTES) > 0:
-        fn_sgn_patcher = pool.Etapes_and_Functions["MSG_SIGNAL_PATCHER"]
-        DECLARED_PATCHER["DECLARED_OSCROUTES"] = Patch("DECLARED_OSCROUTES", "RECV_MSG", (fn_sgn_patcher, DECLARED_OSCROUTES))
-    #..
-    # Import declared Patches
-    pool.Patchs.update(DECLARED_PATCHER)
+
+
+   
 
 
 class globalfunction(object):
@@ -144,18 +166,35 @@ class link(globaletape):
     def __call__(self, f):
         self.uid = f.__name__.upper()
         global DECLARED_OSCROUTES
-        for oscpath in self.oscroutes.keys():
-            if oscpath is None or oscpath == '':
+        for osccmd in self.oscroutes.keys():
+            if osccmd is None or osccmd == '':
+                # None transition
                 signal_osc = None
-            elif oscpath[0] == '/':
-                signal_osc = oscpath.replace('/','_')[1:].upper()
-                DECLARED_OSCROUTES[oscpath] = signal_osc
-                # log.debug("DECLARE ROUTE: "+oscpath+" -> "+signal_osc)
+                oscpath = None
             else:
-                signal_osc = oscpath.upper()
-            self.transitions[signal_osc] = self.oscroutes[oscpath].upper()
+                oscpath = osccmd.split(' ')[0]
+                oscargs = osccmd.split(' ')[1:]
+                
+                # OSC Transition => create patch + etape sender
+                if oscpath[0] == '/':
+                    # log.debug("DECLARE ROUTE: "+oscpath+" -> "+signal_osc) 
+                    signal_osc = oscpath.replace('/','_')[1:].upper()
+                    DECLARED_OSCROUTES[oscpath] = {'signal': signal_osc,
+                                                    'args': [arg[1:-1] for arg in oscargs]}
+
+                    
+                
+                # Internal transition
+                else:
+                    signal_osc = oscpath.upper()
+            # Add transition
+            self.transitions[signal_osc] = self.oscroutes[osccmd].upper()
         super(link, self).__call__(f)
 
 
-def oscroute(from_oscpath, to_signal):
-    DECLARED_OSCROUTES[from_oscpath] = to_signal
+def exposesignals(sigs=dict()):
+    global DECLARED_PUBLICSIGNALS
+    for key, filter in sigs.items():
+        if len(filter) > 1 and filter[1]:
+            DECLARED_PUBLICSIGNALS.append(key)
+

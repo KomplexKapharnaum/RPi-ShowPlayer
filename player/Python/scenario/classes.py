@@ -37,6 +37,9 @@ class Etape(fsm.State):
         self.transitions = dict(transitions)
         self._current_running_function = None
 
+    def get(self):
+        return Etape(self.uid, self.actions, self.out_actions, self.transitions)
+
     def _run_fnct(self, _fsm, fnct, flag, kwargs):
         """
         This function run a function, when it's end set preemptible

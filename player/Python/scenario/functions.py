@@ -53,7 +53,7 @@ def add_signal(*args, **kwargs):
         else:
             signal = Flag(sig_uid)
             log.log("raw", "Signal unknown : {0}".format(sig_uid))
-        patcher.patch(signal.get(*kwargs["args"]))
+        patcher.patch(signal.get(kwargs["args"]))
 
 
 @globalfunction("SERVE_SIGNAL")

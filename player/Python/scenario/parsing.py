@@ -13,7 +13,7 @@ from engine.setting import settings
 #from libc import simplejson as json
 import simplejson as json
 
-from engine.log import init_log
+from engine.log import init_log, dumpclean
 log = init_log("parse")
 
 
@@ -124,23 +124,165 @@ def parse_media(jobj):
     return m
 
 
-def parse_scenario(path):
+def clear_scenario():
     pool.init()
     scenario.init_declared_objects()
+
+
+def parse_customlibrary(path):
     jobject = parse_file(path)
-    for fnct in jobject["Function"]:
-        parse_function(fnct)
-    for signal in jobject["Signal"]:
-        parse_signal(signal)
-    for etape in jobject["Etape"]:
-        parse_etape(etape)
-    pool.do_cross_ref()  # Resolve cross-references
-    for patch in jobject["Patch"]:
-        parse_patch(patch)
-    for device in jobject["Device"]:
-        parse_device(device)
-    for carte in jobject["Carte"]:
-        parse_carte(carte)
-    for scene in jobject["Scene"]:
-        parse_scene(scene)
-    parse_timeline(jobject["Timeline"])
+    for fn in jobject:
+        importFn = {
+            "ID" : fn['category']+'_'+fn['name']+'_FUNC',
+            "CODE" : [
+                "def fnct(flag, **kwargs):",
+                    "    log.info('WAITING')"]
+        }
+        parse_function(importFn)
+
+        # {  
+        #     "name":"WAIT",
+        #     "category":"GENERAL",
+        #     "dispos":false,
+        #     "medias":false,
+        #     "arguments":[  
+        #        "",
+        #        "",
+        #        ""
+        #     ],
+        #     "code":"print \"WAITING\""
+        #  }
+
+
+def parse_customscenario(path):
+    jobject = parse_file(path)
+    importEtapes = {}
+    for box in jobject['boxes']:
+        etapename = box['category']+'_'+box['name']
+        if 'SEND_'+etapename in pool.Etapes_and_Functions.keys():
+            etape = pool.Etapes_and_Functions['SEND_'+etapename].get()
+            etape.uid = box['boxname'].upper()
+            args = dict()
+            args['args'] = [box['media']]
+            etape.actions[0][1]['args'] = args
+            importEtapes[box['boxname']] = etape
+        elif box['category']+'_'+box['name']+'_FUNC' in pool.Etapes_and_Functions.keys():
+            fn = pool.Etapes_and_Functions[box['category']+'_'+box['name']+'_FUNC']
+            etape = classes.Etape(box['boxname'].upper(), actions=((fn, {'args':None}),))
+            importEtapes[box['boxname']] = etape
+        else:
+            log.log('warning', 'Can\'t create '+etapename)
+
+    for con in jobject['connections']:
+        #Signal
+        importSignal = {
+            "ID" : con['connectionId'],
+            "JTL" : 1,
+            "TTL" : 1,
+            "IGNORE" : {},
+            "ARGS" : {}
+        }
+        parse_signal(importSignal)
+
+        # Transitions
+        fromBox = con['SourceId'].split('_')[1]
+        toBox = con['TargetId']
+        if fromBox in importEtapes.keys():
+            if toBox in importEtapes.keys():
+                importEtapes[fromBox].transitions[con['connectionId']] = importEtapes[toBox]
+
+    for etape in importEtapes.values():
+        pool.Etapes_and_Functions[etape.uid] = etape
+
+    # dumpclean(pool.Etapes_and_Functions)
+    #log.debug('Etape Exist '+'SEND_'+etapename)
+
+        # importEtape = {
+        #     "ID" : box.name,
+        #     "ACTIONS" : [{
+        #             "function": "FNCT_SAY",
+        #             "text": "ENTER INIT !"
+        #                 }],
+        #     "OUT_ACTIONS" : [{
+        #             "function": "FNCT_SAY",
+        #             "text": "QUIT INIT !"
+        #                 }],
+        #     "TRANSITIONS" : [
+        #         {
+        #             "signal" : "..",
+        #             "goto" : "CONTROL_PLAYER"
+        #         }
+        #                     ]
+        # }
+        # parse_signal(importEtape)
+
+
+
+        # ETAPE:
+        # {
+        #     "ID" : "INIT_SCENE_1",
+        #     "ACTIONS" : [{
+        #             "function": "FNCT_SAY",
+        #             "text": "ENTER INIT !"
+        #                 }],
+        #     "OUT_ACTIONS" : [{
+        #             "function": "FNCT_SAY",
+        #             "text": "QUIT INIT !"
+        #                 }],
+        #     "TRANSITIONS" : [
+        #         {
+        #             "signal" : "..",
+        #             "goto" : "CONTROL_PLAYER"
+        #         }
+        #                     ]
+        # }
+
+        # SIGNAL:
+        # {
+        #     "ID" : "ONE_FLAG",
+        #     "JTL" : 1,
+        #     "TTL" : 1,
+        #     "IGNORE" : {},
+        #     "ARGS" : {}
+        # }
+
+        # {  
+        #    "boxes":[  
+        #       {  
+        #          "name":"WAIT",
+        #          "boxname":"box1",
+        #          "category":"GENERAL",
+        #          "positionX":111,
+        #          "positionY":154,
+        #          "dispoBOO":false,
+        #          "arguments":{  
+        #             "":null
+        #          }
+        #       },
+        #       {  
+        #          "name":"PLAY",
+        #          "boxname":"box2",
+        #          "category":"AUDIO",
+        #          "positionX":388,
+        #          "positionY":212,
+        #          "dispoBOO":true,
+        #          "dispositifs":[  
+        #             "Self"
+        #          ],
+        #          "media":"drums.mp3",
+        #          "arguments":{  
+        #             "repeat":"1"
+        #          }
+        #       }
+        #    ],
+        #    "connections":[  
+        #       {  
+        #          "connectionId":"CARTE_PUSH_1",
+        #          "From":"WAIT",
+        #          "To":"PLAY",
+        #          "SourceId":"Connector_box1",
+        #          "TargetId":"box2"
+        #       }
+        #    ],
+        #    "origins":[  
+        #   

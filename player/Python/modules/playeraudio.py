@@ -69,9 +69,9 @@ class Mpg123(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@link({"/audio/play": "audio_play",
-        "/audio/pause": "audio_pause",
-        "/audio/stop": "audio_stop"})
+@link({"/audio/play [media] [dispo] [repeat]": "audio_play",
+        "/audio/pause [dispo]": "audio_pause",
+        "/audio/stop [dispo]": "audio_stop"})
 def audio_player(flag, **kwargs):
     if "audio" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["audio"] = Mpg123()

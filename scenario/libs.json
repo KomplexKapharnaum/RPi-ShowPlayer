@@ -1,0 +1,12 @@
+[{  
+    "name":"WAIT",
+    "category":"GENERAL",
+    "dispos":false,
+    "medias":false,
+    "arguments":[  
+       "",
+       "",
+       ""
+    ],
+    "code":"print \"WAITING\""
+ }]

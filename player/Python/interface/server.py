@@ -3,7 +3,7 @@ import sys
 import os
 from os import listdir
 from os.path import isfile, join
-from scenario import DECLARED_OSCROUTES
+from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS
 
 # SET PYTHON PATH IN PARENT DIR
 def set_python_path(depth=0):
@@ -57,16 +57,22 @@ def medialist():
 def librarylist():
     answer = dict()
     answer['functions'] = []
-    for oscpath, signal in DECLARED_OSCROUTES.items():
+    answer['signals'] = []
+    # BOXES FOR DECLARED OSC ROUTES
+    for oscpath, route in DECLARED_OSCROUTES.items():
         box = {
             'name': oscpath.split('/')[-1].upper(),
             'category': oscpath.split('/')[1].upper(),
-            'dispos': True,
-            'medias': True,
-            'arguments': ['', '', ''],
-            'code': 'sendSignal("'+signal+'")'
+            'dispos': ('dispo' in route['args']),
+            'medias': ('media' in route['args']),
+            'arguments': [arg for arg in route['args'] if arg != 'dispo' and arg != 'media'],
+            'code': 'sendSignal("'+route['signal']+'")',
+            'hard': True
         }
         answer['functions'].append(box)
+    # CABLES FOR DECLARED MODULE RCV SIGNALS
+    for signal in DECLARED_PUBLICSIGNALS:
+        answer['signals'].append(signal)
     return sendjson(answer)
 
 
