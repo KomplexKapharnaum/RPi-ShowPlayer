@@ -108,11 +108,13 @@ int parseInput(string input){
     }
     
     myteleco.readInterrupt();
+
     if(myteleco.needtestroutine){
       fprintf(stderr, "main - teleco need test routine\n");
       myteleco.needtestroutine=0;
       testRoutine(1);
     }
+
     if(myteleco.needstart){
       fprintf(stderr, "main - teleco need start\n");
       myteleco.needstart=0;
@@ -129,6 +131,7 @@ int parseInput(string input){
       delay(20);
       myteleco.start();
     }
+
     return 0;
   }
   
@@ -490,8 +493,10 @@ void readcin(Queue<string>& q) {
   string input;
   while (live) {
     getline(cin, input);
-    fprintf(stderr, "main - cin push %s\n",input.c_str());
-    q.push(input);
+    if(input.length()){
+        fprintf(stderr, "main - cin push %s\n",input.c_str());
+        q.push(input);
+    }
   }
 }
 
@@ -500,8 +505,11 @@ void consume(Queue<string>& q) {
   while (loop_continue) {
     auto item = q.pop();
     if(!(item=="interrupt_carte" || item=="interrupt_teleco")) fprintf(stderr, "main - popped %s\n",item.c_str());
-    if (item=="kill")loop_continue=false;
     parseInput(item);
+    if (item=="kill"){
+        loop_continue=false;
+        delay(100);
+    }
   }
 }
 
