@@ -27,25 +27,12 @@ DEFAULT_SETTING["localport"]["interface"] = 8080
 
 DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
-#DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
-#DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
-
-#DEFAULT_SETTING["path"]["media"] = "/dnc/media"
-#DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
-#DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
-#DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["cp"] = "/usr/bin/cp"
 DEFAULT_SETTING["path"]["umount"] = "/usr/bin/umount"
 DEFAULT_SETTING["path"]["mount"] = "/usr/bin/mount"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
-# DEFAULT_SETTING["path"]["usb"] = "/dnc/usb"
-# DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
-# DEFAULT_SETTING["path"]["activescenario"] = "/dnc/scenario/__active"
 DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
-# DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hardware6"
-# DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
-# DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd -f "
@@ -53,8 +40,6 @@ DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout al
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["amixer"] = "/usr/bin/amixer set PCM"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
-# DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
-# DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
 
 DEFAULT_SETTING["path"]["relative"] = dict()            # Relatives path from path:main
 DEFAULT_SETTING["path"]["relative"]["usb"] = "usb"
@@ -72,6 +57,13 @@ DEFAULT_SETTING["path"]["relative"]["video"] = "video"
 DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
 DEFAULT_SETTING["path"]["relative"]["text"] = "text"
 DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
+
+# SMS
+DEFAULT_SETTING["path"]["relative"]["sms_destlist"] = "media/sms/dest.txt"
+DEFAULT_SETTING["sms"] = dict()
+DEFAULT_SETTING["sms"]["server"] = "http://highpush-v50.hcnx.eu/api"
+DEFAULT_SETTING["sms"]["account"] = "EUREKA"
+DEFAULT_SETTING["sms"]["password"] = ""  # Set Me in Local config file to avoid GitHub Leak ;)
 
 DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["scp"] = dict()
