@@ -5,6 +5,7 @@
 #
 #
 import os
+import copy
 from _classes import ExternalProcess, module
 from modules import link, exposesignals
 from modules._classes import AbstractVLC
@@ -32,7 +33,25 @@ class AudioVLCPlayer(AbstractVLC):
     """
     This class define an audio player with VLC as backend
     """
-    Filters = {}
+    def __init__(self):
+        command = copy.copy(settings.get_path("mvlc"))
+        """:type: str"""
+        arguments = copy.copy(settings.get("vlc", "options", "default"))
+        """:type: dict"""
+        arguments.update(settings.get("vlc", "options", "audio"))
+        log.log("error", "Vlc arguments : {0}".format(arguments))
+        AbstractVLC.__init__(self, name="audiovlc", command=command.format(**arguments))
+
+    def check_media(self, media):
+        """
+        Add audio to the media path
+        """
+        return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "audio"), media))
+
+    Filters = {
+        "MEDIA_END": ["transTo /audio/end", True],
+        "AUDIO_END": [True]
+    }
 
 
 exposesignals(AudioVLCPlayer.Filters)
@@ -79,25 +98,24 @@ class Mpg123(ExternalProcess):
 def audio_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = AudioVLCPlayer()
+        kwargs["_fsm"].process.start()
 
 
 @link({None: "audio_player"})
 def audio_play(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
-    kwargs["_fsm"].process = AudioVLCPlayer()
+    if kwargs["_fsm"].process is None:
+        audio_player(flag, kwargs)
 
     media = flag.args["media"] if 'media' in flag.args else None
-    repeat = flag.args["repeat"] if 'repeat' in flag.args else None
+    kwargs["_fsm"].process.load(media)
+    repeat = bool(flag.args["repeat"]) if 'repeat' in flag.args else False
+    kwargs["_fsm"].process.repeat(repeat)
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
-        kwargs["_fsm"].process.preload(media, repeat)
+        log.debug('+++ BEFORE SYNC PLAY {0}'.format(rtplib.get_time()))
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        kwargs["_fsm"].process.play()
-        log.debug('+++ SYNC PLAY')
-    else:
-        kwargs["_fsm"].process.play(media, repeat)
-
-    kwargs["_etape"].preemptible.set()
+        log.debug('+++ SYNC PLAY {0}'.format(flag.args['abs_time_sync']))
+    kwargs["_fsm"].process.play()
 
 
 @link({None: "audio_player"})
