@@ -264,6 +264,7 @@ class Settings(dict):
 
 
 settings = Settings(os.path.expanduser(DEFAULT_SETTING_PATH))
+devices = Settings(os.path.join(settings.get_path("deviceslist")))
 # status = Settings(settings.get("path", "status"))
 if not os.path.exists(settings.get("path", "tmp")):
     os.makedirs(settings.get("path", "tmp"))

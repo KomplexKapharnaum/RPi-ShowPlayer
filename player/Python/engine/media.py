@@ -583,9 +583,13 @@ class ScenarioFile:
         scp.start()
         try:
             scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
+            if not os.path.exists(self.path):       # Test if the file really exist after scp
+                log.error("SCP ERROR MAYBE CORRUPTED (reboot ?)")
+                raise RuntimeError()
         except RuntimeError:
             log.warning("Can't get scenario {0} with {1}".format(self, scp.command))
-
+            return False
+        return True
 
     @staticmethod
     def create_by_path(path):

@@ -9,6 +9,7 @@ import time
 from collections import deque
 import Queue
 import shlex
+import threading
 
 from engine.threads import network_scheduler
 import libs.oscack
@@ -25,10 +26,35 @@ log = init_log("discov")
 
 machine = fsm.FiniteStateMachine("RTP_FSM")
 
+
+def auto_add_here(path, args, types, src):
+    """
+    This function auto add a card when recv iamhere wathever the state of the fsm
+    :param path:
+    :param args:
+    :param types:
+    :param src:
+    :return:
+    """
+    class Iamhere:
+        def __init__(self, uName, src):
+            self.args = dict()
+            self.args["kwargs"] = dict()
+            self.args["kwargs"]["uName"] = uName
+            self.args["src"] = src
+
+        def set_flag(self):
+            time.sleep(1)
+            log.debug("Auto add {0} at {1} ".format(self.args["kwargs"]["uName"], self.args["src"]))
+            addhere(self)
+
+    flag = Iamhere(args[0], src)
+    threading.Thread(target=flag.set_flag)
+
 msg_iamhere = network.UnifiedMessageInterpretation("/iamhere", values=(
     ('s', "uName"),
     ('i', "timetag")
-), flag_name="RECV_IAM_HERE", machine=machine)
+), flag_name="RECV_IAM_HERE", machine=machine, treatement=auto_add_here)
 msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME", machine=machine)
 msg_ping = network.UnifiedMessageInterpretation("/rtp/ping", ACK=True, values=(
     ("i", "ping_1"),
@@ -221,7 +247,7 @@ def client_sync(flag):
     add_method_before_patcher("/rtp/sync", None, client_get_sync)
     network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
                             flag_timeout_wait_sync.get(
-                                TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))
+                                TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
     machine.current_state.preemptible.set()
     #log.log("error", "Just before sending asktime")
     message.send(target, msg_asktime.get())
@@ -373,6 +399,7 @@ step_addhere.transitions = {
     True: trans_sync_here
 }
 step_asktime.transitions = {
+    flag_timeout_task_sync.uid: step_main_wait,
     "TIMEOUT_WAIT_SYNC": step_main_wait,
     "GET_SYNC": step_main_wait
 }

@@ -10,7 +10,7 @@ from engine.fsm import Flag
 from engine.threads import network_scheduler
 from libs.oscack import message
 # from oscack.protocol import discover
-from engine.setting import settings
+from engine.setting import settings, devices
 from engine.log import init_log
 log = init_log("network")
 
@@ -93,6 +93,18 @@ class NetworkMap(dict):  # TODO : Implement check neighbour
         #                                                            self.check_neighbourhood)
         self._stop_sched_check_neighbourhood = threading.Event()
 
+    def get_by_uName(self, uName):
+        if uName in self.keys():
+            return self[uName]
+        else:
+            for elem in devices["devices"]:
+                if uName == elem["hostname"]:
+                    ip = elem["ip"]
+                    log.warning("Add device {0}@{1} in networkmap from device list file".format(uName, ip))
+                    netelem = NetworkElement(uName, ip)
+                    self[uName] = netelem
+                    return netelem
+
     def __getitem__(self, item):
         with self.lock:
             return dict.__getitem__(self, item)
@@ -170,7 +182,7 @@ class UnifiedMessageInterpretation:
     """
 
     def __init__(self, path, get=None, values=(), ACK=False, recv=None, JTL=settings.get("OSC", "JTL"), TTL=settings.get("OSC", "TTL"), ignore_cb=None,
-                 ignore_cb_args=(), auto_add=True, connected=None, machine=None, flag_name=None):
+                 ignore_cb_args=(), auto_add=True, connected=None, machine=None, flag_name=None, treatement=None):
         self.path = path
         if get is not None:
             def _get(*args, **kwargs):
@@ -192,6 +204,7 @@ class UnifiedMessageInterpretation:
         self.TTL = TTL
         self.ignore_cb = ignore_cb
         self.ignore_cb_args = ignore_cb_args
+        self.treatment = treatement     # To use if you want to add a treatment with the recv function
         # self.ignore_raise = ignore_raise
         if auto_add:
             global to_auto_add
@@ -199,6 +212,12 @@ class UnifiedMessageInterpretation:
 
     def recv(self, path, args, types, src):
         log.log("raw", "recv catch an message {path} with : {args}".format(path=path, args=args))
+        if self.treatment is not None:
+            try:
+                self.treatment(path, args, types, src)
+            except Exception as e:
+                log.exception("Exception in treatment function")
+                log.show_exception(e)
         kwargs = {}
         try:
             for i in xrange(len(args)):

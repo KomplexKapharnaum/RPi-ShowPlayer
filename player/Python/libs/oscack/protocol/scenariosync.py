@@ -164,8 +164,8 @@ def get_scenario(flag):
     """
     to_get = flag.args["to_get"]
     log.log("raw", "Try to get wia scp : {0}".format(to_get))
-    to_get.get_from_distant()
-    if flag.args["local_newer"] is not None:
+    success = to_get.get_from_distant()
+    if success and flag.args["local_newer"] is not None:
         log.log("raw", "Check is distant group : {0} is same as us {1}".format(to_get.group, flag.args["local_newer"].group))
         log.log("raw", "Flag args keys : {0}".format(flag.args.keys()))
         if "reload" not in flag.args.keys() and flag.args["local_newer"].group == to_get.group:
