@@ -3,7 +3,7 @@
 		[
 			{
 				"scene" : "SCENE_1",
-				"cartes" : ["CarteTEST"]
+				"cartes" : ["raspi2mgr"]
 			}
 		]
 				],
@@ -31,7 +31,7 @@
 					],
 	"Carte" : [
 		{
-			"ID" : "CarteTEST",
+			"ID" : "raspi2mgr",
 			"DEVICE" : "POUBELLE"
 		}
 				],
@@ -40,7 +40,7 @@
 			"ID" : "SCENE_1",
 			"INIT_ETAPES" : [
 				{
-					"carte" : "CarteTEST",
+					"carte" : "raspi2mgr",
 					"etapes" : ["BOX1"]
 				}
 			]

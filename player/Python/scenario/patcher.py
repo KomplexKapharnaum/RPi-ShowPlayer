@@ -93,9 +93,10 @@ class ThreadPatcher(threading.Thread):
             signal = self._queue.get()
             if signal is None:
                 continue
-            if "dest" in signal.args.keys():
-                self._dispatch(signal)
-            elif signal.uid in self._patchs.keys():
+            # if "dest" in signal.args.keys():
+            #     self._dispatch(signal)
+            # el
+            if signal.uid in self._patchs.keys():
                 ThreadPatcher._patch(signal, self._patchs[signal.uid])
             else:
                 ThreadPatcher.serve(signal)

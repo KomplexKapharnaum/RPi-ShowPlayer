@@ -115,6 +115,7 @@ def parse_timeline(jobj):
                     pool.Scenes[scene["scene"]]["before"] = pool.Scenes[before]["after"]
                 pool.Frames[-1] = pool.Scenes[scene["scene"]]["obj"]
                 before = scene["scene"]
+            else: log.debug('"{0}" not in cards'.format(settings["uName"]))
     return True
 
 
