@@ -68,8 +68,8 @@ def video_play(flag, **kwargs):
     # flag.args['media']
     # flag.args["args"][0]
 
-    media = flag.args["oscargs"][0] if len(flag.args["oscargs"]) >= 1 else None
-    repeat = flag.args["oscargs"][1] if len(flag.args["oscargs"]) >= 2 else None
+    media = flag.args["media"] if 'media' in flag.args else None
+    repeat = flag.args["repeat"] if 'repeat' in flag.args else None
     kwargs["_fsm"].vars["video"].play(media, repeat)
     kwargs["_etape"].preemptible.set()
 

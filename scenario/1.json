@@ -21,8 +21,8 @@
          "dispositifs":[  
             "Self"
          ],
-         "media":"drums.mp3",
-         "arguments":{  
+         "allArgs":{  
+            "media":"drums.mp3",
             "repeat":"1"
          }
       }

@@ -87,7 +87,7 @@ class Flag:
                 threading.Thread(target=self.ignore_cb, args=self.ignore_cb_args).start()
 
     def __str__(self):
-        return "Flag : {0}".format(self.uid)
+        return "Flag : {0} - {1}".format(self.uid, self.args)
 
     def __repr__(self):
         return self.__str__()
