@@ -78,6 +78,7 @@ class ThreadPatcher(threading.Thread):
 
     def _dispatch(self, signal):
         # envoyer au destinataire via OSC
+        signalSOLO = signal.get()
         sendto = copy(signal.args["dest"])
         del signal.args["dest"]
         log.log("raw", "dispatch to : {0}".format(sendto))

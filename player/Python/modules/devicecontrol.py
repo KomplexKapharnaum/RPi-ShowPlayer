@@ -23,13 +23,8 @@ def device_update_timeline(flag, **kwargs):
     pass
 
 @link({None: "DEVICE_CONTROL"})
-def device_update_timeline(flag, **kwargs):
-    # TODO GET THE TAR // UPDATE ACTIVE SCENARIO // RELOAD SCENARIO
-    pass
-
-@link({None: "DEVICE_CONTROL"})
 def device_teleco_cmd(flag, **kwargs):
-    # TODO GET THE TAR // UPDATE ACTIVE SCENARIO // RELOAD SCENARIO
+    
     pass
 
 

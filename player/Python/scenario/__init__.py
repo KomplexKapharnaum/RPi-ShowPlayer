@@ -20,6 +20,7 @@ DECLARED_PUBLICSIGNALS = []
 def init_declared_objects():
     import functions
     import modules
+    import intercom
     global DECLARED_ETAPES, DECLARED_FUNCTIONS, DECLARED_SIGNALS, DECLARED_PATCHER, DECLARED_TRANSITION, DECLARED_OSCROUTES
     #dumpclean(DECLARED_TRANSITION)
     
