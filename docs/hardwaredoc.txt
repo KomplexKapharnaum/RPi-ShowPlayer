@@ -6,8 +6,7 @@ initconfig -titreurNbr (int) -carteVolt (int) -name (string) -ip (string) -versi
 
 info -status (string)
 
-testroutine [-nbr (int)]
-//nbr nombre de boucle de routine
+popup [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-clear]
 
 texttitreur [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-scroll]
 
@@ -19,7 +18,8 @@ setgyro [-speed (int)] [-strob (int)] -mode (string)
 
 setrelais [-on] [-off]
 
-
+testroutine [-nbr (int)]
+//nbr nombre de boucle de routine
 
 
 
@@ -28,7 +28,7 @@ setrelais [-on] [-off]
 
 form program :
 "#INITHARDWARE"  --> doit être suivi d'un cin initconfig
-"#TELECO_GET_INFO"  --> doit être suivi d'un cin info
+"#GET_INFO"  --> doit être suivi d'un cin info
 
 from carte : 
 "#CARTE_PUSH_1 " 
@@ -51,3 +51,4 @@ from teleco :
 "#TELECO_MESSAGE_REBOOT" 
 "#TELECO_MESSAGE_TESTROUTINE"
 
+"#TELECO_GET_INFO"

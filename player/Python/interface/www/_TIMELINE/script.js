@@ -95,8 +95,15 @@
             });
           });
         });
-
       }
+
+      // this.getActiveScene = function(){
+      //   var activeScene = new Array();
+      //     $.each(allScenes,function(key,scene){
+      //       if (scene.active == true){ activeScene.push(scene); }
+      //     })
+      //   return activeScene;
+      //}
 
 
     }
@@ -109,9 +116,15 @@
 
     $('#allscenes').dblclick(function(){
       sceneCount++;
+      ///AVOID DOUBLONS
+			$.each(allScenes,function(index,scene){
+				var count = scene.name.replace('SC','');
+				if (count == sceneCount) { sceneCount++; }
+			});
+
       allScenes.push(new scene());
-      console.log(allScenes);
       pool.getScenes();
+
     });
 
 
@@ -174,19 +187,23 @@
 
 
       this.scenebox.on('click',function(){
-        console.log(thisScene.start);
+        thisScene.editInfos();
+      });
+
+      this.editInfos = function(){
         $.each(allScenes,function(index,scene){
           scene.scenebox.css('background-color','#444444');
+          scene.active = false;
         })
         thisScene.scenebox.css('background-color','#BABABA');
-      });
+        $('#scenename').text(thisScene.name);
+        thisScene.active = true;
+      }
 
       this.recoverInfos = function(name, position){
         thisScene.name = name;
         thisScene.scenebox.text(name);
-
         //thisScene.scenebox.css({left:position});
-
         //BUG SORTABLE SI CA ??? :
         // var scenepos = thisScene.scenebox.offset();
         // scenepos.left = position+108;
@@ -194,8 +211,52 @@
         // thisScene.actuPosition();
       }
 
+      this.getBlocks = function(){
+        var sceneBlocks = new Array();
+          $.each(allPi,function(index,pi){
+            $.each(pi.allBlocks,function(index,block){
+              if (block.start == thisScene.start){ sceneBlocks.push(block); }
+              //if (block.scene == thisScene.name){ sceneBlocks.push(block); }
+            });
+          });
+        return sceneBlocks;
+        }
+
 
     }
+
+
+    $('#delSceneButton').click(function(){
+      //console.log('scene');
+      var indextoremove;
+      pool.getScenes();
+
+      $.each(allScenes, function(key, scene) {
+        if (scene.active) {
+          scene.scenebox.remove();
+          indextoremove = key;
+          $.each(scene.getBlocks(),function(index,block){
+            console.log(block.blockName);
+            block.deleteElement();
+          });
+        }
+      });
+      allScenes.splice(indextoremove,1);
+
+      $.each(allScenes, function(key, scene) {
+        scene.actuPosition();
+      });
+      pool.followScenes();
+
+      $.each(allPi,function(index,pi){
+        $.each(pi.allBlocks,function(index,block){
+            block.actuPosition();
+        });
+      });
+      pool.getScenes();
+
+    });
+
 
 
     ////////////////////////// PI SORT //////////////////////////
@@ -224,13 +285,18 @@
           pi.line.css({top:linenamePos});
 
           pi.lineheight = pi.linename.offset().top;
-          console.log(pi.lineheight);
+          console.log(index + ' '+pi.lineheight);
         });
 
-          allPi.sort(function(pi1, pi2) {
-          	return pi1.lineheight - pi2.lineheight;
-          });
-console.log(allPi);
+        // si on trie maintenant ca fout le bordel ??
+        // allPi.sort(function(pi1, pi2) {
+        // 	return pi1.lineheight - pi2.lineheight;
+        // });
+        //
+        // $.each(allPi,function(index,pi){
+        //   console.log(index + ' '+pi.lineheight + ' '+ pi.raspiname);
+        // });
+
       }
     });
 
@@ -253,9 +319,8 @@ console.log(allPi);
       pool.unselectLines();
       this.active = false;
       var thispi = this;
-
       this.lineheight = this.linename.offset().top;
-      //console.log(this.lineheight);
+
 
       this.line.dblclick( function()
       {
@@ -395,9 +460,6 @@ console.log(allPi);
         thispi.allBlocks.splice(indextoremove,1);
         thisblock.blockbox.remove();
 
-        $.each(thispi.allBlocks, function(index, block) {
-        block.keyframePosition();
-        });
       }
 
       this.recoverInfos = function(infos){
@@ -860,6 +922,12 @@ console.log(allPi);
     function savePool(){
       var exportPool = [];
 
+      //sort Order en fonction de la position --> pour la reconstruction
+      // (si on fa ca a chaque sorting, on perd le fil des indexs ??)
+      allPi.sort(function(pi1, pi2) {
+      	return pi1.lineheight - pi2.lineheight;
+      });
+
       $.each(allPi, function(indexpi, pi) {
         exportPool.push({
           name: pi.raspiname,
@@ -920,6 +988,8 @@ console.log(allPi);
       $.each(allScenes,function(keyscene,scene){
         scene.recoverInfos(newScenes[keyscene].name, newScenes[keyscene].position);
       })
+
+      pool.getScenes();
 
     }
 

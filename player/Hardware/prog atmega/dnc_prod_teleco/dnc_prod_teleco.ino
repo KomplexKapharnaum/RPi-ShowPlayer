@@ -8,6 +8,9 @@ char line1 [17];
 char line2 [17];
 char line3 [17];
 char line4 [17];
+char popline1 [17];
+char popline2 [17];
+int nbmenuinfo =3;
 
 
 Encoder rotary(2, 3);
@@ -47,10 +50,11 @@ volatile byte adress = 0;
 #define T_STROBLOKSPEED 15
 
 #define T_STRING 16
-#define T_INIT 17
+#define T_POPUP 17
+#define T_INIT 18
 
 //size of table
-#define T_REGISTERSIZE 18
+#define T_REGISTERSIZE 19
 //size of menu
 #define T_NBMENU 7
 
@@ -65,7 +69,7 @@ volatile byte adress = 0;
 #define T_MODEBASE 1
 
 
-char menu[T_NBMENU][16] = {"start scene","restart scene","next scene","blink group","poweroff","reboot","test routine"};
+char menu[T_NBMENU][16] = {"previous scene","restart scene","next scene","blink group","poweroff","reboot","test routine"};
 
 byte Value[T_REGISTERSIZE];
 byte newValue[T_REGISTERSIZE];
@@ -118,7 +122,7 @@ void initpin() {
   lcd.setCursor(0, 0);
   lcd.print("  do not clean");
   lcd.setCursor(0, 1);
-  lcd.print("      V0.2      ");
+  lcd.print("      V0.3      ");
   lcd.setBackLight(1);
 }
 
@@ -247,11 +251,23 @@ void checkStringReceive() {
   if (command == 0 && adress == T_STRING) {
     buf [pos] = 0;
     Serial.println (buf);
-      lcd.clear();
       memcpy( line1, &buf[0], 16 );
       memcpy( line2, &buf[16], 16 );
       memcpy( line3, &buf[32], 16 );
       memcpy( line4, &buf[48], 16 );
+    pos = 0;
+    adress = 0;
+  }
+  if (command == 0 && adress == T_POPUP) {
+    buf [pos] = 0;
+    Serial.println (buf);
+    lcd.clear();
+    memcpy( popline1, &buf[0], 16 );
+    memcpy( popline2, &buf[16], 16 );
+    lcd.setCursor(0, 0);
+    lcd.print(popline1);
+    lcd.setCursor(0, 1);
+    lcd.print(popline2);
     pos = 0;
     adress = 0;
   }
@@ -291,8 +307,8 @@ void checkInput() {
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
       if(T_DECINPIN+i==T_PUSHROTARY){
         if( 1-digitalRead(inpin[i])==1) {
-          if (abs(positionLeft)%(T_NBMENU+2)!=0 && abs(positionLeft)%(T_NBMENU+2)!=1){
-            newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+2)-1;
+          if (abs(positionLeft)%(T_NBMENU+nbmenuinfo)<T_NBMENU){
+            newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+nbmenuinfo)+1;
           }else {
             newValue[T_DECINPIN + i] =250;
           }
@@ -309,21 +325,30 @@ void checkInput() {
     
     long newLeft;
     newLeft = (long)rotary.read()*1.0/2;
+    if (newLeft>T_NBMENU+nbmenuinfo-1 || newLeft<0) {
+      newLeft=positionLeft;
+      rotary.write(positionLeft*2);
+    }
     if (newLeft != positionLeft) {
         lcd.clear();     
-        if(abs(newLeft)%(T_NBMENU+2)==0){
+        if(abs(newLeft)%(T_NBMENU+nbmenuinfo)==T_NBMENU){
           lcd.setCursor(0, 0);
           lcd.print(line1);
           lcd.setCursor(0, 1);
           lcd.print(line2);
-        }else if(abs(newLeft)%(T_NBMENU+2)==1){
+        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo)==T_NBMENU+1){
           lcd.setCursor(0, 0);
           lcd.print(line3);
           lcd.setCursor(0, 1);
           lcd.print(line4);
+        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo)==T_NBMENU+2){
+          lcd.setCursor(0, 0);
+          lcd.print(popline1);
+          lcd.setCursor(0, 1);
+          lcd.print(popline2);
         }else{
           lcd.setCursor(0, 0);
-          lcd.print(menu[abs(newLeft)%(T_NBMENU+2)-2]);
+          lcd.print(menu[abs(newLeft)%(T_NBMENU+2)]);
         }
         positionLeft = newLeft;
       }
