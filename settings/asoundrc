@@ -1,19 +1,37 @@
 ## OUTPUT Internal
-pcm_slave.internal {
-  pcm "hw:0,0"
+pcm.internal {
+    type hw
+    card 0
+    device 0  
 }
 
-## OUTPUT External USB
-pcm_slave.external {
-  pcm "hw:1,0"
+## OUTPUT External USB (with dmixer)
+pcm.external {
+    type dmix
+    ipc_key 2048
+    ipc_key_add_uid false
+    ipc_perm 0666
+    slave {
+        pcm "hw:1,0"
+        channels 2
+        period_time 0
+        period_size 1024
+        buffer_size 8192
+        rate 44100
+    }
+    bindings {
+        0 0
+        1 1
+    }
 }
+
 
 ## OUTPUT Dual: Internal + External
 pcm.both_dispatch {
   type multi
-  slaves.a.pcm "hw:0,0"
+  slaves.a.pcm internal
   slaves.a.channels 2
-  slaves.b.pcm "hw:1,0"
+  slaves.b.pcm external
   slaves.b.channels 2
   bindings.0.slave a
   bindings.0.channel 0
@@ -36,9 +54,9 @@ pcm.dual {
 ## DISPATCH to outputs
 pcm.dispatch {
   type plug
-#INTERNAL  slave internal
-#EXTERNAL  slave external
-#DUAL  slave.pcm dual
+#INTERNAL  slave.pcm internal
+#EXTERNAL  slave.pcm external
+#DUAL      slave.pcm dual
 }
 
 ## EQ
