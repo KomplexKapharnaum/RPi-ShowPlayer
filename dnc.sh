@@ -51,7 +51,7 @@ while (( running )); do
     # Maintenance
     echo "Run Update / Maintenance"
     /dnc/update.sh
-	cd /dnc
+    cd /dnc
 
     # MAIN
 	echo "ShowPlayer Start"

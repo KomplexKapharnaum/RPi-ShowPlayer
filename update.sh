@@ -16,23 +16,8 @@ fi
 
 
 #############################
-# Select ALSA config profile
-#############################
-numaudio=`cat /proc/asound/cards | grep '^ [0-9]' | wc -l`
-if [ $numaudio -eq 2 ]; then
-	cp /dnc/settings/asoundrc-both ~/.asoundrc
-	echo "AUDIO: Dual Output Internal+External"
-else
-	cp /dnc/settings/asoundrc-internal ~/.asoundrc
-	echo "AUDIO: Internal Output"
-fi
-#############################
-
-
-#############################
 # Install ALSAequal
 #############################
-: <<'COMMENT'
 x=`pacman -Qs alsaequal`
 if 
 if [ -n "$x" ];  then 
@@ -47,5 +32,18 @@ else
     runuser -l pi -c 'cd /tmp/alsaequal; makepkg -s'
     pacman -U alsaequal-0.6-12-armv7h.pkg.tar.xz --noconfirm
 fi
-COMMENT
+#############################
+
+
+#############################
+# Select ALSA config profile
+#############################
+numaudio=`cat /proc/asound/cards | grep '^ [0-9]' | wc -l`
+cp /dnc/settings/asoundrc ~/.asoundrc
+if [ $numaudio -eq 2 ]; then
+        sed -i 's/slave internal/slave both/g' ~/.asoundrc
+        echo "AUDIO: Dual Output Internal+External"
+else
+        echo "AUDIO: Internal Output"
+fi
 #############################
