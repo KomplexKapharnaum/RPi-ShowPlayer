@@ -26,12 +26,14 @@ log.debug("Init time tag : {0} ".format(timetag))
 
 from engine.setting import settings
 
-import protocol
-import message
-import server
-
+protocol = None
 
 def start_protocol():
+    import protocol as _protocol
+    global protocol
+    protocol = _protocol
+    import message
+    import server
     global DNCserver, discover_machine, BroadcastAddress, machine_waiting_osc
     if not isinstance(DNCserver, server.DNCServer):
         DNCserver = server.DNCServer(settings["uName"], classicport=settings["OSC"]["classicport"],

@@ -9,8 +9,10 @@ import Queue
 import cPickle
 from copy import copy
 
-# from libs.oscack.objects import message
-# from libs.oscack import DNCserver
+from libs.oscack import message
+from libs.oscack import DNCserver
+# import libs.oscack.message
+# import libs.oscack.DNCserver
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
 from engine.log import init_log, dumpclean
@@ -78,8 +80,8 @@ class ThreadPatcher(threading.Thread):
         del signal.args["dest"]
         for dest in sendto:
             if dest in DNCserver.networkmap.keys():
-                # message.send(DNCserver.networkmap[dest].target,
-                #                    message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal,2)), ACK=True))
+                message.send(DNCserver.networkmap[dest].target,
+                             message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal,2)), ACK=True))
                 pass
             elif dest != "_self_":
                 log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
