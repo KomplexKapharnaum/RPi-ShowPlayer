@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <iostream>
-#include <pthread.h>
 
 /* TIME MEASURE */
 unsigned long long mstime() {
@@ -19,14 +18,6 @@ unsigned long long mstime() {
 	return millisecondsSinceEpoch;
 }
 
-// DEBUG PREROLL 
-void *wait_preroll(void* ptr)
-{
-	vlcPlayer* self = reinterpret_cast<vlcPlayer*>( ptr );
-	printf("THREAD STARTED\n");
-	self->wait_preroll();
-}
-
 
 /* EVENTS */
 void vlcCallbacks( const libvlc_event_t* event, void* ptr )
@@ -38,7 +29,7 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 
 	    case libvlc_MediaPlayerVout:
 	        // printf("#MEDIA_VOUT %d\n", self->getId());
-	    	printf("VOUT %llu\n",mstime());
+	    	//printf("VOUT %llu\n",mstime());
 			if (self->getState() < PLAYING)
 			{
 				if (self->locked()) 
@@ -57,17 +48,18 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 	    case libvlc_MediaPlayerStopped:
 			if (self->getState() == PLAYING) 
 			{ 
-				printf("#MEDIA_END %d\n", self->getId());
+				//printf("#MEDIA_END %d\n", self->getId());
+				printf("#MEDIA_END\n");
 				//self->stop();
-				//self->setState(DONE);
+				self->setState(DONE);
 			}
-			self->setState(WAIT);
+			else self->setState(WAIT);
 	    	//printf("#MEDIA_END\n");
 	        break;
     
 	    case libvlc_MediaPlayerEndReached:
 	    	//printf("#MEDIA_FINNISHED %d\n", self->getId());
-	        printf("#MEDIA_FINNISHED\n");
+	        //printf("#MEDIA_FINNISHED\n");
 	        break;
 
 	    case libvlc_MediaPlayerBuffering:
@@ -118,7 +110,7 @@ vlcPlayer::vlcPlayer(libvlc_instance_t *instance, int id, dualPlayerCallbacks *c
 /* COMMANDS */
 void vlcPlayer::load(string filepath, bool lock)
 {
-	printf("LOADING %llu\n",mstime());
+	//printf("LOADING %llu\n",mstime());
 	this->setState(LOADING);
 	this->lock = lock;
 	this->filepath = filepath;
@@ -202,12 +194,12 @@ int vlcPlayer::getState()
 void vlcPlayer::setState(int state)
 {
 	this->state = state;
-	if (this->state == WAIT) printf("#PLAYER_WAIT %d\n",this->getId());
-	if (this->state == LOADING) printf("#PLAYER_LOADING %d\n",this->getId());
-	if (this->state == READY) printf("#PLAYER_READY %d\n",this->getId());
-	if (this->state == PLAYING) printf("#MEDIA_PLAY %d\n",this->getId());
-	if (this->state == DONE) printf("#PLAYER_DONE %d\n",this->getId());
-	//if (this->state == PLAYING) printf("#MEDIA_PLAY\n");
+	//if (this->state == WAIT) printf("#PLAYER_WAIT %d\n",this->getId());
+	//if (this->state == LOADING) printf("#PLAYER_LOADING %d\n",this->getId());
+	//if (this->state == READY) printf("#PLAYER_READY %d\n",this->getId());
+	//if (this->state == PLAYING) printf("#MEDIA_PLAY %d\n",this->getId());
+	//if (this->state == DONE) printf("#PLAYER_DONE %d\n",this->getId());
+	if (this->state == PLAYING) printf("#MEDIA_PLAY\n");
 	this->callback->onPlayerStateChange(this->getId(), this->state);
 }
 
@@ -226,24 +218,24 @@ void vlcPlayer::fullScreen()
 	//libvlc_set_fullscreen(this->player, 1);
 }
 
-void vlcPlayer::wait_preroll() 
-{
-	while(libvlc_media_player_get_time(this->player) == 0)
-	{
-		printf("wait for video to begin %llu\n",mstime());
-		printf("vout %d\n",libvlc_media_player_has_vout(this->player));
+// void vlcPlayer::wait_preroll() 
+// {
+// 	while(libvlc_media_player_get_time(this->player) == 0)
+// 	{
+// 		printf("wait for video to begin %llu\n",mstime());
+// 		printf("vout %d\n",libvlc_media_player_has_vout(this->player));
 		
-		pthread_yield();
-		usleep(2000);
-	}
-	long long p = 0;
-	while(true)
-	{
-		if (p != libvlc_media_player_get_time(this->player)) printf("time %llu\n",libvlc_media_player_get_time(this->player));
-		p = libvlc_media_player_get_time(this->player);
-		pthread_yield();
-		usleep(2000);
-	}
-	printf("video time: %llu\n",libvlc_media_player_get_time(this->player));
+// 		pthread_yield();
+// 		usleep(2000);
+// 	}
+// 	long long p = 0;
+// 	while(true)
+// 	{
+// 		if (p != libvlc_media_player_get_time(this->player)) printf("time %llu\n",libvlc_media_player_get_time(this->player));
+// 		p = libvlc_media_player_get_time(this->player);
+// 		pthread_yield();
+// 		usleep(2000);
+// 	}
+// 	printf("video time: %llu\n",libvlc_media_player_get_time(this->player));
 
-}
+// }

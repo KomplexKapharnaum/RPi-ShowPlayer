@@ -90,6 +90,28 @@ int main(int argc, char* argv[])
 }
 
 
+// RC Interface
+/*
++----[ CLI commands ]
+| play . . . . . . . . . . . . . . . . . . . . . . . . . . play stream
+| stop . . . . . . . . . . . . . . . . . . . . . . . . . . stop stream
+| repeat [on|off]  . . . . . . . . . . . . . .  toggle playlist repeat
+| loop [on|off]  . . . . . . . . . . . . . . . .  toggle playlist loop
+| seek X . . . . . . . . . . . seek in seconds, for instance `seek 12'
+| pause  . . . . . . . . . . . . . . . . . . . . . . . .  toggle pause
+| is_playing . . . . . . . . . . . .  1 if a stream plays, 0 otherwise
+| get_title  . . . . . . . . . . . . . the title of the current stream
+| get_length . . . . . . . . . . . .  the length of the current stream
+| 
+| volume [X] . . . . . . . . . . . . . . . . . .  set/get audio volume
+| volup [X]  . . . . . . . . . . . . . . .  raise audio volume X steps
+| voldown [X]  . . . . . . . . . . . . . .  lower audio volume X steps
+| quit . . . . . . . .  quit VLC (or logout if in a socket connection)
+| shutdown . . . . . . . . . . . . . . . . . . . . . . .  shutdown VLC
++----[ end of help ]
+*/
+
+
 /* INFO */
 // bool isPlaying() {
 // 	return (libvlc_media_player_is_playing(player) == 1);

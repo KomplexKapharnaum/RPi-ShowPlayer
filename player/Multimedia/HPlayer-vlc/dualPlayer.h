@@ -23,6 +23,8 @@ class dualPlayer : public dualPlayerCallbacks
 
 		void onPlayerStateChange(int playerID, int state);
 		vlcPlayer* player(int n);
+		vlcPlayer *player1;
+		vlcPlayer *player2;
 
 	private:
 		vlcPlayer* sparePlayer();
@@ -30,6 +32,5 @@ class dualPlayer : public dualPlayerCallbacks
 
 		int selector;
 		libvlc_instance_t *instance;
-		vlcPlayer *player1;
-		vlcPlayer *player2;
+		pthread_t watcher;
 };
