@@ -186,8 +186,10 @@ class link(globaletape):
                 if oscpath[0] == '/':
                     # log.debug("DECLARE ROUTE: "+oscpath+" -> "+signal_osc) 
                     signal_osc = oscpath.replace('/','_')[1:].upper()
+                    args = [arg[1:-1] for arg in oscargs]
+                    args.append('dispo')
                     DECLARED_OSCROUTES[oscpath] = {'signal': signal_osc,
-                                                    'args': [arg[1:-1] for arg in oscargs]}
+                                                    'args': args}
                 # Internal transition
                 else:
                     signal_osc = oscpath.upper()
