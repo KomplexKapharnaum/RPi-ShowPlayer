@@ -234,7 +234,7 @@ def parse_timeline(parsepool):
                 # DETECT WANTED MEDIA
                 for box in SCENARIO[scenario]['boxes']:
                     if 'media' in box.keys():
-                        pool.Cartes[device['name']].media.append( box['media'] )
+                        pool.Cartes[device['name']].media.append( box["category"].lower()+box['media'] )
 
             # ADD SCENE
             if 'scene' in block:
