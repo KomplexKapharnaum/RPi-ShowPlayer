@@ -42,6 +42,7 @@ string version_py="-";
 string version_c="0.2";
 string status="-";
 string popup1,popup2;
+string voltage="-";
 int init=0;
 
 Carte mycarte;
@@ -81,8 +82,8 @@ void beforekill(int signum)
   mycarte.setRelais(0);
   mytitreur.allLedOff();
   status="noC";
-  sendStatusTeleco();
-    fprintf(stderr, "bye bye\n");
+  myteleco.reset();
+  fprintf(stderr, "bye bye\n");
   exit(signum);
 }
 
@@ -138,7 +139,7 @@ void testRoutine(int n){
 int parseInput(){
   string input;
   getline(cin, input);
-  
+  fprintf(stderr, "\nGETCOMMAND : %s\n",input.c_str());
   stringstream ss(input);
   string parsedInput;
   ss>>parsedInput;
@@ -151,9 +152,15 @@ int parseInput(){
           mytitreur.initTitreur(nbmodule,MODULE_24x16);
         }
         if ("-carteVolt"==parsedInput){
-          int voltage;
-          ss>>voltage;
-          mycarte.initCarte(PWM_LEDB,voltage);
+          ss>>parsedInput;
+          voltage=parsedInput;
+          if(voltage=="life12")mycarte.initCarte(PWM_LEDB,13);
+          else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,11);
+          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,11);
+          else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,27);
+          else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,26);
+          else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,24);
+          else mycarte.initCarte(PWM_LEDB,0);
         }
         if ("-name"==parsedInput){
           ss>>parsedInput;
@@ -329,6 +336,30 @@ int parseInput(){
       }
     }// end setgyro
     
+    if ("setledtelecook"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-on"==parsedInput){
+          myteleco.setLedOk(1);
+        }
+        if ("-off"==parsedInput){
+          myteleco.setLedOk(0);
+        }
+        
+      }
+    }// end setgyro
+    
+    if ("setledcarteok"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-on"==parsedInput){
+          mycarte.setledG(1);
+        }
+        if ("-off"==parsedInput){
+          mycarte.setledG(0);
+        }
+        
+      }
+    }// end setgyro
+    
     
     if ("DR"==parsedInput) {
       int reg = 0;
@@ -376,12 +407,7 @@ signal(SIGINT, beforekill);
  
   wiringPiSetupGpio();
   pinMode (21, INPUT);
-  delay(2);
-if (myteleco.fisrtView() && digitalRead(21)==HIGH) {
-  fprintf(stderr, "teleco add at boot\n");
-    myteleco.readInterrupt();
-    myteleco.start();
-  }
+
 
   
 cout << "#INITHARDWARE" << endl;
@@ -390,7 +416,16 @@ cout << "#INITHARDWARE" << endl;
   while(!init){
     parseInput();
   }
-  if(version_py=="-")myteleco.initCarte(1);else myteleco.initCarte(1);
+  if(version_py=="-")
+    myteleco.initCarte(1);
+  else myteleco.initCarte(0);
+  delay(10);
+  if (digitalRead(21)==HIGH) {
+    fprintf(stderr, "teleco add at boot\n");
+    myteleco.readInterrupt();
+    myteleco.start();
+    sendStatusTeleco();
+  }
 
   
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;

@@ -19,6 +19,7 @@ from libs.oscack import message, network
 from libs import rtplib
 from engine.setting import settings
 from engine.log import init_log
+from scenario import manager
 
 log = init_log("discov")
 
@@ -27,8 +28,8 @@ machine = fsm.FiniteStateMachine()
 msg_iamhere = network.UnifiedMessageInterpretation("/iamhere", values=(
     ('s', "uName"),
     ('i', "timetag")
-))
-msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True)
+), flag_name="RECV_IAM_HERE")
+msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME")
 msg_ping = network.UnifiedMessageInterpretation("/rtp/ping", ACK=True, values=(
     ("i", "ping_1"),
     ("i", "ping_2"),
@@ -63,6 +64,21 @@ def init_protocol(flag):
 
 def _pass(*args, **kwargs):
     pass
+
+
+def add_method_before_patcher(path, types, fnct):
+    """
+    This function del the scenario wild card before add themself and replug it after
+    :param path: OSC path
+    :param types: OSC types (None as wildcard)
+    :param fnct: callback function
+    :return: None
+    """
+    libs.oscack.DNCserver.del_method(None, None)          # Remove wildcard
+    libs.oscack.DNCserver.ackServer.del_method(path, types)         # Remove before add
+    libs.oscack.DNCserver.ackServer.add_method(path, types, fnct)   # Add callback
+    libs.oscack.DNCserver.add_method(None, None, manager.patch_msg)  # Replug patcher
+
 
 
 def send_iamhere(flag):
@@ -143,20 +159,21 @@ def server_sync(flag):
     def catch_pong(path, args, types, src):
         pong_queue.put(args)
         message.send(target, msg_ping.get(**kwargs_ping))
-    libs.oscack.DNCserver.ackServer.del_method("/rtp/pong", None)
-    libs.oscack.DNCserver.ackServer.add_method("/rtp/pong", None, catch_pong)
+    # libs.oscack.DNCserver.ackServer.del_method("/rtp/pong", None)
+    # libs.oscack.DNCserver.ackServer.add_method("/rtp/pong", None, catch_pong)
+    add_method_before_patcher("/rtp/pong", None, catch_pong)
     network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
                             flag_timeout_task_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))   # TODO check if work
     machine.current_state.preemptible.set()
-    time.sleep(0.5)     # Wait for the client to pass in the correct state
+    time.sleep(3)     # Wait for the client to pass in the correct state
     # BEGIN TIME CRITICAL #
     message.send(target, msg_ping.get(**kwargs_ping))
     t_start = rtplib.get_time()
     # n_try = 0
     while not machine.current_state.stop.is_set():
         try:
-            pong = pong_queue.get(True, 5)
+            pong = pong_queue.get(True, 6)
         except Queue.Empty as e:
             # n_try += 1
             log.exception(log.show_exception(e))
@@ -190,20 +207,25 @@ def server_sync(flag):
 
 def client_sync(flag):
     target = message.Address(flag.args["src"].get_hostname())
-    msg = msg_pong.get(**kwargs_pong)
+    # msg = msg_pong.get(**kwargs_pong)
     def catch_ping(path, args, types, src):
+        # log.log("error", "catch ping from {0}".format(target))
         # BEGIN # TIME CRITICAL
         message.send(target, msg_pong.get(**kwargs_pong))
         # END # TIME CRITICAL
-    libs.oscack.DNCserver.ackServer.del_method("/rtp/ping", None)
-    libs.oscack.DNCserver.ackServer.add_method("/rtp/ping", None, catch_ping)
-    libs.oscack.DNCserver.ackServer.del_method("/rtp/sync", None)
-    libs.oscack.DNCserver.ackServer.add_method("/rtp/sync", None, client_get_sync)
+    # libs.oscack.DNCserver.ackServer.del_method("/rtp/ping", None)
+    # libs.oscack.DNCserver.ackServer.add_method("/rtp/ping", None, catch_ping)
+    # libs.oscack.DNCserver.ackServer.del_method("/rtp/sync", None)
+    # libs.oscack.DNCserver.ackServer.add_method("/rtp/sync", None, client_get_sync)
+    add_method_before_patcher("/rtp/ping", None, catch_ping)
+    add_method_before_patcher("/rtp/sync", None, client_get_sync)
     network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
                             flag_timeout_wait_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))
     machine.current_state.preemptible.set()
+    #log.log("error", "Just before sending asktime")
     message.send(target, msg_asktime.get())
+    #log.log("error", "Just after sending asktime")
 
 
 def client_get_sync(path, args, types, src):
@@ -213,6 +235,7 @@ def client_get_sync(path, args, types, src):
                                          float(args[2] / 1000000000)))
     # END # TIME CRITICAL
     libs.oscack.DNCserver.ackServer.del_method("/rtp/ping", None)
+    libs.oscack.DNCserver.ackServer.del_method("/rtp/sync", None)
     machine.append_flag(flag_get_sync.get())
     if r != 0:
         log.error("Can't set time system, error code {err}".format(err=r))
@@ -332,11 +355,13 @@ step_init.transitions = {
 
 step_main_wait.transitions = {
     flag_timeout_send_iamhere.uid: step_send_iamhere,
-    fsm.Flag("RECV_MSG").uid: network.UnifiedMessageInterpretation.conditional_transition({
-        "/iamhere": trans_recv_iamhere,
-        "/rtp/asktime": step_sync_start,
-        "/rtp/sync": step_sync_time,  # TODO : It's for secure purpose, check if it's really needed
-    })
+    # fsm.Flag("RECV_MSG").uid: network.UnifiedMessageInterpretation.conditional_transition({
+    #     "/iamhere": trans_recv_iamhere,
+    #     "/rtp/asktime": step_sync_start,
+    #     "/rtp/sync": step_sync_time,  # TODO : It's for secure purpose, check if it's really needed
+    # })
+    msg_asktime.flag_name: step_sync_start,
+    msg_iamhere.flag_name: trans_recv_iamhere
 }
 step_send_iamhere.transitions = {
     None: step_main_wait

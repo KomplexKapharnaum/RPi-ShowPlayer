@@ -48,6 +48,7 @@ DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hard
 DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
 DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
+DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7 --play-and-exit"
 DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd --zoom=0.7 --play-and-exit" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
@@ -69,6 +70,8 @@ DEFAULT_SETTING["sync"]["usb_speed_min"] = 5000         # (Ko/s) Behind 5 Mo/s i
 DEFAULT_SETTING["sync"]["protected_space"] = 20000      # (Ko) Space protected to keep the rest of the project safe
 DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3    # Wait 3 sec, if no newer flag, we are update
 DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2    # 2 sec before remove mount point
+DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 15 sec before restart netctl after unplug usb storage device
+DEFAULT_SETTING["sync"]["timeout_media_version"] = 60   # 60 sec between each send media list version
 
 
 DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']
@@ -79,13 +82,14 @@ DEFAULT_SETTING["scenario"]["date_len"] = 24            # extension + date lengt
 DEFAULT_SETTING["scenario"]["dest_all"] = "All"         # string for all dest in a signal
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"     # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"       # string for self dest in a signal
+DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.500  # time delta before run sync between cards
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
 DEFAULT_SETTING["media"]["usb_mount_timeout"] = 3       # 3 sec max for mount before killing it
 
 DEFAULT_SETTING["OSC"] = dict()
-DEFAULT_SETTING["OSC"]["iamhere_interval"] = 5
+DEFAULT_SETTING["OSC"]["iamhere_interval"] = 60
 DEFAULT_SETTING["OSC"]["checkneighbour_interval"] = 130
 DEFAULT_SETTING["OSC"]["classicport"] = 1781
 DEFAULT_SETTING["OSC"]["ackport"] = 1782
@@ -95,7 +99,7 @@ DEFAULT_SETTING["OSC"]["JTL"] = 1
 DEFAULT_SETTING["rtp"] = dict()
 DEFAULT_SETTING["rtp"]["enable"] = True                 # Put False to unactive rtp
 DEFAULT_SETTING["rtp"]["timeout"] = 5
-DEFAULT_SETTING["rtp"]["stack_length"] = 3
+DEFAULT_SETTING["rtp"]["stack_length"] = 5
 DEFAULT_SETTING["rtp"]["accuracy_start_ns"] = 3000000   # 3 ms
 DEFAULT_SETTING["rtp"]["accuracy_max_ns"] = 12000000   # 12 ms
 DEFAULT_SETTING["rtp"]["accuracy_factor"] = 1.05   # 5% per try
@@ -108,9 +112,21 @@ DEFAULT_SETTING["ack"]["interval_protocol"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 DEFAULT_SETTING["ack"]["interval_short"] = (0.100, 0.150, 0.200)
 DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 
+DEFAULT_SETTING["values"] = dict()
+
+DEFAULT_SETTING["values"]["gyro"] = dict()
+DEFAULT_SETTING["values"]["gyro"]["speed"] = 200
+#DEFAULT_SETTING["values"]["gyro"]["strob"] = 0
+DEFAULT_SETTING["values"]["lights"] = dict()
+DEFAULT_SETTING["values"]["lights"]["fade"] = 0
+DEFAULT_SETTING["values"]["lights"]["strob"] = 0
+
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
+
+DEFAULT_SETTING["misc"] = dict()
+DEFAULT_SETTING["misc"]["raspi"] = True    # This settings is for debug, if raspi is False it will prevent pc for error
 
 
 DEFAULT_SETTING["temp"] = dict()            # TEMP SETTINGS FOR TEST
@@ -134,8 +150,9 @@ class Settings(dict):
                 try:
                     self.update(json.load(fp))
                     log.info("Settings loaded from {0}".format(path))
-                except:
-                    log.error("Could not load settings")
+                except Exception as e:
+                    log.error("Could not load settings at {0}".format(path))
+                    log.exception(log.show_exception(e))
         except IOError:
             log.info("No settings found at path {0}, create one".format(path))
             with open(path, 'wr') as fp:

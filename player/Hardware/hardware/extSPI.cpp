@@ -21,6 +21,7 @@
 // for instal and build, follow the link
 //https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install/
 
+#include <string>
 
 
 
@@ -31,7 +32,7 @@ extSPI::extSPI(){
 
 int extSPI::check(){
   if (!init) {
-    fprintf(stderr, " you must init extSPI");
+    fprintf(stderr, "extspi -  you must init extSPI");
     return 1;
   }
   return 0;
@@ -41,7 +42,7 @@ int extSPI::check(){
 void extSPI::initSPI(int speed){
   commonInit(speed);
   nbmodule=1;
-  fprintf(stderr, "init ok \n");
+  fprintf(stderr, "extspi - init base speed %u ok \n",speed);
 }
 
 void extSPI::commonInit(int _spiSpeed){
@@ -51,8 +52,8 @@ void extSPI::commonInit(int _spiSpeed){
   wiringPiSPISetup(0,_spiSpeed);
   //define 244
   wiringPiSetupGpio();
-  GPIO_LED_G=16;
-  pinMode (GPIO_LED_G, OUTPUT) ;
+  GPIO_LED=12;
+  pinMode (GPIO_LED, OUTPUT) ;
   GPIO_244_ENABLE = 5; //define by electronic (do not forget it's inverted line)
   pinMode (GPIO_244_ENABLE, OUTPUT) ;
   digitalWrite (GPIO_244_ENABLE, LOW);
@@ -67,7 +68,7 @@ void extSPI::addChipSelect(int GPIO,int speed){
   pinMode (chipSelect[csmax].GPIO, OUTPUT) ;
   digitalWrite (chipSelect[csmax].GPIO, HIGH);
   csmax++;
-  fprintf(stderr, "add direct gpio cs \n");
+  fprintf(stderr, "extspi - add direct gpio cs, gpio=%u, speed=%u\n",GPIO,speed);
   releaseSelect();
 }
 
@@ -78,7 +79,7 @@ void extSPI::addChipSelectWithHC595Buffer(int RCK, int HC595,int speed){
   pinMode (chipSelect[csmax].GPIO, OUTPUT) ;
   digitalWrite (chipSelect[csmax].GPIO, LOW);
   csmax++;
-  fprintf(stderr, "add hc595 cs \n");
+  fprintf(stderr, "extspi - add hc595 cs, RCK=%u, HC595=%u, speed=%u\n",RCK,HC595, speed);
   releaseSelect();
 }
 /*
@@ -151,7 +152,7 @@ int extSPI::sendWithPause(int _selectedChip, unsigned char *_tab,int _len){
 //cs is active thru HC595
 //use mosi and sck two put data to hc595 and an aditional rck to latch value
 void extSPI::HC595select(){
-    //fprintf(stderr, "active hc95 %u, prev=%u, keep=%u\n",chipSelect[selectedChip].HC595, hc595activated, keepSelect);
+    fprintf(stderr, "extspi - active hc95 %u, prev=%u, keep=%u\n",chipSelect[selectedChip].HC595, hc595activated, keepSelect);
     hc595activated=chipSelect[selectedChip].HC595;
     int cs=nbmodule*8-chipSelect[selectedChip].HC595;
     unsigned long bitcs=0;
@@ -187,17 +188,17 @@ void extSPI::selectHC595csline(int _selectedCSofHC595){
 
 //cs is active thru 74ACT244
 void extSPI::activeCS(){
+  fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",selectedChip, chipSelect[selectedChip].speed,chipSelect[selectedChip].GPIO);
   wiringPiSPISetup(0,chipSelect[selectedChip].speed);
   if(chipSelect[selectedChip].GPIO!=csactivated || hc595activated!=chipSelect[selectedChip].HC595 || keepSelect==0){
-    //fprintf(stderr, "active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
+    fprintf(stderr, "extspi - active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
     csactivated=chipSelect[selectedChip].GPIO;
     inactiveCS();
-    digitalWrite (GPIO_LED_G, HIGH);
+    digitalWrite (GPIO_LED, HIGH);
     digitalWrite (GPIO_244_ENABLE, HIGH);
     if(chipSelect[selectedChip].HC595==-1) digitalWrite (chipSelect[selectedChip].GPIO, LOW);
     else HC595select();
   }
-  
 }
 
 
@@ -208,7 +209,7 @@ void extSPI::inactiveCS(){
     else digitalWrite (chipSelect[i].GPIO, LOW);
   }
   digitalWrite (GPIO_244_ENABLE, LOW);
-  digitalWrite (GPIO_LED_G, LOW);
+  digitalWrite (GPIO_LED, LOW);
   }
 }
 

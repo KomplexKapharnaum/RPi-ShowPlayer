@@ -33,6 +33,8 @@
 #ifndef __testc__extSPI__
 #define __testc__extSPI__
 
+#include <string>
+
 struct ChipSelect{
   int GPIO; //will be the same for all on the same hc595
   int HC595;
@@ -58,7 +60,7 @@ private:
   int nbmodule;
   int classmode;
   int GPIO_244_ENABLE;
-  int GPIO_LED_G;
+  int GPIO_LED;
   
   void commonInit(int _spiSpeed);
   int check();
@@ -72,7 +74,7 @@ private:
   
   int keepSelect;
   
-  
+
   
 
 public:

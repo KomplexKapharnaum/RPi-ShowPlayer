@@ -7,6 +7,10 @@
 import weakref
 import sys
 import os
+from setting import settings
+from engine.log import init_log
+
+log = init_log("tools")
 
 
 _to_stop_thread = dict()
@@ -59,3 +63,28 @@ def set_python_path(depth=0):
     fpath = os.path.dirname(fname)
     PythonPath = os.path.join(fpath, "../".join(["" for x in xrange(depth+1)]))
     sys.path.append(PythonPath)
+
+
+def search_in_or_default(key, indict, setting=False, default=None):
+    """
+    This function search the key into the indict or return default value
+    :param key: Key or tuple of keys to search in, if tuple it will return a dict of found values
+    :param indict: Dict of values to search in
+    :param setting: If not false it must be a tuple of keys to search in settings as ("values","gyro")
+    :param default: If really not found it will return None
+    :return:
+    """
+    if isinstance(key, (list, tuple)):
+        outdict = dict()
+        for k in key:
+            outdict[k] = search_in_or_default(k, indict, setting=setting, default=default)
+        return outdict
+    if key in indict.keys():
+        return indict[key]
+    elif setting is not False:
+        try:
+            setting.append(key)
+            return settings.get(*setting)
+        except AttributeError, KeyError:
+            log.log("debug", "Search for a setting value which doesn't exist")
+    return default

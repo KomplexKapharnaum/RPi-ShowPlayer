@@ -8,20 +8,25 @@ from _classes import ExternalProcess, module
 from modules import link, exposesignals
 from engine.log import init_log
 from engine.setting import settings
+from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
+from engine.tools import search_in_or_default
+import json
+
 log = init_log("kxkmcard")
 
 FILTERS = dict()
-
 
 
 class KxkmCard(ExternalProcess):
     """
     KXKM Ext card module
     """
+
     def __init__(self):
-        ExternalProcess.__init__(self, 'kxkmcard-'+get_platform())
+        ExternalProcess.__init__(self, 'kxkmcard-' + get_platform())
         self.onClose = "CARD_EVENT_CLOSE"
+        log.log("raw", "Statring KxkmCard ..")
         self.start()
 
     ##
@@ -34,33 +39,50 @@ class KxkmCard(ExternalProcess):
             cmd += ' -off'
         self.say(cmd)
 
+    def setLedTelecoOk(self, switch):
+        cmd = 'setledtelecook'
+        if switch:
+            cmd += ' -on'
+        else:
+            cmd += ' -off'
+        self.say(cmd)
+
+    def setLedCarteOk(self, switch):
+        cmd = 'setledcarteok'
+        if switch:
+            cmd += ' -on'
+        else:
+            cmd += ' -off'
+        self.say(cmd)
+
     def setMessage(self, line1=None, line2=None):
         cmd = 'texttitreur'
         if line1 is not None:
-            cmd += ' -line1 '+line1.replace(' ', '_')
+            cmd += ' -line1 ' + line1.replace(' ', '_')
         if line2 is not None:
-            cmd += ' -line2 '+line2.replace(' ', '_')
+            cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
-    def setLight(self, rgb=None, led10A=None, led10B=None, strob=None, fade=None):
+    def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None, fade=None):
         cmd = 'setlight'
+        if strob is not None:
+            cmd += ' -strob {0}'.format(int(strob))
+        if fade is not None:
+            cmd += ' -fade {0}'.format(int(fade))
         if rgb is not None:
             rgb = re.split('\W+', rgb)
             if len(rgb) == 0:
                 rgb = str(rgb)
                 rgb = rgb.lstrip('#')
                 lv = len(rgb)
-                rgb = list(str(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+                rgb = list(str(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))  # TODO DEBUG HERE value
             if len(rgb) == 3:
                 cmd += ' -rgb {R} {G} {B}'.format(R=rgb[0], G=rgb[1], B=rgb[2])
-        if led10A is not None:
-            cmd += ' -10w1 {0}'.format(int(led10A))
-        if led10B is not None:
-            cmd += ' -10w2 {0}'.format(int(led10B))
-        if strob is not None:
-            cmd += ' -strob {0}'.format(int(strob))
-        if fade is not None:
-            cmd += ' -fade {0}'.format(int(fade))
+        if led10w1 is not None:
+            cmd += ' -10w1 {0}'.format(int(led10w1))
+        if led10w2 is not None:
+            cmd += ' -10w2 {0}'.format(int(led10w2))
+
         self.say(cmd)
 
     def setGyro(self, speed=None, strob=None, mode=None):
@@ -73,12 +95,50 @@ class KxkmCard(ExternalProcess):
             cmd += ' -mode {0}'.format(mode)
         self.say(cmd)
 
+    def popUpTeleco(self, line1=None, line2=None):
+        """
+        send message on menu popup teleco
+        :param line1:
+        :param line2:
+        :return:
+        """
+        cmd = 'popup'
+        if line1 is not None:
+            cmd += ' -line1 ' + line1.replace(' ', '_')
+        if line2 is not None:
+            cmd += ' -line2 ' + line2.replace(' ', '_')
+        self.say(cmd)
+
     ##
     # FILTERS
     def initHw(self, cmd=None):
+        """
+        envoi les info de démarage à la carte
+        :param cmd:
+        :return:
+        """
+        log.log("raw", "Init HardWare on KxkmCard ..")
+        path = settings.get('path', 'deviceslist')
+        voltage = None
+        titreur = None
+
+        try:
+            answer = dict()
+            with open(path, 'r') as file:  # Use file to refer to the file object
+                answer = json.loads(file.read())
+            answer['status'] = 'success'
+            for device in answer["devices"]:
+                if device["hostname"] == settings.get("uName"):
+                    voltage = device["tension"]
+                    titreur = device["titreur"]
+                    break
+        except:
+            log.log("debug", "devices.json not found")
+
         self.say(
-            'initconfig -titreurNbr 1 -carteVolt 24 -name {name} -ip {ip} -version {v} -status {status}'
-            .format(name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..'))
+            'initconfig -titreurNbr 1 -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreur {tit} '
+            .format(name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
+                    volt=voltage, tit=titreur))
         return False
 
     def sendInfo(self, cmd=None):
@@ -139,8 +199,13 @@ exposesignals(KxkmCard.Filters)
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
-       "/carte/lights [rgb] [led10w-1] [led10w-2] [strob] [fade]": "kxkm_card_lights",
-       "/carte/gyro [speed] [strob] [mode]": "kxkm_card_gyro"})
+       "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
+       "/remote/ledOkT [on/off]": "kxkm_card_lekOK_teleco",
+       "/carte/ledOkC [on/off]": "kxkm_card_lekOK_card",
+       "/lumiere/rgb [rgb] [strob] [fade]": "kxkm_card_lights",
+       "/lumiere/led1 [led10w1] [strob] [fade]": "kxkm_card_lights",
+       "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
+       "/lumiere/gyro [mode] [speed] [strob]": "kxkm_card_gyro"})
 def kxkm_card(flag, **kwargs):
     if "kxkmcard" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
@@ -148,35 +213,40 @@ def kxkm_card(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_relais(flag, **kwargs):
-    switch = str(flag.args["on/off"]).lower() in ['None', 'off', '0']
+    switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
     kwargs["_fsm"].vars["kxkmcard"].setRelais(switch)
 
+@link({None: "kxkm_card"})
+def kxkm_card_lekOK_teleco(flag, **kwargs):
+    switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
+    kwargs["_fsm"].vars["kxkmcard"].setLedTelecoOk(switch)
+
+@link({None: "kxkm_card"})
+def kxkm_card_lekOK_card(flag, **kwargs):
+    switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
+    kwargs["_fsm"].vars["kxkmcard"].setLedCarteOk(switch)
 
 @link({None: "kxkm_card"})
 def kxkm_card_lights(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].setLight(rgb=flag.args["rgb"],
-                                                led10A=flag.args["led10w-1"], led10B=flag.args["led10w-2"],
-                                                strob=flag.args["strob"], fade=flag.args["fade"])
+    params = search_in_or_default(("rgb", "led10w1", "led10w2", "strob", "fade"),
+                                  flag.args, setting=("values", "lights"))
+    kwargs["_fsm"].vars["kxkmcard"].setLight(**params)
 
 
 @link({None: "kxkm_card"})
 def kxkm_card_gyro(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].setMessage(speed=flag.args["speed"], strob=flag.args["strob"], mode=flag.args["mode"])
-
+    params = search_in_or_default(("speed", "strob", "mode"), flag.args, setting=("values", "gyro"))
+    if None in params.values():
+        log.warning("Missing default value for at least one argument : {0}".format(params))
+    kwargs["_fsm"].vars["kxkmcard"].setGyro(**params)
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_message(flag, **kwargs):
     kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"])
 
-
 @link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
-
-
-@link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
+def kxkm_card_popup_teleco(flag, **kwargs):
+    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"])
 
 
 @link({None: "kxkm_card"})
@@ -184,17 +254,4 @@ def kxkm_card_titreur_text(flag, **kwargs):
     pass
 
 
-@link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
-
-
-@link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
-
-
-@link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
 

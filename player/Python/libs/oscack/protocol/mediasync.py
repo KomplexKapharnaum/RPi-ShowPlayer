@@ -7,6 +7,8 @@
 
 import os
 import time
+import getpass
+import threading
 
 import pyudev
 
@@ -52,6 +54,17 @@ async_monitor_udev = None  # future observer for udev monitor
 needed_media_list = None
 unwanted_media_list = None
 
+stop_timeout = threading.Event()
+
+
+def stop_protocol():
+    """
+    This function stop threads and timers launched by the protocol
+    :return:
+    """
+    global stop_timeout
+    stop_timeout.set()
+
 
 def init(flag):
     """
@@ -64,13 +77,12 @@ def init(flag):
     global async_monitor_udev
     global needed_media_list
     global unwanted_media_list
+    global stop_timeout
     monitor_udev = pyudev.Monitor.from_netlink(context_udev)
     monitor_udev.filter_by('block')  # get only block information
     monitor_udev.start()
     async_monitor_udev = media.UdevThreadMonitor(monitor_udev, machine, flag_usb_plugged)
     async_monitor_udev.start()
-    # TODO get the needed media list from scenario
-    # from_scenario_wanted = settings.get("temp", "wanted_media")
     from_scenario_wanted = None
     while from_scenario_wanted is None:
         from_scenario_wanted = functions.get_wanted_media()
@@ -78,19 +90,32 @@ def init(flag):
             break
         else:
             time.sleep(1)
-    needed_media_list = media.MediaList()         # here come the media list
+    needed_media_list = media.MediaList()  # here come the media list
     for f in from_scenario_wanted:
         fmedia = media.Media.from_scenario(f)
-        if isinstance(fmedia, media.Media):       # Check if the file exist ?
+        if isinstance(fmedia, media.Media):  # Check if the file exist ?
             needed_media_list.append(fmedia)
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
     flag = flag_init_end.get()
     flag.args["timeout"] = settings.get("sync", "timeout_wait_syncflag")
     machine.append_flag(flag)
+    stop_timeout.clear()
 
 
 def _pass(flag):
     pass
+
+
+def append_send_list_timeout():
+    """
+    This function append a send list time out flag and recron itself
+    :return:
+    """
+    if stop_timeout.is_set():
+        log.log("debug", "Stop send list media timeout")
+    else:
+        machine.append_flag(flag_timeout_send_list.get())
+        network_scheduler.enter(settings.get("sync", "timeout_media_version"), append_send_list_timeout)
 
 
 def update_needed_list(flag):
@@ -108,10 +133,10 @@ def update_needed_list(flag):
             break
         else:
             time.sleep(1)
-    needed_media_list = media.MediaList()         # here come the media list
+    needed_media_list = media.MediaList()  # here come the media list
     for f in from_scenario_wanted:
         fmedia = media.Media.from_scenario(f)
-        if isinstance(fmedia, media.Media):       # Check if the file exist ?
+        if isinstance(fmedia, media.Media):  # Check if the file exist ?
             needed_media_list.append(fmedia)
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
 
@@ -152,7 +177,7 @@ def trans_does_flag_newer(flag):
         return step_update_sync_flag
     else:
         flag.args["target"] = flag.args["src"]
-        return step_send_sync_flag
+        return step_first_send_sync_flag
 
 
 def sync_media_on():
@@ -205,7 +230,7 @@ def does_want_media(media, needed_list):
     :param needed_list: List of media needed in scenario
     :return: True if need, False instead
     """
-    pass        # UNUSED ?
+    pass  # UNUSED ?
 
 
 def trans_need_media_in(flag):
@@ -243,7 +268,9 @@ def trans_enought_place(flag):
     :return:
     """
     flag.args["free_space"] = get_fs_media_free_space() - settings.get("sync", "protected_space")
-    log.log("raw", "Does have enought place is fs ? (free : {0} Ko, file : {1} Ko)".format(flag.args["free_space"], flag.args["get_media"].filesize))
+    log.log("raw", "Does have enought place is fs ? (free : {0} Ko, file : {1} Ko)".format(flag.args["free_space"],
+                                                                                           flag.args[
+                                                                                               "get_media"].filesize))
     if flag.args["get_media"].filesize < flag.args["free_space"]:
         log.log("raw", "Enought place, continue copy..")
         return flag.args["trans_free"]
@@ -283,7 +310,7 @@ def remove_media(flag):
         log.error("There is no left media to remove")
         return None
     media_to_remove = unwanted_media_list.get_smaller_media()
-    unwanted_media_list.remove(media_to_remove)   # Assume delete or undeletable
+    unwanted_media_list.remove(media_to_remove)  # Assume delete or undeletable
     if not media_to_remove.remove_from_fs():
         log.error("Unable to remove {0}".format(media_to_remove))
 
@@ -322,15 +349,76 @@ def error_function(flag):
     # TODO implement prompt on monitor
 
 
+def trans_does_network_sync_enabled(flag):
+    """
+    Check if sync is enabled
+    :param flag:
+    :return:
+    """
+    if settings.get("sync", "enabled") and settings.get("sync", "media"):
+        if flag.args["path"] == msg_media_version.path:
+            flag.args["files_to_test"] = media.MediaList()
+            try:
+                ssh_user = flag.args["args"].pop(0)
+                distant_media_path = flag.args["args"].pop(0)
+                for i in range(len(flag.args["args"]) / 3):
+                    flag.args["files_to_test"].append(
+                        media.Media.from_osc(flag.args["args"].pop(0),  # Rel path
+                                             flag.args["args"].pop(0),  # Mtime
+                                             flag.args["args"].pop(0),  # Filesize
+                                             ssh_user + "@" + flag.args["src"].get_hostname(),
+                                             distant_media_path))
+            except (IndexError, TypeError) as e:
+                log.error("OSC media version message uncorectly formated : {0}".format(flag.args))
+                log.exception(log.show_exception(e))
+            else:
+                flag.args["trans_enough_place"] = trans_enought_place
+                flag.args["trans_end"] = step_main_wait
+                flag.args["trans_free"] = step_put_media_on_fs
+                flag.args["trans_full"] = trans_can_free
+                return trans_need_media_in
+    return step_main_wait
+
+
+def send_media_list(flag):
+    """
+    This function send our media list into the network
+    :param flag:
+    :return:
+    """
+    args_list = list()
+    args_list.append(getpass.getuser())                 # username
+    args_list.append(settings.get("path", "media"))     # media path
+    for f in needed_media_list:
+        args_list.append(*f.get_osc_repr())             # Add all needed media
+    for f in unwanted_media_list:
+        args_list.append(*f.get_osc_repr())             # Add all other media available
+    message.send(message.Address("255.255.255.255"), msg_media_version.get(args_list))
+
+
+def update_sync_flag(flag):
+    """
+    This function save the sync flag !! NOT IMPLEMENTED !!
+    :param flag:
+    :return:
+    """
+    # NOT IMPLEMENTED #
+    pass
+
+
 step_main_wait = fsm.State("STEP_MAIN_WAIT", function=_pass, transitions={})
 
+step_first_send_sync_flag = fsm.State("STEP_FIRST_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
+    flag_timeout.uid: step_main_wait,  # TODO : Go to first sync instead of main wait
+    msg_sync_flag.flag_name: trans_does_flag_newer  # TODO : Implement newer sync flag ?
+})
+
 step_send_sync_flag = fsm.State("STEP_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
-    flag_timeout.uid: step_main_wait,              # TODO : Go to first sync instead of main wait
-    # msg_sync_flag.flag_name: "ERROR"        # TODO : Implement newer sync flag ?
+    None: step_main_wait
 })
 
 step_init = fsm.State("INIT_SYNC_MEDIA", function=init, transitions={
-    flag_init_end.uid: step_send_sync_flag
+    flag_init_end.uid: step_first_send_sync_flag
 })
 
 step_put_media_on_fs = fsm.State("STEP_PUT_MEDIA_ON_FS", function=get_media, transitions={
@@ -338,7 +426,7 @@ step_put_media_on_fs = fsm.State("STEP_PUT_MEDIA_ON_FS", function=get_media, tra
 })
 
 step_usb_end_copy = fsm.State("STEP_END_COPY", function=monitor_usb_end_copy, transitions={
-    None: step_main_wait        # TODO : Go to direct send media list via network
+    None: trans_does_network_sync_enabled
 })
 
 step_remove_media = fsm.State("STEP_REMOVE_MEDIA", function=remove_media, transitions={
@@ -353,9 +441,15 @@ step_update_media_list = fsm.State("STEP_UPDATE_MEDIA_LIST", function=update_nee
     None: step_main_wait
 })
 
+step_update_sync_flag = fsm.State("STEP_UPDATE_SYNC_FLAG", function=update_sync_flag, transitions={
+    None: step_main_wait
+})
+
 step_main_wait.transitions = {
     flag_usb_plugged.uid: trans_usb_have_dnc_media,
-    flag_update_media_list.uid: step_update_media_list
+    flag_update_media_list.uid: step_update_media_list,
+    msg_sync_flag.flag_name: trans_does_flag_newer,
+
     # TODO implement the other transitions
 }
 

@@ -6,9 +6,10 @@
 #
 import os
 from _classes import ExternalProcess, module
-from modules import link
+from modules import link, exposesignals                         
 from engine.setting import settings
 from engine.log import init_log
+from libs import rtplib
 log = init_log("audio")
 
 
@@ -18,20 +19,20 @@ log = init_log("audio")
 class VlcAudio(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'vlcaudio')
-        self.onClose = "AUDIO_EVENT_CLOSE"
+        self.onClose = "AUDIO_END"
         self.start()
 
     def play(self, filename=None, repeat=None):
         media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
-            self.say("clear")
+            #self.say("clear")
             self.say("add {media}".format(media=self.media))
             if repeat is not None:
                 self.repeat = repeat
                 switch = 'on' if self.repeat else 'off'
                 self.say("repeat {switch}".format(switch=switch))
-            self.say("pause")
+            #self.say("pause")
         else:
             log.warning("Media File not found {0}".format(media))
 
@@ -41,6 +42,10 @@ class VlcAudio(ExternalProcess):
     def pause(self):
         self.say("pause")
 
+    Filters = {
+        'AUDIO_END': [True]
+    }
+
 
 # MPG123 AUDIO PLAYER CLASS
 ## FILE2FILE: BAD
@@ -49,7 +54,7 @@ class VlcAudio(ExternalProcess):
 class Mpg123(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'mpg123')
-        self.onClose = "AUDIO_EVENT_STOP"
+        self.onClose = "AUDIO_END"
 
     def play(self, filename=None, repeat=None):
         media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
@@ -67,6 +72,12 @@ class Mpg123(ExternalProcess):
     def pause(self):
         self.say("s")
 
+    Filters = {
+        'AUDIO_END': [True]
+    }
+
+exposesignals(Mpg123.Filters)
+
 
 # ETAPE AND SIGNALS
 @module('AudioPlayer')
@@ -75,8 +86,8 @@ class Mpg123(ExternalProcess):
         "/audio/stop": "audio_stop"})
 def audio_player(flag, **kwargs):
     if "audio" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["audio"] = Mpg123()
-        #kwargs["_fsm"].vars["audio"] = VlcAudio()
+        #kwargs["_fsm"].vars["audio"] = Mpg123()
+        kwargs["_fsm"].vars["audio"] = VlcAudio()
 
 
 @link({None: "audio_player"})
@@ -85,7 +96,11 @@ def audio_play(flag, **kwargs):
     # repeat = flag.args["oscargs"][1] if len(flag.args["oscargs"]) >= 2 else None
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
-    kwargs["_fsm"].vars["audio"].play(media, repeat)
+    if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args: 
+        rtplib.wait_abs_time(*flag.args['abs_time_sync'])
+        kwargs["_fsm"].vars["audio"].play(media, repeat)
+        log.debug('+++ SYNC PLAY')
+    
     kwargs["_etape"].preemptible.set()
 
 

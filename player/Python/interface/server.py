@@ -33,7 +33,7 @@ staticpath = os.path.dirname(os.path.realpath(__file__))+'/www/'
 scenariopath = settings.get("path", "activescenario")
 if not os.path.exists(scenariopath):
     try:
-        os.mkdir(scenariopath)
+        os.makedirs(scenariopath)
     except OSError as e:
         log.exception(log.show_exception(e))
 mediapath = settings.get("path", "media")
@@ -56,17 +56,23 @@ def medialist():
     path = settings.get('path', 'video')
     if isdir(path):
         for f in listdir(path):
-            answer['video'].append(f)
+            if f[0] != '.':
+                answer['video'].append(f)
 
     path = settings.get('path', 'audio')
     if isdir(path):
         for f in listdir(path):
-            answer['audio'].append(f)
+            if f[0] != '.':
+                answer['audio'].append(f)
 
     path = settings.get('path', 'text')
     if isdir(path):
         for f in listdir(path):
-            answer['txt'].append(f)
+            if f[0] != '.':
+                answer['txt'].append(f)
+
+    for i, liste in answer.items():
+        answer[i] = sorted(liste)
 
     return sendjson(answer)
 

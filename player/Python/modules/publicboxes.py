@@ -1,7 +1,10 @@
+import time
+
 from engine.threads import patcher
 from engine.fsm import Flag
 from engine.log import init_log
 from engine.setting import settings
+from engine.tools import search_in_or_default
 from modules import publicbox
 log = init_log("publicbox")
 
@@ -34,3 +37,25 @@ def start(flag, **kwargs):
             concerned = True
     if not concerned:
         kwargs['_fsm'].stop()
+
+
+@publicbox('[ ]')
+def wait(flag, **kwargs):
+    '''
+    START Box: for concerned DEST only
+    '''
+    pass
+
+
+@publicbox('[duration]')
+def delay(flag, **kwargs):
+    """
+    This function (box) delay for a givent time and be ready for a transition after that
+    :param flag:
+    :param kwars:
+    :return:
+    """
+    duration = search_in_or_default("duration", kwargs['args'], default=0)
+    time.sleep(float(duration))
+
+

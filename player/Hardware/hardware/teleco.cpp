@@ -18,11 +18,13 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 #include <stdlib.h>
+#include <string>
+
 
 
 void Teleco::initCarte(char pow){
   localpoweroff=pow;
-  fprintf(stderr, "add teleco dnc\n");
+  fprintf(stderr, "teleco - add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
 }
@@ -32,9 +34,23 @@ int Teleco::fisrtView(){
 }
 
 void Teleco::start(){
-  fprintf(stderr, "teleco start\n");
+  fprintf(stderr, "teleco - teleco start\n");
   uninit=0;
-  writeValue(T_LEDRVALUE,1);
+  setLedWarning(0);
+}
+
+void Teleco::reset(){
+  fprintf(stderr, "teleco - teleco reset\n");
+  setLedWarning(1);
+  writeValue(T_INIT,0);
+}
+
+void Teleco::setLedOk(int val){
+  writeValue(T_LEDOKVALUE,val);
+}
+
+void Teleco::setLedWarning(int val){
+  writeValue(T_LEDRVALUE,1-val);
 }
 
 
@@ -54,11 +70,12 @@ void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
   for(int i=0;i<16;i++){
     buff[i+49]= *(Str4+i);
   }
-  fprintf(stderr, "teleco send infos : %s\n",buff);
+  fprintf(stderr, "teleco - teleco send infos : %s\n",buff);
   SPIcarte.send(0,buff,68);
 }
 
 void Teleco::sendPopUp(char Str1[], char Str2[]){
+  setLedWarning(1);
   unsigned char buff[35];
   buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
   for(int i=0;i<16;i++){
@@ -67,23 +84,24 @@ void Teleco::sendPopUp(char Str1[], char Str2[]){
   for(int i=0;i<16;i++){
     buff[i+17]= *(Str2+i);
   }
-  fprintf(stderr, "teleco send popup : %s\n",buff);
+  fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
   SPIcarte.send(0,buff,34);
-  
+  setLedWarning(0);
 }
 
 
 int Teleco::readInterrupt(){
+  setLedWarning(1);
   unsigned char buff[2];
   buff[0]= (char)(READCOMMAND+T_INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "read i %u\n",buff[1]);
+  fprintf(stderr, "teleco - read i %u\n",buff[1]);
   int address = buff[1];
   buff[0]= (char)(READCOMMAND+address);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "read v %u\n",buff[1]);
+  fprintf(stderr, "teleco - read v %u\n",buff[1]);
   int valeur = buff[1];
   switch (address) {
     case T_PUSHA:
@@ -137,4 +155,5 @@ int Teleco::readInterrupt(){
       uninit=1;
       break;
   }
+  setLedWarning(0);
 }
