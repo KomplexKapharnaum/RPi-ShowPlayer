@@ -64,7 +64,6 @@ start_flag = fsm.Flag("START", TTL=None)
 next_flag = fsm.Flag("NEXT_SCENE", TTL=None, JTL=None)
 
 step_init = fsm.State("INIT_STATE", function=init)
-#step_readcurrent = fsm.State("READ_CURRENT_FRAME_STATE", function=read_current_frame)
 step_start_scene = fsm.State("START_SCENE_STATE", function=start_scene)
 step_wait = fsm.State("WAIT_STATE", function=_pass)
 step_change = fsm.State("CHANGE_FRAME_STATE", function=change_frame)

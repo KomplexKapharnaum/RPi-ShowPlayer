@@ -130,11 +130,24 @@ def clear_scenario():
     scenario.init_declared_objects()
 
 
+def get_scenario(name):
+    path = os.path.join(settings.get("path", "scenario"), 'scenario_'+name+'.json')
+    return parse_file(path)
 
 
+def get_timeline(name):
+    path = os.path.join(settings.get("path", "scenario"), 'timeline_'+name+'.json')
+    return parse_file(path)['pool']
 
-def parse_customdevices(pool):
-    for device in pool:
+
+def get_library(name):
+    path = os.path.join(settings.get("path", "scenario"), 'library_'+name+'.json')
+    return parse_file(path)
+
+
+def parse_customdevices(name):
+    parsepool = get_timeline(name)
+    for device in parsepool:
         importDevice = {
             "ID" : device['name'],
             "MODULES" : [],
@@ -142,7 +155,7 @@ def parse_customdevices(pool):
             "PATCH_OUT_NUM" : [],
             "PATCH_IN_ANA" : [],
             "PATCH_OUT_ANA" : [],
-            "MANAGERS" : ["VIDEO_PLAYER", "AUDIO_PLAYER", "KXKM_CARD"],#device['modules'], #TODO
+            "MANAGERS" : device['modules'],
             "OTHER_PATCH" : []
         }
         parse_device(importDevice)
@@ -153,21 +166,30 @@ def parse_customdevices(pool):
         parse_carte(importCarte)
 
 
-def parse_customtimeline(parsepool):
+def parse_customtimeline(name):
     Sceno = dict()
+    parsepool = get_timeline(name)
     for device in parsepool:
-        for block in device["blocks"]:
+        for block in device["blocks"]: 
+            SC = {
+                    "carte": device['name'],
+                    "scenarios": block['scenarios'],
+                    "etapes": [],
+                    "start": block['start'],
+                    "end": block['end']
+                }
+            #FIND START ETAPE FOR EACH ACTIVATED SCENARIO IN THE SCENE
+            for scenario in block['scenarios']:
+                scenard = get_scenario(scenario)
+                for box in scenard['origins']:
+                    boxname = (scenario+'_'+box).upper()
+                    SC['etapes'].append(boxname)
+            # ADD SCENE
             scene_name = block['scene']['name']
             if scene_name not in Sceno.keys():
                 Sceno[scene_name] = []
-            # PARSE Scenario files, and get start etapes !
-            Sceno[scene_name].append({
-                    "carte": device['name'],
-                    "scenarios": block['scenarios'],
-                    "etapes": [],   #TODO
-                    "start": block['start'],
-                    "end": block['end']
-                })
+            Sceno[scene_name].append(SC)
+
 
     # Import SCENES
     for name, sceneDevices in Sceno.items():
@@ -204,10 +226,9 @@ def parse_customtimeline(parsepool):
                 before = scene["scene"]
 
 
-def parse_customlibrary(filename):
-    path = os.path.join(settings.get("path", "scenario"), filename)
-    jobject = parse_file(path)
-    for fn in jobject:
+def parse_customlibrary(name):
+    libs = get_library(name)
+    for fn in libs:
         importFn = {
             "ID" : fn['category']+'_'+fn['name']+'_USERFUNC',
             "CODE" : [
@@ -217,26 +238,26 @@ def parse_customlibrary(filename):
         parse_function(importFn)
 
 
-def parse_customscenario(filename):
-    path = os.path.join(settings.get("path", "scenario"), filename)
-    jobject = parse_file(path)
+def parse_customscenario(name):
+    jobject = get_scenario(name)
     importEtapes = {}
     for box in jobject['boxes']:
         etapename = box['category']+'_'+box['name']
-        
+        boxname = (name+'_'+box['boxname']).upper()
+
         # Prebuild Etape "SEND SIGNAL"
         if 'SEND_'+etapename in pool.Etapes_and_Functions.keys():
             etape = pool.Etapes_and_Functions['SEND_'+etapename].get()
-            etape.uid = box['boxname'].upper()
+            etape.uid = boxname
             if 'allArgs' in box:
                 etape.actions[0][1]["args"] = box['allArgs']
-            importEtapes[box['boxname']] = etape
+            importEtapes[etape.uid] = etape
         
         # Parsed function from JSON
         elif etapename+'_USERFUNC' in pool.Etapes_and_Functions.keys():
             fn = pool.Etapes_and_Functions[box['category']+'_'+box['name']+'_USERFUNC']
-            etape = classes.Etape(box['boxname'].upper(), actions=((fn, {'args':None}),))
-            importEtapes[box['boxname']] = etape
+            etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
+            importEtapes[etape.uid] = etape
         else:
             log.log('warning', 'Can\'t create '+etapename)
 

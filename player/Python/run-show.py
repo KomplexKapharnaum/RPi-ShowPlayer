@@ -36,12 +36,10 @@ try:
 
     parsing.clear_scenario()
 
-    basescenario = os.path.join(settings.get("path", "scenario"), "timeline_timeline1.json")
-    mypool = parsing.parse_file(basescenario)['pool']
-    parsing.parse_customdevices(mypool)
-    parsing.parse_customlibrary("library_library.json")
-    parsing.parse_customscenario("scenario_play_btn.json")
-    parsing.parse_customtimeline(mypool)
+    parsing.parse_customdevices("timeline1")
+    parsing.parse_customlibrary("library")
+    parsing.parse_customscenario("play_btn")
+    parsing.parse_customtimeline("timeline1")
 
     if settings["uName"] in pool.Cartes.keys():
         pool.Cartes[settings["uName"]].device.launch_manager()
@@ -54,7 +52,7 @@ try:
 
     while True:
         try:
-            c = raw_input("$ :")
+            c = raw_input("")
         except Exception as e:      # For no shell env
             time.sleep(10)
             continue

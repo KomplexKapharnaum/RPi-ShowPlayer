@@ -8,7 +8,7 @@ import os
 
 from modules import ExternalProcess
 from engine.setting import settings
-from scenario import link
+from scenario import link, module
 from engine.log import init_log
 log = init_log("video")
 
@@ -55,6 +55,7 @@ class VlcPlayer(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
+@module()
 @link({"/video/play [media] [repeat]": "video_play",
         "/video/pause": "video_pause",
         "/video/stop": "video_stop"})

@@ -3,7 +3,7 @@ import sys
 import os
 from os import listdir
 from os.path import isfile, join
-from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS
+from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_MANAGERS
 from engine.log import init_log, dumpclean
 log = init_log("webserver")
 
@@ -78,11 +78,16 @@ def librarylist():
     return sendjson(answer)
 
 
+@app.route('/moduleslist')
+def moduleslist():
+    return sendjson(DECLARED_MANAGERS.keys())
+
+
 
 # TEST Json save
-@app.route('/test')
-def test():
-    return '<form action="/save/test.json" method="post">Json <input type="text" name="content" /><input type="submit" value="Save" /></form>'
+# @app.route('/test')
+# def test():
+#     return '<form action="/save/test.json" method="post">Json <input type="text" name="content" /><input type="submit" value="Save" /></form>'
 
 
 @app.route('/_TIMELINE/data/save.php', method='POST')

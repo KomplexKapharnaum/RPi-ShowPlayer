@@ -4,7 +4,7 @@
 #
 #
 from modules import ExternalProcess
-from scenario import link, exposesignals
+from scenario import link, exposesignals, module
 from engine.log import init_log, dumpclean
 from engine.setting import settings
 from libs.oscack.utils import get_ip
@@ -55,6 +55,7 @@ exposesignals(KxkmCard.setFilters())
 
 
 # ETAPE AND SIGNALS
+@module()
 @link({"KXKMCARD_EVENT": "kxkm_card_event",
        "/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur"})
 def kxkm_card(flag, **kwargs):
