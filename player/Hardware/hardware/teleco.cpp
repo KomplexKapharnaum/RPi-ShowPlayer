@@ -42,8 +42,8 @@ int Teleco::fisrtView(){
 void Teleco::start(){
   fprintf(stderr, "\x1b[32mteleco - teleco start\n\x1b[0m");
   uninit=0;
-  setLedWarning(0);
   writeValue(T_INIT,1);
+  setLedWarning(0);
 }
 
 //reset remote

@@ -136,16 +136,16 @@ int parseInput(string input){
       fprintf(stderr, "main - teleco need start\n");
       myteleco.needstart=0;
       sendStatusTeleco();
-      delay(20);
+      delay(2);
       for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
         char mess1[17];
         char mess2[17];
         strncpy(mess1, popup[i][0].c_str(), sizeof(mess1));
         strncpy(mess2, popup[i][1].c_str(), sizeof(mess2));
         myteleco.sendString(mess1,mess2,i);
-        delay(10);
+        delay(2);
       }
-      delay(20);
+      delay(2);
       myteleco.start();
     }
 
