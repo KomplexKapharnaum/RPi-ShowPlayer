@@ -38,10 +38,10 @@ try:
     oscack.start_protocol()
 
     parsing.clear_scenario()
-    parsing.parse_customdevices("timeline1")
-    parsing.parse_customlibrary("library")
-    parsing.parse_customscenario("play_btn")
-    parsing.parse_customtimeline("timeline1")
+    # parsing.parse_customdevices("timeline1")
+    # parsing.parse_customlibrary("library")
+    # parsing.parse_customscenario("play_btn")
+    # parsing.parse_customtimeline("timeline1")
 
     if settings["uName"] in pool.Cartes.keys():
         pool.Cartes[settings["uName"]].device.launch_manager()
