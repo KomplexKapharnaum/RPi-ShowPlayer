@@ -17,11 +17,11 @@ def initHw(card, cmd):
         'initconfig -titreurNbr 1 -carteVolt 24 -name {name} -ip {ip}'
         .format(name=settings.get("uName"), ip=get_ip()))
 
-def btnUp(card, cmd):
+def btnDown(card, cmd):
     if float(cmd[1]) > 0:
         return True
 
-def btnDown(card, cmd):
+def btnUp(card, cmd):
     if float(cmd[1]) == 0:
         return True
 
@@ -38,10 +38,13 @@ class KxkmCard(ExternalProcess):
     def setFilters():
         return {
             'INITHARDWARE': [initHw],
-            'CARTE_PUSH_1': [btnUp, True],
-            'CARTE_PUSH_2': [btnUp, True],
-            'CARTE_PUSH_3': [btnUp, True],
-            'CARTE_FLOAT': [btnUp, True]
+            'CARTE_PUSH_1': [btnDown, True],
+            'CARTE_PUSH_2': [btnDown, True],
+            'CARTE_PUSH_3': [btnDown, True],
+            'CARTE_FLOAT': [btnDown, True],
+            'TELECO_PUSH_OK': [btnDown, True],
+            'TELECO_PUSH_B': [btnDown, True],
+            'TELECO_PUSH_A': [btnDown, True]
         }
 
     # def signals(self, cmd, args):
