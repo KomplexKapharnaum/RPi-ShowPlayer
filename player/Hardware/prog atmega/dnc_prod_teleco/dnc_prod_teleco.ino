@@ -245,15 +245,19 @@ void checkStringReceive() {
   if (command == 0 && adress == T_STRING) {
     buf [pos] = 0;
     Serial.println (buf);
-        //lcd.clear();
+        
+        
+    if(buf[0]=='0'){
+      lcd.clear();
+    }
     if(buf[0]=='1'){
       memcpy( line1, &buf[1], 16 );
       lcd.setCursor(0, 0);
       lcd.print(line1);
     }
-    if(buf[0]=='1'){
-      memcpy( line1, &buf[1], 16 );
-      lcd.setCursor(1, 0);
+    if(buf[0]=='2'){
+      memcpy( line2, &buf[1], 16 );
+      lcd.setCursor(0, 1);
       lcd.print(line2);
     }
     pos = 0;

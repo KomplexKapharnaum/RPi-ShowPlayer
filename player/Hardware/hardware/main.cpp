@@ -56,6 +56,8 @@ void myInterruptTELECO(void) {
     float v = tension;
     v=v/10;
     char mess[17];
+    fprintf(stderr, "_",mess);
+    myteleco.sendString(mess,0);
     delay(5);
     fprintf(stderr, "%u,%.1f\n",tension,v);
     sprintf(mess,"%s",carte_name.c_str());

@@ -39,7 +39,9 @@ void Teleco::sendString(char Str1[], int line){
   fprintf(stderr, "send %s\n",Str1);
   unsigned char buff[18];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
-  if (line==2)buff[1]='2';else buff[1]='1';
+  if (line==2)buff[1]='2';
+  if (line==1)buff[1]='1';
+  if (line==0)buff[0]='0';
   for(int i=0;i<16;i++){
     buff[i+2]= *(Str1+i);
   }
