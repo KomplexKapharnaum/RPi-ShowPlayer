@@ -68,12 +68,15 @@ def scene_control(flag, **kwargs):
 def scene_restart(flag, **kwargs):
     log.error("flag : {0}, kwargs : {1}".format(flag, kwargs))
     new_flag = fsm.Flag("SCENE_START")
+    already_dest = False
     dest = list()
     if 'args' in flag.args.keys():
         dest += flag.args['args']
+        already_dest = True
     if 'dest' in flag.args.keys():
         dest += flag.args['dest']
-    if len(dest) == 0:
+        already_dest = True
+    if not already_dest:
         dest = ["Self", ]
         if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
             dest = [flag.args['args'][0], ]
@@ -103,12 +106,15 @@ def scene_prev(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME > 0:
             scenario.CURRENT_FRAME -= 1
+        already_dest = False
         dest = list()
         if 'args' in flag.args.keys():
             dest += flag.args['args']
+            already_dest = True
         if 'dest' in flag.args.keys():
             dest += flag.args['dest']
-        if len(dest) == 0:
+            already_dest = True
+        if not already_dest:
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
@@ -125,12 +131,15 @@ def scene_next(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME < (len(scenario.pool.Frames) - 1):
             scenario.CURRENT_FRAME += 1
+        already_dest = False
         dest = list()
         if 'args' in flag.args.keys():
             dest += flag.args['args']
+            already_dest = True
         if 'dest' in flag.args.keys():
-                dest += flag.args['dest']
-        if len(dest) == 0:
+            dest += flag.args['dest']
+            already_dest = True
+        if not already_dest:
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]

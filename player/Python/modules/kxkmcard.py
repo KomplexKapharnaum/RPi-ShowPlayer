@@ -535,7 +535,7 @@ def init_kxkm_card(flag, **kwargs):
     :param flag:
     :return:
     """
-    if "kxkmcard" not in kwargs["_fsm"].vars.keys():
+    if "kxkmcard" not in kwargs["_fsm"].vars.keys() and settings.get("sys", "raspi"):
         kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
         kwargs["_fsm"].vars["kxkmcard"].start()
 

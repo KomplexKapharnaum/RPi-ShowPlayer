@@ -14,8 +14,8 @@ from libs import subprocess32
 
 log = init_log("setting")
 
-# DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
-DEFAULT_SETTING_PATH = "~/dnc_settings/"
+DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+# DEFAULT_SETTING_PATH = "~/dnc_settings/"
 
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
@@ -204,7 +204,7 @@ DEFAULT_SETTING["log"]["teleco"]["active"] = False  # Unactive log teleco
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5  # Block 1.5 s for assure error displaying
 DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 2  # Block 1.5 s before displaying an other message
 DEFAULT_SETTING["log"]["teleco"]["linelength"] = 16  # Number of char per line
-DEFAULT_SETTING["log"]["teleco"]["level"] = "error"  # For the teleco
+DEFAULT_SETTING["log"]["teleco"]["level"] = "critical"  # For the teleco
 
 DEFAULT_SETTING["perf"] = dict()
 DEFAULT_SETTING["perf"]["enable"] = True  # Enable FSM register (need for history)

@@ -82,8 +82,9 @@ class globaletape(object):
         if len(signal) > 0:
             signal = signal[0]
             def fn(flag, *args, **kwargs):
-                if 'args' in kwargs.keys():
-                    kwargs['args'] = parse_args_etape_function(kwargs['args'], signal['args'], signal['types'], signal['default'])
+                # if 'args' in kwargs.keys():
+                #     kwargs['args'] = parse_args_etape_function(kwargs['args'], signal['args'], signal['types'], signal['default'])
+                flag.args = parse_args_etape_function(flag.args, signal['args'], signal['types'], signal['default'])
                 return f(flag, *args, **kwargs)
         else:
             fn = f
@@ -160,7 +161,10 @@ def parse_args_etape_function(kwargs, args, types, default):
     log.debug("Pre-parse {0} for {1} types {2} default {3}".format(kwargs, args, types, default))
     for arg_n in xrange(len(args)):
         arg_name = args[arg_n]
-        type_name = types[arg_n]
+        if arg_n < len(types):
+            type_name = types[arg_n]
+        else:
+            type_name = "none"
         if arg_name not in kwargs.keys():
             if arg_name != "dispo":
                 log.log("warning", "search for {0} in parameters but not found in {1}".format(arg_name, kwargs))
