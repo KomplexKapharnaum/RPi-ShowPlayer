@@ -48,15 +48,15 @@ void sendStatusTeleco(){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
-  delay(40);
+  delay(2);
   sprintf(mess1,"git %s",status.c_str());
   sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
   myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
-  delay(10);
+  delay(2);
   sprintf(mess1,"%s",carte_name.c_str());
   sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
   myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
-  delay(10);
+  delay(2);
   sprintf(mess1,"%.1fV %s",tension,scene.c_str());
   sprintf(mess2,"%s",buttonline.c_str());
   myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);

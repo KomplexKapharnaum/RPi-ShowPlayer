@@ -192,7 +192,7 @@ ISR (SPI_STC_vect)
     if (command == WRITECOMMANDVALUE) {
       Serial.print  ("wv ");
       Serial.println (adress);
-      newValue[adress] = c;
+      if(adress<REGISTERSIZE)newValue[adress] = c;
       if (adress < DECINPIN)fadeInterval[adress] = 0;
       command = 1;
       SPDR = 0;
@@ -219,7 +219,7 @@ ISR (SPI_STC_vect)
   }
   //renvoie la valeur enregistree
   if (command == READCOMMAND) {
-    SPDR = Value[adress];
+    if(adress<REGISTERSIZE)SPDR = Value[adress];
     command = 1;
     if (inputRange(adress) || adress==UBATT) {
       freeInterrupt();
@@ -237,7 +237,7 @@ ISR (SPI_STC_vect)
 void loop (void) {
 
   // if SPI not active, clear current command
-  if (digitalRead (SS) == HIGH  || adress>=REGISTERSIZE) command = 0;
+  if (digitalRead (SS) == HIGH) command = 0;
 
   //verification changement de valeur
   if (command == 0) {
