@@ -251,7 +251,7 @@ int parseInput(string input){
     }else{
       fprintf(stderr, "main - error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
     }
-    if ("S"==parsedInput) {
+    if ("DEBUG"==parsedInput) {
       //get false init for debug purpose
       fprintf(stderr, "main - overpass standard debug init\n");
       mytitreur.initTitreur(6,MODULE_24x16);
