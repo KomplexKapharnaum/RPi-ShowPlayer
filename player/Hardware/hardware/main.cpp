@@ -114,7 +114,7 @@ int parseInput(string input){
   }
 
   if (input=="interrupt_teleco") {
-    fprintf(stderr, "main - interrupt from teleco\n");
+    //fprintf(stderr, "main - interrupt from teleco\n");
     if (myteleco.fisrtView()){
       delay(20);
       //fprintf(stderr, "main - delaypass\n");
@@ -158,7 +158,7 @@ int parseInput(string input){
   }
   
   if (input=="initcarte_local") {
-    //fprintf(stderr, "main - init teleco with local poweroff\n");
+    fprintf(stderr, "main - init teleco with local poweroff\n");
     myteleco.initCarte(1);
     produce(q,"check_teleco_on_start");
     delay(10);
