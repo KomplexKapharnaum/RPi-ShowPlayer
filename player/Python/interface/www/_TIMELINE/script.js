@@ -2,8 +2,8 @@
   $(function() {
 
 
-		var urlbase = '';
-		//var urlbase = 'http://192.168.0.19:8080';
+		//var urlbase = '';
+		var urlbase = 'http://192.168.0.19:8080';
 
     $('#colonne2').hide();
     setTimeout(function(){

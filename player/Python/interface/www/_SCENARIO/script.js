@@ -35,8 +35,8 @@
 		var mediasLoaded = false;
 
 
-		var urlbase = '';
-		//var urlbase = 'http://192.168.0.19:8080';
+		//var urlbase = '';
+		var urlbase = 'http://192.168.0.19:8080';
 
     $("#signalEdit").hide();
     $('#newBox').hide();
