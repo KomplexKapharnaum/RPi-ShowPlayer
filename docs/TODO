@@ -2,12 +2,11 @@
 MONITOR
 
 => message de monitoring sur demande (devicecontrol)
-- toutes les 10 secondes
 - rajouter le groupe
 - info media sur disque (media need ?) 10/12 par exemple
 - netctl-watchdog status
 
-=> iamalive toutes les secondes (spontané)
+OK => iamalive toutes les secondes (spontané)
 
 => envoyer au devices present des ordres OSC
 - /scene/goto /scene/..
