@@ -12,7 +12,7 @@ from os.path import isfile, join
 import engine
 from engine import fsm
 from scenario import classes, pool
-from modules import DECLARED_PUBLICBOXES
+from modules import DECLARED_PUBLICBOXES, MODULES
 from scenario.userscope import *
 from engine.setting import settings
 from operator import itemgetter
@@ -93,20 +93,20 @@ def boxname(scenarioname, box):
 
 # 1: DEVICES
 def parse_devices(parsepool):
-    import modules
+    # DEVICES // CARTES
     for device in parsepool:
-        # DEVICES // CARTES
-        managers = dict()
         patchs = list()
-        for module in device['modules']:
-            if module in modules.MODULES.keys():
-                etape = modules.MODULES[module]['init_etape']
-                managers[etape] = pool.Etapes_and_Functions[etape]
         # for patch in importDevice["OTHER_PATCH"]:
         #     patchs.append(pool.Patchs[patch])
-        d = classes.Device(device['name'], [], patchs, managers)  # TODO : End correct parsing !
-        pool.Devices[device['name']] = d
-        pool.Cartes[device['name']] = classes.Carte(device['name'], d)
+        modules = dict()
+        for m in device['modules']:
+            if m in MODULES.keys():
+                #log.debug('pool list: {0}'.format(pool.Etapes_and_Functions.keys()))
+                modules[m] = MODULES[m]
+            else:
+                log.warning('Unknown device module: {0}'.format(m))
+        pool.Devices[device['name']] = classes.Device(device['name'], patchs, modules)
+        pool.Cartes[device['name']] = classes.Carte(device['name'], pool.Devices[device['name']])
         log.log('raw', "ADD CARTE {0}".format(pool.Cartes[device['name']]))
 
 

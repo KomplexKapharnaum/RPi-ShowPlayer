@@ -73,7 +73,7 @@ class globaletape(object):
         global DECLARED_ETAPES, DECLARED_TRANSITION
         DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
         DECLARED_TRANSITION[self.uid] = self.transitions
-        return self.uid
+        return DECLARED_ETAPES[self.uid]
 
 
 class publicbox(object):

@@ -39,7 +39,6 @@ def clear():
 def load():
     import functions
     import modules
-    import intercom
     from modules import DECLARED_ETAPES, DECLARED_FUNCTIONS, DECLARED_SIGNALS, DECLARED_PATCHER, DECLARED_TRANSITION, DECLARED_OSCROUTES, DECLARED_PUBLICBOXES
     from scenario.classes import Patch, Etape
     from engine.fsm import Flag
@@ -60,8 +59,8 @@ def load():
         #..
         # Create Etape Senders for OSCROUTES
         fn_sgn_sender = Etapes_and_Functions["ADD_SIGNAL"]
-        fn_auto_transit = Etapes_and_Functions["TRANSIT_AUTO"]
-        fn_auto_transit_clean = Etapes_and_Functions["TRANSIT_CLEAN"]
+        # fn_auto_transit = Etapes_and_Functions["TRANSIT_AUTO"]
+        # fn_auto_transit_clean = Etapes_and_Functions["TRANSIT_CLEAN"]
         for path, route in DECLARED_OSCROUTES.items():
             # AUTO TRANSIT BACK
             # etape_sender = Etape('SEND_'+route['signal'], actions=[(fn_sgn_sender, {'signal':route['signal']}),

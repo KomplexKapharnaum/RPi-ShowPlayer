@@ -22,7 +22,7 @@ def sendSignal(flag, **kwargs):
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
     signal = Flag(signal_uid, TTL=1, JTL=3)
     patcher.patch(signal.get(dict(kwargs["args"])))
-    log.log("debug", "SEND BOX : "+signal_uid)
+    log.log("raw", "SEND BOX : "+signal_uid)
 
 
 @publicbox('[dispo]', start=True)
@@ -30,7 +30,7 @@ def start(flag, **kwargs):
     '''
     START Box: for concerned DEST only
     '''
-    log.log("debug", "START BOX")
+    log.log("raw", "START BOX")
     concerned = False
     for dest in kwargs['args']['dest']:
         if dest in ['All', 'Self', 'Group', settings.get('uName')]:

@@ -4,24 +4,39 @@
 #
 
 import os
+import cPickle
 
 CREATE_NEW_PROCESS_GROUP = 512
 
 import libs.oscack
 from libs.oscack import message
-from modules import globalfunction
+from modules import globalfunction, oscpatcher
 from engine.setting import settings
 from engine.threads import scenario_scheduler, patcher
 from scenario import pool
 from engine.fsm import Flag
 from engine.log import init_log
 
-log = init_log("tools")
+log = init_log("functools")
 
 def get_wanted_media():
     if settings.get('uName') in pool.Cartes.keys():
         return pool.Cartes[ settings.get('uName') ].media
     return None
+
+
+@oscpatcher("SIGNAL_FORWARDER")
+def forward_signal(*args, **kwargs):
+    """
+    This function forward signal embeded in OSC message with path /signal
+    :return:
+    """
+    if args[0].args["path"] == '/signal':
+        flag = cPickle.loads(str(bytearray(args[0].args["args"][1])))
+        log.debug('Forwarded signal received {0}'.format(flag.get_info()))
+        patcher.serve(flag)
+    else:
+        return False
 
 @globalfunction("ADD_TIMER")
 def add_timer(*args, **kwargs):

@@ -6,7 +6,8 @@
 #
 import os
 from _classes import ExternalProcess, module
-from modules import link, exposesignals                         
+from modules import link, exposesignals
+from modules.playervideo import VlcPlayerOneShot                         
 from engine.setting import settings
 from engine.log import init_log
 from libs import rtplib
@@ -16,35 +17,12 @@ log = init_log("audio")
 # VLC AUDIO PLAYER CLASS
 ## FILE2FILE: GOOD
 ## LOOP: BAD
-class VlcAudio(ExternalProcess):
-    def __init__(self):
-        ExternalProcess.__init__(self, 'vlcaudio')
-        self.onClose = "AUDIO_END"
-        self.start()
-
-    def play(self, filename=None, repeat=None):
-        media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
-        if os.path.isfile(media):
-            self.media = media
-            #self.say("clear")
-            self.say("add {media}".format(media=self.media))
-            if repeat is not None:
-                self.repeat = repeat
-                switch = 'on' if self.repeat else 'off'
-                self.say("repeat {switch}".format(switch=switch))
-            #self.say("pause")
-        else:
-            log.warning("Media File not found {0}".format(media))
-
-    def stop(self):
-        self.say("stop")
-
-    def pause(self):
-        self.say("pause")
-
+class VlcAudio(VlcPlayerOneShot):
     Filters = {
         'AUDIO_END': [True]
     }
+
+exposesignals(VlcAudio.Filters)
 
 
 # MPG123 AUDIO PLAYER CLASS
@@ -76,8 +54,6 @@ class Mpg123(ExternalProcess):
         'AUDIO_END': [True]
     }
 
-exposesignals(Mpg123.Filters)
-
 
 # ETAPE AND SIGNALS
 @module('AudioPlayer')
@@ -85,33 +61,37 @@ exposesignals(Mpg123.Filters)
         "/audio/pause": "audio_pause",
         "/audio/stop": "audio_stop"})
 def audio_player(flag, **kwargs):
-    if "audio" not in kwargs["_fsm"].vars.keys():
-        #kwargs["_fsm"].vars["audio"] = Mpg123()
-        kwargs["_fsm"].vars["audio"] = VlcAudio()
+    if kwargs["_fsm"].process is None:
+        kwargs["_fsm"].process = VlcAudio()
 
 
 @link({None: "audio_player"})
 def audio_play(flag, **kwargs):
-    # media = flag.args["oscargs"][0] if len(flag.args["oscargs"]) >= 1 else None
-    # repeat = flag.args["oscargs"][1] if len(flag.args["oscargs"]) >= 2 else None
+    kwargs["_fsm"].process.stop()
+    kwargs["_fsm"].process = VlcAudio()
+
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
-    if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args: 
+
+    if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
+        kwargs["_fsm"].process.preload(media, repeat)
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        kwargs["_fsm"].vars["audio"].play(media, repeat)
+        kwargs["_fsm"].process.play()
         log.debug('+++ SYNC PLAY')
-    
+    else:
+        kwargs["_fsm"].process.play(media, repeat)
+
     kwargs["_etape"].preemptible.set()
 
 
 @link({None: "audio_player"})
 def audio_stop(flag, **kwargs):
-    kwargs["_fsm"].vars["audio"].stop()
+    kwargs["_fsm"].process.stop()
 
 
 @link({None: "audio_player"})
 def audio_pause(flag, **kwargs):
-    kwargs["_fsm"].vars["audio"].pause()
+    kwargs["_fsm"].process.pause()
 
     # dest = ["a", "b"]
     # for elem in dest:

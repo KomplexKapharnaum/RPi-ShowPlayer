@@ -6,16 +6,16 @@ MODULES_FSM = dict()
 
 def add_module(name, machine):
     MODULES_FSM[name] = machine
-    _log.debug("LOAD MANAGER :: "+name+" (Auto)")
 
 
-def start_modules():
+def start():
     from modules import DECLARED_ETAPES, MODULES
     for name, modulefsm in MODULES_FSM.items():
-        modulefsm.start(DECLARED_ETAPES[ MODULES[name]['init_etape'] ])
+        modulefsm.start(MODULES[name])
+        _log.info("= MODULE (Engine) :: "+name)
 
 
-def stop_modules():
+def stop():
     for name, modulefsm in MODULES_FSM.items():
         _log.info("--- "+name)
         modulefsm.stop()
