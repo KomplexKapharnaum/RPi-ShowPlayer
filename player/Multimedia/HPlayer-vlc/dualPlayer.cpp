@@ -2,6 +2,22 @@
 #include "vlcPlayer.h"
 #include <unistd.h>
 #include <iostream>
+#include <pthread.h>
+
+
+// DEBUG PREROLL 
+void *watch_end(void* ptr)
+{
+	dualPlayer* self = reinterpret_cast<dualPlayer*>( ptr );
+	//printf("THREAD STARTED\n");
+	bool done = false;
+	while(!done)
+	{
+		if (self->player1->getState() == DONE) self->player1->stop();
+		if (self->player2->getState() == DONE) self->player2->stop();
+		usleep(10000);
+	}
+}
 
 dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks()
 {
@@ -15,9 +31,9 @@ dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks
 	// int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);
  	//printf("-- CREATE INSTANCE\n");
 
-	for (int i = 0; i < vlc_argc; i++) { // Remember argv[0] is the path to the program, we want from argv[1] onwards
-        std::cout << "ARG: " << vlc_argv[i] << "\n";
-    }
+	// for (int i = 0; i < vlc_argc; i++) { // Remember argv[0] is the path to the program, we want from argv[1] onwards
+ //        std::cout << "ARG: " << vlc_argv[i] << "\n";
+ //    }
 
  	this->instance = libvlc_new (vlc_argc, vlc_argv);
  	//printf("-- CREATE PLAYER 1\n");
@@ -25,6 +41,8 @@ dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks
  	//printf("-- CREATE PLAYER 2\n");
  	this->player2 = new vlcPlayer(this->instance, 2, this);
  	this->selector = 1;
+
+ 	pthread_create(&this->watcher, NULL, watch_end, this);
 }
 
 /* COMMANDS */
