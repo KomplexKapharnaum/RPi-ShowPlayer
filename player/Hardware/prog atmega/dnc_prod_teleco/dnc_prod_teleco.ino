@@ -1,15 +1,17 @@
 #include "pins_arduino.h"
 #include "pins_arduino.h"
 #include <LiquidCrystal595.h>
+#include <Encoder.h>
 
 char buf [17];
 
-LiquidCrystal595 lcd(6, 7, 8);
 
-#include <Encoder.h>
 Encoder rotary(2, 3);
 long positionLeft  = -999;
-long positionRight = -999;
+
+
+LiquidCrystal595 lcd(6, 7, 8);
+
 
 // what to do with incoming data
 volatile byte pos;
@@ -45,6 +47,8 @@ volatile byte adress = 0;
 
 //size of table
 #define T_REGISTERSIZE 18
+//size of menu
+#define T_NBMENU 6
 
 #define READCOMMAND 0x40
 #define WRITECOMMANDVALUE 0xc0
@@ -56,6 +60,8 @@ volatile byte adress = 0;
 
 #define T_MODEBASE 1
 
+
+char menu[T_NBMENU][16] = {"startscene","restartscene","nextscene","blinkgroup","poweroff","reboot"};
 
 byte Value[T_REGISTERSIZE];
 byte newValue[T_REGISTERSIZE];
@@ -84,6 +90,7 @@ void setup (void) {
   Serial.println("telec");
   checkInputPeriod = 100;
   waitforinit();
+      positionLeft = rotary.read();
   Serial.println("init");
 }
 
@@ -107,7 +114,7 @@ void initpin() {
   lcd.setCursor(0, 0);
   lcd.print("  do not clean");
   lcd.setCursor(0, 1);
-  lcd.print("      V0.1      ");
+  lcd.print("      V0.2      ");
   lcd.setBackLight(1);
 }
 
@@ -276,11 +283,31 @@ void checkInput() {
   if (millis() > lastCheckInput + checkInputPeriod) {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
-      newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+      if(T_DECINPIN+i==T_PUSHROTARY){
+        if((1-digitalRead(inpin[i]))==1) {newValue[T_DECINPIN + i] = positionLeft;}
+      }else{
+        newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
       //Serial.print("b");
       //Serial.println(i, DEC);
+      }
     }
-    if (Value[T_BOARDCHECKFLOAT] == 1) newValue[T_FLOAT] = map(analogRead(inpinanalog[T_FLOAT - T_DECALALOGPIN]), 0, 1024, 0, 255);
+    //if (Value[T_BOARDCHECKFLOAT] == 1) newValue[T_FLOAT] = map(analogRead(inpinanalog[T_FLOAT - T_DECALALOGPIN]), 0, 1024, 0, 255);
+    
+    long newLeft;
+    newLeft = (long)(rotary.read()*1.0/10);
+    if (newLeft != positionLeft) {
+      if(positionLeft>=0 && positionLeft<T_NBMENU){        
+        Serial.print("Left = ");
+        Serial.print(newLeft);
+        Serial.println();lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print(menu[newLeft]);
+        positionLeft = newLeft;
+      }
+      if(newLeft<0) {positionLeft = T_NBMENU-1; rotary.write((T_NBMENU-1)*10);} 
+      if(newLeft>=T_NBMENU) {positionLeft = 0; rotary.write(0);}
+    }
+    
     lastCheckInput = millis();
   }
 }
