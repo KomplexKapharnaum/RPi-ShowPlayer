@@ -50,6 +50,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
   writeValue(INTERRUPT,0);
+  needStatusUpdate=0;
 }
 
 
@@ -103,22 +104,26 @@ int Carte::readInterrupt(){
     case FLOAT:
       std::cout << "#CARTE_FLOAT "<< valeur << std::endl;
       break;
+    case UBATT:
+        needStatusUpdate=1;
+      break;
     default:
       break;
   }
   
 }
 
-int Carte::checkTension(){
+float Carte::checkTension(){
   fprintf(stderr, "carte - checktension gpio high\n");
   digitalWrite (GPIO_READ_BATT, HIGH);
   delay(10);
   writeValue(UBATT,0);
   delay(5);
   tension = readValue(UBATT)+50;
+  tension = tension/10;
   //digitalWrite (GPIO_READ_BATT, LOW);
-  fprintf(stderr, "carte - get %umV\n",tension);
-  
+  fprintf(stderr, "carte - get %.1fV\n",tension);
+  needStatusUpdate=0;
   return tension;
 }
 

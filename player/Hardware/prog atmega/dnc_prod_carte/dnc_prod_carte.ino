@@ -84,6 +84,9 @@ byte strob10wStep;
 long unsigned lastCheckInput;
 int checkInputPeriod;
 
+long unsigned lastCheckTension;
+int checkTensionPeriod;
+
 void setup (void) {
   Serial.begin(19200);
   clearRegister();
@@ -92,6 +95,7 @@ void setup (void) {
   Serial.println("hello");
   newValue[UBATT] = 1;
   checkInputPeriod = 100;
+  checkTensionPeriod = 10000;
 }
 
 void poweroff(){
@@ -293,6 +297,16 @@ void checkInput() {
   }
 }
 
+void checkTension() {
+  if (millis() > lastCheckTension + checkTensionPeriod  && Value[INTERRUPT] == 0) {
+    newValue[INTERRUPT]=UBATT;
+    Value[INTERRUPT] = newValue[INTERRUPT];
+    Serial.println("interupt tension");
+    digitalWrite(outpin[INTERRUPT], HIGH);
+    SPDR = UBATT;
+    lastCheckTension= millis();
+  }
+}
 
 
 

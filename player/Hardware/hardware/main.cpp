@@ -49,18 +49,8 @@ Carte mycarte;
 Teleco myteleco;
 Titreur mytitreur;
 
-
-
-void myInterruptCARTE (void) {
-  fprintf(stderr, "main - interrupt from carte\n");
-  mycarte.readInterrupt();
-
-}
-
 void sendStatusTeleco(){
-  int tension = mycarte.checkTension();
-  float v = tension;
-  v=v/10;
+  float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
   char mess3[17];
@@ -69,9 +59,17 @@ void sendStatusTeleco(){
   sprintf(mess1,"stat=%s",status.c_str());
   sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_c.c_str());
   sprintf(mess3,"%s",carte_name.c_str());
-  sprintf(mess4,"%s %.1fV",carte_ip.c_str(),v);
+  sprintf(mess4,"%s %.1fV",carte_ip.c_str(),tension);
   myteleco.sendInfo(mess1,mess2,mess3,mess4);
 }
+
+void myInterruptCARTE (void) {
+  fprintf(stderr, "main - interrupt from carte\n");
+  mycarte.readInterrupt();
+  if(mycarte.needStatusUpdate)sendStatusTeleco();
+}
+
+
 
 void beforekill(int signum)
 {
