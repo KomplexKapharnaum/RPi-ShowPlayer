@@ -12,11 +12,7 @@ fi
 # Move old local settings file
 mkdir -p ~/dnc_settings/
 if [ -f ~/.dnc_settings.json ]; then
-    if [ ! -f ~/dnc_settings/develop.json ]; then
-        mv ~/.dnc_settings.json ~/dnc_settings/develop.json
-    else
-        rm ~/.dnc_settings.json
-    fi
+	mv ~/.dnc_settings.json ~/dnc_settings/develop.json
 fi
 
 running=1
