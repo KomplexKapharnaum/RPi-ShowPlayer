@@ -64,7 +64,7 @@ def init_declared_objects():
                 else:
                     # If valid signal, add it to the declared stack
                     if signal_uid is not None:
-                        DECLARED_SIGNALS[signal_uid] = Flag(signal_uid)
+                        DECLARED_SIGNALS[signal_uid] = Flag(signal_uid, JTL=None)
                     # If goto is a valid Etape
                     if goto_uid in DECLARED_ETAPES:
                         DECLARED_ETAPES[etape_uid].transitions[signal_uid] = DECLARED_ETAPES[goto_uid]
@@ -81,9 +81,6 @@ def init_declared_objects():
     # Import declared elements to Poll
     pool.Etapes_and_Functions.update(DECLARED_ETAPES)
     pool.Signals.update(DECLARED_SIGNALS)
-
-
-   
 
 
 class globalfunction(object):
@@ -186,8 +183,10 @@ class link(globaletape):
                 if oscpath[0] == '/':
                     # log.debug("DECLARE ROUTE: "+oscpath+" -> "+signal_osc) 
                     signal_osc = oscpath.replace('/','_')[1:].upper()
+                    args = [arg[1:-1] for arg in oscargs]
+                    args.append('dispo')
                     DECLARED_OSCROUTES[oscpath] = {'signal': signal_osc,
-                                                    'args': [arg[1:-1] for arg in oscargs]}
+                                                    'args': args}
                 # Internal transition
                 else:
                     signal_osc = oscpath.upper()
