@@ -89,6 +89,30 @@ void Teleco::sendPopUp(char Str1[], char Str2[]){
   setLedWarning(0);
 }
 
+void Teleco::sendButtonString(char Str1[]){
+  
+  unsigned char buff[19];
+  buff[0]= (char)(WRITECOMMANDVALUE+T_BUTON_STRING);
+  for(int i=0;i<16;i++){
+    buff[i+1]= *(Str1+i);
+  }
+  fprintf(stderr, "teleco - teleco send button string : %s\n",buff);
+  SPIcarte.send(0,buff,19);
+
+}
+
+int Teleco::readOrSetTelecoLock(int val){
+  int state = readValue(T_LOCK);
+  if (val!=-1 && state != val){
+    writeValue(T_LOCK,val);
+    delay(1);
+    return readValue(T_LOCK);
+  }
+  return state;
+  
+}
+
+
 
 int Teleco::readInterrupt(){
   setLedWarning(1);

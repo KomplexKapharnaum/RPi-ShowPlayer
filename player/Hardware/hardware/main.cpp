@@ -41,7 +41,7 @@ string carte_ip;
 string version_py="-";
 string version_c="0.3";
 string status="-";
-string popup1,popup2;
+string popup1,popup2,buttonString;
 string voltage="-";
 int init=0;
 
@@ -240,6 +240,26 @@ int parseInput(){
       sprintf(mess2,"%s",popup2.c_str());
       myteleco.sendPopUp(mess1,mess2);
     }
+    
+    if ("buttonstring"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-line"==parsedInput){
+          ss>>parsedInput;
+          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
+          buttonString=parsedInput;
+        }
+        if ("-media"==parsedInput){
+          buttonString="32  0/4  01  all";
+        }
+        if ("-clear"==parsedInput){
+          buttonString=" ";
+        }
+      }
+      char mess1[17];
+      sprintf(mess1,"%s",buttonString.c_str());
+      myteleco.sendButtonString(mess1);
+    }
+
 
 
     if ("initconfig"==parsedInput) {
@@ -335,7 +355,7 @@ int parseInput(){
         }
         
       }
-    }// end setgyro
+    }// end setrelais
     
     if ("setledtelecook"==parsedInput) {
       while (ss>>parsedInput){
@@ -347,7 +367,7 @@ int parseInput(){
         }
         
       }
-    }// end setgyro
+    }// end setledtelecook
     
     if ("setledcarteok"==parsedInput) {
       while (ss>>parsedInput){
@@ -359,7 +379,25 @@ int parseInput(){
         }
         
       }
-    }// end setgyro
+    }// end setledcarteok
+    
+    if ("settelecolock"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-lock"==parsedInput){
+          myteleco.readOrSetTelecoLock(T_ISLOCK);
+        }
+        if ("-unlock"==parsedInput){
+          myteleco.readOrSetTelecoLock(T_ISOPEN);
+        }
+        if ("-sleep"==parsedInput){
+          myteleco.readOrSetTelecoLock(T_ISLOCKWITHSLEEP);
+        }
+        if ("-read"==parsedInput){
+          int state = myteleco.readOrSetTelecoLock();
+          std::cout << "#TELECO_LOCK_STATE "<< state << std::endl;
+        }
+      }
+    }// end settelecolock
     
     
     if ("DR"==parsedInput) {
@@ -417,7 +455,13 @@ cout << "#INITHARDWARE" << endl;
   while(!init){
     parseInput();
   }
-  if(version_py=="-") myteleco.initCarte(1); else myteleco.initCarte(0);
+  if(version_py=="-") {
+    fprintf(stderr, "main - init teleco with local poweroff\n");
+    myteleco.initCarte(1);}
+  else {
+    fprintf(stderr, "main - init teleco with main program poweroff\n");
+    myteleco.initCarte(0);
+  }
   delay(10);
   if (digitalRead(21)==HIGH) {
     fprintf(stderr, "main - teleco add at boot\n");

@@ -30,13 +30,14 @@ import json
 
 app = Bottle()
 staticpath = os.path.dirname(os.path.realpath(__file__))+'/www/'
-scenariopath = settings.get("path", "activescenario")
+scenariopath = settings.get('path', "activescenario")
 if not os.path.exists(scenariopath):
     try:
         os.makedirs(scenariopath)
     except OSError as e:
         log.exception(log.show_exception(e))
-mediapath = settings.get("path", "media")
+mediapath = settings.get('path', "media")
+
 
 def sendjson(data):
     response.content_type = 'application/json'
@@ -278,7 +279,6 @@ def filelist():
     #onlyfiles.append(filetype+"_"+filetype+".json")
     if os.path.exists(path):
         onlyfiles = [ f.replace(filetype+"_",'') for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(filetype+"_") ]
-        log.debug(onlyfiles)
     return sendjson(onlyfiles)
 
 

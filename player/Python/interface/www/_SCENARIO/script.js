@@ -303,8 +303,9 @@
 			$.ajax({
 				type: 'GET',
 				timeout: 1000,
-			  url: "http://2.0.1.89:8080/library",
-				dataType: "jsonp",
+			   // url: "http://2.0.1.89:8080/library", HOTFIX by Olivier, url should not be raw codded
+				url: "/library",
+				dataType: "jsonp"
 			}).done(function(data) {
 				hardlib = data.functions;
 				mergeLibrary();
@@ -364,8 +365,9 @@
 		$.ajax({
 			type: 'GET',
 			timeout: 1000,
-		  url: "http://2.0.1.89:8080/medialist",
-			dataType: "jsonp",
+		   // url: "http://2.0.1.89:8080/medialist", HORFIX by Olivier : url shouldn't be raw codded
+			url : "/medialist",
+			dataType: "jsonp"
 		}).done(function(data) {
 			audioFiles = data.audio;
 			audioFiles.unshift('Select...');
@@ -1078,7 +1080,9 @@
           data: { type: 'scenario'}
       })
       .done(function(filelist) {
-        var scenariosList = JSON.parse(filelist);
+        // var scenariosList = JSON.parse(filelist); // HOT FIX by Olivier  , is it correct ?
+		      // The filelist var seems to already de a JSON object so parsing result in an error
+		var scenariosList = filelist;   // So juste rename the var for compatibility
         $.each(scenariosList,function(index,name){
           if (name !== 'library.json'){
             var newname = name.replace('.json','');
