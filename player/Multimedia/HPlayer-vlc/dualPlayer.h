@@ -20,17 +20,21 @@ class dualPlayer : public dualPlayerCallbacks
 		void resume();
 		void togglePause();
 		void release();
+		void setVolume(int v);
 
 		void onPlayerStateChange(int playerID, int state);
 		vlcPlayer* player(int n);
 		vlcPlayer *player1;
 		vlcPlayer *player2;
+		bool running;
 
 	private:
 		vlcPlayer* sparePlayer();
 		vlcPlayer* activePlayer();
 
 		int selector;
+		string filepath;
+		int volume;
 		libvlc_instance_t *instance;
 		pthread_t watcher;
 };

@@ -31,6 +31,7 @@ class vlcPlayer
 		bool locked();
 		int getId();
 		void fullScreen();
+		void setVolume(int v);
 		// void callbacks( const libvlc_event_t* event, void* ptr );
 		libvlc_media_player_t *player;
 

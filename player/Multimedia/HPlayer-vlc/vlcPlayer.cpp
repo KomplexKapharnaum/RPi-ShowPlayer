@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <iostream>
+#include <sys/stat.h>
 
 /* TIME MEASURE */
 unsigned long long mstime() {
@@ -18,6 +19,10 @@ unsigned long long mstime() {
 	return millisecondsSinceEpoch;
 }
 
+inline bool fileexists (const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
+}
 
 /* EVENTS */
 void vlcCallbacks( const libvlc_event_t* event, void* ptr )
@@ -110,14 +115,18 @@ vlcPlayer::vlcPlayer(libvlc_instance_t *instance, int id, dualPlayerCallbacks *c
 /* COMMANDS */
 void vlcPlayer::load(string filepath, bool lock)
 {
-	//printf("LOADING %llu\n",mstime());
-	this->setState(LOADING);
-	this->lock = lock;
-	this->filepath = filepath;
-	libvlc_media_t *media = libvlc_media_new_path (this->instance, this->filepath.c_str());
-	libvlc_media_player_set_media(this->player, media);
-	libvlc_media_release(media);
-	libvlc_media_player_play (this->player);
+	if (fileexists(filepath))
+	{
+		//printf("LOADING %llu\n",mstime());
+		this->setState(LOADING);
+		this->lock = lock;
+		this->filepath = filepath;
+		libvlc_media_t *media = libvlc_media_new_path (this->instance, this->filepath.c_str());
+		libvlc_media_player_set_media(this->player, media);
+		libvlc_media_release(media);
+		libvlc_media_player_play (this->player);
+	}
+	else std::cout << "#FILENOTFOUND " << filepath << "\n";
 }
 
 void vlcPlayer::load(string filepath)
@@ -136,7 +145,7 @@ void vlcPlayer::play()
 	// printf("#STATE of PLAYER%d: %d\n",this->getId(),this->state);
 	if (this->state == WAIT)
 	{
-		std::cout << "RESTART " << filepath << "\n";
+		//std::cout << "RESTART " << filepath << "\n";
 		this->play(this->filepath);
 	} 
 	if (this->state == READY) 
@@ -177,7 +186,13 @@ void vlcPlayer::togglePause()
 void vlcPlayer::stop()
 {
 	//if (this->getState() > WAIT)  
-		libvlc_media_player_stop (this->player);
+	libvlc_media_player_stop (this->player);
+	this->setState(WAIT);
+}
+
+void vlcPlayer::setVolume(int v)
+{
+	libvlc_audio_set_volume(this->player, v);
 }
 
 void vlcPlayer::release()

@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
 		else if (command == "pause") player->pause();
 		else if (command == "resume") player->resume();
 		else if (command == "toggle") player->togglePause();
+		else if (command == "volume") player->setVolume(argument);
 		else {
 			cout << "Typed: " << command << " with arg: " << argument << "\n";
 		}

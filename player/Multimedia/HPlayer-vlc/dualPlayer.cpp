@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <pthread.h>
+#include <sys/stat.h>
 
 
 // DEBUG PREROLL 
@@ -15,7 +16,8 @@ void *watch_end(void* ptr)
 	{
 		if (self->player1->getState() == DONE) self->player1->stop();
 		if (self->player2->getState() == DONE) self->player2->stop();
-		usleep(10000);
+		if (!self->running) done = true;
+		else usleep(5000);
 	}
 }
 
@@ -34,13 +36,15 @@ dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks
 	// for (int i = 0; i < vlc_argc; i++) { // Remember argv[0] is the path to the program, we want from argv[1] onwards
  //        std::cout << "ARG: " << vlc_argv[i] << "\n";
  //    }
-
+	this->running = true;
  	this->instance = libvlc_new (vlc_argc, vlc_argv);
  	//printf("-- CREATE PLAYER 1\n");
  	this->player1 = new vlcPlayer(this->instance, 1, this);
  	//printf("-- CREATE PLAYER 2\n");
  	this->player2 = new vlcPlayer(this->instance, 2, this);
  	this->selector = 1;
+ 	this->filepath = "";
+ 	this->volume = 100;
 
  	pthread_create(&this->watcher, NULL, watch_end, this);
 }
@@ -49,22 +53,28 @@ dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks
 void dualPlayer::play(string filepath)
 {
 	//if (filepath == this->filepath && this->activePlayer()->getState() == PLAYING) this->activePlayer()->rewind();
-	this->sparePlayer()->play(filepath);
+	this->filepath = filepath;
+	this->sparePlayer()->play(this->filepath);
 }
 
 void dualPlayer::load(string filepath)
 {
-	this->sparePlayer()->load(filepath);
+	this->filepath = filepath;
+	this->sparePlayer()->load(this->filepath);
 }
 
 void dualPlayer::play()
 {
-	this->sparePlayer()->play();
+	std::cout << "TRY TO PLAY : " << this->filepath << "\n";
+	printf("STATE SPARE: %d",this->sparePlayer()->getState());
+	if (this->sparePlayer()->getState() > WAIT) this->sparePlayer()->play();
+	else this->sparePlayer()->play(this->filepath);
 }
 
 void dualPlayer::stop()
 {
 	this->activePlayer()->stop();
+	this->sparePlayer()->stop();
 }
 
 void dualPlayer::pause()
@@ -82,9 +92,18 @@ void dualPlayer::togglePause()
 	this->activePlayer()->togglePause();
 }
 
+void dualPlayer::setVolume(int v)
+{
+	if (v >= 0 and v <= 200) this->volume = v;
+	this->activePlayer()->setVolume(v);
+	this->sparePlayer()->setVolume(v);
+}
+
 
 void dualPlayer::release()
 {
+	this->running = false;
+	usleep(6000);
 	this->player1->release();
 	this->player1->release();
 	libvlc_release (this->instance);
