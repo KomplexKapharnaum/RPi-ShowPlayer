@@ -9,8 +9,7 @@ else
 fi
 
 # MAINTENANCE // UPDATE
-# Move old local settings file
-/dnc/player/Scripts/maintenance.sh
+/dnc/update.sh
 cd /dnc
 
 running=1
