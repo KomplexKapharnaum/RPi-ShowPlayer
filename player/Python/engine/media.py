@@ -78,6 +78,16 @@ class MediaList(list):
                 smaller = elem
         return smaller
 
+    def total_space(self):
+        """
+        This function return the total space of media content in the media list
+        """
+        total_size = 0
+        for elem in self:
+            if elem.filesize is not None:
+                total_size += elem.filesize
+        return total_size
+
     def __repr__(self):
         r = "Media list : \n"
         for elem in self:
