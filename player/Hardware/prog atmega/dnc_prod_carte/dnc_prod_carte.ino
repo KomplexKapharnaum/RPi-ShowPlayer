@@ -111,7 +111,7 @@ void setup (void) {
   initSPIslave();
   Serial.println("hello");
   newValue[UBATT] = 1;
-  checkInputPeriod = 100;
+  checkInputPeriod = 50;
   checkTensionPeriod = 60000;
 }
 
@@ -303,7 +303,7 @@ bool outputRange(byte i){
 
 //fonction pour generer une interuption sur le rpi
 void updateInput(byte i) {
-  if (Value[INTERRUPT] == 0) {
+  if (!interruptPending()) {
     Value[i] = newValue[i];
     setInterrupt(i);
   }
