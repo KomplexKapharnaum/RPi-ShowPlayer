@@ -40,3 +40,28 @@ def set_absolute_amixer():
             log.show_exception(e)
     else:
         log.debug("Avoid setting alsamixer volume because we aren't a raspi")
+
+
+def set_alsaequal_profile():
+    """
+    This function set the alsaequal EQ profile
+    :return:
+    """
+    if settings.get("sys", "raspi"):
+        try:
+            profile = settings.get("sys", "alsaequal")
+            chan = 1
+            for value in profile:
+                if type(value) is tuple:
+                    val = '{0},{1}'.format(value[0],value[1])
+                else:
+                    val = '{0}'.format(value)
+
+                subprocess.check_call(shlex.split("{cmd} cset numid={channel} {val}".format(val=val, channel=chan, cmd=settings.get("path", "alsaequal"))))
+                chan+=1
+
+        except subprocess.CalledProcessError as e:
+            log.exception("Cannont set alsaequal EQ")
+            log.show_exception(e)
+    else:
+        log.debug("Avoid setting alsaequal EQ because we aren't a raspi")
