@@ -10,7 +10,7 @@ from engine.tools import register_thread, unregister_thread
 from engine.fsm import Flag
 from engine.setting import settings
 from engine.log import init_log, dumpclean
-log = init_log("modules")
+log = init_log("modules", log_lvl="raw")
 
 
 # GENERIC THREAD TO HANDLE EXTERNAL PROCESS

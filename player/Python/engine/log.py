@@ -435,7 +435,7 @@ def init_log(log_name, log_lvl=None, log_type=None, format=DEFAULT_FORMAT, forma
         Log = DualLog(log_name, level=log_lvl, format=format, format_file=format_file)
     elif log_type == "Null":
         Log = NullLog(log_name, level=log_lvl)
-    Log.info("=== START LOGGING ===")
+    Log.debug("=== START LOGGING ===")
     return Log
 
 

@@ -1,1 +1,36 @@
-{"pool":[{"name":"raspi2mgr","modules":["KXKM_CARD","AUDIO_PLAYER","VIDEO_PLAYER"],"blocks":[{"name":"block1","scene":{"name":"scene1","color":"218C8D"},"scenarios":["scenario_play_btn"],"start":0,"end":200}]},{"name":"Pi4","modules":[],"blocks":[{"name":"block1","scene":{"name":"scene3","color":"F9E559"},"scenarios":["scenario_play_btn"],"start":200,"end":600}]}]}
+{
+    "pool": [
+        {
+            "blocks": [
+                {
+                    "end": 100, 
+                    "name": "block1", 
+                    "scenarios": [
+                        "video_btn"
+                    ], 
+                    "scene": {
+                        "color": "218C8D", 
+                        "name": "scene1"
+                    }, 
+                    "start": 0
+                }, 
+                {
+                    "end": 250, 
+                    "name": "block2", 
+                    "scenarios": [], 
+                    "scene": {
+                        "color": "D83E3E", 
+                        "name": "scene2"
+                    }, 
+                    "start": 100
+                }
+            ], 
+            "modules": [
+                "KXKM_CARD", 
+                "AUDIO_PLAYER", 
+                "VIDEO_PLAYER"
+            ], 
+            "name": "raspi2mgr"
+        }
+    ]
+}

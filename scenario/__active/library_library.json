@@ -1,1 +1,14 @@
-[{"name":"WAIT","category":"GENERAL","dispos":false,"medias":false,"arguments":["","",""],"code":"print 'ok'"}]
+[
+    {
+        "arguments": [
+            "", 
+            "", 
+            ""
+        ], 
+        "category": "GENERAL", 
+        "code": "print 'OK'", 
+        "dispos": false, 
+        "medias": false, 
+        "name": "WAIT"
+    }
+]

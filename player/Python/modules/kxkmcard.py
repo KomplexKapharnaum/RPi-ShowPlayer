@@ -57,7 +57,8 @@ exposesignals(KxkmCard.setFilters())
 # ETAPE AND SIGNALS
 @module()
 @link({"KXKMCARD_EVENT": "kxkm_card_event",
-       "/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur"})
+       "/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
+       "/titreur/text [media] [numero]": "kxkm_card_titreur_text"})
 def kxkm_card(flag, **kwargs):
     if "kxkmcard" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
@@ -81,7 +82,12 @@ def kxkm_card_event(flag, **kwargs):
 
 
 @link({None: "kxkm_card"})
-def kxkm_card_titreur(flag, **kwargs):
+def kxkm_card_titreur_text(flag, **kwargs):
+    pass
+
+
+@link({None: "kxkm_card"})
+def kxkm_card_titreur_message(flag, **kwargs):
     cmd = 'texttitreur'
     if flag.args["ligne1"] is not None:
         cmd += ' -line1 '+flag.args["ligne1"].replace(' ', '_')
@@ -90,6 +96,4 @@ def kxkm_card_titreur(flag, **kwargs):
 
     kwargs["_fsm"].vars["kxkmcard"].say(cmd)
     kwargs["_etape"].preemptible.set()
-
-
 

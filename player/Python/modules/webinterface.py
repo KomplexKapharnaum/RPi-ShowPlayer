@@ -28,7 +28,7 @@ class Webserver():
 
 
 # ETAPE AND SIGNALS
-@module(autoload=True)
+@module()
 @globaletape("INTERFACE_START")
 def interface_start(flag, **kwargs):
     if "interface" not in kwargs["_fsm"].vars.keys():

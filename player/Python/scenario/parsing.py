@@ -131,18 +131,29 @@ def clear_scenario():
 
 
 def get_scenario(name):
-    path = os.path.join(settings.get("path", "activescenario"),'scenario_'+name+'.json')
-    return parse_file(path)
+    try:
+        path = os.path.join(settings.get("path", "activescenario"),'scenario_'+name+'.json')
+        return parse_file(path)
+    except:
+        log.log('warning', 'SCENARIO '+name+' not found')
+        return dict()
 
 
 def get_timeline(name):
-    path = os.path.join( settings.get("path", "activescenario"), 'timeline_'+name+'.json')
-    return parse_file(path)['pool']
-
+    try:
+        path = os.path.join( settings.get("path", "activescenario"), 'timeline_'+name+'.json')
+        return parse_file(path)['pool']
+    except:
+        log.log('warning', 'TIMELINE '+name+' not found')
+        return dict()
 
 def get_library(name):
-    path = os.path.join(settings.get("path", "activescenario"), 'library_'+name+'.json')
-    return parse_file(path)
+    try: 
+        path = os.path.join(settings.get("path", "activescenario"), 'library_'+name+'.json')
+        return parse_file(path)
+    except:
+        log.log('warning', 'LIBRARY '+name+' not found')
+        return dict()
 
 
 def parse_customdevices(name):
@@ -197,7 +208,10 @@ def parse_customtimeline(name):
         for carte in sceneDevices:
             cartes[carte["carte"]] = list()
             for etape in carte["etapes"]:
-                cartes[carte["carte"]].append(pool.Etapes_and_Functions[etape])
+                if etape in pool.Etapes_and_Functions.keys():
+                    cartes[carte["carte"]].append(pool.Etapes_and_Functions[etape])
+                else:
+                    log.warning('CAN\'T FIND {0}'.format(etape))
         s = classes.Scene(name, cartes)
         pool.Scenes[name] = dict()
         pool.Scenes[name]["obj"] = s
@@ -241,6 +255,8 @@ def parse_customlibrary(name):
 def parse_customscenario(name):
     jobject = get_scenario(name)
     importEtapes = {}
+    if 'boxes' not in jobject:
+        return
     for box in jobject['boxes']:
         etapename = box['category']+'_'+box['name']
         boxname = (name+'_'+box['boxname']).upper()
@@ -252,12 +268,13 @@ def parse_customscenario(name):
             if 'allArgs' in box:
                 etape.actions[0][1]["args"] = box['allArgs']
             importEtapes[etape.uid] = etape
-        
+            log.log('raw', 'ADD PREBUILD ETAPE '+etape.uid)
         # Parsed function from JSON
         elif etapename+'_USERFUNC' in pool.Etapes_and_Functions.keys():
             fn = pool.Etapes_and_Functions[box['category']+'_'+box['name']+'_USERFUNC']
             etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
             importEtapes[etape.uid] = etape
+            log.log('raw', 'ADD USER FUNC '+etape.uid)
         else:
             log.log('warning', 'Can\'t create '+etapename)
 
@@ -273,11 +290,12 @@ def parse_customscenario(name):
         parse_signal(importSignal)
 
         # Transitions
-        fromBox = con['SourceId'].split('_')[1]
-        toBox = con['TargetId']
+        fromBox = (name+'_'+con['SourceId'].split('_')[1]).upper()
+        toBox = (name+'_'+con['TargetId']).upper()
         if fromBox in importEtapes.keys():
             if toBox in importEtapes.keys():
                 importEtapes[fromBox].transitions[con['connectionId']] = importEtapes[toBox]
 
     for etape in importEtapes.values():
         pool.Etapes_and_Functions[etape.uid] = etape
+    log.debug('POOL: {0}'.format(pool.Etapes_and_Functions['VIDEO_BTN_BOX1'].transitions))

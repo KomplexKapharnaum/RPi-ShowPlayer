@@ -18,7 +18,7 @@ from engine.log import init_log
 BroadcastAddress = None # libs.oscack.BroadcastAddress
 
 
-log = init_log("ssync")
+log = init_log("ssync", log_lvl='info')
 
 OSC_PATH_SCENARIO_VERSION = "/sync/scenario/version"
 OSC_PATH_SCENARIO_ASK = "/sync/scenario/amiuptodate"

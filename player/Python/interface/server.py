@@ -25,7 +25,7 @@ import json
 
 app = Bottle()
 staticpath = os.path.dirname(os.path.realpath(__file__))+'/www/'
-scenariopath = settings.get("path", "scenario")
+scenariopath = settings.get("path", "activescenario")
 
 
 def sendjson(data):
@@ -100,7 +100,7 @@ def save():
     timestamp = request.forms.get('timestamp')
     answer = dict()
     try:
-        json.loads(content)
+        contjson = json.loads(content)
         #test if valid json
     except:
         answer['status'] = 'error'
@@ -112,7 +112,7 @@ def save():
         path = path+"/"+filetype+'_'+filename+".json"
         print path
         with open(path, 'w') as file:
-            file.write(content)
+            file.write(json.dumps(contjson, indent=4, sort_keys=True))
     except:
         answer['status'] = 'error'
         answer['message'] = 'Write Error'
@@ -180,7 +180,7 @@ def rename():
 def list():
     filetype = request.forms.get('type')
     path = scenariopath+"/"
-    onlyfiles = [ f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(filetype+"_") ]
+    onlyfiles = [ f.replace(filetype+"_",'') for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(filetype+"_") ]
     return json.dumps(onlyfiles)
 
 

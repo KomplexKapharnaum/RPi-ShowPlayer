@@ -12,7 +12,7 @@ set_default_log_by_settings(settings)                   # Set default log level 
 
 from engine import log, fsm, threads
 import scenario
-from scenario import parsing, pool, manager
+from scenario import parsing, pool, manager, classes
 from libs import oscack
 from engine.log import dumpclean
 
@@ -36,12 +36,15 @@ log = log.init_log("main")
 try:
     threads.init()
     oscack.start_protocol()
-
     parsing.clear_scenario()
-    # parsing.parse_customdevices("timeline1")
-    # parsing.parse_customlibrary("library")
-    # parsing.parse_customscenario("play_btn")
-    # parsing.parse_customtimeline("timeline1")
+
+    webfsm = classes.ScenarioFSM("WebInterface")
+    webfsm.start(scenario.DECLARED_ETAPES["INTERFACE_START"])
+    
+    parsing.parse_customdevices("timeline1")
+    parsing.parse_customlibrary("library")
+    parsing.parse_customscenario("video_btn")
+    parsing.parse_customtimeline("timeline1")
 
     if settings["uName"] in pool.Cartes.keys():
         pool.Cartes[settings["uName"]].device.launch_manager()
@@ -82,17 +85,22 @@ try:
 except Exception as e:
     log.exception(log.show_exception(e))
     log.error(e)
-
-managefsm.stop()
-managefsm.join()
-log.info("Ending Manager")
-for sfsm in pool.FSM:
-    sfsm.stop()
-    sfsm.join()
-for sfsm in pool.DEVICE_FSM:
-    sfsm.stop()
-    sfsm.join()
+try:
+    log.info("Ending Manager")
+    managefsm.stop()
+    managefsm.join()
+    for sfsm in pool.FSM:
+        sfsm.stop()
+        sfsm.join()
+    for sfsm in pool.DEVICE_FSM:
+        sfsm.stop()
+        sfsm.join()
+except:
+    pass
 log.info("Ending OscAck Servers")
 oscack.stop_protocol()
+log.info("Ending WebInterface")
+webfsm.stop()
+webfsm.join()
 threads.stop()
 os._exit(0)
