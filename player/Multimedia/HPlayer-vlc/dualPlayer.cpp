@@ -100,7 +100,7 @@ void dualPlayer::togglePause()
 void dualPlayer::applyVolume()
 {
 	this->activePlayer()->setVolume(this->volume);
-	this->sparePlayer()->setVolume(this->volume);
+	this->sparePlayer()->setVolume(0);
 }
 
 void dualPlayer::setVolume(int v)
@@ -148,7 +148,6 @@ void dualPlayer::onPlayerStateChange(int playerID, int state)
 	{
 		this->selector = playerID;
 		this->activePlayer()->fullScreen();
-		this->applyVolume();
 		this->sparePlayer()->stop();
 	}
 	if (state == DONE)
@@ -163,6 +162,7 @@ void dualPlayer::onPlayerStateChange(int playerID, int state)
 		if (this->selector == playerID and this->sparePlayer()->getState() == WAIT and this->repeat)
 			this->play();
 	}
+	this->applyVolume();
 }
 
 
