@@ -5,6 +5,7 @@
 
 import subprocess
 import shlex
+import os
 
 from engine.setting import settings
 from engine.log import init_log
@@ -49,6 +50,7 @@ def set_alsaequal_profile():
     """
     if settings.get("sys", "raspi"):
         try:
+            FNULL = open(os.devnull, 'w')
             profile = settings.get("sys", "alsaequal")
             chan = 1
             for value in profile:
@@ -57,7 +59,9 @@ def set_alsaequal_profile():
                 else:
                     val = '{0}'.format(value)
 
-                subprocess.check_call(shlex.split("{cmd} cset numid={channel} {val}".format(val=val, channel=chan, cmd=settings.get("path", "alsaequal"))))
+                subprocess.check_call(shlex.split("{cmd} cset numid={channel} {val}"
+                                                    .format(val=val, channel=chan, cmd=settings.get("path", "alsaequal"))),
+                                                    stdout=FNULL)
                 chan+=1
 
         except subprocess.CalledProcessError as e:
