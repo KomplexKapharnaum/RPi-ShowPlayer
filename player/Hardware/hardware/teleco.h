@@ -60,9 +60,10 @@
 
 class Teleco : public Carte {
   int uninit;
+  char localpoweroff;
 
 public:
-  void initCarte();
+  void initCarte(char pow);
   void sendString(char Str1[], char Str2[],char Str3[], char Str4[]);
   int fisrtView();
   void start();

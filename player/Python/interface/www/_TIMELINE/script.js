@@ -1,7 +1,6 @@
 
   $(function() {
 
-    //allPi = new Array();
     $('#colonne2').hide();
     setTimeout(function(){
       loadTimeline();
@@ -12,7 +11,7 @@
     function pool() {
 
       allPi = new Array();
-      var lineCount = 0;
+      this.lineCount = 0;
 
 
       this.unselectBlocks = function() {
@@ -54,8 +53,8 @@
 
 
       this.addPi = function() {
-        lineCount++;
-        allPi.push(new pi("Pi"+lineCount));
+        pool.lineCount++;
+        allPi.push(new pi("Pi"+pool.lineCount));
         //allPi.push(new pi(allPi.length)); // bug si mm id
         $("#piname").text("Select...");
         $("#disposms").multipleSelect("setSelects", 0);
@@ -85,7 +84,6 @@
         });
       }
       this.followScenes = function(){
-        console.log("YO");
         $.each(allPi,function(index,pi){
           $.each(pi.allBlocks,function(index,block){
             $.each(allScenes,function(index,scene){
@@ -108,6 +106,7 @@
 
     var sceneCount = 0;
     var allScenes = new Array();
+
     $('#allscenes').dblclick(function(){
       sceneCount++;
       allScenes.push(new scene());
@@ -137,6 +136,10 @@
           $.each(pi.allBlocks,function(index,block){
             block.actuPosition();
           });
+        });
+
+        allScenes.sort(function(sc1, sc2) {
+        	return sc1.start - sc2.start;
         });
 
       }
@@ -170,7 +173,6 @@
       this.actuPosition();
 
 
-
       this.scenebox.on('click',function(){
         console.log(thisScene.start);
         $.each(allScenes,function(index,scene){
@@ -179,21 +181,64 @@
         thisScene.scenebox.css('background-color','#BABABA');
       });
 
+      this.recoverInfos = function(name, position){
+        thisScene.name = name;
+        thisScene.scenebox.text(name);
+
+        //thisScene.scenebox.css({left:position});
+
+        //BUG SORTABLE SI CA ??? :
+        // var scenepos = thisScene.scenebox.offset();
+        // scenepos.left = position+108;
+        // this.scenebox.offset(scenepos);
+        // thisScene.actuPosition();
+      }
 
 
     }
 
 
+    ////////////////////////// PI SORT //////////////////////////
+    /////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
 
+    var blockheight;
+    var topo = $('#allpi').offset().top;
+    $('#allpinames').sortable({
+      axis: "y",
+      start: function (event, ui) {
+          //console.log(ui.item.text());
+      },
+      sort: function(){
+        $.each(allPi,function(index,pi){
+          var linenamePos = pi.linename.offset().top-(blockheight*index)-topo;
+          pi.line.css({top:linenamePos});
+        });
+
+      },
+      stop: function (event, ui) {
+        //console.log(ui.item.offset().top);
+        $.each(allPi,function(index,pi){
+          var linenamePos = pi.linename.offset().top-(blockheight*index)-topo;
+          pi.line.css({top:linenamePos});
+
+          pi.lineheight = pi.linename.offset().top;
+          console.log(pi.lineheight);
+        });
+
+          allPi.sort(function(pi1, pi2) {
+          	return pi1.lineheight - pi2.lineheight;
+          });
+console.log(allPi);
+      }
+    });
 
 
-
-
-    /////////////////////// PI OBJECT ////////////////////////
-    //////////////////////////////////////////////////////////
+    ////////////////////////// PI OBJECT ////////////////////////
+    /////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
     function pi(id) {
-
 
       this.allBlocks = new Array();
       this.blockCount = 0;
@@ -201,17 +246,16 @@
       this.linename.hide().fadeIn(150);
       this.line = $('<div>').addClass('line').appendTo( $('#allpi') );
       this.line.hide().fadeIn(150);
-
       this.line.attr('id', id);
-      //this.line.sortable();
-
       this.raspiname = id;
       this.linename.text(this.raspiname);
       this.modules = new Array();
       pool.unselectLines();
       this.active = false;
-
       var thispi = this;
+
+      this.lineheight = this.linename.offset().top;
+      //console.log(this.lineheight);
 
       this.line.dblclick( function()
       {
@@ -272,7 +316,6 @@
         $.each(thispi.allBlocks, function(index, block) {
           block.active = false;
           $(".block").css('opacity', '.5');
-          //$(".block").css('background-image', 'none');
         });
       };
 
@@ -289,44 +332,9 @@
       this.deleteLine = function(){
         this.line.remove();
         this.linename.remove();
-        $.each(thispi.allBlocks, function(index, block) {
-          block.keyframe_start.remove();
-          block.keyframe_end.remove();
-        });
       }
 
     }
-
-    var dragged;
-    $('#allpinames').sortable({
-      axis: "y",
-
-      start: function (event, ui) {
-          //console.log($(ui.item).data("startindex", ui.item.index()));
-          dragged = ui.item.text();
-          console.log(dragged);
-      },
-      sort: function(){
-        //console.log(this);
-        $.each(allPi,function(index,pi){
-          var linenamePos = pi.linename.offset().top-38*index-38;
-          console.log(linenamePos);
-          pi.line.css({top:linenamePos});
-        });
-
-      },
-      stop: function (event, ui) {
-        console.log(ui.item.offset().top);
-        //$('#'+dragged).css({ 'top': ui.item.offset().top});
-        $.each(allPi,function(index,pi){
-          var linenamePos = pi.linename.offset().top-38*index-38;
-          console.log(linenamePos);
-          pi.line.css({top:linenamePos});
-        });
-
-      }
-    });
-
 
 
     /////////////////////// BLOCK OBJECT ////////////////////////
@@ -336,24 +344,18 @@
 
       thispi.blockCount++;
       var thisblock = this;
-      //var block = $('<div>').addClass('block');
       this.blockbox = $('<div>').addClass('block');
-
       thispi.line.append(this.blockbox);
-
-
+      //---------------------------
+      blockheight = this.blockbox.height();
       this.blockName = "block" +thispi.blockCount;
       this.blockbox.attr('id', this.blockName);
-
-
       this.group = allgroups[0];
       this.scene = 'scene_lambda';
-
       this.scenarios = [];
       pool.unselectBlocks();
       this.active = true;
       $('#blocknameVisu').text(thisblock.blockbox.attr('id'));
-
 
       this.blockbox.on('click', function () {
         pool.unselectBlocks();
@@ -361,7 +363,6 @@
         thisblock.editInfos();
         $(this).css('opacity', '.9');
       });
-
 
       this.editInfos = function(){
         $('#blocknameVisu').text(thisblock.blockbox.attr('id'));
@@ -380,9 +381,6 @@
         thisblock.getScene();
         console.log(thisblock.scene);
         }
-
-
-
 
       this.refreshInfos = function(){
         thisblock.blockbox.css('backgroundColor', thisblock.group.color);
@@ -430,7 +428,6 @@
       }
       this.actuPosition();
 
-
       this.getScene = function(){
         $.each(allScenes,function(index,scene){
           if (thisblock.start == scene.start){
@@ -440,21 +437,7 @@
       }
       //this.getScene();
 
-      ////////////////////////////////////////////////////
-      var resized = true;
-      // block.resizable({
-      //   handles: "e",
-      //   grid: 50,
-      //   containment: "parent",
-      //   resize: function() {
-      //     thisblock.keyframePosition();
-      //     $.each(thispi.allBlocks, function(index, block) {
-      //     block.keyframePosition();
-      //     });
-      //     resized = false;
-      //     setTimeout(function(){ resized = true },1000);
-      //   }
-      // });
+      //////////////////DRAGGABLE////////////////////////
       thisblock.blockbox.draggable({
         grid: [ 50,50 ],
         axis: "x",
@@ -463,7 +446,6 @@
           thisblock.actuPosition();
         }
         });
-
 
       ///////////////////TOOLTIPS///////////////////////
       this.blockbox.mouseenter(function(e){
@@ -474,7 +456,7 @@
         // });
       });
       this.blockbox.mousemove(function(e){
-        if (resized == true && tooltips == true){
+        if ( tooltips == true){
           $('.tip').show();
         }
         $('.tip').css({ 'top': e.pageY+25,'left': e.pageX-30 });
@@ -489,25 +471,24 @@
 
 
 
+    //////////////////// DISPOSITIFS ///////////////////
+      var allModules = ['MODULAUDIO','VIDEO','LIGHT','TITREUR','LI12','PB12','PB24'];
 
-  //////////////////// DISPOSITIFS ///////////////////
-    var allModules = ['MODULAUDIO','VIDEO','LIGHT','TITREUR','LI12','PB12','PB24'];
-
-		$.ajax({
-			type: 'GET',
-			timeout: 1000,
-		  url: "http://2.0.1.89:8080/moduleslist",
-			dataType: "jsonp",
-		}).done(function(data) {
-      allModules = {};
-			allModules = data;
-      refreshModulesList();
-		});
+  		$.ajax({
+  			type: 'GET',
+  			timeout: 1000,
+  		  url: "http://2.0.1.89:8080/moduleslist",
+  			dataType: "jsonp",
+  		}).done(function(data) {
+        allModules = {};
+  			allModules = data;
+        refreshModulesList();
+  		});
 
 
   //////////////////// groupS ///////////////////
-  var colors = new Array ('B5B5B5','218C8D','D83E3E','F9E559','EF7126','8EDC9D','A05C7B',
-  'E1CE9A','3F7CAC','E21D1D','82A647','9B6236','75C1FF','C4E00F','F4FF52','6E0014');
+    var colors = new Array ('B5B5B5','218C8D','D83E3E','F9E559','EF7126','8EDC9D','A05C7B',
+    'E1CE9A','3F7CAC','E21D1D','82A647','9B6236','75C1FF','C4E00F','F4FF52','6E0014');
     var group0 = {name:'default', color:colors[0]};
     var group1 = {name:'group1', color:colors[1]};
     var group2 = {name:'group2', color:colors[2]};
@@ -527,34 +508,31 @@
     allgroups.push(group7);
 
 
-  //////////////////// SCENARIOS ///////////////////
-  var allScenarios = new Array();
-  // var scenario1 = {name:'scenario1',active:false};
-  // allScenarios.push(scenario1);
-  function getScenarios(){
-    allScenarios = [];
-    $.ajax({
-        url: "data/fileList.php",
-        type: "POST",
-        data: { type: 'scenario',
-                directory: '../../_SCENARIO/data'
-        }
-    })
-    .done(function(filelist) {
-      var scenariosList = JSON.parse(filelist);
-      $.each(scenariosList,function(index,name){
-        if (name !== 'library.json'){
-          var newname = name.replace('.json','');
-          var scenar = {name:newname,active:false};
-          allScenarios.push(scenar);
-        }
+    //////////////////// SCENARIOS ///////////////////
+    var allScenarios = new Array();
+
+    function getScenarios(){
+      allScenarios = [];
+      $.ajax({
+          url: "data/fileList.php",
+          type: "POST",
+          data: { type: 'scenario',
+                  directory: '../../_SCENARIO/data'
+          }
+      })
+      .done(function(filelist) {
+        var scenariosList = JSON.parse(filelist);
+        $.each(scenariosList,function(index,name){
+          if (name !== 'library.json'){
+            var newname = name.replace('.json','');
+            var scenar = {name:newname,active:false};
+            allScenarios.push(scenar);
+          }
+        });
+        refreshscenariosList();
       });
-      refreshscenariosList();
-    });
-  }
-  getScenarios();
-
-
+    }
+    getScenarios();
 
 
 
@@ -562,7 +540,6 @@
     pool = new pool();
     refreshgroupsList();
     refreshModulesList();
-    //refreshscenariosList();
 
 
     function refreshgroupsList(){ // TO DO à chaque modif ds le dropdown des groups
@@ -590,7 +567,6 @@
       $('#scenariosms').multipleSelect({width: '100%',selectAll: false, countSelected: false});
       $('#scenariosms').multipleSelect('refresh');
     }
-
 
 
     ////////////// PI COMMANDS //////////////
@@ -656,7 +632,7 @@
 
     ///////////////////INSPECTOR group////////////////////
     $('#groupselector').change(function(){
-      var that = $(this);//transforme element dom en objet jquery
+      var that = $(this);
       $.each(pool.getActiveBlock(), function(index,block) {
         block.group = allgroups[that.find(":selected").val()];
         block.refreshInfos();
@@ -670,7 +646,6 @@
       allgroups.push(newgroup);
       refreshgroupsList();
       $("#groupname").val("New...");
-      //$('#groupselector').val(allgroups.length-1); // non car sinon confusion est ce que ce groupe a été attribué au bloc ou pas
       });
 
     $('#modifbtn').click( function(){
@@ -793,7 +768,6 @@
 
 
 
-
    /////////////////////// CLEAR /////////////////////////
     $('#clearBtn').click( function() {
       clearAll();
@@ -805,6 +779,11 @@
         pi.linename.remove();
       });
       allPi = [];
+      $.each(allScenes,function(index,scene){
+        scene.scenebox.remove();
+      });
+      allScenes = [];
+      sceneCount = 0;
       pool.lineCount = 0;
     }
 
@@ -813,7 +792,7 @@
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
 
-    var poolExport = {};
+    var exportArray = {};
     var timelineName = window.location.hash.substr(1);
     if (timelineName == '') timelineName = 'timeline';
     console.log(timelineName);
@@ -838,7 +817,7 @@
             if (reponse.status == 'success')
             {
                 $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
-                poolExport = JSON.parse(reponse.contents);
+                exportArray = JSON.parse(reponse.contents);
                 loadPool();
             }
             else if (reponse.status == 'error')
@@ -856,7 +835,7 @@
             dataType: "json",
             type: "POST",
             data: {
-                contents: JSON.stringify(poolExport),
+                contents: JSON.stringify(exportArray),
                 filename: timelineName,
                 timestamp: $.now(),
                 type: 'timeline'
@@ -866,7 +845,7 @@
         {
             if (reponse.status == 'success')
             {
-              $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(poolExport) );
+              $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(exportArray) );
             }
             else if (reponse.status == 'error')
             { $('#serverDisplay').html( 'Erreur serveur: '+reponse.message ); }
@@ -878,19 +857,17 @@
     });
 
 
-
-
     function savePool(){
-      var exportArray = [];
+      var exportPool = [];
 
       $.each(allPi, function(indexpi, pi) {
-        exportArray.push({
+        exportPool.push({
           name: pi.raspiname,
           modules: pi.modules,
           blocks: []
         });
         $.each(pi.allBlocks, function(indexblock, block) {
-          exportArray[indexpi].blocks.push({
+          exportPool[indexpi].blocks.push({
             name: block.blockName,
             group: block.group,
             scenarios: block.scenarios,
@@ -898,9 +875,19 @@
             end: block.end-108
           })
         });
-    });
+      });
 
-      poolExport.pool = exportArray;
+      var exportScenes = [];
+      $.each(allScenes, function(index,scene){
+        exportScenes.push({
+          name: scene.name,
+          position: scene.start-108
+        })
+
+      });
+
+      exportArray.pool = exportPool;
+      exportArray.scenes = exportScenes;
 
     }
 
@@ -908,7 +895,7 @@
     function loadPool(){
       clearAll();
 
-      var newPool = poolExport.pool;
+      var newPool = exportArray.pool;
       $.each(newPool, function( index, pi ) {
         pool.addPiFromJson(pi.name);
       });
@@ -926,8 +913,15 @@
 
       });
 
-    }
+      var newScenes = exportArray.scenes;
+      $.each(newScenes, function(key,newscene){
+        allScenes.push(new scene());
+      });
+      $.each(allScenes,function(keyscene,scene){
+        scene.recoverInfos(newScenes[keyscene].name, newScenes[keyscene].position);
+      })
 
+    }
 
 
     //////////////////////// CHOOSE  SCENARIO   /////////////////////////

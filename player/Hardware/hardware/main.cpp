@@ -351,13 +351,13 @@ signal(SIGINT, beforekill);
   
 cout << "#INITHARDWARE" << endl;
   
-  myteleco.initCarte();
+  
   while(!init){
     parseInput();
   }
+  if(version_py=="-")myteleco.initCarte(1);else myteleco.initCarte(1);
   wiringPiSetupGpio();
   pinMode (21, INPUT);
-
   
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;

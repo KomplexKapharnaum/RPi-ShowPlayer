@@ -17,8 +17,11 @@
 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
+#include <stdlib.h>
 
-void Teleco::initCarte(){
+
+void Teleco::initCarte(char pow){
+  localpoweroff=pow;
   fprintf(stderr, "add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
@@ -92,6 +95,9 @@ int Teleco::readInterrupt(){
           break;
         case 5:
           std::cout << "#TELECO_MESSAGE_POWEROFF" << std::endl;
+          if(localpoweroff==1){
+            system ("sudo shutdown -h now");
+          }
           break;
         case 6:
           std::cout << "#TELECO_MESSAGE_REBOOT" << std::endl;
