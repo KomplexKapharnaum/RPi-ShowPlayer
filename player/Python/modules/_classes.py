@@ -259,6 +259,7 @@ class ExternalProcessFlag(ExternalProcess):
         self._stdout_thread.join(*args, **kwargs)
 
     def transTo(self, cmd=None, args=[]):
+        log.log("debug", "TransTo : {0}, {1}".format(cmd, args))
         if len(args) > 0:
             cmd[0] = args[0]
             self.emmit(cmd)
@@ -267,7 +268,7 @@ class ExternalProcessFlag(ExternalProcess):
 
     def onEvent(self, cmd=[]):  # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
-        self._log("raw", "cmd : {0}".format(cmd))
+        self._log("debug", "cmd : {0}".format(cmd))
         doEmmit = True
         if cmd[0] in self.Filters.keys():
             for fn in self.Filters[cmd[0]]:

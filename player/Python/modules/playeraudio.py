@@ -29,6 +29,12 @@ log = init_log("audio")
 #         'AUDIO_END': [True]
 #     }
 
+
+FILTERS = {
+        "MEDIA_END": ["transTo /audio/end", True],
+        "AUDIO_END": [True]
+    }
+
 class AudioVLCPlayer(AbstractVLC):
     """
     This class define an audio player with VLC as backend
@@ -40,7 +46,7 @@ class AudioVLCPlayer(AbstractVLC):
         """:type: dict"""
         arguments.update(settings.get("vlc", "options", "audio"))
         log.log("debug", "Vlc arguments : {0}".format(arguments))
-        AbstractVLC.__init__(self, name="audiovlc", command=command.format(**arguments))
+        AbstractVLC.__init__(self, name="audiovlc", command=command.format(**arguments), filters=FILTERS)
 
     def check_media(self, media):
         """
@@ -48,13 +54,8 @@ class AudioVLCPlayer(AbstractVLC):
         """
         return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "audio"), media))
 
-    Filters = {
-        "MEDIA_END": ["transTo /audio/end", True],
-        "AUDIO_END": [True]
-    }
 
-
-exposesignals(AudioVLCPlayer.Filters)
+exposesignals(FILTERS)
 
 
 # MPG123 AUDIO PLAYER CLASS

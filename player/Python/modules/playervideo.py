@@ -17,6 +17,12 @@ from libs import rtplib
 log = init_log("video")
 
 
+FILTERS = {
+        "MEDIA_END": ["transTo /video/end", True],
+        "VIDEO_END": [True]
+    }
+
+
 class VideoVLCPlayer(AbstractVLC):
     """
     This class define an VideoPlayer with VLC as player backend
@@ -29,18 +35,13 @@ class VideoVLCPlayer(AbstractVLC):
         """:type: dict"""
         arguments.update(settings.get("vlc", "options", "video"))
         log.log("debug", "Vlc arguments : {0}".format(arguments))
-        AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments))
+        AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments), filters=FILTERS)
 
     def check_media(self, media):
         """
         Add video to the media path
         """
         return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "video"), media))
-
-    Filters = {
-        "MEDIA_END": ["transTo /video/end", True],
-        "VIDEO_END": [True]
-    }
 
 #
 # class VlcPlayer(ExternalProcess):
@@ -121,7 +122,7 @@ class VideoVLCPlayer(AbstractVLC):
 #             self.command += self.media
 #             self.start()
 
-exposesignals(VideoVLCPlayer.Filters)
+exposesignals(FILTERS)
 
 
 
