@@ -105,7 +105,7 @@ def trans_must_i_get_scenario(flag):
     for groupname, group in flag.args["scenario"].items():
         while len(group) > 0:
             scenario = group.pop()
-            if scenario.dateobj > media.get_newer_scenario(flag.args["local_scenario"][groupname]):  # It's newer
+            if scenario.dateobj > media.get_newer_scenario(flag.args["local_scenario"][groupname]).dateobj:  # It's newer
                 flag.args["to_get"] = scenario
                 return step_get_scenario
     return step_main_wait  # End treatment
