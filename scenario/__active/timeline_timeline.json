@@ -20,6 +20,12 @@
                 "VideoPlayer"
             ], 
             "name": "raspi2mgr"
+        }, 
+        {
+            "blocks": [], 
+            "modules": [], 
+            "name": "Pi1"
         }
-    ]
+    ], 
+    "scenes": []
 }
