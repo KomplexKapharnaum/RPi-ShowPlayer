@@ -116,3 +116,16 @@ systemctl enable netctl-auto@wlan0.service
 
 
    
+### CLEAN BOOT AND TTY PROMPT
+# Suppression des messages de boot
+Dans :  /boot/cmdline.txt, ajouter en fin de ligne :
+logo.nologo quiet loglevel=3 vga=current
+# Suppression du petit carré qui clignote 
+Dans : /boot/config.txt ajouter (là où l'on veut) :
+avoid_warnings=1
+# Suppression des autres messages (genre connection wifi)
+$ echo "kernel.printk = 3 3 3 3" > /etc/sysctl.d/20-quiet-printk.conf
+# Suppression du getty 
+$ rm /etc/systemd/system/getty.target.wants/*
+
+
