@@ -363,7 +363,7 @@
 
 			console.log('BUILD MERGED LIB');
 			buildLibrary();
-			saveLibrary();
+			// saveLibrary();    #TODO check if it's really necessary
 
 		}
 
