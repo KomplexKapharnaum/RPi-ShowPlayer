@@ -10,7 +10,8 @@
                     }, 
                     "name": "block1", 
                     "scenarios": [
-                        "test_sync"
+                        "test_sync", 
+                        "video_btn"
                     ], 
                     "start": 0
                 }

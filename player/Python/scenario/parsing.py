@@ -203,6 +203,7 @@ def parse_scenario(parsepool, name):
         log.log('raw', etape.strtrans())
 
 
+
 # 4: TIMELINE
 def parse_timeline(parsepool):
     Sceno = dict()
@@ -229,6 +230,12 @@ def parse_timeline(parsepool):
                 #     for box in scenard['origins']:
                 #         boxname = (scenario+'_'+box).upper()
                 #         SC['etapes'].append(boxname)
+
+                # DETECT WANTED MEDIA
+                for box in SCENARIO[scenario]['boxes']:
+                    if 'media' in box.keys():
+                        pool.Cartes[device['name']].media.append( box['media'] )
+
             # ADD SCENE
             if 'scene' in block:
                 scene_name = block['scene']['name']

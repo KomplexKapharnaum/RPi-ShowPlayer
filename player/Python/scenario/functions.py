@@ -18,6 +18,10 @@ from engine.log import init_log
 
 log = init_log("tools")
 
+def get_wanted_media():
+    if settings.get('uName') in pool.Cartes.keys():
+        return pool.Cartes[ settings.get('uName') ].media
+    return None
 
 @globalfunction("ADD_TIMER")
 def add_timer(*args, **kwargs):

@@ -12,8 +12,7 @@ def add_module(name, machine):
 def start_modules():
     from modules import DECLARED_ETAPES, MODULES
     for name, modulefsm in MODULES_FSM.items():
-            _log.debug('modules {0}'.format(DECLARED_ETAPES[ MODULES[name]['init_etape'] ].strfunc()))
-            modulefsm.start(DECLARED_ETAPES[ MODULES[name]['init_etape'] ])
+        modulefsm.start(DECLARED_ETAPES[ MODULES[name]['init_etape'] ])
 
 
 def stop_modules():
