@@ -219,22 +219,23 @@ def parse_timeline(parsepool):
                 }
             #FIND START ETAPE FOR EACH ACTIVATED SCENARIO IN THE SCENE
             for scenario in block['scenarios']:
-                # DETECT START box
-                for box in SCENARIO[scenario]['boxes']:
-                    if box['name']+'_PUBLICBOX' in DECLARED_PUBLICBOXES:
-                        if DECLARED_PUBLICBOXES[box['name']+'_PUBLICBOX']['start']:
-                            SC['etapes'].append(boxname(scenario, box))
+                if scenario in SCENARIO.keys():
+                    # DETECT START box
+                    for box in SCENARIO[scenario]['boxes']:
+                        if box['name']+'_PUBLICBOX' in DECLARED_PUBLICBOXES:
+                            if DECLARED_PUBLICBOXES[box['name']+'_PUBLICBOX']['start']:
+                                SC['etapes'].append(boxname(scenario, box))
 
-                # GET TOP TREE BOXES IN SCENARIO
-                # if 'origins' in scenard:
-                #     for box in scenard['origins']:
-                #         boxname = (scenario+'_'+box).upper()
-                #         SC['etapes'].append(boxname)
+                    # GET TOP TREE BOXES IN SCENARIO
+                    # if 'origins' in scenard:
+                    #     for box in scenard['origins']:
+                    #         boxname = (scenario+'_'+box).upper()
+                    #         SC['etapes'].append(boxname)
 
-                # DETECT WANTED MEDIA
-                for box in SCENARIO[scenario]['boxes']:
-                    if 'media' in box.keys():
-                        pool.Cartes[device['name']].media.append( os.path.join(box["category"].lower(), box['media']) )
+                    # DETECT WANTED MEDIA
+                    for box in SCENARIO[scenario]['boxes']:
+                        if 'media' in box.keys():
+                            pool.Cartes[device['name']].media.append( os.path.join(box["category"].lower(), box['media']) )
 
             # ADD SCENE
             if 'scene' in block:
