@@ -158,7 +158,7 @@ int parseInput(string input){
   }
   
   if (input=="initcarte_local") {
-    fprintf(stderr, "main - init teleco with local poweroff\n");
+    //fprintf(stderr, "main - init teleco with local poweroff\n");
     myteleco.initCarte(1);
     produce(q,"check_teleco_on_start");
     delay(10);
@@ -573,6 +573,7 @@ int main (int argc, char * argv[]){
   
   wiringPiSetupGpio();
   pinMode (21, INPUT);
+  pinMode (20, INPUT);
 
   cout << "#INITHARDWARE" << endl;
 
