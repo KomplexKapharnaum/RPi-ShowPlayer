@@ -75,14 +75,16 @@ void sendStatusTeleco(){
 
 void beforekill(int signum)
 {
-    
-  mycarte.setGyro(0, 200);
+  mycarte.setGyro(0,200);
   mycarte.led10WValue(0);
   mycarte.rgbValue(0,0,0);
   mycarte.setRelais(0);
   mytitreur.allLedOff();
+  mytitreur.powerdown();
   status="noC";
   myteleco.reset();
+  myteleco.readOrSetTelecoLock(T_POWEROFF);
+  mycarte.writeValue(POWERDOWN,100);
   fprintf(stderr, "bye bye\n");
   exit(signum);
 }
@@ -396,12 +398,19 @@ int parseInput(){
         if ("-sleep"==parsedInput){
           myteleco.readOrSetTelecoLock(T_ISLOCKWITHSLEEP);
         }
+        if ("-powerdown"==parsedInput){
+          myteleco.readOrSetTelecoLock(T_POWEROFF);
+        }
         if ("-read"==parsedInput){
           int state = myteleco.readOrSetTelecoLock();
           std::cout << "#TELECO_LOCK_STATE "<< state << std::endl;
         }
       }
     }// end settelecolock
+    
+    if ("powerdownhardware"==parsedInput) {
+      beforekill(0);
+    }
     
     
     if ("DR"==parsedInput) {

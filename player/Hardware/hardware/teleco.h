@@ -65,6 +65,8 @@
 #define T_ISOPEN 0
 #define T_ISLOCK 1
 #define T_ISLOCKWITHSLEEP 2
+#define T_POWEROFF 10
+
 
 
 

@@ -153,16 +153,25 @@ int Teleco::readInterrupt(){
           std::cout << "#TELECO_MESSAGE_BLINKGROUP" << std::endl;
           break;
         case 5:
+          std::cout << "#TELECO_MESSAGE_RESTARTPY" << std::endl;
+          break;
+        case 6:
+          std::cout << "#TELECO_MESSAGE_RESTARTWIFI" << std::endl;
+          break;
+        case 7:
+          std::cout << "#TELECO_MESSAGE_UPDATESYS" << std::endl;
+          break;
+        case 8:
           std::cout << "#TELECO_MESSAGE_POWEROFF" << std::endl;
           if(localpoweroff==1){
             
             system ("sudo shutdown -h now");
           }
           break;
-        case 6:
+        case 9:
           std::cout << "#TELECO_MESSAGE_REBOOT" << std::endl;
           break;
-        case 7:
+        case 10:
           std::cout << "#TELECO_MESSAGE_TESTROUTINE" << std::endl;
           break;
       }
