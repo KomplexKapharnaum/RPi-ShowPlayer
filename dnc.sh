@@ -8,9 +8,6 @@ else
     exit 0
 fi
 
-# MAINTENANCE // UPDATE
-/dnc/update.sh
-cd /dnc
 
 running=1
 DIRECT_INOUT=0
@@ -52,9 +49,9 @@ while (( running )); do
 	kill_zombies
 
     # Maintenance
-    echo "Run Maintenance"
-    ./player/Scripts/maintenance.sh
-    cd /dnc
+    echo "Run Update/Maintenance"
+    /dnc/update.sh
+	cd /dnc
 
     # MAIN
 	echo "ShowPlayer Start"

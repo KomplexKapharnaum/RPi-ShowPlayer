@@ -18,10 +18,12 @@ fi
 # Select ALSA config profile
 #############################
 numaudio=`cat /proc/asound/cards | grep '^ [0-9]' | wc -l`
-if [ $numaudio > 1 ]; then
+if [ $numaudio -eq 2 ]; then
 	cp /dnc/settings/asoundrc-both ~/.asoundrc
+	echo "AUDIO: Dual Output Internal+External"
 else
 	cp /dnc/settings/asoundrc-internal ~/.asoundrc
+	echo "AUDIO: Internal Output"
 fi
 #############################
 
