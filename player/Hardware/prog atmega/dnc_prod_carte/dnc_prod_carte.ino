@@ -203,16 +203,16 @@ void loop (void) {
   if (command == 0) {
     for (byte i = 0; i < REGISTERSIZE; i++) {
       if (Value[i] != newValue[i]) {
-        if (outputRange(i)) updateValue(i); //cas valeur led RVB et led10w (fade possible)
-        if (inputRange(i)) updateInput(i);
+        if (outputRange(i)) {updateValue(i);} //cas valeur led RVB et led10w (fade possible)
+        else if (inputRange(i)) {updateInput(i);}
         else {
           //cas autre valeur (sans fade)
           Value[i] = newValue[i];
-          Serial.print(millis(), DEC);
+          /*Serial.print(millis(), DEC);
           Serial.print(" new ");
           Serial.print(i, DEC);
           Serial.print(" - v ");
-          Serial.println(Value[i], DEC);
+          Serial.println(Value[i], DEC);*/
 
 
           //cas particulier

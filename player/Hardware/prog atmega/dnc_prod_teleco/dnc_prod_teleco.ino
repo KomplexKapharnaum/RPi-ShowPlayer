@@ -106,6 +106,8 @@ void initpin() {
   lcd.begin(16, 2);
   lcd.setCursor(0, 0);
   lcd.print("  do not clean");
+  lcd.setCursor(0, 1);
+  lcd.print("      V0.1      ");
   lcd.setBackLight(1);
 }
 
