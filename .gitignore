@@ -16,7 +16,8 @@ scenario/*
 
 #Log Files
 *.log
-.fuse*
+.fuse_*
+*.xcuserstate
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
