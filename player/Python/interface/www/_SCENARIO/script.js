@@ -27,10 +27,7 @@
 
 		var libLoaded = false;
 		var mediasLoaded = false;
-
-
-		//var urlbase = '';
-		var urlbase = 'http://192.168.0.19:8080';
+		//var
 
     $("#signalEdit").hide();
     $('#newBox').hide();
@@ -306,7 +303,8 @@
 			$.ajax({
 				type: 'GET',
 				timeout: 1000,
-				url: urlbase+"/library",
+			   // url: "http://2.0.1.89:8080/library", HOTFIX by Olivier, url should not be raw codded
+				url: "/library",
 				dataType: "jsonp"
 			}).done(function(data) {
 				hardlib = data.functions;
@@ -367,7 +365,8 @@
 		$.ajax({
 			type: 'GET',
 			timeout: 1000,
-			url : urlbase+"/medialist",
+		   // url: "http://2.0.1.89:8080/medialist", HORFIX by Olivier : url shouldn't be raw codded
+			url : "/medialist",
 			dataType: "jsonp"
 		}).done(function(data) {
 			audioFiles = data.audio;
@@ -1081,10 +1080,9 @@
           data: { type: 'scenario'}
       })
       .done(function(filelist) {
-        var scenariosList = filelist;
-        if( Object.prototype.toString.call( scenariosList ) !== '[object Array]' ) {
-          scenariosList = JSON.parse(scenariosList);
-        }
+        // var scenariosList = JSON.parse(filelist); // HOT FIX by Olivier  , is it correct ?
+		      // The filelist var seems to already de a JSON object so parsing result in an error
+		var scenariosList = filelist;   // So juste rename the var for compatibility
         $.each(scenariosList,function(index,name){
           if (name !== 'library.json'){
             var newname = name.replace('.json','');
