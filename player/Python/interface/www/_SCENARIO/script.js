@@ -966,13 +966,14 @@
           dataType: "json",
           type: "POST",
           data: {
-              timelinename: timelineName
+              filename: timelineName,
+			  type: 'timeline'
           }
       })
       .done(function(reponse) {
           if (reponse.status == 'success')
           {
-              poolImport = JSON.parse(reponse.timeline);
+              poolImport = JSON.parse(reponse.contents);
               allPi = poolImport.pool;
           }
       });
