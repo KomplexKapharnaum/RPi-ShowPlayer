@@ -187,7 +187,7 @@ void vlcPlayer::stop()
 {
 	//if (this->getState() > WAIT)  
 	libvlc_media_player_stop (this->player);
-	this->setState(WAIT);
+	this->setState(STOPPED);
 }
 
 void vlcPlayer::setVolume(int v)

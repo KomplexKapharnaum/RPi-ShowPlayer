@@ -60,9 +60,20 @@ int main(int argc, char* argv[])
 		else if (command == "pause") player->pause();
 		else if (command == "resume") player->resume();
 		else if (command == "toggle") player->togglePause();
-		else if (command == "volume") player->setVolume(argument);
+		else if (command == "repeat") {
+			if (argument == "1") player->setRepeat(true);
+			else if (argument == "0") player->setRepeat(false);
+			else cout << "#ERROR_REPEAT " << argument << "\n";
+		}
+		else if (command == "volume") 
+		{
+			std::string::size_type sz;
+			int vol = atoi(argument.c_str());
+			if (vol >= 0 and vol <= 200) player->setVolume(vol);
+			else cout << "#ERROR_VOLUME " << argument << "\n";
+		}
 		else {
-			cout << "Typed: " << command << " with arg: " << argument << "\n";
+			cout << "Unknown command: " << command << " with arg: " << argument << "\n";
 		}
 
 	}

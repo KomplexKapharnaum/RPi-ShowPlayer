@@ -37,6 +37,7 @@ dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks
  //        std::cout << "ARG: " << vlc_argv[i] << "\n";
  //    }
 	this->running = true;
+	this->repeat = false;
  	this->instance = libvlc_new (vlc_argc, vlc_argv);
  	//printf("-- CREATE PLAYER 1\n");
  	this->player1 = new vlcPlayer(this->instance, 1, this);
@@ -65,14 +66,18 @@ void dualPlayer::load(string filepath)
 
 void dualPlayer::play()
 {
-	std::cout << "TRY TO PLAY : " << this->filepath << "\n";
-	printf("STATE SPARE: %d",this->sparePlayer()->getState());
+	//std::cout << "TRY TO PLAY : " << this->filepath << "\n";
+	//printf("STATE SPARE: %d",this->sparePlayer()->getState());
+
+	//unlock loading spare player
 	if (this->sparePlayer()->getState() > WAIT) this->sparePlayer()->play();
+	//or start spare player with last file used
 	else this->sparePlayer()->play(this->filepath);
 }
 
 void dualPlayer::stop()
 {
+	this->setRepeat(false);
 	this->activePlayer()->stop();
 	this->sparePlayer()->stop();
 }
@@ -97,6 +102,11 @@ void dualPlayer::setVolume(int v)
 	if (v >= 0 and v <= 200) this->volume = v;
 	this->activePlayer()->setVolume(v);
 	this->sparePlayer()->setVolume(v);
+}
+
+void dualPlayer::setRepeat(bool r)
+{
+	this->repeat = r;
 }
 
 
@@ -124,7 +134,14 @@ void dualPlayer::onPlayerStateChange(int playerID, int state)
 	{
 		//this->player(playerID)->setState(WAIT);
 		//this->player(playerID)->play();
-	} 
+	}
+	if (state == STOPPED)
+	{
+		this->player(playerID)->setState(WAIT);
+		//if this is activePlayer AND sparePlayer not already loading something => try repeat
+		if (this->selector == playerID and this->sparePlayer()->getState() == WAIT and this->repeat)
+			this->play();
+	}
 }
 
 

@@ -11,6 +11,7 @@ using std::string;
 #define READY 2
 #define PLAYING 3
 #define DONE 4
+#define STOPPED 5
 
 class vlcPlayer 
 {

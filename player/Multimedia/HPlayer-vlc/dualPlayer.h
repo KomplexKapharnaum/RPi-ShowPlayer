@@ -21,6 +21,7 @@ class dualPlayer : public dualPlayerCallbacks
 		void togglePause();
 		void release();
 		void setVolume(int v);
+		void setRepeat(bool r);
 
 		void onPlayerStateChange(int playerID, int state);
 		vlcPlayer* player(int n);
@@ -35,6 +36,7 @@ class dualPlayer : public dualPlayerCallbacks
 		int selector;
 		string filepath;
 		int volume;
+		bool repeat;
 		libvlc_instance_t *instance;
 		pthread_t watcher;
 };
