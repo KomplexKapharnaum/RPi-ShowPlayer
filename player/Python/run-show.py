@@ -12,7 +12,7 @@ set_default_log_by_settings(settings)                   # Set default log level 
 
 from engine import log, fsm, threads
 import scenario
-from scenario import parsing, pool, manager, classes
+from scenario import parsing, pool, manager, classes, patcher
 from libs import oscack
 from engine.log import dumpclean
 
@@ -39,8 +39,13 @@ try:
     parsing.clear_scenario()
 
     webfsm = classes.ScenarioFSM("WebInterface")
+    patcher.FSM_GLOBAL.append(webfsm)
     webfsm.start(scenario.DECLARED_ETAPES["INTERFACE_START"])
-    
+
+    devicefsm = classes.ScenarioFSM("DeviceControl")
+    devicefsm.start(scenario.DECLARED_ETAPES["DEVICE_CONTROL"])
+    patcher.FSM_GLOBAL.append(devicefsm)
+
     parsing.parse_customdevices("timeline1")
     parsing.parse_customlibrary("library")
     parsing.parse_customscenario("video_btn")
