@@ -203,7 +203,7 @@ void vlcPlayer::stop()
 
 void vlcPlayer::setVolume(int v)
 {
-	cout << "#VOLUME_APPLY ON" << this->getId() << " : " << v << endl;
+	// cout << "#VOLUME_APPLY ON" << this->getId() << " : " << v << endl;
 	libvlc_audio_set_volume(this->player, v);
 }
 

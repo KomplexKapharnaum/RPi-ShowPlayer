@@ -57,7 +57,7 @@ DEFAULT_SETTING["path"]["relative"]["hplayer"] = "player/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["relative"]["interface"] = "player/Python/interface/bottleserver.py"
 DEFAULT_SETTING["path"]["relative"]["mvlc"] = "player/Multimedia/HPlayer-vlc/hplayer-vlc "
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
-    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache}"
+    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache} --aout-rate 44100 --volume 0 "
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
@@ -92,7 +92,7 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
 DEFAULT_SETTING["vlc"]["options"]["audio"] = {"vout": "none"}
 DEFAULT_SETTING["vlc"]["options"]["video"] = {"vout": "mmal_vout"}
 DEFAULT_SETTING["vlc"]["volume"] = dict()
-DEFAULT_SETTING["vlc"]["volume"]["master"] = 50        # Master volume for VLC 100 = 100 % (~=256)
+DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 %
 DEFAULT_SETTING["vlc"]["volume"]["step"] = 10           # Step volume for volumeup volumedown
 DEFAULT_SETTING["vlc"]["volume"]["scenes"] = dict()     # Master scene volume for VLC 100 = 100 % (~=256) #TODO
 
