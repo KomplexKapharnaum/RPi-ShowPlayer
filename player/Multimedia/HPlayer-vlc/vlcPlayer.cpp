@@ -33,17 +33,17 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
     {
 
 	    case libvlc_MediaPlayerVout:
-	        // printf("#MEDIA_VOUT %d\n", self->getId());
+	        //printf("#MEDIA_VOUT %d\n", self->getId());
 	    	//printf("VOUT %llu\n",mstime());
-			if (self->getState() < PLAYING)
-			{
-				if (self->locked()) 
-				{
-					self->pause();
-					self->setState(READY);
-				}
-				else self->setState(PLAYING);
-	        }
+			// if (self->getState() < READY)
+			// {
+			// 	if (self->locked()) 
+			// 	{
+			// 		self->pause();
+			// 		self->setState(READY);
+			// 	}
+			// 	else self->setState(PLAYING);
+	  //       }
 	        break;
 
 	    case libvlc_MediaPlayerPaused:
@@ -72,7 +72,16 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 	    	break;
 
 	    case libvlc_MediaPlayerPlaying:
-	    	//printf("PLAYING %llu\n",mstime());
+	    	//rintf("PLAYING %llu\n",mstime());
+	    	if (self->getState() < READY)
+			{
+				if (self->locked()) 
+				{
+					self->pause();
+					self->setState(READY);
+				}
+				else self->setState(PLAYING);
+	        }
 	    	break;
 
 	    // case libvlc_MediaPlayerTimeChanged:
@@ -209,6 +218,7 @@ int vlcPlayer::getState()
 void vlcPlayer::setState(int state)
 {
 	this->state = state;
+	//if (this->state < PLAYING) this->setVolume(0);
 	//if (this->state == WAIT) printf("#PLAYER_WAIT %d\n",this->getId());
 	//if (this->state == LOADING) printf("#PLAYER_LOADING %d\n",this->getId());
 	//if (this->state == READY) printf("#PLAYER_READY %d\n",this->getId());
@@ -216,6 +226,7 @@ void vlcPlayer::setState(int state)
 	//if (this->state == DONE) printf("#PLAYER_DONE %d\n",this->getId());
 	if (this->state == PLAYING) printf("#MEDIA_PLAY\n");
 	this->callback->onPlayerStateChange(this->getId(), this->state);
+
 }
 
 bool vlcPlayer::locked() 
