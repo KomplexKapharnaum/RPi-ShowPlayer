@@ -6,6 +6,8 @@
 import sys
 import os
 import time
+
+import engine
 from engine.setting import settings
 from engine.log import set_default_log_by_settings
 set_default_log_by_settings(settings)                   # Set default log level and output via settings
@@ -52,7 +54,10 @@ try:
     devicefsm.start(scenario.DECLARED_ETAPES["DEVICE_CONTROL"])
     patcher.FSM_GLOBAL.append(devicefsm)
 
-    #START
+
+    # START
+    engine.media.load_scenario_from_fs(settings["current_timeline"])   # Reload newer tar file of group into active dir
+    parsing.load()
     oscack.start_protocol()
     pool.start()
     ###################

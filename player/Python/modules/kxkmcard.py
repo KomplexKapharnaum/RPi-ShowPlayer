@@ -14,7 +14,7 @@ log = init_log("kxkmcard")
 # FILTERS
 def initHw(card, cmd):
     card.say(
-        'initconfig -titreurNbr 1 -carteVolt 24 -name {name} -ip {ip}'
+        'initconfig -titreurNbr 1 -carteVolt 24 -name {name} -ip {ip} -version 0.1'
         .format(name=settings.get("uName"), ip=get_ip()))
 
 def btnDown(card, cmd):
