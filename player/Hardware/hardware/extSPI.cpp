@@ -216,7 +216,7 @@ void extSPI::activeCS(){
 
 
 void extSPI::inactiveCS(){
-  fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
+  fprintf(stderr, "extspi - unactive spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
   if(keepSelect==0){
   for(int i=0;i<csmax;i++){
     if(chipSelect[i].HC595==-1)digitalWrite (chipSelect[i].GPIO, HIGH);
