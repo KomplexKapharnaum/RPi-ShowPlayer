@@ -14,14 +14,14 @@ while (( running )); do
 	echo "ShowPlayer Start"
     ./player/Python/main.py
     exitcode=$?
-    if [ exitcode -eq 2 ]; then
-        quit()
+    if [ $exitcode -eq 2 ]; then
+        quit
         poweroff
-    elif [ exitcode -eq 3 ]; then
-        quit()
+    elif [ $exitcode -eq 3 ]; then
+        quit
         reboot
     fi
-    echo "ShowPlayer exited $?."
+    echo "ShowPlayer exited $exitcode"
     if (( running ))
     	then
     		echo "Respawning.."
