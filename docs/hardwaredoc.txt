@@ -6,7 +6,7 @@ initconfig -titreurNbr (int) -carteVolt (int) -name (string) -ip (string) -versi
 
 info -status (string)
 
-popup [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-clear]
+popup [-n int(0,1,2)][-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-clear]
 buttonstring [-line (stringespace=underscore)] [-media] [-clear]
 
 setledtelecook [-on] [-off]
