@@ -56,7 +56,7 @@ DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the sa
 DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 30   # 30 seconds
 DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
 
-DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl']
+DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']
 
 DEFAULT_SETTING["scenario"] = dict()
 DEFAULT_SETTING["scenario"]["date_format"] = "%Y-%m-%d_%H:%M:%S"
