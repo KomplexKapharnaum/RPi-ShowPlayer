@@ -107,30 +107,30 @@ class KxkmCard(ExternalProcess):
         'INITHARDWARE': ['initHw'],
         'TELECO_GET_INFO': ['sendInfo'],
 
-        'CARTE_PUSH_1': ['btnDown'],
-        'CARTE_PUSH_2': ['btnDown'],
-        'CARTE_PUSH_3': ['btnDown'],
-        'CARTE_FLOAT': ['btnDown'],
+        'CARTE_PUSH_1': ['btnDown', True],
+        'CARTE_PUSH_2': ['btnDown', True],
+        'CARTE_PUSH_3': ['btnDown', True],
+        'CARTE_FLOAT': ['btnDown', True],
 
-        'TELECO_PUSH_A': ['btnDown'],
-        'TELECO_PUSH_B': ['btnDown'],
-        'TELECO_PUSH_OK': ['btnDown'],
+        'TELECO_PUSH_A': ['btnDown', True],
+        'TELECO_PUSH_B': ['btnDown', True],
+        'TELECO_PUSH_OK': ['btnDown', True],
 
-        'TELECO_PUSH_REED': [],
-        'TELECO_PUSH_FLOAT': [],
+        'TELECO_PUSH_REED': [True],
+        'TELECO_PUSH_FLOAT': [True],
 
         'TELECO_MESSAGE_BLINKGROUP': [],
         'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
 
-        'TELECO_MESSAGE_PREVIOUSSCENE': ['translate /scene/previous'],
-        'TELECO_MESSAGE_RESTARTSCENE': ['translate /scene/restart'],
-        'TELECO_MESSAGE_NEXTSCENE': ['translate /scene/next'],
+        'TELECO_MESSAGE_PREVIOUSSCENE': ['translate /scene/previous', True],
+        'TELECO_MESSAGE_RESTARTSCENE': ['translate /scene/restart', True],
+        'TELECO_MESSAGE_NEXTSCENE': ['translate /scene/next', True],
         'TELECO_MESSAGE_POWEROFF': ['translate /device/poweroff'],
         'TELECO_MESSAGE_REBOOT': ['translate /device/reboot'],
     }
 
 
-# exposesignals(KxkmCard.getFilters())
+exposesignals(KxkmCard.Filters)
 
 
 

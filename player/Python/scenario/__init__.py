@@ -188,6 +188,6 @@ class link(globaletape):
 def exposesignals(sigs=dict()):
     global DECLARED_PUBLICSIGNALS
     for key, filter in sigs.items():
-        if len(filter) > 1 and filter[1]:
+        if len(filter) > 0 and filter[-1] is True:
             DECLARED_PUBLICSIGNALS.append(key)
 

@@ -5,6 +5,7 @@
 #
 
 import os
+import string
 from os import listdir
 from os.path import isfile, join
 
@@ -78,7 +79,7 @@ def parse_arg_function(jfunction):
 
 def parse_function(jobj):
     fnct = None
-    exec "\n".join(jobj["CODE"])
+    exec jobj["CODE"]
     pool.Etapes_and_Functions[jobj["ID"]] = fnct  # fnct define in the exec CODE
     return fnct
 
@@ -144,7 +145,7 @@ def parse_timeline(parsepool):
     importTimeline = []
     for device in parsepool:
         if device['name'] == settings["uName"]:
-            for block in device["blocks"]: 
+            for block in device["blocks"]:
                 importTimeline.append({
                     "scene" : block['scene']['name'],
                     "start": block['start'],
@@ -169,10 +170,14 @@ def parse_library(libs):
     for fn in libs:
         importFn = {
             "ID" : fn['category']+'_'+fn['name']+'_USERFUNC',
-            "CODE" : [
-                "def fnct(flag, **kwargs):",
-                    "    log.info('WAITING')"]   # TODO !!!
+            "CODE" : "def fnct(flag, **kwargs):\n  log.info('CUSTOM CODE')\n"
         }
+        code = string.split(fn['code'], '\n')
+        code = [(2 * ' ') + line for line in code]
+        code = string.join(code, '\n')
+        code = code.replace('\t', '  ')
+        importFn["CODE"] += code
+        log.debug(importFn["CODE"])
         parse_function(importFn)
 
 

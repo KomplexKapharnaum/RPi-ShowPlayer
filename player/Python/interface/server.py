@@ -91,6 +91,7 @@ def librarylist():
     # CABLES FOR DECLARED MODULE RCV SIGNALS
     for signal in DECLARED_PUBLICSIGNALS:
         answer['signals'].append(signal)
+    answer['signals'] = sorted(answer['signals'])
     return sendjson(answer)
 
 
@@ -242,7 +243,7 @@ def filelist():
     #onlyfiles.append(filetype+"_"+filetype+".json")
     if os.path.exists(path):
         onlyfiles = [ f.replace(filetype+"_",'') for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(filetype+"_") ]
-        log.info(onlyfiles)
+        log.debug(onlyfiles)
     return json.dumps(onlyfiles)
 
 

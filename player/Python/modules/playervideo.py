@@ -8,7 +8,7 @@ import os
 
 from _classes import ExternalProcess, module
 from engine.setting import settings
-from scenario import link
+from scenario import link, exposesignals
 from engine.log import init_log
 log = init_log("video")
 
@@ -19,7 +19,7 @@ class VlcPlayer(ExternalProcess):
     """
     def __init__(self):
         ExternalProcess.__init__(self, 'vlcvideo')
-        self.onClose = "VIDEO_EVENT_CLOSE"
+        self.onClose = "VIDEO_END"
         current_userid = os.getuid()
         if current_userid == 0:
             os.seteuid(1000)
@@ -53,6 +53,36 @@ class VlcPlayer(ExternalProcess):
     def pause(self):
         self.say("pause")
 
+    Filters = {
+        'VIDEO_END': [True]
+    }
+
+
+
+class VlcPlayerOneShot(VlcPlayer):
+
+    def __init__(self):
+        ExternalProcess.__init__(self, 'vlcvideo')
+        self.onClose = "VIDEO_END"
+
+    def play(self, filename=None, repeat=None):
+        
+        media = os.path.join(settings.get("path", "video"), filename) if filename is not None else self.media
+        if os.path.isfile(media):
+            self.media = media
+            self.command += ' '+self.media 
+            self.start()
+            # if repeat is not None:
+            #     self.repeat = repeat
+            #     switch = 'on' if self.repeat else 'off'
+            #     self.say("repeat {switch}".format(switch=switch))
+        else:
+            log.warning("Media File not found {0}".format(media))
+        
+
+
+exposesignals(VlcPlayer.Filters)
+
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
@@ -60,15 +90,16 @@ class VlcPlayer(ExternalProcess):
         "/video/pause": "video_pause",
         "/video/stop": "video_stop"})
 def video_player(flag, **kwargs):
-    if "video" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["video"] = VlcPlayer()
+    pass
 
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
     # flag.args['media']
     # flag.args["args"][0]
-
+    if "video" in kwargs["_fsm"].vars.keys():
+        kwargs["_fsm"].vars["video"].stop()
+    kwargs["_fsm"].vars["video"] = VlcPlayerOneShot()
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
     kwargs["_fsm"].vars["video"].play(media, repeat)
