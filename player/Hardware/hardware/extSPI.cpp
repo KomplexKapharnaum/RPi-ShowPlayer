@@ -206,7 +206,7 @@ void extSPI::activeCS(){
   if(chipSelect[selectedChip].GPIO!=csactivated || hc595activated!=chipSelect[selectedChip].HC595 || keepSelect==0){
     //fprintf(stderr, "extspi - active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
     csactivated=chipSelect[selectedChip].GPIO;
-    inactiveCS();
+    //inactiveCS();
     digitalWrite (GPIO_LED, HIGH);
     digitalWrite (GPIO_244_ENABLE, HIGH);
     if(chipSelect[selectedChip].HC595==-1) digitalWrite (chipSelect[selectedChip].GPIO, LOW);
