@@ -1,0 +1,1 @@
+[{"name":"DMX","category":"LUMIERE","dispos":true,"medias":false,"arguments":["R","G","B"],"code":"code\nhardcode\n"},{"name":"WAIT","category":"GENERAL","dispos":false,"medias":false,"arguments":["","",""],"code":"print \"WAITING\""}]

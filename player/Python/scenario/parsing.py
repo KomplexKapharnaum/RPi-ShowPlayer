@@ -10,7 +10,7 @@ from engine import fsm
 import scenario
 from scenario import classes, pool
 from engine.setting import settings
-#from libc import simplejson as json
+from operator import itemgetter
 import libs.simplejson as json
 
 from engine.log import init_log, dumpclean
@@ -130,7 +130,82 @@ def clear_scenario():
     scenario.init_declared_objects()
 
 
-def parse_customlibrary(path):
+
+
+
+def parse_customdevices(pool):
+    for device in pool:
+        importDevice = {
+            "ID" : device['name'],
+            "MODULES" : [],
+            "PATCH_IN_NUM" : [],
+            "PATCH_OUT_NUM" : [],
+            "PATCH_IN_ANA" : [],
+            "PATCH_OUT_ANA" : [],
+            "MANAGERS" : ["VIDEO_PLAYER", "AUDIO_PLAYER", "KXKM_CARD"],#device['modules'], #TODO
+            "OTHER_PATCH" : []
+        }
+        parse_device(importDevice)
+        importCarte = {
+            "ID" : device['name'],
+            "DEVICE" : device['name']
+        }
+        parse_carte(importCarte)
+
+
+def parse_customtimeline(parsepool):
+    Sceno = dict()
+    for device in parsepool:
+        for block in device["blocks"]:
+            scene_name = block['scene']['name']
+            if scene_name not in Sceno.keys():
+                Sceno[scene_name] = []
+            # PARSE Scenario files, and get start etapes !
+            Sceno[scene_name].append({
+                    "carte": device['name'],
+                    "scenarios": block['scenarios'],
+                    "etapes": [],   #TODO
+                    "start": block['start'],
+                    "end": block['end']
+                })
+
+    # Import SCENES
+    for name, sceneDevices in Sceno.items():
+        cartes = dict()
+        for carte in sceneDevices:
+            cartes[carte["carte"]] = list()
+            for etape in carte["etapes"]:
+                cartes[carte["carte"]].append(pool.Etapes_and_Functions[etape])
+        s = classes.Scene(name, cartes)
+        pool.Scenes[name] = dict()
+        pool.Scenes[name]["obj"] = s
+
+    # Import TIMELINE
+    importTimeline = []
+    for device in parsepool:
+        if device['name'] == settings["uName"]:
+            for block in device["blocks"]: 
+                importTimeline.append({
+                    "scene" : block['scene']['name'],
+                    "start": block['start'],
+                    "end": block['end']
+                })
+            importTimeline = sorted(importTimeline, key=itemgetter('start'))
+            before = None
+            for scene in importTimeline:
+                pool.Frames.append(None)
+                if before is None:
+                    pool.Scenes[scene["scene"]]["before"] = None
+                else:
+                    pool.Scenes[before]["after"] = pool.Scenes[scene["scene"]]["obj"]
+                    pool.Scenes[before]["until"] = len(pool.Frames)-1
+                    pool.Scenes[scene["scene"]]["before"] = pool.Scenes[before]["after"]
+                pool.Frames[-1] = pool.Scenes[scene["scene"]]["obj"]
+                before = scene["scene"]
+
+
+def parse_customlibrary(filename):
+    path = os.path.join(settings.get("path", "scenario"), filename)
     jobject = parse_file(path)
     for fn in jobject:
         importFn = {
@@ -141,21 +216,9 @@ def parse_customlibrary(path):
         }
         parse_function(importFn)
 
-        # {  
-        #     "name":"WAIT",
-        #     "category":"GENERAL",
-        #     "dispos":false,
-        #     "medias":false,
-        #     "arguments":[  
-        #        "",
-        #        "",
-        #        ""
-        #     ],
-        #     "code":"print \"WAITING\""
-        #  }
 
-
-def parse_customscenario(path):
+def parse_customscenario(filename):
+    path = os.path.join(settings.get("path", "scenario"), filename)
     jobject = parse_file(path)
     importEtapes = {}
     for box in jobject['boxes']:
@@ -197,96 +260,3 @@ def parse_customscenario(path):
 
     for etape in importEtapes.values():
         pool.Etapes_and_Functions[etape.uid] = etape
-
-    # dumpclean(pool.Etapes_and_Functions)
-    #log.debug('Etape Exist '+'SEND_'+etapename)
-
-        # importEtape = {
-        #     "ID" : box.name,
-        #     "ACTIONS" : [{
-        #             "function": "FNCT_SAY",
-        #             "text": "ENTER INIT !"
-        #                 }],
-        #     "OUT_ACTIONS" : [{
-        #             "function": "FNCT_SAY",
-        #             "text": "QUIT INIT !"
-        #                 }],
-        #     "TRANSITIONS" : [
-        #         {
-        #             "signal" : "..",
-        #             "goto" : "CONTROL_PLAYER"
-        #         }
-        #                     ]
-        # }
-        # parse_signal(importEtape)
-
-
-
-        # ETAPE:
-        # {
-        #     "ID" : "INIT_SCENE_1",
-        #     "ACTIONS" : [{
-        #             "function": "FNCT_SAY",
-        #             "text": "ENTER INIT !"
-        #                 }],
-        #     "OUT_ACTIONS" : [{
-        #             "function": "FNCT_SAY",
-        #             "text": "QUIT INIT !"
-        #                 }],
-        #     "TRANSITIONS" : [
-        #         {
-        #             "signal" : "..",
-        #             "goto" : "CONTROL_PLAYER"
-        #         }
-        #                     ]
-        # }
-
-        # SIGNAL:
-        # {
-        #     "ID" : "ONE_FLAG",
-        #     "JTL" : 1,
-        #     "TTL" : 1,
-        #     "IGNORE" : {},
-        #     "ARGS" : {}
-        # }
-
-        # {  
-        #    "boxes":[  
-        #       {  
-        #          "name":"WAIT",
-        #          "boxname":"box1",
-        #          "category":"GENERAL",
-        #          "positionX":111,
-        #          "positionY":154,
-        #          "dispoBOO":false,
-        #          "arguments":{  
-        #             "":null
-        #          }
-        #       },
-        #       {  
-        #          "name":"PLAY",
-        #          "boxname":"box2",
-        #          "category":"AUDIO",
-        #          "positionX":388,
-        #          "positionY":212,
-        #          "dispoBOO":true,
-        #          "dispositifs":[  
-        #             "Self"
-        #          ],
-        #          "media":"drums.mp3",
-        #          "arguments":{  
-        #             "repeat":"1"
-        #          }
-        #       }
-        #    ],
-        #    "connections":[  
-        #       {  
-        #          "connectionId":"CARTE_PUSH_1",
-        #          "From":"WAIT",
-        #          "To":"PLAY",
-        #          "SourceId":"Connector_box1",
-        #          "TargetId":"box2"
-        #       }
-        #    ],
-        #    "origins":[  
-        #   

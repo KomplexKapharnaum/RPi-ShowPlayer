@@ -4,6 +4,8 @@ import os
 from os import listdir
 from os.path import isfile, join
 from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS
+from engine.log import init_log, dumpclean
+log = init_log("webserver")
 
 # SET PYTHON PATH IN PARENT DIR
 def set_python_path(depth=0):
@@ -17,7 +19,7 @@ def set_python_path(depth=0):
 set_python_path(depth=1)
 
 
-from libs.bottle import Bottle, run, static_file, response, request
+from libs.bottle import Bottle, run, static_file, response, request, redirect
 from engine.setting import settings
 import json
 
@@ -83,38 +85,15 @@ def test():
     return '<form action="/save/test.json" method="post">Json <input type="text" name="content" /><input type="submit" value="Save" /></form>'
 
 
-# LOAD Json
-@app.route('/load/<filepath:path>')
-def load(filepath):
+@app.route('/_TIMELINE/data/save.php', method='POST')
+@app.route('/_SCENARIO/data/save.php', method='POST')
+def save():
     response.content_type = 'application/json'
-    filepath = scenariopath+"/"+filepath
-    try:
-        with open(filepath, 'r') as file:   # Use file to refer to the file object
-            return file.read()
-    except:
-        answer = dict()
-        answer['status'] = 'error'
-        answer['message'] = 'File not found'
-        return json.dumps(answer)
-
-
-# SAVE Json
-@app.route('/save/<filepath:path>')
-def save(filepath):
-    response.content_type = 'application/json'
+    filename = request.forms.get('filename')
+    content = request.forms.get('contents')
+    filetype = request.forms.get('type')
+    timestamp = request.forms.get('timestamp')
     answer = dict()
-    answer['status'] = 'error'
-    answer['message'] = 'No content received'
-    return json.dumps(answer)
-
-
-# SAVE Json
-@app.route('/save/<filepath:path>', method='POST')
-def save(filepath):
-    response.content_type = 'application/json'
-    content = request.forms.get('content')
-    answer = dict()
-    json.loads(content)
     try:
         json.loads(content)
         #test if valid json
@@ -125,9 +104,7 @@ def save(filepath):
 
     try:
         path = scenariopath
-        if not os.path.exists(path):
-            os.makedirs(path)
-        path = path+"/"+filepath
+        path = path+"/"+filetype+'_'+filename+".json"
         print path
         with open(path, 'w') as file:
             file.write(content)
@@ -139,10 +116,74 @@ def save(filepath):
     answer['status'] = 'success'
     return json.dumps(answer)
 
+@app.route('/_TIMELINE/data/load.php', method='POST')
+@app.route('/_SCENARIO/data/load.php', method='POST')
+def load():
+    response.content_type = 'application/json'
+    filename = request.forms.get('filename')
+    filetype = request.forms.get('type')
+    path = scenariopath+"/"+filetype+'_'+filename+".json"
+    try:
+        answer = dict()
+        answer['status'] = 'success'
+        with open(path, 'r') as file:   # Use file to refer to the file object     
+            answer['contents'] = file.read()
+        return json.dumps(answer)
+    except:
+        answer = dict()
+        answer['status'] = 'error'
+        answer['message'] = 'File not found'
+        return json.dumps(answer)
+
+@app.route('/_TIMELINE/data/fileDelete.php', method='POST')
+@app.route('/_SCENARIO/data/fileDelete.php', method='POST')
+def delete():
+    filetype = request.forms.get('type')
+    filename = request.forms.get('filename')
+    path = scenariopath+"/"+filetype+'_'+filename+".json"
+    answer = dict()
+    try:
+        os.remove(path)
+        answer['status'] = 'success'
+        answer['message'] = 'File deleted'
+    except:
+        answer['status'] = 'error'
+        answer['message'] = 'File not found'
+    return json.dumps(answer)   
+
+
+@app.route('/_TIMELINE/data/fileRename.php', method='POST')
+@app.route('/_SCENARIO/data/fileRename.php', method='POST')
+def rename():
+    filetype = request.forms.get('type')
+    oldname = request.forms.get('oldname')
+    oldname = scenariopath+"/"+filetype+'_'+oldname+".json"
+    newname = request.forms.get('newname')
+    newname = scenariopath+"/"+filetype+'_'+newname+".json"
+    try:
+        os.rename(oldname, newname)
+        answer['status'] = 'success'
+        answer['message'] = 'File deleted'
+    except:
+        answer['status'] = 'error'
+        answer['message'] = 'File not found'
+    return json.dumps(answer)
+
+
+@app.route('/_TIMELINE/data/fileList.php', method='POST')
+@app.route('/_SCENARIO/data/fileList.php', method='POST')
+def list():
+    filetype = request.forms.get('type')
+    path = scenariopath+"/"
+    onlyfiles = [ f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(filetype+"_") ]
+    return json.dumps(onlyfiles)
+
+
 # Static index
 @app.route('/')
+@app.route('/_TIMELINE')
 def server_index():
-    return static_file('index.html', root=staticpath)
+    redirect("/_TIMELINE/index.html")
 
 # Static content
 @app.route('/<filepath:path>')

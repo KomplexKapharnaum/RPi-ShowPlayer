@@ -4,7 +4,7 @@ Connection=wireless
 Security=none
 ESSID='kxkmDNC'
 IP='static'
-Address=2.0.2.137/14 # /14 = 255.252.O.0
+Address=2.0.2.100/14 # /14 = 255.252.O.0
 Gateway=2.0.0.1
 # Hostname='raspi2mgr'
 # Uncomment this if your ssid is hidden

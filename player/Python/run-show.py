@@ -36,33 +36,12 @@ try:
 
     parsing.clear_scenario()
 
-    basescenario = os.path.join(settings.get("path", "scenario"), "scenario_test.json")
-    jobject = parsing.parse_file(basescenario)
-    for fnct in jobject["Function"]:
-        parsing.parse_function(fnct)
-    for signal in jobject["Signal"]:
-        parsing.parse_signal(signal)
-    for etape in jobject["Etape"]:
-        parsing.parse_etape(etape)
-    pool.do_cross_ref()  # Resolve cross-references
-    for patch in jobject["Patch"]:
-        parsing.parse_patch(patch)
-    for device in jobject["Device"]:
-        parsing.parse_device(device)
-    for carte in jobject["Carte"]:
-        parsing.parse_carte(carte)
-
-    libscenario = os.path.join(settings.get("path", "scenario"), "libs.json")
-    parsing.parse_customlibrary(libscenario)
-
-    givenscenario = os.path.join(settings.get("path", "scenario"), "1.json")
-    parsing.parse_customscenario(givenscenario)
-
-    for scene in jobject["Scene"]:
-         parsing.parse_scene(scene)
-    parsing.parse_timeline(jobject["Timeline"])
-
-    
+    basescenario = os.path.join(settings.get("path", "scenario"), "timeline_timeline1.json")
+    mypool = parsing.parse_file(basescenario)['pool']
+    parsing.parse_customdevices(mypool)
+    parsing.parse_customlibrary("library_library.json")
+    parsing.parse_customscenario("scenario_play_btn.json")
+    parsing.parse_customtimeline(mypool)
 
     if settings["uName"] in pool.Cartes.keys():
         pool.Cartes[settings["uName"]].device.launch_manager()
