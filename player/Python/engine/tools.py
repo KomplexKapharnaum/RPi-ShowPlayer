@@ -3,7 +3,7 @@
 # Define some basic tools for the project
 #
 #
-
+import liblo
 import weakref
 import sys
 import traceback
@@ -177,6 +177,19 @@ def restart_netctl():
         log_teleco(("network restart", "succes"), "sync")
     else:
         log.debug("Don't restart netctl because we are not on a raspi")
+
+
+# TOOLS 
+def send_monitoring_message(oscMessage):
+    port = settings.get("log", "monitor", "port")
+    for dest in settings.get("log", "monitor", "ip"):
+        liblo.send(liblo.Address(dest, port), oscMessage)
+
+
+def sendPing():
+    message = liblo.Message("/ping", settings.get("uName"))
+    send_monitoring_message(message)
+    log.raw("send ping")
 
 
 class ThreadTeleco(threading.Thread):

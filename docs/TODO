@@ -1,21 +1,22 @@
-=======
 
-VLC
+MONITOR
 
+=> message de monitoring sur demande (devicecontrol)
+- toutes les 10 secondes
+- rajouter le groupe
+- info media sur disque (media need ?) 10/12 par exemple
+- netctl-watchdog status
 
-Repeat
-Volume
+=> iamalive toutes les secondes (spontané)
 
+=> envoyer au devices present des ordres OSC
+- /scene/goto /scene/..
+- /device/..
+- send signal custom
 
-/////////////////
+=> ordre d'effacement de __active et backups scenario
++ solliciter scenario
 
-Module
-=> Alsa mixer / Alsaequal
-
-///////////
-
-
-
-
-
+=> netctl-watchdog
+- parse in python instead of bash
 
