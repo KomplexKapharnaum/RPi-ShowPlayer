@@ -308,26 +308,16 @@
       },
       sort: function(){
         //console.log(this);
-        $.each(allPi,function(index,pi){
-          var linenamePos = pi.linename.offset().top-38*index-38;
-          console.log(linenamePos);
-          pi.line.css({top:linenamePos});
-        });
-
       },
       stop: function (event, ui) {
         console.log(ui.item.offset().top);
         //$('#'+dragged).css({ 'top': ui.item.offset().top});
-        $.each(allPi,function(index,pi){
-          var linenamePos = pi.linename.offset().top-38*index-38;
-          console.log(linenamePos);
-          pi.line.css({top:linenamePos});
-        });
-
       }
     });
 
-
+    $.each(allPi,function(index,pi){
+      
+    })
 
     /////////////////////// BLOCK OBJECT ////////////////////////
     /////////////////////////////////////////////////////////////
