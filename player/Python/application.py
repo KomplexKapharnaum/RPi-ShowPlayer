@@ -77,6 +77,10 @@ class inputThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         engine.tools.register_thread(self)
+        self._stop = threading.Event()
+
+    def stop(self):
+        self._stop.set()
 
     @staticmethod
     def basic_all_info():
@@ -190,7 +194,7 @@ class inputThread(threading.Thread):
         global POWEROFF
         pretyprinter = pprint.PrettyPrinter(indent=4)
         try:
-            while True:
+            while True and not self._stop.is_set():
                 try:
                     c = raw_input("")
                 except KeyboardInterrupt:
@@ -257,6 +261,11 @@ class inputThread(threading.Thread):
                             engine.threads.patcher.patch(flag_all.get())
                         if cmd[1] == "testgroup":
                             engine.threads.patcher.patch(flag_group.get())
+                elif cmd[0] == "teleco":
+                    if len(cmd) < 3:
+                        log.warning("Need at least a page number an a message")
+                        continue
+                    engine.tools.log_teleco(cmd[2:], int(cmd[1]))
                 else:
                     log.info("Unknown commad in prompt ..")
         except Exception as e:

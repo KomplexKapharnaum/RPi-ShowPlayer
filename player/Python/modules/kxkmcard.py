@@ -65,13 +65,9 @@ class KxkmCard(ExternalProcess):
 
     def setMessage(self, line1=None, line2=None):
         cmd = 'texttitreur'
-        if line1 is not None:
-            if line1 == "":
-                log.warning("Line 1 empty : does teleco prompt it ?")
+        if line1 is not None and not line1 == "":
             cmd += ' -line1 ' + line1.replace(' ', '_')
-        if line2 is not None:
-            if line2 == "":
-                log.warning("Line 1 empty : does teleco prompt it ?")
+        if line2 is not None and not line2 == "":
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
@@ -107,7 +103,7 @@ class KxkmCard(ExternalProcess):
             cmd += ' -mode {0}'.format(mode)
         self.say(cmd)
 
-    def popUpTeleco(self, line1=None, line2=None):
+    def popUpTeleco(self,line1=None, line2=None, page=0):
         """
         send message on menu popup teleco
         :param line1:
@@ -115,11 +111,11 @@ class KxkmCard(ExternalProcess):
         :return:
         """
         cmd = 'popup'
-        if line1 is not None:
-            if line1 == "":
-                log.warning("Line 1 empty : does teleco prompt it ?")
+        if page is not None:
+            cmd += ' -n {0}'.format(page)
+        if line1 is not None and not line1 == "":
             cmd += ' -line1 ' + line1.replace(' ', '_')
-        if line2 is not None:
+        if line2 is not None and not line2 == "":
             if line2 == "":
                 log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line2 ' + line2.replace(' ', '_')
@@ -189,6 +185,8 @@ class KxkmCard(ExternalProcess):
         'CARTE_PUSH_3': ['btnDown', True],
         'CARTE_FLOAT': ['btnDown', True],
 
+        'CARTE_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
+
         'TELECO_PUSH_A': ['btnDown', True],
         'TELECO_PUSH_B': ['btnDown', True],
         'TELECO_PUSH_OK': ['btnDown', True],
@@ -205,7 +203,6 @@ class KxkmCard(ExternalProcess):
 
         'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
         'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
-        'TELECO_MESSAGE_RESTARTPY': ['transTo /device/restart'],
 
         "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
         "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys']
@@ -269,7 +266,9 @@ def kxkm_card_titreur_message(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_popup_teleco(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"])
+    if "page" not in flag.args.keys():
+        flag.args["page"]=2
+    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"],flag.args["page"])
 
 
 @link({None: "kxkm_card"})

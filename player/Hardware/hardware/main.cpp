@@ -157,13 +157,13 @@ int parseInput(){
         if ("-carteVolt"==parsedInput){
           ss>>parsedInput;
           voltage=parsedInput;
-          if(voltage=="life12")mycarte.initCarte(PWM_LEDB,13);
-          else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,11);
-          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,11);
-          else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,27);
-          else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,26);
-          else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,24);
-          else mycarte.initCarte(PWM_LEDB,0);
+          if(voltage=="life12")mycarte.initCarte(PWM_LEDB,LIFE12);
+          else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,LIPO12);
+          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,PB12);
+          else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,LIPO24);
+          else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,LIFE24);
+          else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,PB24);
+          else mycarte.initCarte(PWM_LEDB,VOLTAGENONE);
         }
         if ("-name"==parsedInput){
           ss>>parsedInput;
@@ -196,7 +196,7 @@ int parseInput(){
     if ("S"==parsedInput) {
       fprintf(stderr, "main - overpass standard debug init\n");
       mytitreur.initTitreur(6,MODULE_24x16);
-      mycarte.initCarte(PWM_LEDB,12);
+      mycarte.initCarte(PWM_LEDB,LIPO12);
       carte_name="TEST STAND";
       carte_ip="2.0.2.XXX";
       init=1;
@@ -221,6 +221,8 @@ int parseInput(){
     
     if ("popup"==parsedInput) {
       int n=0;
+      popup1=" ";
+      popup2=" ";
       while (ss>>parsedInput){
         if ("-n"==parsedInput){
             ss>>n;
@@ -235,13 +237,9 @@ int parseInput(){
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
           popup2=parsedInput;
         }
-        if ("-clear"==parsedInput){
-          popup1=" ";
-          popup2=" ";
-        }
       }
-      char mess1[33];
-      char mess2[33];
+      char mess1[18];
+      char mess2[18];
       sprintf(mess1,"%u%s",n,popup1.c_str());
       sprintf(mess2,"%u%s",n,popup2.c_str());
       myteleco.sendPopUp(mess1,mess2);

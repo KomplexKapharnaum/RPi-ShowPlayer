@@ -59,7 +59,13 @@
 #define GYRORIGHT 2
 #define GYROLEFT 3
 
-
+#define LIPO12 11
+#define LIFE12 13
+#define PB12 12
+#define LIPO24 27
+#define LIFE24 26
+#define PB24 24
+#define VOLTAGENONE 0
 
 
 #define PWM_LEDB 1 //1 = pwm sur led B ; 0 = pwm sur 2eme led 10w

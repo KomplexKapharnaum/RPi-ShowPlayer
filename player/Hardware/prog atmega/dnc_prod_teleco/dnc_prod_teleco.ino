@@ -9,8 +9,8 @@ char line1 [17];
 char line2 [17];
 char line3 [17];
 char line4 [17];
-char popline1 [3][32];
-char popline2 [3][32];
+char popline1 [3][17];
+char popline2 [3][17];
 char buttonline [17];
 int nbmenuinfo =5;
 bool scroll=false;
@@ -121,7 +121,6 @@ void setup (void) {
 }
 
 void initpin() {
-    ADCSRA = 1;
   byte i = 0;
   for (i = 0; i < T_DECINPIN; i++) {
     pinMode(outpin[i], OUTPUT);
@@ -164,7 +163,7 @@ void initpin() {
   lcd.print(" do not clean ");
   lcd.write(LCD_REWIND);
   lcd.setCursor(0, 1);
-  lcd.print("      V0.5      ");
+  lcd.print("      V0.6      ");
   lcd.setBackLight(1);
 }
 
@@ -317,23 +316,23 @@ void checkStringReceive() {
     buf [pos] = 0;
     Serial.println (buf);
     lcd.clear();
-    char temp[33];
-    memcpy(temp ,&buf[0], 32);
+    char temp[35];
+    memcpy(temp ,&buf[0], 34);
     byte var=0;
     if (temp[0]=='1')
       var=1;
     if (temp[0]=='2')
       var=2;
       
-    memcpy(popline1[var], &buf[0], 32 );
-    memcpy(popline2[var], &buf[16], 32 );
+    memcpy(popline1[var], &buf[1], 16 );
+    memcpy(popline2[var], &buf[18], 16 );
     lcd.setCursor(0, 0);
     lcd.print(popline1[var]);
     lcd.setCursor(0, 1);
     lcd.print(popline2[var]);
     pos = 0;
     adress = 0;
-    scroll=true;
+    checkscroll(var);
   }
   if (command == 0 && adress == T_BUTON_STRING) {
     buf [pos] = 0;
@@ -341,6 +340,11 @@ void checkStringReceive() {
     memcpy(buttonline, &buf[0], 16 );
     pos = 0;
     adress = 0;
+  }
+  if(pos==0 && adress==0){
+    for (byte i=0; i<68; i++) {
+      buf[i]=' ';
+    }
   }
 }
 
@@ -468,19 +472,19 @@ void checkInput() {
           lcd.print(popline1[0]);
           lcd.setCursor(0, 1);
           lcd.print(popline2[0]);
-          scroll=true;
+          checkscroll(0);
         }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU+3){
           lcd.setCursor(0, 0);
           lcd.print(popline1[1]);
           lcd.setCursor(0, 1);
           lcd.print(popline2[1]);
-          scroll=true;
+          checkscroll(1);
         }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU+4){
           lcd.setCursor(0, 0);
           lcd.print(popline1[2]);
           lcd.setCursor(0, 1);
           lcd.print(popline2[2]);
-          scroll=true;
+          checkscroll(2);
         }else{
           lcd.setCursor(0, 0);
           lcd.print(menu[abs(newLeft)%(T_NBMENU+2)]);
@@ -500,6 +504,16 @@ void checkInput() {
     lastCheckInput = millis();
   }
   
+}
+
+void checkscroll(byte page){
+  /*for (byte i=17; i<32; i++) {
+    if (popline1[page][i]>33 || popline2[page][i]>33) {
+      scroll=true;
+      return;
+    }
+  }*/
+  scroll=false;
 }
 
 

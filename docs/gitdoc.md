@@ -36,3 +36,88 @@ Prompt l'ensemble des commit appliqués sur la branche en partant du dernier (do
 $ git tag -a v1.1 -m "Version 1.1 : 30 avril 2015"
 Créer un tag sur le commit suivit par HEAD avec un numéro de version (ici v1.1) et un message (ici : Version 1.1 : 30 avril 2015)
 Doc : http://git-scm.com/book/en/v2/Git-Basics-Tagging
+/!\ Push ne transfert pas les tags si on ne lui dit pas : pour cela : (commande : $ git push origin v1.1)
+
+
+## Procédures 
+
+### HOTFIX
+Pour faire un hotfix sur master suivre cette procedure :
+1: Créer un branche temporaire pour le hotfix 
+$ git checkout master			# On passe sur master
+$ git pull 				# On s'assure d'être à jour sur master
+$ git checkout -b hotfix/problem	# On créer une branche temporaire (remplacer problem par quelque qui explicite le problème à régler
+
+2: Faire ses modifications de hot fix et bien les tester 
+.. Modifications ..
+$ git commit -a -m "Règle tel problème"
+.. Test ..
+$ git commit -a -m "Règle tel autre problème lié"
+.. Test ..
+.. Validé ! ..
+$ git push -u origin hotfix/problem 	# -u créer la branche distante et la lie avec la branch locale
+
+3: Merger sur master tager et pusher
+$ git checkout master
+$ git merge hotfix/problem
+.. Test ..
+$ git tag -a vX.Y-Z+1 -m "Version X.Y-Z+1 du 30 avril 2015 : hotfix de tel problème" 	# Tag la version en ajoutant un au chiffre de hotfix de la version (par convention après le - )
+$ git push origin vX.Y-Z+1
+
+4: Retour sur develop et répercution des modifications
+$ git checkout develop
+$ git merge master
+$ git push
+
+### Créer une nouvelle version sur master
+Procédure pour la création d'une nouvelle version stable sur master dans le but d'être utilisée sur les RPI en production :
+1 : Passage sur master et préparation du terrain
+$ git checkout master			# Passage sur master
+$ git pull 				# On s'assure d'être à jour
+$ git fetch --all			# On s'assure d'être à jour sur toutes les branches
+
+2 : Récupération des modifications sur **la branche distante de develop** (Bien penser à puller ses modifications locales avant)
+$ git merge origin develop		# Merge de la branche distante develop vers master
+
+3 : Tag et envoie sur le serveur de la nouvelle version 
+$ git tag -a vX.Y -m "Version X.Y du 30 avril 2015 : détail de la version"
+$ git push vX.Y
+
+4 : Retour sur develop
+$ git checkout develop
+
+### Créer une branche pour bosser sur une modification en solo
+Procédure pour créer une branch solo pour réaliser une fonctionnalité et ne pas 'casser' develop avec des essais 
+1 : Création de la branche depuis develop
+$ git checkout develop 				# On s'assure d'être sur develop
+$ git pull					# On s'assure d'être à jour
+$ git checkout feature/mafonction		# Création de la branche pour la création de mafonction
+$ git push -u origin feature/mafonction		# Envoie de la branche pour l'instant vide vers le serveur
+
+2 : Modifications et tests
+.. Modifications ..
+.. Tests ..
+$ git commit -a -m "Message de commit"
+.. etc ..
+
+(3 optionelle et répétable) : Besoin de push pour partager ses modifications
+$ git push 
+
+4 : Fin des modification et merge de master vers la fonctionnalité pour ratraper son retard
+$ git fetch --all 				# On récupère tout pour être sur d'être à jour
+$ git merge origin develop			# On merge la branche distant de develop
+.. Résolution des éventuels confilts et tests ..
+$ git push
+
+5 : Publication des modification sur develop après s'être assuré que tout marche bien
+$ git checkout develop
+$ git pull 
+$ git merge feature/mafonction
+.. Il ne devrait plus y avoir de conflit mais si jamais on les résouts ..
+$ git -a --allow-empty -m "Merge feature/mafonction vers develop"	# Petit commit pour marquer le coup
+$ git push
+
+
+
+
+
