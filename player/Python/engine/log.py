@@ -42,9 +42,9 @@ def add_coloring_to_emit_ansi(fn):
         elif(levelno>=30):
             color = '\x1b[33m' # yellow :: WARNING
         elif(levelno>=21):
-            color = '\x1b[34m' # blue :: IMPORTANT
+            color = '\x1b[32m' # green :: IMPORTANT
         elif(levelno>=20):
-            color = '\x1b[32m' # green :: INFO
+            color = '\x1b[34m' # blue :: INFO
         elif(levelno>=10):
             color = '\x1b[35m' # purple :: DEBUG
         else:
@@ -223,6 +223,20 @@ class BaseLog:
         """
 
         self.logger.info(msg)
+
+    def important(self, msg=""):
+        """
+        Pass an info level log message (Numeric value: 20)
+
+        @type   msg: string
+        @param  msg: The message to pass
+
+        """
+
+        try:
+            self.logger.log(LEVELS['important'], msg)
+        except KeyError:
+            self.debug("Level name " + 'important' + " unknown. Message : " + str(msg))
 
     def warning(self, msg=""):
         """

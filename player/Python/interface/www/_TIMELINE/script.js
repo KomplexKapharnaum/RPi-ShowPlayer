@@ -1003,7 +1003,7 @@
             scenarios: block.scenarios,
             start: block.start-gridleft,
             end: block.end-gridleft,
-            position: (block.start-gridleft)/gridwidth
+            keyframe: (block.start-gridleft)/gridwidth
           })
         });
       });
@@ -1012,7 +1012,8 @@
       $.each(allScenes, function(index,scene){
         exportScenes.push({
           name: scene.name,
-          position: scene.start-gridleft
+          position: scene.start-gridleft,
+          keyframe: (scene.start-gridleft)/gridwidth
         })
 
       });
