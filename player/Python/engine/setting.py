@@ -53,7 +53,10 @@ DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
 
 DEFAULT_SETTING["scenario"] = dict()
 DEFAULT_SETTING["scenario"]["date_format"] = "%Y-%m-%d_%H:%M:%S"
-DEFAULT_SETTING["scenario"]["date_len"] = 24    # extension + date length + @
+DEFAULT_SETTING["scenario"]["date_len"] = 24            # extension + date length + @
+DEFAULT_SETTING["scenario"]["dest_all"] = "All"         # string for all dest in a signal
+DEFAULT_SETTING["scenario"]["dest_group"] = "Group"         # string for group dest in a signal
+DEFAULT_SETTING["scenario"]["dest_self"] = "Self"         # string for self dest in a signal
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"

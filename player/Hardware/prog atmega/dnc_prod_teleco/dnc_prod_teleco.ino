@@ -245,17 +245,17 @@ void checkStringReceive() {
   if (command == 0 && adress == T_STRING) {
     buf [pos] = 0;
     Serial.println (buf);
-    int dollar;
-    for(int d=0;d<strlen(buf);d++) {
-      if(buf[d] == '$') dollar=d;
+        //lcd.clear();
+    if(buf[0]=='1'){
+      memcpy( line1, &buf[1], 16 );
+      lcd.setCursor(0, 0);
+      lcd.print(line1);
     }
-    memcpy( line1, &buf[0], dollar );
-    memcpy( line2, &buf[dollar+1], strlen(buf)-dollar-1 );
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print(line1);
-    lcd.setCursor(1, 0);
-    lcd.print(line2);
+    if(buf[0]=='1'){
+      memcpy( line1, &buf[1], 16 );
+      lcd.setCursor(1, 0);
+      lcd.print(line2);
+    }
     pos = 0;
     adress = 0;
   }
