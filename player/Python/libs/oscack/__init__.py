@@ -28,6 +28,25 @@ from engine.setting import settings
 
 protocol = None
 
+
+def media_list_updated():
+    """
+    This function warn mediasync fsm that the media list have changed
+    :return:
+    """
+    protocol.mediasync.machine.append_flag(protocol.mediasync.flag_update_media_list.get())
+
+
+def flag_from_scenario(flag):
+    """
+    This function append flag in each machine waiting message from scenario
+    :param flag:
+    :return:
+    """
+    # protocol.mediasync.machine.append_flag(flag)
+    pass
+
+
 def start_protocol():
     import protocol as _protocol
     global protocol
