@@ -67,12 +67,12 @@ void sendOsc(){
   if (waitingsms){
     if (lastnum!="") {
       api();
-      cout << "osc send sms text = " << smsText << endl;
+      cout << "osc send sms text = " << smsText <<  endl;
       lo::Message m;
-      m.add_string(smsText.c_str());
+      m.add_string(smsText);
       regie.send("/smsFL",m);
       regiebis.send("/smsFL",m);
-      m.add_string(lastnum.c_str());
+      m.add_string(lastnum);
       ph.send("/monitor_sms",m);
       outfiletext << lastnum << endl<< smsText << endl << endl;
       smsText="";
@@ -99,8 +99,24 @@ void readRX(int fd){
         }
       }
       int t = serialGetchar (fd);
-      input+=t;
-      //cout << (char)t;
+      //char r;
+      /*if (t & 0x80) {
+         r = t;
+      } else {
+        r = (char) (0xc0 | (unsigned) t >> 6);
+        r = (char) (0x80 | (t & 0x3f));
+      }*/
+        
+      
+      if(t<128 && t>0) {
+        input+=t;
+      }else {
+        if(t>128){
+        input+=195;
+        input+=t-64;
+        }
+      }
+      //cout <<"/"<<t<<(char)t;
       
       
       if(t=='\n'){
@@ -148,6 +164,10 @@ void readRX(int fd){
   
 }
 
+
+
+
+
 //clean befor exit
 void beforekill(int signum)
 {
@@ -183,8 +203,8 @@ int main (int argc, char * argv[]){
   
   if(SENDOSC){
     api();
-    cout <<  "send osc mode" << endl;
-    ph.send("/monitor_sms", "s", "start service");
+    cout <<  "send osc mode é" << endl;
+    ph.send("/monitor_sms", "s", "start service é");
   }
   
   //looping function
