@@ -12,7 +12,8 @@ from engine.log import init_log
 log = init_log("etapes")
 
 
-@link({"FS_TIMELINE_UPDATED": "DEVICE_UPDATE_TIMELINE"})
+@link({"FS_TIMELINE_UPDATED": "DEVICE_UPDATE_TIMELINE",
+        "TELECO_MESSAGE": "DEVICE_TELECO_CMD"})
 def device_control(flag, **kwargs):
     pass
 
@@ -23,6 +24,11 @@ def device_update_timeline(flag, **kwargs):
 
 @link({None: "DEVICE_CONTROL"})
 def device_update_timeline(flag, **kwargs):
+    # TODO GET THE TAR // UPDATE ACTIVE SCENARIO // RELOAD SCENARIO
+    pass
+
+@link({None: "DEVICE_CONTROL"})
+def device_teleco_cmd(flag, **kwargs):
     # TODO GET THE TAR // UPDATE ACTIVE SCENARIO // RELOAD SCENARIO
     pass
 

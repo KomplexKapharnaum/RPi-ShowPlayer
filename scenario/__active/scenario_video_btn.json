@@ -1,0 +1,101 @@
+{
+    "boxes": [
+        {
+            "allArgs": {
+                "": null
+            }, 
+            "arguments": {
+                "": null
+            }, 
+            "boxname": "box1", 
+            "category": "GENERAL", 
+            "dispoBOO": false, 
+            "name": "WAIT", 
+            "positionX": 278, 
+            "positionY": 151
+        }, 
+        {
+            "allArgs": {
+                "media": "sintel.mp4", 
+                "repeat": null
+            }, 
+            "arguments": {
+                "repeat": null
+            }, 
+            "boxname": "box2", 
+            "category": "VIDEO", 
+            "dispoBOO": true, 
+            "dispositifs": [
+                "All"
+            ], 
+            "media": "sintel.mp4", 
+            "name": "PLAY", 
+            "positionX": 175, 
+            "positionY": 311
+        }, 
+        {
+            "allArgs": {
+                "media": "drums.mp3", 
+                "repeat": null
+            }, 
+            "arguments": {
+                "repeat": null
+            }, 
+            "boxname": "box3", 
+            "category": "AUDIO", 
+            "dispoBOO": true, 
+            "dispositifs": [
+                "All"
+            ], 
+            "media": "drums.mp3", 
+            "name": "PLAY", 
+            "positionX": 361, 
+            "positionY": 310
+        }, 
+        {
+            "allArgs": {
+                "media": "mistake.mp3", 
+                "repeat": null
+            }, 
+            "arguments": {
+                "repeat": null
+            }, 
+            "boxname": "box4", 
+            "category": "AUDIO", 
+            "dispoBOO": true, 
+            "dispositifs": [
+                "All"
+            ], 
+            "media": "mistake.mp3", 
+            "name": "PLAY", 
+            "positionX": 506, 
+            "positionY": 303
+        }
+    ], 
+    "connections": [
+        {
+            "From": "WAIT", 
+            "SourceId": "Connector_box1", 
+            "TargetId": "box2", 
+            "To": "PLAY", 
+            "connectionId": "TELECO_PUSH_OK"
+        }, 
+        {
+            "From": "WAIT", 
+            "SourceId": "Connector_box1", 
+            "TargetId": "box3", 
+            "To": "PLAY", 
+            "connectionId": "TELECO_PUSH_A"
+        }, 
+        {
+            "From": "WAIT", 
+            "SourceId": "Connector_box1", 
+            "TargetId": "box4", 
+            "To": "PLAY", 
+            "connectionId": "TELECO_PUSH_B"
+        }
+    ], 
+    "origins": [
+        "box1"
+    ]
+}
