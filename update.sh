@@ -15,6 +15,18 @@ fi
 
 
 #############################
+# Select ALSA config profile
+#############################
+numaudio=`cat /proc/asound/cards | grep '^ [0-9]' | wc -l`
+if [ $numaudio > 1 ]; then
+	cp /dnc/settings/asoundrc-both ~/.asoundrc
+else
+	cp /dnc/settings/asoundrc-internal ~/.asoundrc
+fi
+#############################
+
+
+#############################
 # Install ALSAequal
 #############################
 : <<'COMMENT'
