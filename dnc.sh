@@ -49,7 +49,7 @@ while (( running )); do
 	kill_zombies
 
     # Maintenance
-    echo "Run Update/Maintenance"
+    echo "Run Update / Maintenance"
     /dnc/update.sh
 	cd /dnc
 

@@ -10,6 +10,7 @@
 mkdir -p ~/dnc_settings/
 if [ -f ~/.dnc_settings.json ]; then
 	mv ~/.dnc_settings.json ~/dnc_settings/develop.json
+	echo "CONFIG: moved old local config file to new local settings folder"
 fi
 #############################
 
