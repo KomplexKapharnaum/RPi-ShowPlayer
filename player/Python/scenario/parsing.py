@@ -133,7 +133,7 @@ def parse_customlibrary(path):
     jobject = parse_file(path)
     for fn in jobject:
         importFn = {
-            "ID" : fn['category']+'_'+fn['name']+'_FUNC',
+            "ID" : fn['category']+'_'+fn['name']+'_USERFUNC',
             "CODE" : [
                 "def fnct(flag, **kwargs):",
                     "    log.info('WAITING')"]
@@ -159,15 +159,18 @@ def parse_customscenario(path):
     importEtapes = {}
     for box in jobject['boxes']:
         etapename = box['category']+'_'+box['name']
+        
+        # Prebuild Etape "SEND SIGNAL"
         if 'SEND_'+etapename in pool.Etapes_and_Functions.keys():
             etape = pool.Etapes_and_Functions['SEND_'+etapename].get()
             etape.uid = box['boxname'].upper()
-            args = dict()
-            args['args'] = [box['media']]
-            etape.actions[0][1]['args'] = args
+            if 'allArgs' in box:
+                etape.actions[0][1]["args"] = box['allArgs']
             importEtapes[box['boxname']] = etape
-        elif box['category']+'_'+box['name']+'_FUNC' in pool.Etapes_and_Functions.keys():
-            fn = pool.Etapes_and_Functions[box['category']+'_'+box['name']+'_FUNC']
+        
+        # Parsed function from JSON
+        elif etapename+'_USERFUNC' in pool.Etapes_and_Functions.keys():
+            fn = pool.Etapes_and_Functions[box['category']+'_'+box['name']+'_USERFUNC']
             etape = classes.Etape(box['boxname'].upper(), actions=((fn, {'args':None}),))
             importEtapes[box['boxname']] = etape
         else:

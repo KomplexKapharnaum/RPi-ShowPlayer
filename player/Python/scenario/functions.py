@@ -14,7 +14,7 @@ from engine.setting import settings
 from engine.threads import scenario_scheduler, patcher
 from scenario import pool
 from engine.fsm import Flag
-from engine.log import init_log
+from engine.log import init_log, dumpclean
 
 log = init_log("tools")
 
@@ -30,6 +30,32 @@ def add_timer(*args, **kwargs):
     """
     log.log("raw", "Add timer : {0}, {1}, {2}".format(kwargs["time"], kwargs["task"], kwargs["args"]))
     scenario_scheduler.enter(kwargs["time"], pool.Etapes_and_Functions[kwargs["task"]], kwargs=kwargs["args"])
+
+
+@globalfunction("TRANSIT_AUTO")
+def auto_transit(*args, **kwargs):
+    """
+    If an Etape has no out transition, it adds an auto transition to parent Etape
+    :return:
+    """
+    if len(kwargs['_etape'].transitions) == 0:
+        parent = None
+        for parent in reversed(kwargs['_fsm'].history):
+            if parent.is_blocking():
+                kwargs['_etape'].transitions[None] = parent
+                return
+        
+        log.warning('NO BLOCKING PARENT FOUND')
+            
+
+
+@globalfunction("TRANSIT_CLEAN")
+def remove_transitions(*args, **kwargs):
+    """
+    If an Etape use auto_transit, we must clean transitions before leaving
+    :return:
+    """
+    kwargs['_etape'].transitions = dict()
 
 
 @globalfunction("ADD_SIGNAL")
@@ -99,7 +125,8 @@ def msg_patcher(*args, **kwargs):
     :return:
     """
     if args[0].args["path"] in kwargs.keys():
-        sig_uid = kwargs[args[0].args["path"]]
+        route = kwargs[args[0].args["path"]]
+        sig_uid = route['signal']
         # log.log("raw", "Add signal : {0}, {1}".format(sig_uid, args[0].args))
         log.log("debug", "{0} => {1}".format(args[0].args["path"],sig_uid))
         #log.log('shit')
@@ -109,7 +136,14 @@ def msg_patcher(*args, **kwargs):
             signal = Flag(sig_uid)
             # log.log("raw", "This signal was not declared..  {0}".format(sig_uid))
             log.log("raw", "Signal not declared : {0}".format(sig_uid))
-        patcher.serve(signal.get(args=args[0].args))
+        named_args = dict()
+        for i in xrange(len(route['args'])):
+            if i < len(args[0].args["args"]):
+                named_args[ route['args'][i] ] = args[0].args["args"][i]
+            else:
+                named_args[ route['args'][i] ] = None
+        named_args["oscargs"] = args[0].args["args"]
+        patcher.serve(signal.get(args=named_args))
     else:
         return False
 
