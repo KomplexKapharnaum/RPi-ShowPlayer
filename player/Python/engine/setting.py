@@ -8,7 +8,7 @@ import os
 
 # from libc import simplejson as json
 # import json
-import simplejson as json
+import libs.simplejson as json
 from engine.log import init_log
 log = init_log("setting")
 

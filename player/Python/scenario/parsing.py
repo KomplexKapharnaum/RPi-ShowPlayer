@@ -11,7 +11,7 @@ import scenario
 from scenario import classes, pool
 from engine.setting import settings
 #from libc import simplejson as json
-import simplejson as json
+import libs.simplejson as json
 
 from engine.log import init_log, dumpclean
 log = init_log("parse")
