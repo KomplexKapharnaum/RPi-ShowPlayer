@@ -32,7 +32,7 @@ class VlcPlayer(ExternalProcess):
     #     subprocess.call(cmd, shell=True)
 
     def preload(self, filename=None, repeat=None):
-        media = os.path.join(settings.get("path", "video"), filename) if filename is not None else self.media
+        media = os.path.join(settings.get_path("video"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             self.say("clear")
@@ -63,7 +63,7 @@ class VlcPlayerOneShot(VlcPlayer):
         self.repeat = 'off'
 
     def play(self, filename=None, repeat=None):
-        media = os.path.join(settings.get("path", "video"), filename) if filename is not None else self.media
+        media = os.path.join(settings.get_path("video"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             self.command += ' '+self.media 

@@ -102,8 +102,7 @@ class ThreadPatcher(threading.Thread):
                 sendto += [x for x in scenario.CURRENT_SCENE.cartes if x not in sendto]
             for dest in sendto:
                 if dest in libs.oscack.DNCserver.networkmap.keys():
-                    if dest != settings["uName"] or settings.get(
-                            "scenario", "dest_self") not in sendto:     # Avoid multiple self send
+                    if dest != settings["uName"] or settings.get("scenario", "dest_self") not in sendto:     # Avoid multiple self send
                         message.send(libs.oscack.DNCserver.networkmap[dest].target, msg_to_send)
                 elif dest != settings.get("scenario", "dest_self"):
                     log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))

@@ -33,7 +33,7 @@ def get_all_media_list():
     :return:
     """
     all_media = MediaList()
-    media_path = settings.get("path", "media")
+    media_path = settings.get_path("media")
     for path, dirs, files in os.walk(media_path):  # Retreived file list to check
         for f in files:
             abs_path = os.path.join(path, f)
@@ -49,7 +49,7 @@ def get_unwanted_media_list(needed_media_list):
     :return:
     """
     unwanted_media_list = MediaList()
-    media_path = settings.get("path", "media")
+    media_path = settings.get_path("media")
     for path, dirs, files in os.walk(media_path):  # Retreived file list to check
         for f in files:
             abs_path = os.path.join(path, f)
@@ -151,7 +151,7 @@ class Media:
         Create a Media from a rel path in scenario
         :param rel_path: rel_path of the media
         """
-        path = os.path.join(settings.get("path", "media"), rel_path)
+        path = os.path.join(settings.get_path("media"), rel_path)
         if not os.path.exists(path):
             log.log("raw", "Scenario media {0} not present in fs {1}".format(rel_path, path))
             # return False
@@ -228,7 +228,7 @@ class Media:
             log.warning("Ask to get a file from the scenario... do nothing")
             return False
         if self.source == "usb":
-            dest_path = os.path.join(settings.get("path", "media"), self.rel_path)
+            dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
             if not os.path.exists(dir_path):
                 log.log("raw", "Create directory to get file {0}".format(dest_path))
@@ -249,7 +249,7 @@ class Media:
             return True
         elif self.source == "osc":
             log.info("Media to scp copy : {0} ".format(self))
-            dest_path = os.path.join(settings.get("path", "media"), self.rel_path)
+            dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
             if not os.path.exists(dir_path):
                 log.log("raw", "Create directory to get file {0}".format(dest_path))
@@ -326,8 +326,8 @@ def umount_partitions():
     """
     log.log("raw", "Start to umount partitions")
     sucess = True
-    for f in os.listdir(settings.get("path", "usb")):
-        path = os.path.join(settings.get("path", "usb"), f)
+    for f in os.listdir(settings.get_path("usb")):
+        path = os.path.join(settings.get_path("usb"), f)
         log.log("raw", "found on usb dir : {0}".format(path))
         if os.path.ismount(path):
             log.log("raw", "Found directory to umount {0}".format(f))
@@ -403,7 +403,7 @@ class UdevThreadMonitor(threading.Thread):
             mounted = 0
             for block in os.listdir(devdir):
                 if devname in block and devname != block:  # Found a partition
-                    mounted += mount_partition(os.path.join(devdir, block), os.path.join(settings.get("path", "usb"),
+                    mounted += mount_partition(os.path.join(devdir, block), os.path.join(settings.get_path("usb"),
                                                                                          "usb{0}".format(devname[:-1])))
             if mounted > 0:  # A partition has been mounted
                 log.debug("Correctly mount {0} usb device".format(mounted))
@@ -421,12 +421,12 @@ def save_scenario_on_fs(group, date_timestamp):
     :return:
     """
     edit_date = datetime.datetime.fromtimestamp(float(date_timestamp)).strftime(settings.get("scenario", "date_format"))
-    path = os.path.join(settings.get("path", "scenario"), group)
+    path = os.path.join(settings.get_path("scenario"), group)
     if not os.path.exists(path):
         os.makedirs(path)
     with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
-        tar.add(settings.get("path", "activescenario"),
-                arcname=os.path.basename(settings.get("path", "activescenario")))
+        tar.add(settings.get_path("scenario", "activescenario"),
+                arcname=os.path.basename(settings.get_path("scenario", "activescenario")))
     tar.close()
 
 
@@ -457,15 +457,15 @@ def load_scenario_from_fs(group, date_timestamp=None):
         if newer is None:  # Can't find scenario in fs
             log.error("Can't find scenario ({0}@{1}) in fs".format(group, edit_date))
             return False
-    path = os.path.join(settings.get("path", "scenario"), group)
+    path = os.path.join(settings.get_path("scenario"), group)
     tar_path = os.path.join(path, group + "@" + newer.date + ".tar")
     log.log("raw", "Ask to load {0} from fs to update scenario ".format(tar_path))
     with tarfile.open(tar_path, "r") as tar:
         # RM current scenario active directory ! #
-        if os.path.exists(settings.get("path", "activescenario")):
-            shutil.rmtree(settings.get("path", "activescenario"))
+        if os.path.exists(settings.get_path("scenario", "activescenario")):
+            shutil.rmtree(settings.get_path("scenario", "activescenario"))
         ##
-        tar.extractall(path=settings.get("path", "scenario"))  # path=settings.get("path", "scenario"))
+        tar.extractall(path=settings.get_path("scenario"))  # path=settings.get("path", "scenario"))
         return True
     # if here it's because we ca not open tar file
     log.warning("Error when opening scnario at {0}".format(os.path.join(path, group + "@" + newer.date + ".tar")))
@@ -477,14 +477,21 @@ class ScenarioFile:
         This class represent a scenario file in the fs
     """
 
-    def __init__(self, path, group, edit_date, dateobj):
+    def __init__(self, path, group, edit_date, dateobj, distant_path="", user_ip=""):
         """
             :param path: Absolute path of the scenario file
+            :param group: Work group of the scenario
+            :param edit_date: Edite date of the file
+            :param dateobj: Datetime object which represent edit date
+            :param distant_path: Distant path if received from OSC
+            :param user_ip: user@ip if received from OSC
         """
         self.path = path
         self.group = group
         self.date = edit_date
         self.dateobj = dateobj
+        self.distant_path = distant_path
+        self.user_ip = user_ip
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.group == other.group and self.date == other.date
@@ -492,22 +499,28 @@ class ScenarioFile:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def get_from_distant(self, ip):
+    def get_from_distant(self):
         """
             This function use scp to copy a distant scenario to the local filesystem
-            :param ip: Target ip of the distant client
             :return:
         """
-        if settings.get("sys", "raspi"):
-            scp = ExternalProcess("scp")
-            scp.command += " {options} {ip}:{path} {path}".format(
-                ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
-            log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
-            scp.start()
-            scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
-        else:
-            log.warning("!! NOT IMPLEMENTED !!")
-            log.warning("Should copy distant scenario {0} with scp but we are not on a raspi")
+        # if settings.get("sys", "raspi"):
+        #     scp = ExternalProcess("scp")
+        #     scp.command += " {options} {ip}:{path} {path}".format(
+        #         ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
+        #     log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
+        #     scp.start()
+        #     scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
+        # else:
+        #     log.warning("!! NOT IMPLEMENTED !!")
+        #     log.warning("Should copy distant scenario {0} with scp but we are not on a raspi")
+        scp = ExternalProcess("scp")
+        scp.command += " {options} {ip}:{distabnt_path} {path}".format(
+            ip=self.user_ip, distant_path=self.distant_path,
+            path=self.path, options=settings.get("sync", "scp_options"))
+        log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
+        scp.start()
+        scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
 
 
     @staticmethod
@@ -523,16 +536,18 @@ class ScenarioFile:
         return ScenarioFile(path, group, edit_date, dateobj)
 
     @staticmethod
-    def create_by_OSC(group, edit_date):
+    def create_by_OSC(group, edit_date, user_ip="", distant_path=""):
         """
             This function create a ScenarioFile by OSC
+            :param user_ip: user@ip of the sender
+            :param distant_path: Distant path of the scenario dir from the sender
             :param group: group recv by OSC
             :param edit_date: edit_date recv by OSC
         """
         filename = group + "@" + edit_date + ".tar"
-        path = os.path.join(settings.get("path", "scenario"), group, filename)
+        path = os.path.join(settings.get_path("scenario"), group, filename)
         dateobj = datetime.datetime.strptime(edit_date, settings.get("scenario", "date_format"))
-        return ScenarioFile(path, group, edit_date, dateobj)
+        return ScenarioFile(path, group, edit_date, dateobj, user_ip, distant_path)
 
     def __str__(self):
         return "ScenarioFile : {0}@{1}".format(self.group, self.date)
@@ -547,7 +562,7 @@ def get_scenario_by_group_in_fs():
     :return: dictionary with groups in keys and foreach a list of version
     """
     scenario_by_group = dict()
-    for path, dirs, files in os.walk(settings.get("path", "scenario")):
+    for path, dirs, files in os.walk(settings.get_path("scenario")):
         if os.path.split(path)[1][:len(settings.get("sync",
                                                     "escape_scenario_dir"))] == settings.get("sync",
                                                                                              "escape_scenario_dir"):
@@ -565,19 +580,22 @@ def get_scenario_by_group_in_fs():
     return scenario_by_group
 
 
-def get_scenario_by_group_in_osc(osc_args):
+def get_scenario_by_group_in_osc(osc_args, ip):
     """
     This function return a dictionary with groups in keys and foreach a list of version
     :param osc_args: OSC args
+    :param  ip: ip of the sender
     :return: dictionary with groups in keys and foreach a list of version
     """
     log.log("raw", "Recv osc_args : {0}".format(osc_args))
+    user_ip = osc_args.pop(0)+"@"+ip
+    distant_path = osc_args.pop(0)
     scenario_by_group = dict()
     if len(osc_args) % 2 != 0:
         log.critical("We must have n*2 arguments (one for group the other for date)")
         return []
     for i in range(len(osc_args) / 2):
-        scenario = ScenarioFile.create_by_OSC(osc_args[2 * i], osc_args[2 * i + 1])
+        scenario = ScenarioFile.create_by_OSC(osc_args[2 * i], osc_args[2 * i + 1], user_ip, distant_path)
         log.log("raw", "[i={0}]Create scenario : {1}".format(i, scenario))
         if scenario.group not in scenario_by_group.keys():
             log.log("raw", "New group : {0}".format(scenario.group))

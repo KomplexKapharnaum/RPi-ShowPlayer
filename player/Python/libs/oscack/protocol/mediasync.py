@@ -204,7 +204,7 @@ def trans_usb_have_dnc_media(flag):
     :return:
     """
     log.log("raw", "start on {0}".format(flag))
-    path = settings.get("path", "usb")
+    path = settings.get_path("usb")
     flag.args["trans_enough_place"] = trans_enought_place
     flag.args["trans_end"] = step_usb_end_copy
     flag.args["trans_free"] = step_put_media_on_fs
@@ -268,7 +268,7 @@ def get_fs_media_free_space():
     This his the free space available for the user (- protected space)
     :return:
     """
-    s = os.statvfs(settings.get("path", "media"))
+    s = os.statvfs(settings.get_path("media"))
     return s.f_frsize * s.f_bavail / 1024  # in Ko
 
 
@@ -409,7 +409,7 @@ def send_media_list(flag):
     log.log("raw", "start on {0}".format(flag))
     args_list = list()
     args_list.append(('s', getpass.getuser()))                 # username
-    args_list.append(('s', settings.get("path", "media")))     # media path
+    args_list.append(('s', settings.get_path("media")))        # media path
     all_media = media.get_all_media_list()
     for f in all_media:
         for value in f.get_osc_repr():

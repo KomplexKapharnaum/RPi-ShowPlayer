@@ -126,7 +126,7 @@ class KxkmCard(ExternalProcess):
         :return:
         """
         log.log("raw", "Init HardWare on KxkmCard ..")
-        path = settings.get('path', 'deviceslist')
+        path = settings.get_path('deviceslist')
         voltage = None
         titreur = None
 

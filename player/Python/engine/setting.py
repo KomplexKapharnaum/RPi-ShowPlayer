@@ -27,33 +27,33 @@ DEFAULT_SETTING["localport"]["interface"] = 8080
 
 DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
-DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
-DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
+#DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
+#DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
 
-DEFAULT_SETTING["path"]["media"] = "/dnc/media"
-DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
-DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
-DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
+#DEFAULT_SETTING["path"]["media"] = "/dnc/media"
+#DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
+#DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
+#DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["cp"] = "/usr/bin/cp"
 DEFAULT_SETTING["path"]["umount"] = "/usr/bin/umount"
 DEFAULT_SETTING["path"]["mount"] = "/usr/bin/mount"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
-DEFAULT_SETTING["path"]["usb"] = "/dnc/usb"
-DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
-DEFAULT_SETTING["path"]["activescenario"] = "/dnc/scenario/__active"
+# DEFAULT_SETTING["path"]["usb"] = "/dnc/usb"
+# DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
+# DEFAULT_SETTING["path"]["activescenario"] = "/dnc/scenario/__active"
 DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
-DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hardware6"
-DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
-DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
+# DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hardware6"
+# DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
+# DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7 --play-and-exit"
 DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd --zoom=0.7 --play-and-exit" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
-DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
-DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
+# DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
+# DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
 
 DEFAULT_SETTING["path"]["relative"] = dict()
 DEFAULT_SETTING["path"]["relative"]["usb"] = "usb"
@@ -61,6 +61,7 @@ DEFAULT_SETTING["path"]["relative"]["scenario"] = "scenario"
 DEFAULT_SETTING["path"]["relative"]["activescenario"] = "__active"
 DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv6l"] = "player/Hardware/hardware/hardware6"
 DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv7l"] = "player/Hardware/hardware/hardware7"
+DEFAULT_SETTING["path"]["relative"]["hplayer"] = "player/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["relative"]["interface"] = "player/Python/interface/bottleserver.py"
 DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "deviceslist"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
@@ -222,6 +223,8 @@ class Settings(dict):
         :param args: path to the setting (ex: ("OSC", "ackport"))
         :return:
         """
+        if args[0] == "path" and len(args) > 1 and args[1] != "relative" and args[1] in self.get("path", "relative").keys():
+            log.warning("Depreciated : use relative path with get_path(*args) instead. [called with {0}] ".format(args))
         d = self
         for elem in args:
             if elem in d.keys():
@@ -236,10 +239,11 @@ class Settings(dict):
         :param args: each relative path to cross
         :return:
         """
+        if args[0] not in self.get("path", "relative").keys():
+            return self.get("path", *args)
         abs_path = self.get("path", "main")
         for path in args:
             abs_path = os.path.join(abs_path, settings.get("path", "relative", path))
-        log.error("Return relative path {0}".format(abs_path))
         return abs_path
 
 
