@@ -91,7 +91,8 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
 DEFAULT_SETTING["vlc"]["options"]["audio"] = {"vout": "none"}
 DEFAULT_SETTING["vlc"]["options"]["video"] = {"vout": "mmal_vout"}
 DEFAULT_SETTING["vlc"]["volume"] = dict()
-DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 % (~=256)
+DEFAULT_SETTING["vlc"]["volume"]["master"] = 50        # Master volume for VLC 100 = 100 % (~=256)
+DEFAULT_SETTING["vlc"]["volume"]["step"] = 10           # Step volume for volumeup volumedown
 DEFAULT_SETTING["vlc"]["volume"]["scenes"] = dict()     # Master scene volume for VLC 100 = 100 % (~=256) #TODO
 
 DEFAULT_SETTING["sync"] = dict()
@@ -127,7 +128,7 @@ DEFAULT_SETTING["scenario"]["date_len"] = 24  # extension + date length + @
 DEFAULT_SETTING["scenario"]["dest_all"] = "All"  # string for all dest in a signal
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"  # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"  # string for self dest in a signal
-DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.850  # 500 ms : time delta before run sync between cards, if sync
+DEFAULT_SETTING["scenario"]["play_sync_delay"] = 1.850  # 500 ms : time delta before run sync between cards, if sync
 DEFAULT_SETTING["scenario"]["TTL"] = 1.5                # TTL default value for scenario
 DEFAULT_SETTING["scenario"]["JTL"] = 3                  # JTL default value for scenario
 # fail try to increase this value
@@ -177,6 +178,11 @@ DEFAULT_SETTING["values"]["types"]["str"] = ""
 DEFAULT_SETTING["values"]["signaux"] = dict()
 DEFAULT_SETTING["values"]["signaux"]["TTL"] = 5
 DEFAULT_SETTING["values"]["signaux"]["JTL"] = 2
+DEFAULT_SETTING["values"]["vlc"] = dict()
+DEFAULT_SETTING["values"]["vlc"]["mediavolume"] = 100
+DEFAULT_SETTING["values"]["vlc"]["media"] = ""
+DEFAULT_SETTING["values"]["vlc"]["repeat"] = False
+DEFAULT_SETTING["values"]["vlc"]["volume"] = 100
 
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "info"

@@ -28,7 +28,7 @@ log = init_log("devicecontrol")
         "/device/restart": "device_restart",
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
-        "FS_TIMELINE_UPDATED": "device_do_reload",
+        "FS_TIMELINE_UPDATED": "device_restart",         # TODO : replace by do_reload, but in replacement...
         "/device/sendInfoTension": "device_send_info_tension",
         "/device/senWarningTension": "device_send_warning_tension"})
 
