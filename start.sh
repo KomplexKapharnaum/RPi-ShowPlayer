@@ -34,7 +34,8 @@ while (( running )); do
     else
     	# mkdir -p /tmp/dnc
     	# echo '' > /tmp/dnc/stdin
-    	./player/Python/main.py &> ./logs/main.log
+    	echo '' > /dnc/logs/main.log
+	./player/Python/main.py &> /dnc/logs/main.log
     	# ./player/Python/main.py < /tmp/dnc/stdin &> ./logs/main.log
     fi
     exitcode=$?
