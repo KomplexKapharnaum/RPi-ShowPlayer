@@ -104,11 +104,10 @@ int parseInput(string input){
     produce(q,"interrupt_teleco");
     }
     produce(q,"start_interrupt");
-
   }
 
   if(input=="start_interrupt"){
-
+    
     cout << "#HARDWAREREADY" << endl;
 
   }

@@ -192,6 +192,8 @@ ISR (SPI_STC_vect)
     if (command == WRITECOMMANDVALUE) {
       Serial.print  ("wv ");
       Serial.println (adress);
+      Serial.print  (" - ");
+      Serial.println (c);
       if(adress<REGISTERSIZE)newValue[adress] = c;
       if (adress < DECINPIN)fadeInterval[adress] = 0;
       command = 1;
@@ -200,7 +202,7 @@ ISR (SPI_STC_vect)
     }
     //fade
     if (command == WRITECOMMANDFADE) {
-      //Serial.println ("wf");
+      Serial.println ("wf");
       if (adress < DECINPIN) {
         int v = Value[adress];
         v = abs(v - newValue[adress]);
@@ -221,11 +223,12 @@ ISR (SPI_STC_vect)
   if (command == READCOMMAND) {
     if(adress<REGISTERSIZE)SPDR = Value[adress];
     command = 1;
+    Serial.print("r ");
+    Serial.println (Value[adress],DEC);
     if (inputRange(adress) || adress==UBATT) {
       freeInterrupt();
     }
-    Serial.print("r ");
-    Serial.println (Value[adress],DEC);
+
   }
 
 
