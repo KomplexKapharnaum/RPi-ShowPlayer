@@ -34,7 +34,7 @@ class VideoVLCPlayer(AbstractVLC):
         arguments = copy.copy(settings.get("vlc", "options", "default"))
         """:type: dict"""
         arguments.update(settings.get("vlc", "options", "video"))
-        log.log("debug", "Hplayer command : {0}".format(command.format(**arguments)))
+        log.log("raw", "Hplayer command : {0}".format(command.format(**arguments)))
         AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments), filters=FILTERS)
 
     def check_media(self, media):
