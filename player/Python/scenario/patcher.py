@@ -93,7 +93,7 @@ class ThreadPatcher(threading.Thread):
             signal = self._queue.get()
             if signal is None:
                 continue
-            log.debug('{0}'.format(signal))
+            log.log('raw', '{0}'.format(signal))
             if "dest" in signal.args.keys():
                 self._dispatch(signal)
             elif signal.uid in self._patchs.keys():

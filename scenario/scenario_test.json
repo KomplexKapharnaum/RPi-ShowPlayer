@@ -46,6 +46,10 @@
 				{
 					"carte" : "raspi2mgr",
 					"etapes" : ["BOX1"]
+				},
+				{
+					"carte" : "imageA",
+					"etapes" : ["BOX1"]
 				}
 			]
 		}
