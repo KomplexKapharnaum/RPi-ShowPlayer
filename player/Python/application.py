@@ -5,6 +5,7 @@ from engine.setting import settings
 from engine.log import set_default_log_by_settings
 set_default_log_by_settings(settings)                   # Set default log level and output via settings
 
+import sys
 import engine
 import scenario
 import modules
@@ -19,7 +20,7 @@ POWEROFF = 0    # 1: STOP PROGRAM   2: POWEROFF AFTER STOP  3: REBOOT AFTER STOP
 
 def init(autoload=True):
     # LOAD INPUT KEYBOARD THREAD
-    k = keyboardThread()
+    k = inputThread()
     k.start()
     # INIT THREAD
     engine.threads.init()
@@ -68,7 +69,7 @@ def restart():
     start()
 
 
-class keyboardThread(threading.Thread):
+class inputThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         engine.tools.register_thread(self)
@@ -80,6 +81,16 @@ class keyboardThread(threading.Thread):
         flag_all = engine.fsm.Flag("TEST_ALL").get()
         flag_all.args["dest"] = [settings.get("scenario", "dest_all"), ]
         global POWEROFF
+        
+        # import os, stat
+        # mode = os.fstat(0).st_mode
+        # if stat.S_ISFIFO(mode):
+        #      print "stdin is piped"
+        # elif stat.S_ISREG(mode):
+        #      print "stdin is redirected"
+        # else:
+        #      print "stdin is terminal"
+
         while True:
             try:
                 c = raw_input("")

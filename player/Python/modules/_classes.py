@@ -14,7 +14,7 @@ from engine.tools import register_thread, unregister_thread
 from engine.fsm import Flag
 from engine.setting import settings
 from engine.log import init_log
-log = init_log("modules", log_lvl="raw")
+log = init_log("modules")
 
 
 class module(object):
