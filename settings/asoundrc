@@ -8,37 +8,37 @@ pcm_slave.external {
   pcm "hw:1,0"
 }
 
-## OUPUT Dual: Internal + External USB
-pcm.both {
-    type route;
-    slave.pcm {
-        type multi;
-        slaves.a.pcm "internal";
-        slaves.b.pcm "external";
-        slaves.a.channels 2;
-        slaves.b.channels 2;
-
-        bindings.0.slave a;
-        bindings.0.channel 0;
-        bindings.1.slave a;
-        bindings.1.channel 1;
-
-        bindings.2.slave b;
-        bindings.2.channel 0;
-        bindings.3.slave b;
-        bindings.3.channel 1;
-    }
-    ttable.0.0 1;
-    ttable.1.1 1;
-
-    ttable.0.2 1;
-    ttable.1.3 1;
+## OUTPUT Dual: Internal + External
+pcm.both_dispatch {
+  type multi
+  slaves.a.pcm "hw:0,0"
+  slaves.a.channels 2
+  slaves.b.pcm "hw:1,0"
+  slaves.b.channels 2
+  bindings.0.slave a
+  bindings.0.channel 0
+  bindings.1.slave a
+  bindings.1.channel 1
+  bindings.2.slave b
+  bindings.2.channel 0
+  bindings.3.slave b
+  bindings.3.channel 1
+}
+pcm.dual {
+  type route
+  slave.pcm "both_dispatch"
+  ttable.0.0 1
+  ttable.1.1 1
+  ttable.0.2 1
+  ttable.1.3 1
 }
 
 ## DISPATCH to outputs
 pcm.dispatch {
   type plug
-  slave internal
+#INTERNAL  slave internal
+#EXTERNAL  slave external
+#DUAL  slave.pcm dual
 }
 
 ## EQ

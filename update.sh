@@ -16,10 +16,16 @@ fi
 
 
 #############################
-# Install ALSAequal
+# Install ALSAequal && ALSAplugins
 #############################
+x=`pacman -Qs alsa-plugins`
+if [ -n "$x" ];  then
+    echo "ALSAplugins Installed";
+else
+    echo "Install ALSAplugins";
+    pacman -S --noconfirm alsa-plugins
+fi
 x=`pacman -Qs alsaequal`
-if 
 if [ -n "$x" ];  then 
     echo "ALSAequal Installed";  
 else 
@@ -41,9 +47,10 @@ fi
 numaudio=`cat /proc/asound/cards | grep '^ [0-9]' | wc -l`
 cp /dnc/settings/asoundrc ~/.asoundrc
 if [ $numaudio -eq 2 ]; then
-        sed -i 's/slave internal/slave both/g' ~/.asoundrc
+        sed -i 's/#DUAL//g' ~/.asoundrc
         echo "AUDIO: Dual Output Internal+External"
 else
-        echo "AUDIO: Internal Output"
+        sed -i 's/#INTERNAL//g' ~/.asoundrc
+	echo "AUDIO: Internal Output"
 fi
 #############################
