@@ -15,7 +15,7 @@ DECLARED_PATCHER = dict()
 DECLARED_OSCROUTES = dict()
 DECLARED_TRANSITION = dict()
 DECLARED_PUBLICSIGNALS = []
-
+DECLARED_PUBLICBOXES = dict()
 
 def init():
     import functions
@@ -81,6 +81,8 @@ def init():
     # ..
     # Import declared elements to Poll
     pool.Etapes_and_Functions.update(DECLARED_ETAPES)
+    for name, box in DECLARED_PUBLICBOXES.items():
+        pool.Etapes_and_Functions.update({name: box['function']})
     pool.Signals.update(DECLARED_SIGNALS)
 
 
@@ -144,6 +146,16 @@ class globaletape(object):
         DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
         DECLARED_TRANSITION[self.uid] = self.transitions
         return self.uid
+
+
+class publicbox(object):
+    def __init__(self, args=''):
+        self.args = [arg[1:-1] for arg in args.split(' ')]
+
+    def __call__(self, f):
+        global DECLARED_PUBLICBOXES
+        DECLARED_PUBLICBOXES[f.__name__.upper()+'_PUBLICFUNC'] = {'function': f,
+                                                                    'args': self.args}
 
 
 class link(globaletape):

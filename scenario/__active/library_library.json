@@ -1,18 +1,6 @@
 [
     {
         "arguments": [
-            "repeat", 
-            "", 
-            ""
-        ], 
-        "category": "VIDEO", 
-        "code": "print(__locals__)\nsendSignal(\"GO\")", 
-        "dispos": true, 
-        "medias": true, 
-        "name": "PLAY_B"
-    }, 
-    {
-        "arguments": [
             "", 
             "", 
             ""
@@ -22,5 +10,29 @@
         "dispos": false, 
         "medias": false, 
         "name": "WAIT"
+    }, 
+    {
+        "arguments": [
+            "", 
+            "", 
+            ""
+        ], 
+        "category": "GENERAL", 
+        "code": "print 'YALA !'", 
+        "dispos": false, 
+        "medias": false, 
+        "name": "WAIT2"
+    }, 
+    {
+        "arguments": [
+            "", 
+            "", 
+            ""
+        ], 
+        "category": "GENERAL", 
+        "code": "sendSignal(\"GO\")\nprint 'did send GO ?'", 
+        "dispos": false, 
+        "medias": false, 
+        "name": "SEND_GO"
     }
 ]

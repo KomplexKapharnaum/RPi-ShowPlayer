@@ -3,7 +3,7 @@ import sys
 import os
 from os import listdir
 from os.path import isfile, join, isdir
-from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS
+from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_PUBLICBOXES
 from engine.log import init_log
 from engine.media import save_scenario_on_fs
 from engine.threads import patcher
@@ -76,7 +76,7 @@ def librarylist():
     answer = dict()
     answer['functions'] = []
     answer['signals'] = []
-    # BOXES FOR DECLARED OSC ROUTES
+    # SENDSIGNAL BOXES FOR DECLARED OSC ROUTES
     for oscpath, route in DECLARED_OSCROUTES.items():
         box = {
             'name': oscpath.split('/')[-1].upper(),
@@ -85,6 +85,18 @@ def librarylist():
             'medias': ('media' in route['args']),
             'arguments': [arg for arg in route['args'] if arg != 'dispo' and arg != 'media'],
             'code': 'sendSignal("'+route['signal']+'")',
+            'hard': True
+        }
+        answer['functions'].append(box)
+    # PUBLIC BOXES
+    for name, box in DECLARED_PUBLICBOXES.items():
+        box = {
+            'name': name.replace('_PUBLICFUNC', ''),
+            'category': 'GENERAL',
+            'dispos': ('dispo' in box['args']),
+            'medias': ('media' in box['args']),
+            'arguments': [arg for arg in box['args'] if arg != 'dispo' and arg != 'media'],
+            'code': '',
             'hard': True
         }
         answer['functions'].append(box)

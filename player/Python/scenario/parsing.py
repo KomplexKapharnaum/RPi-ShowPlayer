@@ -12,6 +12,7 @@ from os.path import isfile, join
 import engine
 from engine import fsm
 from scenario import classes, pool
+from scenario.publicfunctions import *
 from engine.setting import settings
 from operator import itemgetter
 import libs.simplejson as json
@@ -79,7 +80,6 @@ def parse_arg_function(jfunction):
 
 def parse_function(jobj):
     fnct = None
-    from functions import *
     exec jobj["CODE"]
     pool.Etapes_and_Functions[jobj["ID"]] = fnct  # fnct define in the exec CODE
     return fnct
@@ -123,7 +123,10 @@ def parse_timeline(parsepool):
                         boxname = (scenario+'_'+box).upper()
                         SC['etapes'].append(boxname)
             # ADD SCENE
-            scene_name = block['scene']['name']
+            if 'scene' in block:
+                scene_name = block['scene']['name']
+            else:
+                scene_name = 'default'
             if scene_name not in Sceno.keys():
                 Sceno[scene_name] = []
             Sceno[scene_name].append(SC)
@@ -147,8 +150,12 @@ def parse_timeline(parsepool):
     for device in parsepool:
         if device['name'] == settings["uName"]:
             for block in device["blocks"]:
+                if 'scene' in block:
+                    scene_name = block['scene']['name']
+                else:
+                    scene_name = 'default'
                 importTimeline.append({
-                    "scene" : block['scene']['name'],
+                    "scene" : scene_name,
                     "start": block['start'],
                     "end": block['end']
                 })
@@ -171,7 +178,7 @@ def parse_library(libs):
     for fn in libs:
         importFn = {
             "ID" : fn['category']+'_'+fn['name']+'_USERFUNC',
-            "CODE" : "def fnct(flag, **kwargs):\n  log.info('CUSTOM CODE')\n"
+            "CODE" : "def fnct(flag, **kwargs):\n  log.debug('CUSTOM CODE EXECUTED')\n"
         }
         code = string.split(fn['code'], '\n')
         code = [(2 * ' ') + line for line in code]
@@ -204,10 +211,18 @@ def parse_scenario(parsepool, name):
 
         # CUSTOM FUNCTION (Declared in Library)
         elif etapename+'_USERFUNC' in pool.Etapes_and_Functions.keys():
-            fn = pool.Etapes_and_Functions[box['category']+'_'+box['name']+'_USERFUNC']
+            fn = pool.Etapes_and_Functions[etapename+'_USERFUNC']
             etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
             importEtapes[etape.uid] = etape
             log.log('raw', 'ADD USER FUNC '+etape.uid)
+
+
+        # PUBLIC FUNCTION (Declared in Library)
+        elif box['name']+'_PUBLICFUNC' in pool.Etapes_and_Functions.keys():
+            fn = pool.Etapes_and_Functions[box['name']+'_PUBLICFUNC']
+            etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
+            importEtapes[etape.uid] = etape
+            log.log('raw', 'ADD PUBLIC FUNC '+etape.uid)
 
         # NO MATCHING ETAPE..
         else:

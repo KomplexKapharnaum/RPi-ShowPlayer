@@ -208,5 +208,3 @@ def reboot_manager(*args, **kwargs):
     #                    close_fds=False, shell=False, cwd=None, env=None, universal_newlines=False, startupinfo=None,
     #                    creationflags=0)
 
-def sendSignal(uid):
-    log.debug('!!!! SEND '+uid)
