@@ -18,7 +18,6 @@ Medias = dict()
 cross_ref = list()
 
 
-
 def clear():
     """
     This function init pool variable before parsing a new scenario file

@@ -37,6 +37,8 @@ def init(autoload=True):
 def reload():
     # RELOAD SCENARIO
     scenario.reload()
+    # INFORM MEDIA WATCHER
+    oscack.media_list_updated()
 
 
 def start():
