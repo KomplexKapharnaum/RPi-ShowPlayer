@@ -12,7 +12,7 @@ import subprocess
 import scenario
 from modules import link
 from _classes import module
-from engine import tools, threads
+from engine import tools, threads, fsm
 from engine.log import init_log
 from engine.setting import settings, devicesV2
 from engine.media import load_scenario_from_fs
@@ -21,14 +21,14 @@ log = init_log("devicecontrol")
 TENSION = 0
 
 @module('DeviceControl')
-@link({"/device/reload": "device_do_reload",
-       "/device/do_reload": "device_do_reload",
+@link({"/device/reload": "device_reload",
+       "/device/do_reload": "device_reload",
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
         "/device/restart": "device_restart",
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
-        "FS_TIMELINE_UPDATED": "device_restart",         # TODO : replace by do_reload, but in replacement...
+        "FS_TIMELINE_UPDATED": "device_restart",         # TODO : replace by device_update_timeline, but seems broken...
         "/device/updateTension": "device_update_tension",
         "/device/info": "device_send_info",
         "/device/warningTension": "device_send_warning_tension"})
@@ -38,7 +38,7 @@ def device_control(flag, **kwargs):
 
 
 @link({None: "device_control"})
-def device_do_reload(flag, **kwargs):
+def device_reload(flag, **kwargs):
     application.reload()
 
 @link({None: "device_control"})
@@ -82,14 +82,14 @@ def device_send_info(flag, **kwargs):
     link_channel = "no channel"
     power = "-"
     scene_name = "NoScene"
-    
+
     # TEMPERATURE
     try:
         with open("/sys/class/thermal/thermal_zone0/temp") as file:
             cpu_temperature = float(file.read())/1000
     except:
         log.warning('Can\'t retrieve temperature')
-    
+
     # WIFI SIGNAL
     try:
         link = subprocess.check_output(['iw', 'dev', 'wlan0', 'link'])
