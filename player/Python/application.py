@@ -100,6 +100,8 @@ class keyboardThread(threading.Thread):
                 log.info(oscack.protocol.discover.machine.current_state)
                 log.info(oscack.protocol.scenariosync.machine.current_state)
                 log.info(oscack.protocol.mediasync.machine.current_state)
+                log.info("Needed media : {0}".format(oscack.protocol.mediasync.needed_media_list))
+                log.info("Uneeded media : {0}".format(oscack.protocol.mediasync.unwanted_media_list))
                 for f in scenario.FSM:
                     log.info(f.current_state)
                     log.info(f._flag_stack)
