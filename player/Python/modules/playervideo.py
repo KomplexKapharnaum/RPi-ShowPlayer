@@ -128,7 +128,7 @@ exposesignals(FILTERS)
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
-@link({"/video/play [media:str] [repeat:bool] [volume:int]": "video_play",
+@link({"/video/play [media:str] [repeat:bool]": "video_play", #do not set volume in play box because we do not want rewrite all the scenario
        "/video/pause": "video_pause",
        "/video/resume": "video_resume",
        "/video/toggle": "video_toggle",
@@ -139,6 +139,7 @@ exposesignals(FILTERS)
        "SCENE_STOPPING": "video_stop",
        "/media/volup": "video_volume_up",
        "/media/voldown": "video_volume_down"})
+
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VideoVLCPlayer()
