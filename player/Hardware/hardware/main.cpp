@@ -98,6 +98,13 @@ void testRoutine(int n){
 
 //parse pyton or bash input from stdin
 int parseInput(string input){
+  if (input=="check_teleco_on_start"){
+    //init teleco if already connected // ISSUE HERE
+    if (digitalRead(21)==HIGH) {
+    produce(q,"interrupt_teleco");
+    }
+  }
+
   if (input=="interrupt_teleco") {
     //fprintf(stderr, "main - interrupt from teleco\n");
     if (myteleco.fisrtView()){
@@ -145,14 +152,24 @@ int parseInput(string input){
   if (input=="initcarte_local") {
     fprintf(stderr, "main - init teleco with local poweroff\n");
     myteleco.initCarte(1);
+    produce(q,"check_teleco_on_start");
     delay(10);
+    cout << "#HARDWAREREADY" << endl;
+    fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
+    wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
+    wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
     return 0;
   }
   
   if (input=="initcarte_main") {
     fprintf(stderr, "main - init teleco with main program poweroff\n");
     myteleco.initCarte(0);
+    produce(q,"check_teleco_on_start");
     delay(10);
+    cout << "#HARDWAREREADY" << endl;
+        fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
+    wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
+    wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
     return 0;
   }
   
@@ -230,7 +247,7 @@ int parseInput(string input){
       mytitreur.text(0,0,buff);
       strncpy(buff, carte_ip.c_str(), sizeof(buff));
       mytitreur.text(0,8,buff);
-      produce(q,"initcarte_local");
+      produce(q,"initcarte_main");
     }else{
       fprintf(stderr, "main - error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
     }
@@ -493,7 +510,7 @@ void readcin(Queue<string>& q) {
   string input;
   while (live) {
     getline(cin, input);
-    if(input.length()){
+    if(input.length()>3){
         fprintf(stderr, "main - cin push %s\n",input.c_str());
         q.push(input);
     }
@@ -514,7 +531,7 @@ void consume(Queue<string>& q) {
 }
 
 //one listener to cin
-thread reader(bind(readcin, ref(q)));
+//thread reader(bind(readcin, ref(q)));
 
 //one reader, execute order one by one
 thread consumer(bind(&consume, ref(q)));
@@ -530,7 +547,7 @@ void killthread() {
 void beforekill(int signum)
 {
   killthread();
-  consumer.join();
+  //consumer.join();
   exit(signum);
 }
 
@@ -555,27 +572,14 @@ int main (int argc, char * argv[]){
   
   wiringPiSetupGpio();
   pinMode (21, INPUT);
-  
-  //program start
+
   cout << "#INITHARDWARE" << endl;
 
-  //wait for init
-  while(!init){
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  }
-  
-  //init teleco if already connected // ISSUE HERE
-  if (digitalRead(21)==HIGH) {
-    produce(q,"interrupt_teleco");
-  }
-  
-  cout << "#HARDWAREREADY" << endl;
-  
-  //start interrupt thread
-  fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
-  wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
-  wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
-  
+
+
+  readcin(q);
+  //program start
+
   consumer.join();
 
   exit(0);
