@@ -48,7 +48,7 @@ void sendStatusTeleco(){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
-  delay(10);
+  delay(40);
   sprintf(mess1,"git %s",status.c_str());
   sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
   myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);

@@ -190,7 +190,8 @@ ISR (SPI_STC_vect)
   else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
-      Serial.println ("wv");
+      Serial.print  ("wv ");
+      Serial.println (adress);
       newValue[adress] = c;
       if (adress < DECINPIN)fadeInterval[adress] = 0;
       command = 1;
@@ -236,7 +237,7 @@ ISR (SPI_STC_vect)
 void loop (void) {
 
   // if SPI not active, clear current command
-  if (digitalRead (SS) == HIGH) command = 0;
+  if (digitalRead (SS) == HIGH  || adress>=REGISTERSIZE) command = 0;
 
   //verification changement de valeur
   if (command == 0) {
@@ -321,12 +322,9 @@ void checkInput() {
 }
 
 void checkTension() {
-  if ((millis() > lastCheckTension + checkTensionPeriod)  && Value[INTERRUPT] == 0) {
-    newValue[INTERRUPT]=UBATT;
-    Value[INTERRUPT] = newValue[INTERRUPT];
+  if ((millis() > lastCheckTension + checkTensionPeriod)  && !interruptPending()) {
     Serial.println("interupt tension");
-    digitalWrite(outpin[INTERRUPT], HIGH);
-    SPDR = UBATT;
+    setInterrupt(UBATT);
     lastCheckTension= millis();
   }
 }
