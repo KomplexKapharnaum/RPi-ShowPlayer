@@ -3,7 +3,7 @@ $(warning $(UNAME))
 UNAME_P := $(shell gcc -dumpmachine)
 $(warning $(UNAME_P))
 CC=g++
-CFLAGS=
+CFLAGS=-std=c++11 -Wall
 LDFLAGS=-lvlc -lpthread
 EXEC=hplayer-vlc
  
