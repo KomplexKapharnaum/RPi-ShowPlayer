@@ -217,7 +217,7 @@
       }
 
       .select option[selected] {
-   /*color: red;*/
+   color: red;
 }
 
     .dropdownGnrl{
