@@ -40,11 +40,11 @@ try:
 
     parsing.clear_scenario()
 
-    basescenario = os.path.join(settings.get("path", "scenario"), "timeline_timeline1.json")
+    basescenario = os.path.join(settings.get("path", "scenario"), "__save/timeline_timeline1.json")
     mypool = parsing.parse_file(basescenario)['pool']
     parsing.parse_customdevices(mypool)
-    parsing.parse_customlibrary("library_library.json")
-    parsing.parse_customscenario("scenario_play_btn.json")
+    parsing.parse_customlibrary("__save/library_library.json")
+    parsing.parse_customscenario("__save/scenario_play_btn.json")
     parsing.parse_customtimeline(mypool)
 
     if settings["uName"] in pool.Cartes.keys():
