@@ -33,27 +33,9 @@ def init(managermodule):
     This function init pool variable before parsing a new scenario file
     :return:
     """
-    global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, Patchs, Medias, cross_ref
-    global MANAGER, CURRENT_FRAME, CURRENT_SCENE, FSM, DEVICE_FSM, GLOBALS, MANAGERMODULE
-
-    stop()
-
+    global MANAGERMODULE
     MANAGERMODULE = managermodule
-    Etapes_and_Functions = dict()
-    Signals = dict()
-    Scenes = dict()
-    Frames = list()
-    Devices = dict()
-    Cartes = dict()
-    Patchs = dict()
-    Medias = dict()
-    cross_ref = list()
-    MANAGER = None
-    CURRENT_FRAME = None
-    CURRENT_SCENE = None
-    FSM = list()
-    DEVICE_FSM = list()
-    GLOBALS = dict()
+    stop()
 
 
 def start():
@@ -74,7 +56,8 @@ def restart():
 
 
 def stop():
-    global MANAGER, FSM, DEVICE_FSM
+    global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, Patchs, Medias, cross_ref
+    global MANAGER, CURRENT_FRAME, CURRENT_SCENE, FSM, DEVICE_FSM, GLOBALS, MANAGERMODULE
     if MANAGER is not None:
         MANAGER.stop()
         MANAGER.join()
@@ -84,6 +67,21 @@ def stop():
     for sfsm in DEVICE_FSM:
         sfsm.stop()
         sfsm.join()
+    Etapes_and_Functions = dict()
+    Signals = dict()
+    Scenes = dict()
+    Frames = list()
+    Devices = dict()
+    Cartes = dict()
+    Patchs = dict()
+    Medias = dict()
+    cross_ref = list()
+    MANAGER = None
+    CURRENT_FRAME = None
+    CURRENT_SCENE = None
+    FSM = list()
+    DEVICE_FSM = list()
+    GLOBALS = dict()
 
 
 def do_cross_ref():

@@ -34,10 +34,14 @@ set_python_path(depth=1)
 log = log.init_log("main")
 
 try:
+    #################
     # INIT
     threads.init()
     pool.init(manager)
+    
+    # LOAD
     scenario.init()
+    parsing.load()
 
     # GLOBAL MACHINES
     webfsm = classes.ScenarioFSM("WebInterface")
@@ -48,10 +52,10 @@ try:
     devicefsm.start(scenario.DECLARED_ETAPES["DEVICE_CONTROL"])
     patcher.FSM_GLOBAL.append(devicefsm)
 
-    # START
-    parsing.load()
+    #START
     oscack.start_protocol()
     pool.start()
+    ###################
 
     # DEV
     flag_group = fsm.Flag("TEST_GROUP").get()

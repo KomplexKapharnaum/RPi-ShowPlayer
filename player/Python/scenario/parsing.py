@@ -72,7 +72,6 @@ def parse_devices(parsepool):
         # DEVICES // CARTES
         managers = dict()
         patchs = list()
-        log.warning('{0}'.format(device))
         for etape in device['modules']:
             managers[etape] = pool.Etapes_and_Functions[etape]
         # for patch in importDevice["OTHER_PATCH"]:
@@ -221,7 +220,7 @@ def parse_scenario(parsepool, name):
     # ETAPES
     for etape in importEtapes.values():
         pool.Etapes_and_Functions[etape.uid] = etape
-        log.debug(etape.strtrans())
+        log.log('raw', etape.strtrans())
 
 
 # def parse_etape(jobj):

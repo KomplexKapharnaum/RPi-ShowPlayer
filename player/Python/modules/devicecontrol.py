@@ -5,8 +5,9 @@
 #
 #
 
+import scenario
 from scenario import globaletape, link
-from scenario import functions, pool
+from scenario import functions, pool, parsing
 from engine.log import init_log
 from engine.setting import settings
 from engine.media import load_scenario_from_fs
@@ -22,13 +23,14 @@ def device_control(flag, **kwargs):
 
 @link({None: "DEVICE_SCENARIO_RESTART"})
 def device_update_timeline(flag, **kwargs):
-    # TODO GET THE TAR // UPDATE ACTIVE SCENARIO // RELOAD SCENARIO
     load_scenario_from_fs(settings["current_timeline"])
-    # TODO restart scenario !!
 
 @link({None: "DEVICE_CONTROL"})
 def device_scenario_restart(flag, **kwargs):
-    pool.restart()
+    pool.stop()
+    scenario.init()
+    parsing.load()
+    pool.start()
     pass
 
 
