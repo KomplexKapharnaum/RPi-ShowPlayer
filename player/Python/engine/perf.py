@@ -212,7 +212,7 @@ class DeclaredFSM(object):
         if self._fsm() is not None:
             return self._fsm()
         else:
-            log.warning("perf", "Try to access to a defunct FSM {0}".format(self))
+            log.warning("Try to access to a defunct FSM {0}".format(self))
 
     @fsm.setter
     def fsm(self, value):
