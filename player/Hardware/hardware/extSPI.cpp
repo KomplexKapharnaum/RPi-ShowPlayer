@@ -147,7 +147,7 @@ int extSPI::sendWithPause(int _selectedChip, unsigned char *_tab,int _len){
     //nanosleep(&tim);
   }
   //fprintf(stderr, "\n");
-  inactiveCS();
+  //inactiveCS();
   
   return 0;
 }
