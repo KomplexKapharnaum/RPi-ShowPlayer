@@ -1,6 +1,7 @@
 <?php
 
-$dir = "../../_SCENARIO/data";
+
+$dir = $_POST['directory'];
 
 $dh  = opendir($dir);
 

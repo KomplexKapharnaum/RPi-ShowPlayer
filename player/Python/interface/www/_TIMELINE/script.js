@@ -2,6 +2,11 @@
     $(function() {
 
       //allPi = new Array();
+      $('#colonne2').hide();
+      setTimeout(function(){
+        loadTimeline();
+        $('#colonne2').fadeIn(200);
+      },100);
 
 
       function pool() {
@@ -123,7 +128,7 @@
           var toCheck = new Array();
           $.each(thispi.modules, function(index,module){
              $.each(allModules,function(key,modulo){
-               if (module === modulo.name){ toCheck.push(key);}
+               if (module === modulo){ toCheck.push(key);}
              });
           });
           $("#disposms").multipleSelect("setSelects", toCheck);
@@ -348,21 +353,18 @@
       }
 
     //////////////////// DISPOSITIFS ///////////////////
-      var m1 = {name:'audio'};
-      var m2 = {name:'video'};
-      var m3 = {name:'light'};
-      var m4 = {name:'titreur'};
-      var m5 = {name:'li12'};
-      var m6 = {name:'pb12'};
-      var m7 = {name:'pb24'};
-      var allModules = new Array();
-      allModules.push(m1);
-      allModules.push(m2);
-      allModules.push(m3);
-      allModules.push(m4);
-      allModules.push(m5);
-      allModules.push(m6);
-      allModules.push(m7);
+      var allModules = ['MODULAUDIO','VIDEO','LIGHT','TITREUR','LI12','PB12','PB24'];
+
+  		$.ajax({
+  			type: 'GET',
+  			timeout: 1000,
+  		  url: "http://2.0.1.89:8080/moduleslist",
+  			dataType: "jsonp",
+  		}).done(function(data) {
+        allModules = {};
+  			allModules = data;
+        refreshModulesList();
+  		});
 
 
     //////////////////// SCENES ///////////////////
@@ -389,17 +391,16 @@
 
     //////////////////// SCENARIOS ///////////////////
     var allScenarios = new Array();
-      // var scenario1 = {name:'scenario1',active:false};
-      // var scenario2 = {name:'scenario2',active:false};
-      // allScenarios.push(scenario1);
-      // allScenarios.push(scenario2);
-
+    // var scenario1 = {name:'scenario1',active:false};
+    // allScenarios.push(scenario1);
     function getScenarios(){
       allScenarios = [];
       $.ajax({
           url: "data/fileList.php",
           type: "POST",
-          data: { type: 'scenario'}
+          data: { type: 'scenario',
+                  directory: '../../_SCENARIO/data'
+          }
       })
       .done(function(filelist) {
         var scenariosList = JSON.parse(filelist);
@@ -435,7 +436,7 @@
       function refreshModulesList(){
         $('#disposms').empty();
         $.each(allModules, function(index,module){
-         $('#disposms').append(('<option value="'+index+'">'+module.name+'</option>'));
+         $('#disposms').append(('<option value="'+index+'">'+module+'</option>'));
         });
         $('#disposms').multipleSelect({width: '100%',selectAll: false, countSelected: false});
         $('#disposms').multipleSelect('refresh');
@@ -685,11 +686,11 @@
 
 
       $('#loadBtn').click( function() {
-        loadJson();
+        loadTimeline();
       });
 
 
-      function loadJson() {
+      function loadTimeline() {
           $.ajax({
               url: "data/load.php",
               dataType: "json",
@@ -791,6 +792,44 @@
 
       }
 
+
+
+      //////////////////////// CHOOSE  SCENARIO   /////////////////////////
+      /////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////
+  		var allTimelines = [];
+  		function loadTimelinesList(){
+        allTimelines = [];
+        $.ajax({
+            url: "data/fileList.php",
+  					type: "POST",
+            data: { type: 'timeline',
+                    directory: './'
+            }
+        })
+        .done(function(filelist) {
+          console.log(filelist);
+          var alltime = JSON.parse(filelist);
+          $.each(alltime,function(index,name){
+              var newname = name.replace('.json','');
+              allTimelines.push(newname);
+
+          });
+          console.log(allTimelines);
+  				$.each(allTimelines, function(index,file){
+  					$('#selFile').append(('<option value="'+file+'">'+file+'</option>'));
+  				});
+  				$('#selFile').val(timelineName);
+        });
+      }
+      loadTimelinesList();
+
+  		$('#selFile').change(function(){
+  			timelineName = $('#selFile option:selected').text();
+        var url = window.location.href.split("#")[0];
+  			window.open(url+'#'+timelineName,"_self");
+  			location.reload(true);
+  		});
 
 
 });

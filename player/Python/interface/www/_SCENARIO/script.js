@@ -285,7 +285,6 @@
 
 
     //////////////////////// MERGE WITH MGR //////////////////////////////
-		//http://192.168.43.90:8080/library
 		var hardlib = new Array();
 		function loadExtLib(){
 			$.ajax({
@@ -349,7 +348,6 @@
 		audioFiles = ['select...','son1','son2','son3','son4'];
 		videoFiles = ['select...','vid1','vid2','vid3','vid4'];
 		txtFiles = ['select...','text1','text2','text3','text4'];
-		//http://192.168.43.90:8080/medialist
 		$.ajax({
 			type: 'GET',
 			timeout: 1000,
@@ -967,7 +965,7 @@
           type: "POST",
           data: {
               filename: timelineName,
-			  type: 'timeline'
+							type: 'timeline'
           }
       })
       .done(function(reponse) {

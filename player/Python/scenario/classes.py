@@ -11,7 +11,7 @@ import traceback
 from collections import deque
 
 from engine import fsm
-from engine import media
+# from engine import media
 from engine.setting import settings
 from scenario import pool
 import scenario
@@ -259,35 +259,35 @@ class Patch:
 
     def __repr__(self):
         return self.__str__()
-
-
-class Media:
-    """
-    This class provide an interface for media files
-    """
-    def __init__(self, uid, path, checksum):
-        """
-        :param uid: Unique ID
-        :param path: Path to the media file
-        :param checksum: Checksum of the media
-        :return:
-        """
-        self.uid = uid
-        self.path = path
-        self.checksum = checksum
-
-    def _get_fs_checksum(self):
-        """
-        This function return the real checksum of the current file on the filesystem
-        :return:
-        """
-        return media.get_fs_checksum(self.path)
-
-    def is_onfs(self):
-        """
-        This function test if the media is on the filesystem
-        :return:
-        """
-        if not os.path.exists(self.path):
-            return False
-        return self.checksum == self._get_fs_checksum()
+#
+#
+# class Media:
+#     """
+#     This class provide an interface for media files
+#     """
+#     def __init__(self, uid, path, checksum):
+#         """
+#         :param uid: Unique ID
+#         :param path: Path to the media file
+#         :param checksum: Checksum of the media
+#         :return:
+#         """
+#         self.uid = uid
+#         self.path = path
+#         self.checksum = checksum
+#
+#     def _get_fs_checksum(self):
+#         """
+#         This function return the real checksum of the current file on the filesystem
+#         :return:
+#         """
+#         return media.get_fs_checksum(self.path)
+#
+#     def is_onfs(self):
+#         """
+#         This function test if the media is on the filesystem
+#         :return:
+#         """
+#         if not os.path.exists(self.path):
+#             return False
+#         return self.checksum == self._get_fs_checksum()
