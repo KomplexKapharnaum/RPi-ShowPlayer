@@ -88,18 +88,18 @@ sudo make install
 
 ####DNC Dependencies
 git clone https://github.com/KomplexKapharnaum/RPi-ShowPlayer.git /dnc
-pacman -S --noconfirm python2-setuptools
+pacman -S --noconfirm python2-setuptools python2-simplejson cython liblo
 yaourt python2-pyliblo
-yaourt python2-simplejson
 yaourt omxplayer 
-sudo /dnc/player/Libs/recompile.sh /dnc/player/Libs
+/dnc/player/Libs/recompile.sh /dnc/player/Libs
 
 ####NETCTL
-- Install wpa_actiond : pacman -S wpa_actiond
-- Enable netctl-auto@wlan0.service : systemctl enable netctl-auto@wlan0.service
+pacman -S --noconfirm wpa_actiond
+systemctl enable netctl-auto@wlan0.service
 - (Disable old profiles : netctl disable *** )
 - Create profiles for wlan0 iterface and set Priority=XXX to ordonate profiles. Higher priority win.
 - ( You can manage auto profiles with netctl-auto command )
+
 
 
 
