@@ -114,7 +114,6 @@ class ExternalProcess(object):
                 self.onEvent(line.split(' '))
         if self.onClose:
             self.onEvent([self.onClose])
-            log.debug(self.onClose)
         self._running.clear()
         if self.stderr is not None:
             self.stderr.close()
