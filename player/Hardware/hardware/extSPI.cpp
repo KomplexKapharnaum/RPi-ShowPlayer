@@ -197,11 +197,11 @@ void extSPI::activeCS(){
   //fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
   //try only change speed
   //int fd=wiringPiSPISetupSpeed(spifile,chipSelect[selectedChip].speed);
-  if(lastSpeed!=chipSelect[selectedChip].speed){
+  /*if(lastSpeed!=chipSelect[selectedChip].speed){
     close(spifile);
     spifile = wiringPiSPISetup(0,chipSelect[selectedChip].speed);
     lastSpeed=chipSelect[selectedChip].speed;
-  }
+  }*/
   //this do not work beacause open file each time
   if(chipSelect[selectedChip].GPIO!=csactivated || hc595activated!=chipSelect[selectedChip].HC595 || keepSelect==0){
     //fprintf(stderr, "extspi - active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
