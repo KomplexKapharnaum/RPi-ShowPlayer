@@ -23,23 +23,29 @@ class VlcPlayer(ExternalProcess):
         self.onClose = "VIDEO_END"
         self.media = None
         self.repeat = 'off'
+        self.preloaded = False
         if start:
             self.start()
 
-    def preload(self, filename=None, repeat=None):
+    def preload(self, filename=None, repeat=None, mediatype='video'):
         if filename is not None:
-            media = os.path.join(settings.get_path("video"), filename)
+            media = os.path.join(settings.get_path("media", mediatype), filename)
             if os.path.isfile(media):
                 self.media = media
+
         if repeat is not None:
             self.repeat = 'on' if repeat else 'off'
+
         if self.media is None or not os.path.isfile(self.media):
             log.warning("Media File not found {0}".format(self.media))
-            return False
-        return True
+            self.preloaded = False
+        else:
+            self.preloaded = True
 
     def play(self, filename=None, repeat=None):
-        if self.preload(filename, repeat):
+        if filename is not None:
+            self.preload(filename, repeat)
+        if self.preloaded:
             #self.say("clear")
             self.say("add {media}".format(media=self.media))
             #self.say("play")
@@ -62,7 +68,9 @@ class VlcPlayerOneShot(VlcPlayer):
         VlcPlayer.__init__(self, start=False)
 
     def play(self, filename=None, repeat=None):
-        if self.preload(filename, repeat):
+        if filename is not None:
+            self.preload(filename, repeat)
+        if self.preloaded:
             self.command = self.executable+' --play-and-exit '+self.media
             self.start()
 
@@ -84,6 +92,7 @@ def video_player(flag, **kwargs):
 def video_play(flag, **kwargs):
     kwargs["_fsm"].process.stop()
     kwargs["_fsm"].process = VlcPlayerOneShot()
+
 
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
