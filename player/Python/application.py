@@ -7,8 +7,7 @@ set_default_log_by_settings(settings)                   # Set default log level 
 
 import engine
 import scenario
-from scenario import parsing
-from modules import MODULES
+import modules
 from libs import oscack
 log = engine.log.init_log("application")
 
@@ -24,53 +23,39 @@ def init(autoload=True):
     k.start()
     # INIT THREAD
     engine.threads.init()
-    # LOAD SUPER-MODULES
-    for manager in settings.get('managers'):
-        if manager in MODULES.keys():
-            modulefsm = scenario.classes.ScenarioFSM(manager)
-            engine.MODULES_FSM[manager] = modulefsm
-            log.debug("LOAD MANAGER :: "+manager+" (Auto)")
-    # INITIALIZE POOL
-    scenario.pool.init()
-    # LOAD POOL AND PARSE SCENARIO
+    # LOAD SUPER-MODULES IN ENGINE
+    for name in settings.get('managers'):
+        if name in modules.MODULES.keys():
+            engine.add_module(name, scenario.classes.ScenarioFSM(name))
+    # INITIALIZE SCENARIO
+    scenario.init()
+    # PARSE SCENARIO
     if autoload:
-        parsing.load(True)
+        scenario.load()
 
 
 def reload():
-    # STOP RUNNING POOL
-    scenario.pool.stop()
-    # RE-INIT
-    scenario.pool.init()
-    # RE-PARSE
-    parsing.load()
-    # RESTART POOL
-    scenario.pool.start()
+    # RELOAD SCENARIO
+    scenario.reload()
 
 
 def start():
     # OSC START
     oscack.start_protocol()
     # START POOL
-    scenario.pool.start()
+    scenario.start()
     # MODULES START
-    for name, modulefsm in engine.MODULES_FSM.items():
-        modulefsm.start(scenario.DECLARED_ETAPES[ MODULES[name]['init_etape'] ])
+    engine.start_modules()
 
 
 def stop():
-    log.info("Stop Pool Manager")
-    scenario.pool.stop()
-
-    log.info("Stop OscAck Servers")
+    log.info("Stop Scenario")
+    scenario.stop()
+    log.info("Stop OscAck")
     oscack.stop_protocol()
-
     log.info("Stop Modules")
-    for modulefsm in engine.MODULES_FSM.values():
-        modulefsm.stop()
-        modulefsm.join()
-
-    log.info("Stop Threads engine")
+    engine.stop_modules()
+    log.info("Stop Threads")
     engine.threads.stop()
 
 

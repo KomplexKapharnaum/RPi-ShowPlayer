@@ -11,7 +11,8 @@ from os.path import isfile, join
 
 import engine
 from engine import fsm
-from scenario import classes, pool, DECLARED_PUBLICBOXES
+from scenario import classes, pool
+from modules import DECLARED_PUBLICBOXES
 from scenario.userscope import *
 from engine.setting import settings
 from operator import itemgetter

@@ -40,8 +40,8 @@ DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
 DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
 DEFAULT_SETTING["path"]["activescenario"] = "/dnc/scenario/__active"
 DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
-DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hardwareA"
-DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardwareB2"
+DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hardware6"
+DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
 DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7 --play-and-exit"
@@ -49,6 +49,7 @@ DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout al
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
+DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
 
 DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["video"] = True                 # Explain if the scyn protocol must sync video or not

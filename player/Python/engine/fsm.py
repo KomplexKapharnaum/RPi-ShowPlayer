@@ -44,15 +44,6 @@ class Flag:
         self.ignore_cb_args = tuple(ignore_cb_args)
         self._time_created = None  # This object haven't been get
 
-
-    # def register(self, public_name=None):
-    #     # auto-declare Flag to Scenario
-    #     if public_name is None:
-    #         public_name = self.uid
-    #     scenario.DECLARED_SIGNALS[public_name] = self
-    #     return self
-
-
     def get(self, args=None, **kwargs):
         """
         This method return a copy of the flag but ready to be a real signal and not just a patern
