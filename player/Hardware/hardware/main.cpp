@@ -103,6 +103,16 @@ int parseInput(string input){
     if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
     }
+    produce(q,"start_interrupt");
+
+  }
+
+  if(input=="start_interrupt"){
+      fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
+    wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
+    wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
+    cout << "#HARDWAREREADY" << endl;
+
   }
 
   if (input=="interrupt_teleco") {
@@ -154,7 +164,6 @@ int parseInput(string input){
     myteleco.initCarte(1);
     produce(q,"check_teleco_on_start");
     delay(10);
-    cout << "#HARDWAREREADY" << endl;
     return 0;
   }
   
@@ -163,7 +172,6 @@ int parseInput(string input){
     myteleco.initCarte(0);
     produce(q,"check_teleco_on_start");
     delay(10);
-    cout << "#HARDWAREREADY" << endl;
 
     return 0;
   }
@@ -570,9 +578,7 @@ int main (int argc, char * argv[]){
 
   cout << "#INITHARDWARE" << endl;
 
-    fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
-    wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
-    wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
+
 
   readcin(q);
   //program start
