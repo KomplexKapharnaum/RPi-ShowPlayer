@@ -5,12 +5,16 @@
 # It's sync only scenario
 #
 
-from libs.oscack import message, DNCserver, BroadcastAddress
+from libs.oscack import message, DNCserver #, BroadcastAddress
 
 from engine import media
 from engine import fsm
 from engine.setting import settings
 from engine.log import init_log
+
+# import libs
+
+BroadcastAddress = None # libs.oscack.BroadcastAddress
 
 
 log = init_log("ssync")
@@ -27,8 +31,12 @@ def init_scenprotocol(flag):
     :param flag:
     :return:
     """
+    from libs.oscack import BroadcastAddress as _bc
+    global BroadcastAddress
+    BroadcastAddress = _bc
     log.log("debug", "Start scenario sync protocol machine")
     groups = media.get_scenario_by_group_in_fs()
+    log.log("info", "Parsed fs groups {0}".format(groups))
     current_newer_timeline = media.get_newer_scenario(groups[settings.get("current_timeline")])
     log.log("debug", "Current timeline : {0}".format(current_newer_timeline))
     message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_ASK,
@@ -36,7 +44,7 @@ def init_scenprotocol(flag):
                                                                         ('s', current_newer_timeline.date)))
 
 
-def _pass():
+def _pass(*args, **kwargs):
     pass
 
 

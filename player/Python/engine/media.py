@@ -52,7 +52,7 @@ class ScenarioFile:
         """
         filename = os.path.basename(path)
         group = filename[:-settings.get("scenario", "date_len")]
-        edit_date = filename[-settings.get("scenario", "date_len") -1:-4]
+        edit_date = filename[-settings.get("scenario", "date_len") +1:-4]
         dateobj = datetime.datetime.strptime(edit_date, settings.get("scenario", "date_format"))
         return ScenarioFile(path, group, edit_date, dateobj)
 
@@ -87,7 +87,7 @@ def get_scenario_by_group_in_fs():
         for file in files:
             scenario = ScenarioFile.create_by_path(os.path.join(path, file))
             if scenario.group not in scenario_by_group.keys():
-                scenario_by_group.keys = list()
+                scenario_by_group[scenario.group] = list()
             scenario_by_group[scenario.group].append(scenario)
     return scenario_by_group
 
@@ -105,7 +105,7 @@ def get_scenario_by_group_in_osc(osc_args):
     for i in range(len(osc_args/2)):
         scenario = ScenarioFile.create_by_OSC(osc_args[i], osc_args[i+1])
         if scenario.group not in scenario_by_group.keys():
-            scenario_by_group.keys = list()
+            scenario_by_group[scenario.group] = list()
         scenario_by_group[scenario.group].append(scenario)
     return scenario_by_group
 

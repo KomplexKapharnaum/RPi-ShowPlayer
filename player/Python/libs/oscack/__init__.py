@@ -38,9 +38,9 @@ def start_protocol():
     if not DNCserver.started.is_set():
         DNCserver.start()
     BroadcastAddress = message.Address("255.255.255.255")
-    discover_machine = protocol.discover.machine
-    protocol.discover.machine.start(protocol.discover.step_init)
-    protocol.discover.add_flag_send_iamhere()
+    #discover_machine = protocol.discover.machine
+    #protocol.discover.machine.start(protocol.discover.step_init)
+    #protocol.discover.add_flag_send_iamhere()
     sync_machine = protocol.scenariosync.machine
     sync_machine.start(protocol.scenariosync.step_init)
 
