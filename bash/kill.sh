@@ -10,10 +10,18 @@ kill $(ps -ejH w |grep start.sh |grep -v grep  | cut -d" " -f 1)
 killall python2
 killall python2.7
 
+#Free sockets
+fuser -k 1783/udp
 fuser -k 1782/udp
 fuser -k 1781/udp
 fuser -k 2782/udp
 fuser -k 2781/udp
+
+#Remove others
+pkill vlc
+pkill hplayer-vlc
+pkill hardware6
+pkill hardware7
 
 exit 0
 
