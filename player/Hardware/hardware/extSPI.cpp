@@ -194,7 +194,7 @@ void extSPI::selectHC595csline(int _selectedCSofHC595){
 
 //cs is active thru 74ACT244
 void extSPI::activeCS(){
-  //fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
+  fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
   //try only change speed
   //int fd=wiringPiSPISetupSpeed(spifile,chipSelect[selectedChip].speed);
   if(lastSpeed!=chipSelect[selectedChip].speed){
