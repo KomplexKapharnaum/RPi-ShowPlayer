@@ -314,9 +314,6 @@
 				allSignals = data.signals;
 				console.log("loading signals");
 				updateSignals();
-				loadScenario();
-			}).fail(function(){
-				loadScenario();
 			});
 		}
 		loadExtLib();
@@ -1032,9 +1029,6 @@
             //anchors: ["BottomCenter", [0.75, 0, 0, -1]]
         });
         newConnection.setLabel(connection.connectionLabel);
-				// Si signal pas dans lib, l'ajouter au dropdown
-				if($.inArray(connection.connectionLabel, allSignals)===-1){allSignals.push(connection.connectionLabel);}
-				updateSignals();
       });
 
 			//jsPlumb.repaintEverything();
@@ -1042,8 +1036,6 @@
 			// 			jsPlumb.repaint(state.box);
 			// 			jsPlumb.recalculateOffsets(state.box)
 			// });
-
-
 
     }
 
@@ -1115,10 +1107,10 @@
 
 		$('#selFile').change(function(){
 			scenarioName = $('#selFile option:selected').text();
-			window.open(window.location.href.split("#")[0]+'#timeline#'+scenarioName,"_self");
-			location.reload(true);
-			// loadGraphAfter = true;
-			// loadScenario();
+			// window.open(window.location.href+'#timeline#'+scenarioName,"_self");
+			// location.reload(true);
+			loadGraphAfter = true;
+			loadScenario();
 		});
 
 
@@ -1126,7 +1118,7 @@
     ///////////////////////////   START   ////////////////////////////
 		loadScenariosList();
     loadTimeline();
-		//loadScenario();
+		loadScenario();
 
 		loadGraphAfter = true;
 
@@ -1135,7 +1127,7 @@
     });
 
 
-		//if (scenarioName !== 'noscenario') { console.log(scenarioName); setTimeout(loadGraphique, 200); }
+		if (scenarioName !== 'noscenario') { console.log(scenarioName); setTimeout(loadGraphique, 200); }
 
 		// $(document).ajaxStop(function(){
 		// 	if (scenarioName !== 'noscenario') { loadGraphique(); }
