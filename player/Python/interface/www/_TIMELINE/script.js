@@ -609,7 +609,7 @@
       ///////////////////TOOLTIPS///////////////////////
       this.blockbox.mouseenter(function(e){
         $('.tip').html('');
-        $('.tip').append('Scene: '+thisblock.scene+'<br>'+'Groupe: '+thisblock.group+'<br>'+'Scenarios: '+'<br>');
+        $('.tip').append(thisblock.scene+'<br>');
         $.each(thisblock.scenarios,function(index,scenar){
           $('.tip').append(scenar+'<br>');
         });
