@@ -10,7 +10,7 @@ import liblo
 import time
 import application
 import subprocess
-from scenario import pool
+import scenario
 from modules import link
 from _classes import module
 from engine import tools
@@ -82,17 +82,27 @@ def device_send_info_tension(flag, **kwargs):
     with open("/sys/class/thermal/thermal_zone0/temp") as file:
         cpu_temperature = float(file.read())/1000
     link = subprocess.check_output(['iw', 'wlan0', 'link'])
-    for line in link:
-        if "signal" in line:
+    links = link.splitlines()
+    for line in links:
+        if "signal:" in line:
             link_signal=line
     link = subprocess.check_output(['iw', 'wlan0', 'info'])
-    for line in link:
+    links = link.splitlines()
+    for line in links:
         if "channel" in line:
             link_channel = line
     power = "undefined power"
     if settings.get("uName") in devicesV2:
         power = devicesV2.get(settings.get("uName"), "tension")
-    message = liblo.Message("/monitor", settings.get("uName"), settings.get("current_timeline"), pool.timeline_version, cpu_temperature, cpu_temperature, link_channel, link_signal, power, float(flag.args["args"][0]))
+    scene_name = "NoScene"
+    if len(scenario.pool.Frames) >= scenario.CURRENT_SCENE_FRAME + 1:
+        scene_name = scenario.pool.Frames[scenario.CURRENT_SCENE_FRAME].name
+    message = liblo.Message("/monitor", settings.get("uName"),
+                            settings.get("current_timeline"), scenario.pool.timeline_version, scene_name,
+                            cpu_temperature,
+                            link_channel, link_signal,
+                            power, float(flag.args["args"][0]))
+    #TODO add curent scene name
     log.debug("monitoring send {0}".format(message))
     port = settings.get("log", "tension", "port")
     for dest in settings.get("log", "tension", "ip"):

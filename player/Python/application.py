@@ -231,6 +231,9 @@ class inputThread(threading.Thread):
                     engine.perf.prompt_history()
                 elif cmd[0] == "timeline":
                     log.info(scenario.pool._Timeline)
+                elif cmd[0] == "scene":
+                    if len(cmd) > 1 and len(scenario.pool._Timeline) > int(cmd[1]):
+                        log.info(scenario.pool._Timeline[int(cmd[1])].show_info())
                 elif cmd[0] == "timelinejson":
                     log.info(scenario.pool._JSONtimeline)
                 elif cmd[0] == "scenariojson":
@@ -286,12 +289,17 @@ class inputThread(threading.Thread):
                         log.warning("Need at least a page number an a message")
                         continue
                     log.log(cmd[1], " ".join(cmd[2:]))
+                elif cmd[0] == "eval":
+                    try:
+                        eval(" ".join(cmd[1:]))
+                    except Exception as e:
+                        log.info(log.show_exception(e))
                 else:
                     log.info("Unknown commad in prompt ..")
         except Exception as e:
             log.exception("Unblocking exception in prompt : \n"+log.show_exception(e))
         # BACKUP EXIT
-        time.sleep(5)
+        time.sleep(2)
         log.log("debug", "Exit by backupexit, should not be that")
         os._exit(POWEROFF)
 

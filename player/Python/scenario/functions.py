@@ -5,11 +5,13 @@
 
 import os
 import cPickle
+import datetime
 
 CREATE_NEW_PROCESS_GROUP = 512
 
 import libs.oscack
 import scenario
+from libs import rtplib
 from libs.oscack import message
 from modules import globalfunction, oscpatcher
 from engine.setting import settings
@@ -30,12 +32,12 @@ def get_wanted_media_list():
     for box in pool.Etapes_and_Functions.values():
         if isinstance(box, classes.Etape):
             for action in box.actions:
-                if len(action) > 0 and isinstance(action[1], dict):         # If there are some params
+                if len(action) > 0 and isinstance(action[1], dict):  # If there are some params
                     k = action[1].keys()
-                    if "signal" in k and "args" in k:                           # ADD SIGNAL BOX
+                    if "signal" in k and "args" in k:  # ADD SIGNAL BOX
                         argsk = action[1]["args"].keys()
-                        if "dest" in argsk and "media" in argsk:                # It's a PLAY box
-                            if settings.get("uName")in action[1]["args"]["dest"]:     # It's for us
+                        if "dest" in argsk and "media" in argsk:  # It's a PLAY box
+                            if settings.get("uName") in action[1]["args"]["dest"]:  # It's for us
                                 path = action[1]["args"]["media"]
                                 if "VIDEO" in action[1]["signal"]:
                                     path = os.path.join(settings.get("path", "relative", "video"), path)
@@ -43,7 +45,7 @@ def get_wanted_media_list():
                                     path = os.path.join(settings.get("path", "relative", "audio"), path)
                                 else:
                                     log.warning("SIGNAL BOX WITH MEDIA BUT IT'S NOT AN VIDEO/AUDIO_PLAY")
-                                if path not in media_list:      # Check and avoid duplications
+                                if path not in media_list:  # Check and avoid duplications
                                     media_list.append(path)
     return media_list
 
@@ -55,14 +57,18 @@ def forward_signal(*args, **kwargs):
     :return:
     """
     if args[0].args["path"] == '/signal':
-        if args[0].args["args"][2] != scenario.CURRENT_SCENE_FRAME:
+        flag = cPickle.loads(str(bytearray(args[0].args["args"][1]))).get()  # TODO assume TTL regen when recv
+        """:type: Flag"""
+        if args[0].args["args"][2] != scenario.CURRENT_SCENE_FRAME and flag.uid not in (
+                "SCENE_START", "SCENE_NEXT", "SCENE_PREVIOUS"):
             log.warning("Ignore signal {0} because it was emit on an other keyframe".format(args[0].args["args"][0]))
             return False
-        flag = cPickle.loads(str(bytearray(args[0].args["args"][1])))
-        log.debug('Forwarded signal received {0}'.format(flag.get_info()))
+        log.debug('Forwarded signal received {0} date {1}'.format(flag.get_info(), datetime.datetime.fromtimestamp(
+            rtplib.conv_time_to_timestamp(*flag.TTL))))
         patcher.serve(flag)
     else:
         return False
+
 
 @globalfunction("ADD_TIMER")
 def add_timer(*args, **kwargs):
@@ -91,9 +97,8 @@ def auto_transit(*args, **kwargs):
                 kwargs['_etape'].transitions[None] = parent
                 kwargs['_etape']._localvars['emptytransit'] = True
                 return
-        
+
         log.warning('NO BLOCKING PARENT FOUND')
-            
 
 
 @globalfunction("TRANSIT_CLEAN")
@@ -181,8 +186,8 @@ def msg_patcher(*args, **kwargs):
         route = kwargs[args[0].args["path"]]
         sig_uid = route['signal']
         # log.log("raw", "Add signal : {0}, {1}".format(sig_uid, args[0].args))
-        log.log("debug", "{0} => {1}".format(args[0].args["path"],sig_uid))
-        #log.log('shit')
+        log.log("debug", "{0} => {1}".format(args[0].args["path"], sig_uid))
+        # log.log('shit')
         if sig_uid in pool.Signals.keys():
             signal = pool.Signals[sig_uid]
         else:
@@ -192,13 +197,14 @@ def msg_patcher(*args, **kwargs):
         named_args = dict()
         for i in xrange(len(route['args'])):
             if i < len(args[0].args["args"]):
-                named_args[ route['args'][i] ] = args[0].args["args"][i]
+                named_args[route['args'][i]] = args[0].args["args"][i]
             else:
-                named_args[ route['args'][i] ] = None
+                named_args[route['args'][i]] = None
         named_args["oscargs"] = args[0].args["args"]
         patcher.serve(signal.get(args=named_args))
     else:
         return False
+
 
 @globalfunction("ACTIVE_MSG_SIGNAL_PATCHER")
 def active_msg_patcher(*args, **kwargs):
@@ -234,7 +240,7 @@ def reboot_manager(*args, **kwargs):
     :return:
     """
     log.log("raw", "reboot_manager..")
-    log.log("raw", "Try to reboot manager : "+"{0}\n".format(settings.get("OSC", "classicport")))
+    log.log("raw", "Try to reboot manager : " + "{0}\n".format(settings.get("OSC", "classicport")))
     try:
         f = os.open("/tmp/restart", os.O_WRONLY | os.O_NONBLOCK)
         log.log("raw", "Try to write..")
@@ -245,14 +251,14 @@ def reboot_manager(*args, **kwargs):
         log.error("No restart deamon watching on /tmp/restart fifo")
         log.error(log.show_exception(e))
 
-    # global CREATE_NEW_PROCESS_GROUP
-    # cmd = "{script} {classicport} {ackport}".format(
-    #     script=os.path.join(settings.get("path", "soft"), "Linux", "Scripts", "reboot_dnc.sh"),
-    #     classicport=settings.get("OSC", "classicport"), ackport=settings.get("OSC", "ackport"))
-    # arg = shlex.split(cmd)
-    # log.log("raw", "rebbot manager cmd (Shell False, Flag NEW_PROCESS_GROUP]: {0}".format(cmd))
-    # subprocess32.Popen(arg,
-    #                    bufsize=0, executable=None, stdin=None, stdout=None, stderr=None, preexec_fn=os.setsid,
-    #                    close_fds=False, shell=False, cwd=None, env=None, universal_newlines=False, startupinfo=None,
-    #                    creationflags=0)
+        # global CREATE_NEW_PROCESS_GROUP
+        # cmd = "{script} {classicport} {ackport}".format(
+        # script=os.path.join(settings.get("path", "soft"), "Linux", "Scripts", "reboot_dnc.sh"),
+        #     classicport=settings.get("OSC", "classicport"), ackport=settings.get("OSC", "ackport"))
+        # arg = shlex.split(cmd)
+        # log.log("raw", "rebbot manager cmd (Shell False, Flag NEW_PROCESS_GROUP]: {0}".format(cmd))
+        # subprocess32.Popen(arg,
+        #                    bufsize=0, executable=None, stdin=None, stdout=None, stderr=None, preexec_fn=os.setsid,
+        #                    close_fds=False, shell=False, cwd=None, env=None, universal_newlines=False, startupinfo=None,
+        #                    creationflags=0)
 

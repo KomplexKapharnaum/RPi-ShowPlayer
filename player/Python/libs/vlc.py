@@ -1420,7 +1420,7 @@ class Instance(_Ctype):
         # reference, nobody else can access it.
         if mrls:
             for m in mrls:
-                l.add_media(m)
+                l.load_media(m)
         l._instance = self
         return l
 
