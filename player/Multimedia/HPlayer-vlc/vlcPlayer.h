@@ -10,6 +10,7 @@ using std::string;
 #define LOADING 1
 #define READY 2
 #define PLAYING 3
+#define DONE 4
 
 
 class vlcPlayer 
@@ -23,7 +24,8 @@ class vlcPlayer
 		void resume();
 		void togglePause();
 		void stop();
-		void replay();
+		void rewind();
+		void endclear();
 		void release();
 		void setState(int state);
 		int getState();
@@ -43,6 +45,6 @@ class vlcPlayer
 		libvlc_instance_t *instance;
 		dualPlayerCallbacks *callback;
 		libvlc_event_manager_t *eventsManager;
-		libvlc_media_t *media;	
-		
+		//libvlc_media_t *media;	
+		string filepath;
 };
