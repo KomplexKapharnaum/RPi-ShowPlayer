@@ -207,7 +207,6 @@ class BaseLog:
         try:
             self.logger.log(LEVELS[lvl], msg)
             if LEVELS[lvl] >= LEVELS[self.teleco_level]:
-                print("log_succes_teleco")
                 log_teleco(msg, "log")
         except KeyError:
             self.debug("Level name " + str(lvl) + " unknown. Message : " + str(msg))

@@ -44,28 +44,29 @@ class ExternalProcess(object):
     This class define an external process
     """
 
-    def __init__(self, name, commande):
+    def __init__(self, name, command=None):
         """
         :param name: Name of the process to identify it
-        :param commande: Command to run in the process
+        :param command: Command to run in the process
         :type name: str
-        :type commande: str
+        :type command: str
         """
         self.name = name
-        if commande is None:
+        if command is None:
             if name in settings.get("path", "relative").keys():
-                commande = settings.get_path(name)
+                command = settings.get_path(name)
             elif name in settings.get("path").keys():
-                commande = settings.get("path", name)
+                command = settings.get("path", name)
             else:
                 raise AttributeError("There is no commande in settings for {0}".format(name))
         else:
-            if os.path.isabs(commande):
-                log.warning("The commande path {0} for {1} is relative".format(commande, name))
-        self.commande = commande
+            if not os.path.isabs(command.split(" ")[0]):
+                log.warning("The commande path {0} for {1} is relative".format(command, name))
+        self.command = command
 
         self.stdin_queue = Queue(maxsize=256)
         self._stdin_thread = threading.Thread(target=self._stdin_writer)
+        self._stdin_lock = threading.RLock()
         self.stdout_queue = Queue(maxsize=256)
         self._stdout_thread = threading.Thread(target=self._stdout_reader)
         self.stderr = None
@@ -78,7 +79,7 @@ class ExternalProcess(object):
         self._defunctdog_thread = threading.Thread(target=self._defunctdog)
         self._request_stop = threading.Event()
 
-        self._check_interval = settings.get("speed", "check_thread_interval")
+        self._check_interval = settings.get("speed", "thread_check_interval")
         self._popen = None
         self._priority = 0
         self.return_code = None
@@ -96,7 +97,7 @@ class ExternalProcess(object):
             self._log("warning", "try to start an already started process")
             return False
 
-        self._popen = Popen(shlex.split(self.commande), bufsize=-1, executable=None, stdin=PIPE, stdout=PIPE,
+        self._popen = Popen(shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE,
                             stderr=self.stderr, close_fds=False, shell=False, cwd=None, env=None,
                             universal_newlines=True, startupinfo=None, creationflags=0,
                             preexec_fn=lambda: os.nice(self._priority))
@@ -138,15 +139,16 @@ class ExternalProcess(object):
         """
         self._ask_to_stop.set()
 
-    def join(self):
-        if self._is_stopping is not True:
-            self._log("warning", "Ask to join before it has been ask to stop")
-        elif not self._is_launched.is_set():
+    def join(self, *args, **kwargs):
+        """
+        Wait all thread and process to be stopped
+        """
+        if not self._is_launched.is_set():
             self._log("warning", "Ask to join before it has been launched")
             return False
-        self._defunctdog_thread.join()
-        self._stdin_thread.join()
-        self._stdout_thread.join()
+        self._defunctdog_thread.join(*args, **kwargs)
+        self._stdin_thread.join(*args, **kwargs)
+        self._stdout_thread.join(*args, **kwargs)
         return True
 
     def _stdin_writer(self):
@@ -160,19 +162,29 @@ class ExternalProcess(object):
                 if message is not None:
                     log.debug("Ignore {0} on process {1} because it's stopped".format(message, self.name))
                 break
-            message += "\n"
-            m = message.encode("utf-8")
+            self._log("error", "write to stdin : {0}".format(message))
+            self._direct_stdin_writer(message)
+
+    def _direct_stdin_writer(self, msg):
+        """
+        This function direct write to stdin the given message
+        :param msg: Message to write on stdin
+        :type msg: str
+        """
+        with self._stdin_lock:
+            msg += "\n"
+            m = msg.encode("utf-8")
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
         """
         This function read the stdout and put message to the stdout queue
         """
-        log.log("tmp", "")
         self._is_launched.wait()
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
-            self.stdout_queue.put_nowait(line)
+            self._log("error", "stdout : {0}".format(line.strip()))
+            self.stdout_queue.put_nowait(line.strip())
         self.stdout_queue.put_nowait(None)              # Stop queue consumers
 
     def _defunctdog(self):
@@ -189,7 +201,7 @@ class ExternalProcess(object):
             self._stop_process()  # Really stop the thread
             self.return_code = self._popen.poll()
         else:
-            self._log("debug", "ended itself with {0} code".format(self.return_code))
+            self._log("raw", "ended itself with {0} code".format(self.return_code))
         self._process_ended()
 
     def _log(self, lvl, msg):
@@ -203,9 +215,21 @@ class ExternalProcessFlag(ExternalProcess):
     """
     This class provide a stdout consumer which emit signal on #MSG recv
     """
-    def __init__(self, *args, **kwargs):
-        ExternalProcess.__init__(self, *args, **kwargs)
-        self._stdout_to_flag_thread = threading.Thread(target=self._stdout_thread)
+
+    def __init__(self, name, filters=None, *args, **kwargs):
+        """
+        :param filters: Filters to apply on stdout
+        :type filters: dict of list
+        """
+        ExternalProcess.__init__(self, name, *args, **kwargs)
+        if filters is None:
+            filters = dict()
+        self.Filters = filters
+        self._stdout_to_flag_thread = threading.Thread(target=self._stdout_to_flag)
+
+    def start(self):
+        ExternalProcess.start(self)
+        self._stdout_to_flag_thread.start()
 
     def _stdout_to_flag(self):
         """
@@ -217,7 +241,7 @@ class ExternalProcessFlag(ExternalProcess):
             if msg is None or len(msg) < 1:                 # It's time to stop
                 break
             if msg[0] == "#":                               # It's a signal from the kxkmcard program
-                self._emmit(msg[1:].split(' '))
+                self.onEvent(msg[1:].split(' '))
             else:
                 self._log("warning", "unknown stdout line {0}".format(msg))
 
@@ -228,14 +252,16 @@ class ExternalProcessFlag(ExternalProcess):
         ExternalProcess.join()
         self._stdout_thread.join()
 
-    def _emit(self, cmd=[]):        # TODO : doc or change implmentation
+    def onEvent(self, cmd=[]):        # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
+        self._log("error", "cmd : {0}".format(cmd))
         doEmmit = True
         if cmd[0] in self.Filters.keys():
             for fn in self.Filters[cmd[0]]:
                 if isinstance(fn, str):
                     filt = fn.split(' ')
                     method = getattr(self, filt[0], None)
+                    self._log("error", "filt : {0}, merhod {1}".format(filt, method))
                     if callable(method):
                         if len(filt) > 1:
                             doEmmit = method(cmd, filt[1:]) and doEmmit
@@ -330,7 +356,7 @@ class AbstractVLC(ExternalProcessFlag):
         :param media: relative media path from the media directory
         :type media: str
         """
-        path = os.path.exists(os.path.join(settings.get_path("media"), media))
+        path = os.path.join(settings.get_path("media"), media)
         if os.path.exists(path):
             return path
         else:
@@ -346,13 +372,15 @@ class AbstractVLC(ExternalProcessFlag):
         if path is False:
             self._log("warning", "Unknown media {0} => aborting".format(media))
             return False
-        self.stdin_queue.put_nowait("load {0}".format(media))
+        # self.stdin_queue.put_nowait()
+        self._direct_stdin_writer("load {0}".format(path))
 
     def play(self):
         """
         Start VLC on the last added media
         """
-        self.stdin_queue.put("play")
+        # self.stdin_queue.put("play")
+        self._direct_stdin_writer("play")
 
     def toggle_pause(self):
         """

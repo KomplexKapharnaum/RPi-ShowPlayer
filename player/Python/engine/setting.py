@@ -49,12 +49,6 @@ DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlc"] = "/usr/local/bin/cvlc"
-DEFAULT_SETTING["path"]["vlc"] += \
-    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache}"
-DEFAULT_SETTING["path"]["vlc"] += \
-    "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
-DEFAULT_SETTING["path"]["vlc"] += \
-    "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd -f "
 DEFAULT_SETTING["path"][
     "vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd"  # --no-autoscale --zoom=0.7
@@ -66,6 +60,7 @@ DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 
 DEFAULT_SETTING["path"]["relative"] = dict()  # Relatives path from path:main
 DEFAULT_SETTING["path"]["relative"]["usb"] = "usb"
+DEFAULT_SETTING["path"]["relative"]["log"] = "logs"
 DEFAULT_SETTING["path"]["relative"]["scenario"] = "scenario"
 DEFAULT_SETTING["path"]["relative"]["activescenario"] = "__active"
 DEFAULT_SETTING["path"]["relative"]["codepy"] = "player/Python"
@@ -73,6 +68,13 @@ DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv6l"] = "player/Hardware/hardwa
 DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv7l"] = "player/Hardware/hardware/hardware7"
 DEFAULT_SETTING["path"]["relative"]["hplayer"] = "player/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["relative"]["interface"] = "player/Python/interface/bottleserver.py"
+DEFAULT_SETTING["path"]["relative"]["mvlc"] = "player/Multimedia/HPlayer-vlc/hplayer-vlc "
+DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
+    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache}"
+DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
+    "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
+DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
+    "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
 DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "devices.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
 DEFAULT_SETTING["path"]["relative"]["video"] = "video"
@@ -81,11 +83,12 @@ DEFAULT_SETTING["path"]["relative"]["text"] = "text"
 DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
 
 DEFAULT_SETTING["vlc"] = dict()
+DEFAULT_SETTING["vlc"]["options"] = dict()
 DEFAULT_SETTING["vlc"]["options"]["default"] = {
-    "vout": "mmal_vout",
+    "vout": "none",
     "aout": "alsa",
     "priority": -20,
-    "cache": 600,
+    "fcache": 600,
     "vstep": 25,
     "gain": 1,
     "again": 1
@@ -93,6 +96,11 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
 DEFAULT_SETTING["vlc"]["options"]["audio"] = {
     "vout": "none"
 }
+DEFAULT_SETTING["vlc"]["options"]["video"] = {
+    "vout": "mmal_vout"
+}
+
+DEFAULT_SETTING["vlc"]["volume"] = dict()
 DEFAULT_SETTING["vlc"]["volume"]["master"] = 256        # Master volume for VLC (256 seems to be the 100% volume)
 
 DEFAULT_SETTING["sync"] = dict()
@@ -128,7 +136,7 @@ DEFAULT_SETTING["scenario"]["date_len"] = 24  # extension + date length + @
 DEFAULT_SETTING["scenario"]["dest_all"] = "All"  # string for all dest in a signal
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"  # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"  # string for self dest in a signal
-DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.500  # 500 ms : time delta before run sync between cards, if sync
+DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.800  # 500 ms : time delta before run sync between cards, if sync
 # fail try to increase this value
 
 DEFAULT_SETTING["media"] = dict()
@@ -170,6 +178,13 @@ DEFAULT_SETTING["values"]["lights"]["strob"] = 0
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
+DEFAULT_SETTING["log"]["symb"] = dict()
+DEFAULT_SETTING["log"]["symb"]["tension"] = "T"
+DEFAULT_SETTING["log"]["symb"]["media"] = "M"
+DEFAULT_SETTING["log"]["symb"]["rtp"] = "R"
+DEFAULT_SETTING["log"]["symb"]["error"] = "E"
+DEFAULT_SETTING["log"]["symb"]["scenario"] = "S"
+DEFAULT_SETTING["log"]["symb"]["git"] = "G"
 DEFAULT_SETTING["log"]["tension"] = dict()
 DEFAULT_SETTING["log"]["tension"]["port"] = 1783
 DEFAULT_SETTING["log"]["tension"]["ip"] = ["255.255.255.255"]
@@ -197,6 +212,7 @@ DEFAULT_SETTING["sys"]["ref_volume"] = 0  # Set the default system volume to 0dB
 DEFAULT_SETTING["sys"]["volume"] = 0  # Set the volume difference with the reference (in dB) can be neg
 DEFAULT_SETTING["sys"]["vlc_volume"] = 512  # Default vlc volume. 512 = 100%
 
+DEFAULT_SETTING["speed"] = dict()
 DEFAULT_SETTING["speed"]["thread_check_interval"] = 0.1  # Check thread interval
 
 DEFAULT_SETTING["temp"] = dict()  # TEMP SETTINGS FOR TEST

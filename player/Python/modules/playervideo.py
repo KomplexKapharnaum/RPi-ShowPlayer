@@ -23,12 +23,19 @@ class VideoVLCPlayer(AbstractVLC):
     """
 
     def __init__(self):
-        commande = copy.copy(settings.get("path", "vlc"))
+        command = copy.copy(settings.get_path("mvlc"))
         """:type: str"""
-        arguments = copy.copy(settings.get("vlc", "option", "default"))
+        arguments = copy.copy(settings.get("vlc", "options", "default"))
         """:type: dict"""
-        arguments.update(settings.get("vlc", "option", "video"))
-        AbstractVLC.__init__(name="videovlc", commande=commande.format(arguments))
+        arguments.update(settings.get("vlc", "options", "video"))
+        log.log("error", "Vlc arguments : {0}".format(arguments))
+        AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments))
+
+    def check_media(self, media):
+        """
+        Add video to the media path
+        """
+        return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "video"), media))
 
     Filters = {
         "MEDIA_END": ["transTo /video/end", True],
@@ -131,6 +138,7 @@ exposesignals(VideoVLCPlayer.Filters)
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VideoVLCPlayer()
+        kwargs["_fsm"].process.start()
 
 
 @link({None: "video_player"})
@@ -143,8 +151,9 @@ def video_play(flag, **kwargs):
     # repeat = flag.args["repeat"] if 'repeat' in flag.args else None
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
+        log.debug('+++ BEFORE SYNC PLAY {0}'.format(rtplib.get_time()))
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        log.debug('+++ SYNC PLAY')
+        log.debug('+++ SYNC PLAY {0}'.format(flag.args['abs_time_sync']))
     kwargs["_fsm"].process.play()
     # kwargs["_etape"].preemptible.set()
 
