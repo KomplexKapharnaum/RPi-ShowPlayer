@@ -19,7 +19,7 @@ DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
 DEFAULT_SETTING["current_timeline"] = "DEFAULT_TIMELINE"
-DEFAULT_SETTING["version"] = '0.1'
+DEFAULT_SETTING["version"] = '0.2'
 
 DEFAULT_SETTING["localport"] = dict()
 DEFAULT_SETTING["localport"]["inhplayer"] = 9000
