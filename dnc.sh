@@ -10,10 +10,8 @@ fi
 
 # MAINTENANCE // UPDATE
 # Move old local settings file
-mkdir -p ~/dnc_settings/
-if [ -f ~/.dnc_settings.json ]; then
-	mv ~/.dnc_settings.json ~/dnc_settings/develop.json
-fi
+/dnc/player/Scripts/maintenance.sh
+cd /dnc
 
 running=1
 DIRECT_INOUT=0
