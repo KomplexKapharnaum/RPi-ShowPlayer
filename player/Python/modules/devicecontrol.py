@@ -19,14 +19,14 @@ log = init_log("devicecontrol")
 
 
 @module('DeviceControl')
-@link({"/device/reload": "device_send_group_reload",
+@link({"/device/reload": "device_do_reload",
        "/device/do_reload": "device_do_reload",
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
         "/device/restart": "device_restart",
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
-        "FS_TIMELINE_UPDATED": "device_update_timeline",
+        "FS_TIMELINE_UPDATED": "device_do_reload",
         "/device/sendInfoTension": "device_send_info_tension",
         "/device/senWarningTension": "device_send_warning_tension"})
 
@@ -69,6 +69,7 @@ def device_update_system(flag, **kwargs):
 
 @link({None: "device_reload"})
 def device_update_timeline(flag, **kwargs):
+    log.debug("Updating timeline ...")
     load_scenario_from_fs(settings["current_timeline"])
 
 @link({None: "device_control"})
