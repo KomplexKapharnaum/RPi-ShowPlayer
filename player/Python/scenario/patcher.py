@@ -18,7 +18,7 @@ from engine.setting import settings
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
 from engine.log import init_log, dumpclean
-log = init_log("patcher", log_lvl="raw")
+log = init_log("patcher")
 
 
 class ThreadPatcher(threading.Thread):
