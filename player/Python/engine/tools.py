@@ -92,6 +92,7 @@ def search_in_or_default(key, indict, setting=False, default=None):
 
 
 def update_system():
-    # git = subprocess32.check_output(['git', 'stash', '-f'])
+    git = subprocess32.check_output(['git', 'stash', '-f'])
+    log.log("warning", "UPDATE: {0}".format(git))
     git = subprocess32.check_output(['git', 'pull'])
     log.log("warning", "UPDATE: {0}".format(git))
