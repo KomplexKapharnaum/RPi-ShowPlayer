@@ -107,7 +107,7 @@ class KxkmCard(ExternalProcess):
             cmd += ' -mode {0}'.format(mode)
         self.say(cmd)
 
-    def popUpTeleco(self,line1=None, line2=None, page=0):
+    def popUpTeleco(self, line1=None, line2=None):
         """
         send message on menu popup teleco
         :param line1:
@@ -115,8 +115,6 @@ class KxkmCard(ExternalProcess):
         :return:
         """
         cmd = 'popup'
-        if page is not None:
-            cmd += ' -n {0}' + page.__format__(int(page))
         if line1 is not None:
             if line1 == "":
                 log.warning("Line 1 empty : does teleco prompt it ?")
@@ -206,6 +204,9 @@ class KxkmCard(ExternalProcess):
         'TELECO_MESSAGE_NEXTSCENE': ['transTo /scene/next', True],
         'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
         'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
+
+        "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
+        "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys']
     }
 
 
@@ -266,9 +267,7 @@ def kxkm_card_titreur_message(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_popup_teleco(flag, **kwargs):
-    if "page" not in flag.args.keys():
-        flag.args["page"]=2
-    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"],flag.args["page"])
+    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"])
 
 
 @link({None: "kxkm_card"})
