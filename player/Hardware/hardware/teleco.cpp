@@ -41,7 +41,7 @@ void Teleco::sendString(char Str1[], int line){
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
   if (line==2)buff[1]='2';
   if (line==1)buff[1]='1';
-  if (line==0)buff[0]='0';
+  if (line==0)buff[1]='c';
   for(int i=0;i<16;i++){
     buff[i+2]= *(Str1+i);
   }
