@@ -3,7 +3,7 @@ from engine.fsm import Flag
 from engine.log import init_log
 from engine.setting import settings
 from scenario import publicbox
-log = init_log("public")
+log = init_log("publicbox")
 
 #
 # Declare function in DECLARED_PUBLICBOXES (scenario)

@@ -19,9 +19,7 @@ import application
 from engine.setting import settings
 from engine.log import set_default_log_by_settings
 set_default_log_by_settings(settings)                   # Set default log level and output via settings
-from engine import log, fsm, threads
-from scenario import pool
-from libs import oscack
+from engine import log
 log = log.init_log("main")
 
 

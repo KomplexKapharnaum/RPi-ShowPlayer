@@ -3,7 +3,7 @@
         {
             "allArgs": {
                 "dest": [
-                    "raspi2mgr"
+                    "All"
                 ]
             }, 
             "arguments": {}, 
@@ -11,7 +11,7 @@
             "category": "GENERAL", 
             "dispoBOO": true, 
             "dispositifs": [
-                "raspi2mgr"
+                "All"
             ], 
             "name": "START", 
             "positionX": 444, 
