@@ -50,7 +50,7 @@ kill_zombies()
 {
 	echo "= DNC Clear"
 	#/dnc/bash/kill.sh
-	pkill python2
+	#pkill python2  # NO ! It will break NetCtl Watchdog
 	#Free sockets
 	fuser -k 1783/udp
 	fuser -k 1782/udp

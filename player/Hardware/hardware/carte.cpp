@@ -55,12 +55,13 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   needStatusUpdate=0;
   count_tensionbasse=0;
   count_tensioncoupure=0;
+  inverted_switch=0;
 }
 
 
 //write value in carte register
 void Carte::writeValue(int valueType,int value, int fadetime){
-  //fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
+  fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
   int size;
   if(fadetime==0){size=2; }else {size=4;}
   unsigned char buff[5];
@@ -71,7 +72,7 @@ void Carte::writeValue(int valueType,int value, int fadetime){
     buff[3]= (char)fadetime;
   }
   SPIcarte.send(0,buff,size);
-  delay(1);
+  delay(2);
 }
 
 //read value from carte register
@@ -106,11 +107,16 @@ int Carte::readInterrupt(){
   SPIcarte.sendWithPause(0,buff,2);
   //fprintf(stderr, "carte - read i %u\n",buff[1]);
   int address = buff[1];
+  if (address<POWERDOWN && address>INTERRUPT) {
   buff[0]= (char)(READCOMMAND+buff[1]);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "carte - interrupt %u read %u\n",address,buff[1]);
-  int valeur =buff[1];
+  int valeur;
+  //if(inverted_switch==0) valeur = buff[1];
+  //else valeur = 1 - buff[1];
+  //now this is check at init of the atmega. ie : you could have only one inverted switch
+  valeur = buff[1];
   switch (address) {
       //@todo : faire un tableau et l'envoyer
     case PUSH1:
@@ -120,7 +126,8 @@ int Carte::readInterrupt(){
         checkchrono = true;
       }
       if (checkchrono && valeur==0){
-        if(mstime()-startchrono>10000) system ("sudo reboot");
+        if(mstime()-startchrono>10000 && mstime()-startchrono<20000) system ("sudo reboot");
+        if(mstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
       }
       break;
     case PUSH2:
@@ -139,6 +146,10 @@ int Carte::readInterrupt(){
       break;
   }
   return valeur;
+  }else {
+    fprintf(stderr, ".");
+  }
+  return 0;
 }
 
 //read tension from carte
@@ -234,6 +245,11 @@ void Carte::setRelais(int val){
 void Carte::setledG(int val){
   fprintf(stderr, "carte - set led green %u",val);
   digitalWrite (GPIO_LED_GREEN, val);
+}
+
+void Carte::setInvertedSwitch(int val){
+  inverted_switch=val;
+  fprintf(stderr, "carte - inverted switch value %u \n",val);
 }
 
 

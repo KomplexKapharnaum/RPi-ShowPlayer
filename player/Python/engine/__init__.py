@@ -1,14 +1,26 @@
 import log
 _log = log.init_log("engine")
-# Store SUPER MODULES FSM
-MODULES_FSM = dict()
+
+MODULES_FSM = dict() # Store ENGINE MODULES FSM
 
 
 def add_module(name, machine):
+    # REGISTER ENGINE MODULES
     MODULES_FSM[name] = machine
 
 
+def init():
+    # INIT ENGINE THREADS
+    import threads
+    threads.init()
+
+
 def start():
+    # START ENGINE THREADS
+    import threads
+    threads.start()
+
+    # START ENGINE MODULES
     from modules import DECLARED_ETAPES, MODULES
     for name, modulefsm in MODULES_FSM.items():
         modulefsm.start(MODULES[name])
@@ -16,7 +28,13 @@ def start():
 
 
 def stop():
-    for name, modulefsm in MODULES_FSM.items():
+    # STOP ENGINE THREADS
+    import threads
+    threads.stop()
+
+    # STOP ENGINE MODULES
+    local_modules = MODULES_FSM.items()
+    for name, modulefsm in local_modules:
         _log.info("--- "+name)
         modulefsm.stop()
         modulefsm.join()

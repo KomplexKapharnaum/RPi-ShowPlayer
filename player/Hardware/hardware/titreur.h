@@ -11,10 +11,24 @@
 
 #include <iostream>
 #include "extSPI.h"
+#include <cstring>
 #include <string>
+#include <algorithm>
 
 #define MODULE_24x16 48 //nombre de char dans la matrice
 #define MODULE_32x8 32
+
+#define NO_SCROLL_NORMAL 0
+#define SCROLL_NORMAL 1
+#define SCROLL_LOOP_NORMAL 2
+#define SCROLL_VERTICAL_NORMAL 11
+#define SCROLL_VERTICAL_LOOP_NORMAL 12
+#define NO_SCROLL_BIG 100
+#define SCROLL_BIG 101
+#define SCROLL_LOOP_BIG 102
+#define SCROLL_VERTICAL_BIG 111
+#define SCROLL_VERTICAL_LOOP_BIG 112
+
 
 class Titreur{
   
@@ -25,6 +39,13 @@ private:
   int typeModule;
   int cleanCharArray(char Str1[]);
   int messageLength;
+  int type;
+  char Str1[];
+  std::string line1, line2;
+  int needUpdate;
+  unsigned long long lastRefresh;
+  int scrollSpeed;
+  int xpos,ypos;
 
   
 protected:
@@ -34,6 +55,9 @@ protected:
   extSPI mySPI;
   unsigned int buffer;
   void flushMatrix();
+  int charbyline();
+  int pixelbyline();
+  int pixelHeight();
   
   
   
@@ -47,7 +71,8 @@ protected:
   void allLedOn();
   void allLedOff();
   void powerdown();
-  int charbyline();
+  void twolineText(std::string _line1,std::string _line2,int _type)
+  void updateScrollText();
   ~Titreur();
 
   

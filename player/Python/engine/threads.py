@@ -5,21 +5,22 @@
 #
 
 
-from engine.scheduling import ThreadScheduler
+from engine.scheduling import ThreadScheduler, ThreadRepeater
 from scenario.patcher import ThreadPatcher
 from engine import tools
+from setting import settings
 from engine.log import init_log
 log = init_log("threads")
 
 network_scheduler = ThreadScheduler()
 scenario_scheduler = ThreadScheduler()
+ping_sender = ThreadRepeater(settings.get("log", "monitor", "pingtime"), tools.sendPing)
 patcher = ThreadPatcher()
 log_teleco = tools.ThreadTeleco()
 
 
 def init():
-    global patcher
-    global log_teleco
+    global patcher, log_teleco
     log_teleco.start()
     if not isinstance(patcher, ThreadPatcher):
         patcher = ThreadPatcher()
@@ -27,9 +28,19 @@ def init():
         patcher.start()
 
 
+def start():
+    if settings.get("log", "monitor", "active"):
+        ping_sender.start()
+
+
 def stop():
     log.debug("STOPPING THREADS")
-    for thread in tools._to_stop_thread.values():
+    to_stop = tools._to_stop_thread.values() #local dict to avoid size index change in for loop
+    for thread in to_stop:
+        th = thread()   # Get the reference
+        """:type: threading.Thread"""
+        log.debug("  running thread : {0}".format(th))
+    for thread in to_stop:
         th = thread()   # Get the reference
         """:type: threading.Thread"""
         log.debug("  Try to stop thread : {0}".format(th))
@@ -42,4 +53,3 @@ def stop():
             except RuntimeError as e:
                 log.error("Thread do not join unitl 1 seconde..")
                 log.error(log.show_exception(e))
-

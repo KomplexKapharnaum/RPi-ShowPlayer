@@ -25,6 +25,7 @@ string version_py="-";
 string version_c="1.1";
 string status="-";
 string voltage="-";
+int inverted_switch=0;
 string buttonline="OK   B   A";
 string popup[11][2];
 int init=0;

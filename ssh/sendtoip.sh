@@ -11,7 +11,7 @@ do
 done
 echo ""
 echo $SEDLINE
-if [ $SEDLINE = "" ]; then
+if [ "$SEDLINE" = "" ]; then
 	SEDLINE=" -e s/xxx/xxx/ "
 fi
 for ip in $DEST_IP; do 

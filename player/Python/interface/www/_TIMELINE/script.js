@@ -560,15 +560,15 @@
         thisblock.actuPosition();
       }
 
-      //Move after prev (if prev is a block)
-      if (thisblock.blockbox.prev().hasClass("block")) {
-        var prev = thisblock.blockbox.prev();
-        var blockpos = thisblock.blockbox.offset();
-        var prevpos = prev.offset();
-        var prevwidth = prev.width();
-        blockpos.left = prevpos.left + prevwidth;
-        thisblock.blockbox.offset(blockpos);
-      }
+      //Move after last one ! (not after prev())
+      var allPositions = new Array();
+      $.each(thispi.allBlocks, function(index,block){
+        allPositions.push(block.end);
+      });
+      var lastBlockEnd = Math.max.apply(Math,allPositions);
+      var blockpos = thisblock.blockbox.offset();
+      blockpos.left = lastBlockEnd;
+      thisblock.blockbox.offset(blockpos);
 
       this.actuPosition = function(){
       var w = thisblock.blockbox.width();
@@ -694,6 +694,8 @@
           }
         });
         refreshscenariosList();
+        actuScenarios();
+        recheckScenarios();
       });
     }
     getScenarios();
@@ -842,7 +844,19 @@
       allScenarios.push(newscenario);
       refreshscenariosList();
       $("#scenarioname").val("New...");
-      recheckscenarios();
+      recheckScenarios();
+      // AND create EMPTY scenario file
+      $.ajax({
+          url: "../../_SCENARIO/data/save.php",
+          dataType: "json",
+          type: "POST",
+          data: {
+              contents: JSON.stringify({"boxes":[],"connections":[],"origins":[]}),
+              filename: scenarioname,
+              timestamp: $.now(),
+              type: 'scenario'
+          }
+      });
     });
 
     $('#delscenariobtn').click( function(){
@@ -853,7 +867,10 @@
           //dataType: "json",
           type: "POST",
           data: { fileName: scenarDelete, type: 'scenario'}
-      });
+      }).done(function(reponse) {
+        getScenarios();
+  		});
+      // update pi.blocks.scenarios
       $.each(allPi,function(keypi,pi){
         $.each(pi.allBlocks, function(keyblock, block) {
           $.each(block.scenarios, function(key, scenario){
@@ -861,9 +878,7 @@
           });
         });
       });
-      getScenarios();
       $("#scenarioname").val("New...");
-      recheckscenarios();
     });
 
     $('#modifscenariobtn').click( function(){
@@ -874,7 +889,9 @@
           type: "POST",
           data: { oldname: oldName, newname: newName, type: 'scenario' }
       }).done(function(reponse){
+        getScenarios();
       });
+      // update pi.blocks.scenarios
       $.each(allPi,function(keypi,pi){
         $.each(pi.allBlocks, function(keyblock, block) {
           $.each(block.scenarios, function(key, scenario){
@@ -882,15 +899,11 @@
           });
         });
       });
-      getScenarios();
-      //recheckscenarios();
     });
 
-    function recheckscenarios(){
+    function recheckScenarios(){
       // Re-Check les bonnes Cases
-      var tempcheck = new Array();
-      $.each(pool.getActiveBlock(), function(index,block) {tempcheck = block.scenarios;});
-      $("#scenariosms").multipleSelect('setSelects', tempcheck);
+      $.each(pool.getActiveBlock(), function(index,block) {block.editInfos();});
     }
 
 

@@ -484,7 +484,7 @@ def save_scenario_on_fs(group, date_timestamp):
     path = os.path.join(settings.get_path("scenario"), group)
     if not os.path.exists(path):
         os.makedirs(path)
-    with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
+    with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w:gz") as tar:
         tar.add(settings.get_path("scenario", "activescenario"),
                 arcname=os.path.basename(settings.get_path("scenario", "activescenario")))
     tar.close()
@@ -520,7 +520,7 @@ def load_scenario_from_fs(group, date_timestamp=None):
     path = os.path.join(settings.get_path("scenario"), group)
     tar_path = os.path.join(path, group + "@" + newer.date + ".tar")
     log.log("raw", "Ask to load {0} from fs to update scenario ".format(tar_path))
-    with tarfile.open(tar_path, "r") as tar:
+    with tarfile.open(tar_path) as tar:
         # RM current scenario active directory ! #
         if os.path.exists(settings.get_path("scenario", "activescenario")):
             shutil.rmtree(settings.get_path("scenario", "activescenario"))

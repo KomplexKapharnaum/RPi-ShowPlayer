@@ -120,10 +120,12 @@ int parseInput(string input){
     if (myteleco.fisrtView()){
       delay(20);
       //fprintf(stderr, "main - delaypass\n");
-      if (digitalRead(21)==LOW) return 2;
+      //if (digitalRead(21)==LOW) return 2;
       //fprintf(stderr, "main - reel interrupt\n");
     }
-    
+    if (digitalRead(21)==LOW) return 2;
+    delay(1);
+    if (digitalRead(21)==LOW) return 2;
     myteleco.readInterrupt();
 
     if(myteleco.needtestroutine){
@@ -154,6 +156,9 @@ int parseInput(string input){
   
   if (input=="interrupt_carte") {
     //fprintf(stderr, "main - interrupt from carte\n");
+    if (digitalRead(20)==LOW) return 2;
+    delay(1);
+    if (digitalRead(20)==LOW) return 2;
     mycarte.readInterrupt();
     if(mycarte.needStatusUpdate) sendStatusTeleco();
     return 0;
@@ -178,18 +183,15 @@ int parseInput(string input){
   
   if (input=="kill") {
     //turn off light
-    mycarte.setGyro(0,200);
-    mycarte.led10WValue(0);
-    mycarte.rgbValue(0,0,0);
     mycarte.setRelais(0);
     //turn off titreur
     mytitreur.allLedOff();
     mytitreur.powerdown();
     //update status
     status="noC";
-    delay(5);
     //power off hardware
     mycarte.writeValue(POWERDOWN,100);
+    delay(50);
     //power off remote
     myteleco.reset();
     //myteleco.readOrSetTelecoLock(T_POWEROFF);
@@ -240,6 +242,10 @@ int parseInput(string input){
         if ("-status"==parsedInput){
           ss>>parsedInput;
           status=parsedInput;
+        }
+        if ("-ins"==parsedInput){
+          ss>>inverted_switch;
+          mycarte.setInvertedSwitch(inverted_switch);          
         }
       }
       init=1;
@@ -330,31 +336,58 @@ int parseInput(string input){
     if ("texttitreur"==parsedInput) {
       //write on titreur
       mytitreur.allLedOff();
+      string line1="";
+      string line2="";
+      int type;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-line1"==parsedInput){
-          ss>>parsedInput;
-          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          strncpy(buff, parsedInput.c_str(), sizeof(buff));
-          mytitreur.text(0,0,buff);
+          ss>>line1;
+          replace( line1.begin(), line1.end(), '_', ' ');
         }
         if ("-line2"==parsedInput){
-          ss>>parsedInput;
-          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          strncpy(buff, parsedInput.c_str(), sizeof(buff));
-          mytitreur.text(0,8,buff);
+          ss>>line2;
+          replace( line2.begin(), line2.end(), '_', ' ');
         }
         if ("-allon"==parsedInput){
           mytitreur.allLedOn();
+          return 0;
         }
         if ("-alloff"==parsedInput){
           mytitreur.allLedOff();
+          return 0;
         }
-        if ("-scroll"==parsedInput){
-          // todo mytitreur.scroll();
+        if ("-type"==parsedInput){
+          ss>>parsedInput;
+          type = NO_SCROLL_NORMAL;
+          if ("SCROLL_NORMAL"==parsedInput) {
+            type=SCROLL_NORMAL;
+          }
+          if ("SCROLL_LOOP_NORMAL"==parsedInput) {
+            type=SCROLL_LOOP_NORMAL;
+          }
+          if ("SCROLL_VERTICAL_NORMAL"==parsedInput) {
+            type=SCROLL_VERTICAL_NORMAL;
+          }
+          if ("SCROLL_VERTICAL_LOOP_NORMAL"==parsedInput) {
+            type=SCROLL_VERTICAL_LOOP_NORMAL;
+          }
+          if ("SCROLL_BIG"==parsedInput) {
+            type=SCROLL_BIG;
+          }
+          if ("SCROLL_LOOP_BIG"==parsedInput) {
+            type=SCROLL_LOOP_BIG;
+          }
+          if ("SCROLL_VERTICAL_BIG"==parsedInput) {
+            type=SCROLL_VERTICAL_BIG;
+          }
+          if ("SCROLL_VERTICAL_LOOP_BIG"==parsedInput) {
+            type=SCROLL_VERTICAL_LOOP_BIG;
+          }
         }
       }
+      mytitreur.twolineText(line1,line2,type);
     }
+    
     
     if ("setlight"==parsedInput) {
       //change light
