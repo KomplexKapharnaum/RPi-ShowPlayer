@@ -203,6 +203,7 @@ void vlcPlayer::stop()
 
 void vlcPlayer::setVolume(int v)
 {
+	cout << "#VOLUME_APPLY ON" << this->getId() << " : " << v << endl;
 	libvlc_audio_set_volume(this->player, v);
 }
 
@@ -221,8 +222,8 @@ void vlcPlayer::setState(int state)
 {
 	this->state = state;
 	//if (this->state < PLAYING) this->setVolume(0);
-	if (this->state == WAIT) cout << "#MEDIA_WAIT" << endl;
-	if (this->state == WAIT) cout << "#MEDIA_LOADING" << endl;
+	//if (this->state == WAIT) cout << "#MEDIA_WAIT" << endl;
+	//if (this->state == WAIT) cout << "#MEDIA_LOADING" << endl;
 	//if (this->state == LOADING) printf("#PLAYER_LOADING %d\n",this->getId());
 	//if (this->state == READY) printf("#PLAYER_READY %d\n",this->getId());
 	//if (this->state == PLAYING) printf("#MEDIA_PLAY %d\n",this->getId());

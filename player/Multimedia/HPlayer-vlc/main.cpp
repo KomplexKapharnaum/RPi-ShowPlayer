@@ -38,7 +38,7 @@ void parseInput(string input) {
 	}
 	else if (command == "volume") 
 	{
-		cout << "#VOLUME_SUPPLIED" << argument << endl;
+		//cout << "#VOLUME_SUPPLIED " << argument << endl;
 		std::string::size_type sz;
 		int vol = atoi(argument.c_str());
 		if (vol >= 0 and vol <= 200) player->setVolume(vol);
