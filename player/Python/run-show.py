@@ -90,11 +90,11 @@ try:
             if len(cmd) > 1:
                 if cmd[1] == "testall":
                     flag_all = fsm.Flag("TEST_ALL").get()
-                    flag_all.args["dest"] = "all"
+                    flag_all.args["dest"] = settings.get("scenario", "dest_all")
                     threads.patcher.patch(flag_all)
                 if cmd[1] == "testgroup":
                     flag_group = fsm.Flag("TEST_GROUP").get()
-                    flag_group.args["dest"] = "group"
+                    flag_group.args["dest"] = settings.get("scenario", "dest_group")
                     threads.patcher.patch(flag_group)
 
 except Exception as e:

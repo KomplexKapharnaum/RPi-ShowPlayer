@@ -48,15 +48,15 @@ DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["video"] = True                 # Explain if the scyn protocol must sync video or not
 DEFAULT_SETTING["sync"]["enable"] = True                # Put False to disable sync
 DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the same group to be sync
-DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 30    # 30 seconds
+DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 30   # 30 seconds
 DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
 
 DEFAULT_SETTING["scenario"] = dict()
 DEFAULT_SETTING["scenario"]["date_format"] = "%Y-%m-%d_%H:%M:%S"
 DEFAULT_SETTING["scenario"]["date_len"] = 24            # extension + date length + @
 DEFAULT_SETTING["scenario"]["dest_all"] = "All"         # string for all dest in a signal
-DEFAULT_SETTING["scenario"]["dest_group"] = "Group"         # string for group dest in a signal
-DEFAULT_SETTING["scenario"]["dest_self"] = "Self"         # string for self dest in a signal
+DEFAULT_SETTING["scenario"]["dest_group"] = "Group"     # string for group dest in a signal
+DEFAULT_SETTING["scenario"]["dest_self"] = "Self"       # string for self dest in a signal
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
