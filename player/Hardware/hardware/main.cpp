@@ -77,9 +77,11 @@ void testRoutine(int n){
     mycarte.rgbValue(0,0,255,0,0);
     delay(1000);
     mycarte.rgbValue(0,0,0,0,0);
+    delay(10);
     mycarte.led10WValue(255,3,0);
     delay(3000);
     mycarte.led10WValue(0,0,0);
+    delay(10);
     mycarte.setGyro(2,200,0);
     delay(3000);
     mycarte.setGyro(0,0,0);

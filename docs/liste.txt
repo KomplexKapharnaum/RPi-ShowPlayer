@@ -1,7 +1,12 @@
-bacson4roues1	2.0.2.1		bac son 4 roues gris n°6 son ZX		pi b2.3		sd ok
-bacvideo4roues1	2.0.2.11	bac video 4 roues gris n°3			pi b2.1		sd ok
-bacvideo4roues1	2.0.2.12	bac video 4 roues gris n°4			pi b2.2		sd ok
-bacvideo4roues3	2.0.0.13	bac video 4 roues gris n°5			pi b2.7		sd ok
-sacvideo1		2.0.2.14	bac video 4 roues gris n°3			pi b2.4		sd 
-bacson2roues1	2.0.2.11	bac son 2 roues gris n°1			pi b2.6		sd
-bacson2roues2	2.0.2.11	bac son 2 roues gris n°2			pi b2.5		sd
+bacson4roues1	2.0.2.1		bac son 4 roues gris n°6 son ZX		pi b2.3		sd ok 16go
+bacson2roues1	2.0.2.2		bac son 2 roues gris n°1			pi b2.6		sd 
+bacson2roues2	2.0.2.3		bac son 2 roues gris n°2			pi b2.5		sd
+bacvideo4roues1	2.0.2.11	bac video 4 roues gris n°3			pi b2.1		sd ok 32go
+bacvideo4roues1	2.0.2.12	bac video 4 roues gris n°4			pi b2.2		sd ok 32go
+bacvideo4roues3	2.0.0.13	bac video 4 roues gris n°5			pi b2.7		sd ok 32go
+sacvideo1		2.0.2.14	bac video 4 roues gris n°3			pi b2.4		sd ok 32go
+sacvideo2		2.0.2.15	bac video 4 roues gris n°3			pi b2.		sd
+sacvideo3		2.0.2.16	bac video 4 roues gris n°3			pi b2.		sd
+caddievideo1	2.0.2.17	bac video 4 roues gris n°3			pi b2.		sd
+caddievideo2	2.0.2.18	bac video 4 roues gris n°3			pi b2.		sd
+chariotsncf		2.0.2.19	charriot sncf						pi b2.8		sd ok 32go
