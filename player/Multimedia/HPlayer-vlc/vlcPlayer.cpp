@@ -1,5 +1,4 @@
 #include "vlcPlayer.h"
-#include "main.h"
 #include <sys/time.h>
 #include <unistd.h>
 #include <inttypes.h>
@@ -107,7 +106,7 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 int i;
 vlcPlayer::vlcPlayer(libvlc_instance_t *instance, int id, dualPlayerCallbacks *cb)
 {
-	this->state == WAIT;
+	this->state = WAIT;
 	this->id = id;
 	this->instance = instance;
 	this->callback = cb;

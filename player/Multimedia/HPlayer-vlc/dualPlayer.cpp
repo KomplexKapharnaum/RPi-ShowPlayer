@@ -21,6 +21,7 @@ void *watch_end(void* ptr)
 		if (!self->running) done = true;
 		else usleep(5000);
 	}
+	return NULL;
 }
 
 dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks()
@@ -174,6 +175,7 @@ vlcPlayer* dualPlayer::player(int n)
 {
 	if (n == 1) return this->player1;
 	if (n == 2) return this->player2;
+	return NULL;
 }
 
 vlcPlayer* dualPlayer::activePlayer()
