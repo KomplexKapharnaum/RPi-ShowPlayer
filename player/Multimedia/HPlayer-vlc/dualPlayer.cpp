@@ -4,6 +4,8 @@
 #include <iostream>
 #include <pthread.h>
 #include <sys/stat.h>
+using std::cout;
+using std::endl;
 
 
 // DEBUG PREROLL 
@@ -137,7 +139,8 @@ void dualPlayer::release()
 	this->player1->release();
 	this->player1->release();
 	libvlc_release (this->instance);
- 	printf("#PLAYER_EXIT\n");
+	cout << "#PLAYER_EXIT" << endl;
+ 	//printf("#PLAYER_EXIT\n");
 }
 
 /* EVENTS */

@@ -5,6 +5,8 @@
 #include <inttypes.h>
 #include <iostream>
 #include <sys/stat.h>
+using std::cout;
+using std::endl;
 
 /* TIME MEASURE */
 unsigned long long mstime() {
@@ -54,7 +56,8 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 			if (self->getState() == PLAYING) 
 			{ 
 				//printf("#MEDIA_END %d\n", self->getId());
-				printf("#MEDIA_END\n");
+				cout << "#MEDIA_END" << endl;
+				//printf("#MEDIA_END\n");
 				//self->stop();
 				self->setState(DONE);
 			}
@@ -135,7 +138,7 @@ void vlcPlayer::load(string filepath, bool lock)
 		libvlc_media_release(media);
 		libvlc_media_player_play (this->player);
 	}
-	else std::cout << "#FILENOTFOUND " << filepath << "\n";
+	else std::cout << "#FILENOTFOUND " << filepath << endl;
 }
 
 void vlcPlayer::load(string filepath)
@@ -224,7 +227,7 @@ void vlcPlayer::setState(int state)
 	//if (this->state == READY) printf("#PLAYER_READY %d\n",this->getId());
 	//if (this->state == PLAYING) printf("#MEDIA_PLAY %d\n",this->getId());
 	//if (this->state == DONE) printf("#PLAYER_DONE %d\n",this->getId());
-	if (this->state == PLAYING) printf("#MEDIA_PLAY\n");
+	if (this->state == PLAYING) cout << "#MEDIA_PLAY" << endl;//printf("#MEDIA_PLAY\n");
 	this->callback->onPlayerStateChange(this->getId(), this->state);
 
 }
