@@ -131,17 +131,17 @@ def clear_scenario():
 
 
 def get_scenario(name):
-    path = os.path.join(settings.get("path", "scenario"), 'scenario_'+name+'.json')
+    path = os.path.join(settings.get("path", "activescenario"),'scenario_'+name+'.json')
     return parse_file(path)
 
 
 def get_timeline(name):
-    path = os.path.join(settings.get("path", "scenario"), 'timeline_'+name+'.json')
+    path = os.path.join( settings.get("path", "activescenario"), 'timeline_'+name+'.json')
     return parse_file(path)['pool']
 
 
 def get_library(name):
-    path = os.path.join(settings.get("path", "scenario"), 'library_'+name+'.json')
+    path = os.path.join(settings.get("path", "activescenario"), 'library_'+name+'.json')
     return parse_file(path)
 
 

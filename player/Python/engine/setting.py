@@ -32,7 +32,8 @@ DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], 
 DEFAULT_SETTING["path"]["media"] = "/dnc/media"
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
-DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario/__active"
+DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
+DEFAULT_SETTING["path"]["activescenario"] = "/dnc/scenario/__active"
 DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
 DEFAULT_SETTING["path"]["kxkmcard"] = "/dnc/player/Hardware/hardware/hardware"
 DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
@@ -80,7 +81,7 @@ DEFAULT_SETTING["ack"]["interval_short"] = (0.100, 0.150, 0.200)
 DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 
 DEFAULT_SETTING["log"] = dict()
-DEFAULT_SETTING["log"]["level"] = "raw"
+DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
 
 
