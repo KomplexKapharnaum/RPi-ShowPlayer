@@ -15,7 +15,7 @@
 			"PATCH_OUT_NUM" : [],
 			"PATCH_IN_ANA" : [],
 			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : ["VIDEO_PLAYER", "AUDIO_PLAYER"],
+			"MANAGERS" : ["VIDEO_PLAYER"],
 			"OTHER_PATCH" : ["MSG_PATCHER"]
 		},
 		{
@@ -169,10 +169,12 @@
 			    "function": "MSG_SIGNAL_PATCHER",
 			    "/signal/go": "RECV_GO",
 			  	"/signal/next": "RECV_NEXT",
-			  	"/signal/audio/play": "AUDIO_PLAYER_PLAY",
-			  	"/signal/audio/stop": "AUDIO_PLAYER_STOP",
-			  	"/signal/video/play": "VIDEO_PLAYER_PLAY",
-			  	"/signal/video/stop": "VIDEO_PLAYER_STOP",
+			  	"/signal/audio/play": "AUDIO_PLAY",
+			  	"/signal/audio/stop": "AUDIO_STOP",
+			  	"/signal/audio/pause": "AUDIO_PAUSE",
+			  	"/signal/video/play": "VIDEO_PLAY",
+			  	"/signal/video/stop": "VIDEO_STOP",
+			  	"/signal/video/pause": "VIDEO_PAUSE",
 			  	"/signal/media/control": "CONTROL_MEDIA",
 			  	"/device/control": "DEVICE_CONTROL"
 			            }

@@ -161,9 +161,9 @@ class DNCServer(object):
     def __init__(self, uname, groups="", classicport=settings.get("OSC", "classicport"),
                  ackport=settings.get("OSC", "ackport")):
         self.classicServer = ClassicalOSCServer(port=classicport)
-        log.debug("Server Classic init on " + str(self.classicServer.get_port()))
+        log.log("raw","Server Classic init on " + str(self.classicServer.get_port()))
         self.ackServer = AckOSCServer(port=ackport)
-        log.debug("Server ACK init on " + str(self.ackServer.get_port()))
+        log.log("raw","Server ACK init on " + str(self.ackServer.get_port()))
         self.networkmap = NetworkMap()
         self.net_elem = NetworkElement(uname, "127.0.0.1")
         self.networkmap[uname] = self.net_elem

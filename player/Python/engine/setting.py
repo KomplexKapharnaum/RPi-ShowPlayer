@@ -23,6 +23,7 @@ DEFAULT_SETTING["localport"]["interface"] = 8080
 
 DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
+DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
 DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
 DEFAULT_SETTING["path"]["media"] = "/dnc/media"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
@@ -31,16 +32,17 @@ DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
 # DEFAULT_SETTING["path"]["media"] = "/media/Donnees/KxKm/Medias"
 DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
-DEFAULT_SETTING["path"]["vlc"] = "/usr/local/bin/cvlc"
+DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc -I rc --no-osd --aout alsa"
+DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none -I rc"
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
-DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123"
+DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
 
 DEFAULT_SETTING["OSC"] = dict()
-DEFAULT_SETTING["OSC"]["iamhere_interval"] = 60
+DEFAULT_SETTING["OSC"]["iamhere_interval"] = 5
 DEFAULT_SETTING["OSC"]["checkneighbour_interval"] = 130
 DEFAULT_SETTING["OSC"]["classicport"] = 1781
 DEFAULT_SETTING["OSC"]["ackport"] = 1782

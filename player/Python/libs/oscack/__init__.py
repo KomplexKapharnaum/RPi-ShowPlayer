@@ -8,7 +8,6 @@ from engine.log import init_log
 from engine import shared
 
 log = init_log("Osc Ack")
-log.info("Import oscAck")
 
 DNCserver = None
 discover_machine = None
@@ -49,4 +48,4 @@ def stop_protocol():
     protocol.discover.machine.stop()
 
 
-log.info("End Import OSC")
+# log.info("End Import OSC")

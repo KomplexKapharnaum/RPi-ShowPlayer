@@ -5,64 +5,98 @@
 #
 #
 import os
-
-from libs import oscack
-from modules.basemodule import ExternalProcess
+from modules import ExternalProcess
 from engine.setting import settings
 from scenario import globaletape
 from engine.log import init_log
-log = init_log("sound")
+log = init_log("audio")
 
 
-#AUDIO PLAYER CLASS
-class AlsaPlayer(ExternalProcess):
-    """
-    AlsaPlayer use aplay to provide a simple audio player
-    """
-    def __init__(self, path):
-        ExternalProcess.__init__(self)
-        path = os.path.join(settings.get("path", "media"),path)
-        self.command = "{exe} {file}".format(exe=settings.get("path", "aplay"), file=path)
-        self.onClose = "AUDIO_PLAYER_CLOSE"
+# VLC AUDIO PLAYER CLASS
+## FILE2FILE: GOOD
+## LOOP: BAD
+class VlcAudio(ExternalProcess):
+    def __init__(self):
+        ExternalProcess.__init__(self, 'vlcaudio')
+        self.onClose = "AUDIO_EVENT_CLOSE"
         self.start()
 
+    def play(self, filename=None, repeat=None):
+        media = os.path.join(settings.get("path", "media"),filename) if filename is not None else self.media
+        if os.path.isfile(media):
+            self.media = media
+            self.say("clear")
+            self.say("add {media}".format(media=self.media))
+            if repeat is not None:
+                self.repeat = repeat
+                switch = 'on' if self.repeat else 'off'
+                self.say("repeat {switch}".format(switch=switch))
+            self.say("pause")
+        else:
+            log.warning("Media File not found {0}".format(media))
 
-# AUDIO PLAYER CLASS
+    def stop(self):
+        self.say("stop")
+
+    def pause(self):
+        self.say("pause")
+
+
+# MPG123 AUDIO PLAYER CLASS
+## FILE2FILE: BAD
+## LOOP: GOOD
+## NO SUPPORT OF WAVE (MP3 ONLY)
 class Mpg123(ExternalProcess):
-    """
-    Mpg123  simple audio player
-    """
-    def __init__(self, path):
-        ExternalProcess.__init__(self)
-        path = os.path.join(settings.get("path", "media"),path)
-        self.command = "{exe} {file}".format(exe=settings.get("path", "mpg123"), file=path)
-        self.onClose = "AUDIO_PLAYER_CLOSE"
-        self.start()
+    def __init__(self):
+        ExternalProcess.__init__(self, 'mpg123')
+        self.onClose = "AUDIO_EVENT_STOP"
 
+    def play(self, filename=None, repeat=None):
+        media = os.path.join(settings.get("path", "media"), filename) if filename is not None else self.media
+        if os.path.isfile(media):
+            self.media = media
+            self.repeat = repeat
+            self.command = self.executable+" "
+            if (self.repeat):
+                self.command += "--loop -1 "
+            self.command += self.media
+            self.start()
+        else:
+            log.warning("Media File not found {0}".format(media))
+
+    def pause(self):
+        self.say("s")
 
 # ETAPE AND SIGNALS
 @globaletape("AUDIO_PLAYER", {
-                "AUDIO_PLAYER_PLAY": "START_AUDIO_PLAYER"})
-def init_audio_player(flag, **kwargs):
-    pass
+                "AUDIO_PLAY": "AUDIO_PLAYER_PLAY",
+                "AUDIO_PAUSE": "AUDIO_PLAYER_PAUSE",
+                "AUDIO_STOP": "AUDIO_PLAYER_STOP"})
+def audio_init(flag, **kwargs):
+    if "audio" not in kwargs["_fsm"].vars.keys():
+        #kwargs["_fsm"].vars["audio"] = Mpg123()
+        kwargs["_fsm"].vars["audio"] = VlcAudio()
 
 
-@globaletape("START_AUDIO_PLAYER", {
+@globaletape("AUDIO_PLAYER_PLAY", {
                 None: "AUDIO_PLAYER"})
-def start_playing_audio_media(flag, **kwargs):
-    """
-    Start playing a media
-    :param flag:
-    :return:
-    """
-    if "player" in kwargs["_fsm"].vars.keys():
-        try:
-            kwargs["_fsm"].vars["player"].stop()
-        except Exception as e:
-            log.error("CAN'T EXIT AUDIO PLAYER !")
-            log.error(": " + str(e))
-    kwargs["_fsm"].vars["player"] = Mpg123(flag.args["args"][0])
+def audio_play(flag, **kwargs):
+    media = flag.args["args"][0] if len(flag.args["args"]) >= 1 else None
+    repeat = flag.args["args"][1] if len(flag.args["args"]) >= 2 else None
+    kwargs["_fsm"].vars["audio"].play(media, repeat)
     kwargs["_etape"].preemptible.set()
+
+
+@globaletape("AUDIO_PLAYER_STOP", {
+                None: "AUDIO_PLAYER"})
+def audio_stop(flag, **kwargs):
+    kwargs["_fsm"].vars["audio"].stop()
+
+
+@globaletape("AUDIO_PLAYER_PAUSE", {
+                None: "AUDIO_PLAYER"})
+def audio_pause(flag, **kwargs):
+    kwargs["_fsm"].vars["audio"].pause()
 
     # dest = ["a", "b"]
     # for elem in dest:

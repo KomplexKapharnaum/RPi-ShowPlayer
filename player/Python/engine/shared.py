@@ -146,18 +146,18 @@ class SharedVar:
 
     @value.setter
     def value(self, value):
-        log.log("debug", "Set Shared Var {0} to {1}".format(self._name, value))
+        log.log("raw", "Set Shared Var {0} to {1}".format(self._name, value))
         self.set(value)
 
     def get(self):
-        log.log("debug", "Try to read Shared Var {0} at {1}".format(self._name, self._path))
+        log.log("raw", "Try to read Shared Var {0} at {1}".format(self._name, self._path))
         with open(self._path, "rb") as fd:
             v, = struct.unpack(self.type, fd.read())
             return v
         raise SharedException("Cannot read this value")
 
     def set(self, value):
-        log.log("debug", "Try to set Shared Var {0} to {1} at {2}".format(self._name, value, self._path))
+        log.log("raw", "Try to set Shared Var {0} to {1} at {2}".format(self._name, value, self._path))
         with open(self._path, "wb+") as fd:
-            log.log("debug", "Set Shared Var {0} to {1} at {2}".format(self._name, value, self._path))
+            log.log("raw", "Set Shared Var {0} to {1} at {2}".format(self._name, value, self._path))
             fd.write(struct.pack(self.type, value))

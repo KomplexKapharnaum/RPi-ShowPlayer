@@ -10,6 +10,7 @@ from collections import deque
 
 from src.threads import network_scheduler
 import libs.oscack
+from libs import subprocess32
 from src import fsm
 from libs.oscack import message, network
 
@@ -52,9 +53,10 @@ msg_sync = network.UnifiedMessageInterpretation("/rtp/sync", ACK=True, values=(
 
 def init_protocol(flag):
     # DESACTIVATE NTP TO FORCE TIME #
-    log.debug("DESACTIVATE NTP TO FORCE TIME")
+    log.debug("*DESACTIVATE NTP TO FORCE TIME*")
     log.debug("  `-> timedatectl set-ntp false")
-    os.system("timedatectl set-ntp false")
+   # os.system("timedatectl set-ntp false")
+    subprocess32.Popen( shlex.split("timedatectl set-ntp false") )
     #
 
 
@@ -74,6 +76,7 @@ def send_iamhere_to(flag):
 
 
 def add_flag_send_iamhere():
+    log.debug('Send IAMHERE')
     machine.append_flag(flag_timeout_send_iamhere.get(JTL=None))
     network_scheduler.enter(settings.get("OSC", "iamhere_interval"),
                             add_flag_send_iamhere)

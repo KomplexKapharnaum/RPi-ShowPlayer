@@ -1,5 +1,5 @@
 
-from modules.basemodule import ExternalProcess
+from modules import ExternalProcess
 from scenario import globaletape
 from engine.setting import settings
 from engine.log import init_log
@@ -14,6 +14,7 @@ class Webserver(ExternalProcess):
     """
     def __init__(self):
         ExternalProcess.__init__(self)
+        self.name = 'webinterface'
         self.command = "python2 {script}".format(script=settings.get("path", "interface"))
         self.start()
 

@@ -6,7 +6,6 @@
 
 import threading
 
-from libs.oscack import discover_machine
 from engine.fsm import Flag
 from engine.threads import network_scheduler
 from libs.oscack import message
@@ -157,7 +156,9 @@ def add_signal_to_protocol(*args, **kwargs):
     :param kwargs:
     :return:
     """
+    from libs.oscack import discover_machine
     discover_machine.append_flag(*args, **kwargs)
+    pass
 
 
 class UnifiedMessageInterpretation:

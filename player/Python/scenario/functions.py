@@ -42,7 +42,8 @@ def add_signal(*args, **kwargs):
     """
     if "args" not in kwargs.keys():
         kwargs["args"] = list()
-    log.log("raw", "Add signal : {0}, {1}".format(kwargs["signal"], kwargs["args"]))
+    # log.log("raw", "Add signal : {0}, {1}".format(kwargs["signal"], kwargs["args"]))
+    log.log("debug", "Add signal : {0}".format(kwargs["signal"]))
     # for sfsm in pool.FSM:  # TODO : Here we must use the future signal patcher !
     # sfsm.append_flag(pool.Signals[kwargs["signal"]].get(*kwargs["args"]))
     if "signal" in kwargs.keys():
@@ -51,7 +52,7 @@ def add_signal(*args, **kwargs):
             signal = pool.Signals[sig_uid]
         else:
             signal = Flag(sig_uid)
-            log.log("raw", "This signal was unknown..  {0}".format(sig_uid))
+            log.log("raw", "Signal unknown : {0}".format(sig_uid))
         patcher.patch(signal.get(*kwargs["args"]))
 
 
@@ -65,7 +66,8 @@ def serve_signal(*args, **kwargs):
     """
     if "args" not in kwargs.keys():
         kwargs["args"] = list()
-    log.log("raw", "Serve signal : {0}, {1}".format(kwargs["signal"], kwargs["args"]))
+    # log.log("raw", "Serve signal : {0}, {1}".format(kwargs["signal"], kwargs["args"]))
+    log.log("raw", "Serve signal : {0}".format(kwargs["signal"]))
     patcher.serve(pool.Signals[kwargs["signal"]].get(*kwargs["args"]))
 
 
@@ -98,12 +100,14 @@ def msg_patcher(*args, **kwargs):
     """
     if args[0].args["path"] in kwargs.keys():
         sig_uid = kwargs[args[0].args["path"]]
-        log.log("raw", "Add signal : {0}, {1}".format(sig_uid, args[0].args))
+        # log.log("raw", "Add signal : {0}, {1}".format(sig_uid, args[0].args))
+        log.log("debug", "{0} => {1}".format(args[0].args["path"],sig_uid))
         if sig_uid in pool.Signals.keys():
             signal = pool.Signals[sig_uid]
         else:
             signal = Flag(sig_uid)
-            log.log("raw", "This signal was not declared..  {0}".format(sig_uid))
+            # log.log("raw", "This signal was not declared..  {0}".format(sig_uid))
+            log.log("raw", "Signal not declared : {0}".format(sig_uid))
         patcher.serve(signal.get(args=args[0].args))
     else:
         return False

@@ -8,80 +8,81 @@ import os
 import socket
 import subprocess
 
-from modules.basemodule import ExternalProcess
+from modules import ExternalProcess
 from engine.setting import settings
 from scenario import globaletape
 from engine.log import init_log
 log = init_log("video")
 
 
-class VLCPlayer(ExternalProcess):
+class VlcPlayer(ExternalProcess):
     """
     Video Lan VLC Player interface
     """
     def __init__(self):
-        ExternalProcess.__init__(self)
-        self._rcport = 1250
-        self.command = "{exe} -I rc --rc-host 0.0.0.0:{port} --no-osd --aout alsa".format(exe=settings.get("path", "vlc"), port=self._rcport)
-        self.onClose = "VIDEO_PLAYER_CLOSE"
+        ExternalProcess.__init__(self, 'vlcvideo')
+        self.onClose = "VIDEO_EVENT_CLOSE"
         self.start()
+        # self._rcport = 1250
+        # self.command += " -I rc --rc-host 0.0.0.0:{port} --no-osd --aout alsa".format(port=self._rcport)
 
-    def _send(self, message):
-        cmd = "echo {txt} | nc -c localhost {port}".format(txt=message, port=self._rcport)
-        subprocess.call(cmd, shell=True)
+    # def say(self, message):
+    #     cmd = "echo {txt} | nc -c localhost {port}".format(txt=message, port=self._rcport)
+    #     subprocess.call(cmd, shell=True)
 
+    def play(self, filename=None, repeat=None):
+        media = os.path.join(settings.get("path", "media"),filename) if filename is not None else self.media
+        if os.path.isfile(media):
+            self.media = media
+            self.say("clear")
+            self.say("add {media}".format(media=self.media))
+            if repeat is not None:
+                self.repeat = repeat
+                switch = 'on' if self.repeat else 'off'
+                self.say("repeat {switch}".format(switch=switch))
+        else:
+            log.warning("Media File not found {0}".format(media))
 
-    def play(self, path):
-        path = os.path.join(settings.get("path", "media"), path)
-        self._send('add '+path)
+    def stop(self):
+        self.say("stop")
 
-    def toggle_play(self):
-        log.info("VLC PAUSE")
-        try:
-            s = socket.socket(socket.AF_UNIX)
-            s.connect(self._socket_path)
-            s.send("pause")
-        except Exception as e:
-            log.error(log.show_exception(e))
-        finally:
-            try:
-                s.close()
-            except Exception as e:
-                log.error(log.show_exception(e))
+    def pause(self):
+        self.say("pause")
 
 
 # ETAPE AND SIGNALS
 @globaletape("VIDEO_PLAYER", {
-                "VIDEO_PLAYER_PLAY": "START_VIDEO_PLAYER"})
-def init_video_player(flag, **kwargs):
-    """
-    :param flag:
-    :param kwargs:
-    :return:
-    """
+                "VIDEO_PLAY": "VIDEO_PLAYER_PLAY",
+                "VIDEO_PAUSE": "VIDEO_PLAYER_PAUSE",
+                "VIDEO_STOP": "VIDEO_PLAYER_STOP"})
+def video_init(flag, **kwargs):
     if "video" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["video"] = VLCPlayer()
-    elif not kwargs["_fsm"].vars["video"].is_alive():
-        kwargs["_fsm"].vars["video"].start()
+        kwargs["_fsm"].vars["video"] = VlcPlayer()
+    #elif not kwargs["_fsm"].vars["video"].is_running():
+    #    kwargs["_fsm"].vars["video"].start()
 
 
-@globaletape("START_VIDEO_PLAYER", {
+@globaletape("VIDEO_PLAYER_PLAY", {
                 None: "VIDEO_PLAYER"})
-def start_playing_video_media(flag, **kwargs):
-    """
-    Start playing a media
-    :param flag:
-    :return:
-    """
-    if "video" in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["video"].play(flag.args["args"][0])
-        kwargs["_etape"].preemptible.set()
+def video_play(flag, **kwargs):
+    media = flag.args["args"][0] if len(flag.args["args"]) >= 1 else None
+    repeat = flag.args["args"][1] if len(flag.args["args"]) >= 2 else None
+    kwargs["_fsm"].vars["video"].play(media, repeat)
+    kwargs["_etape"].preemptible.set()
 
 
-@globaletape("WAIT_CONTROL_VIDEO", {
-                "VIDEO_PLAYER_CLOSE": "INIT_VIDEO_PLAYER"})
-def wait_player_audio(flag, **kwargs):
-    pass
+@globaletape("VIDEO_PLAYER_STOP", {
+                None: "VIDEO_PLAYER"})
+def video_stop(flag, **kwargs):
+    kwargs["_fsm"].vars["video"].stop()
+
+
+@globaletape("VIDEO_PLAYER_PAUSE", {
+                None: "VIDEO_PLAYER"})
+def video_pause(flag, **kwargs):
+    kwargs["_fsm"].vars["video"].pause()
+
+
 
 
 # def control_video_player(flag, **kwargs):
@@ -169,7 +170,7 @@ class OMXVideoPlayer(ExternalProcess):
     def __init__(self, path, audio="both", hardware=True, args=()):
         """
         :param path: Path to the media
-        :param audio_output: Audio output to use (local = jack, hdmi = hdmi )
+        :param video_output: Audio output to use (local = jack, hdmi = hdmi )
         :param hardware: Use the -hw option to decode audio with hardware
         :param args: Stings args to add to the omxplayer commande
         :return:
@@ -184,13 +185,13 @@ class OMXVideoPlayer(ExternalProcess):
         if hardware:
             args.append("--hw -b ")
         if audio is True:
-            audio_output = "hdmi"
+            video_output = "hdmi"
         elif audio == "both":
-            audio_output = "both"
+            video_output = "both"
         else:
-            audio_output = "local"
+            video_output = "local"
         self._cmd_line = "{exe} -o {audio}  {params} {file} < {fifo}".format(exe=settings.get("path", "omxplayer"),
-                                                                  audio=audio_output,
+                                                                  audio=video_output,
                                                                   params=" ".join(args),
                                                                   file=os.path.join(
                                                                       settings.get("path", "media"), path),

@@ -109,5 +109,5 @@ class globaletape(object):
         DECLARED_TRANSITION[self.uid] = self.transitions
         if self.autoload and self.uid not in DECLARED_MANAGER:
             DECLARED_MANAGER.append(self.uid)
-            log.warning("AUTO MANAGER : "+self.uid)
+            log.debug("AUTO MANAGER :: "+self.uid)
         return f
