@@ -33,7 +33,7 @@ class VlcPlayer(ExternalProcess):
                 self.media = media
         if repeat is not None:
             self.repeat = 'on' if repeat else 'off'
-        if not os.path.isfile(self.media):
+        if self.media is None or not os.path.isfile(self.media):
             log.warning("Media File not found {0}".format(self.media))
             return False
         return True
