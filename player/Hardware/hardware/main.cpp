@@ -504,6 +504,7 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
+    fprintf(stderr, "main - prog push %s\n",message.c_str());
     q.push(message);
 }
 
