@@ -360,6 +360,7 @@
       this.active = false;
       var thispi = this;
       this.lineheight = this.linename.offset().top;
+      this.description = 'what can i do';
 
 
       this.line.dblclick( function()
@@ -379,6 +380,7 @@
 
       this.editInfos = function (){
         $("#piname").text(thispi.raspiname);
+        $('#disposelector').val(thispi.raspiname);
         pool.unselectLines();
         thispi.active = true;
         thispi.linename.css('backgroundColor', 'DDDDDD');
@@ -461,8 +463,8 @@
       this.scene = 'scene_lambda';
       this.scenarios = [];
       pool.unselectBlocks();
-      this.active = true;
-      $('#blocknameVisu').text(thisblock.blockbox.attr('id'));
+      this.active = false;
+      //$('#blocknameVisu').text(thisblock.blockbox.attr('id'));
 
       this.blockbox.on('click', function () {
         pool.unselectBlocks();
@@ -477,17 +479,38 @@
         $('#groupselector').val(
           $('#groupselector option').filter(function(){ return $(this).html() == groupname; }).val()
         );
+
+        $('#scenarioname').val(thisblock.scene+'_scenario');
+        ///////////// SORTING SCENARIOS
+        $("#scenariosms").empty();
+        $('#scenariosdropdown').empty();
+        //Creating array of scenes names
+        var scenesList = new Array();
+        $.each (allScenes, function(index,scene){ scenesList.push(scene.name) });
+        //sort
+        $.each(allScenarios,function(index,scenario){
+          var sceno = scenario.name.split('_')[0];
+          if (sceno == thisblock.scene){
+            $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
+            $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
+          }
+          if($.inArray(sceno, scenesList)==-1) {
+            $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
+            $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
+          }
+        });
+        $('#scenariosms').multipleSelect('refresh');
+        ///////////////RECHECK SCENARIOS
         var toCheck = new Array();
         $.each(this.scenarios, function(index,scenario){
           $.each(allScenarios, function(key,scenar){
             if (scenario === scenar.name) { toCheck.push(key);}
           });
-
         });
         $("#scenariosms").multipleSelect("setSelects", toCheck);
         thisblock.getScene();
-        console.log(thisblock.scene);
-        }
+
+      }
 
       this.refreshInfos = function(){
         thisblock.blockbox.css('backgroundColor', thisblock.group.color);
@@ -548,6 +571,12 @@
         containment: "parent",
         drag: function(){
           thisblock.actuPosition();
+        },
+        stop: function(){
+          thisblock.scenarios = [];
+          thisblock.group = allgroups[0];
+          thisblock.getScene();
+          thisblock.refreshInfos();
         }
         });
 
@@ -661,6 +690,7 @@
       $('#disposms').multipleSelect('refresh');
     }
     function refreshscenariosList(){
+      console.log('refreshing scenarios');
       $('#scenariosms').empty();
       $('#scenariosdropdown').empty();
       $.each(allScenarios, function(index,scenario){
@@ -772,14 +802,12 @@
     $('#disposms').change(function() {
       //$("#modulesList").empty();
       var that = $(this);
-
       $.each(pool.getActivePi(), function(index,pi) {
         var selectedModules = that.multipleSelect("getSelects", "text");
         for (var i = 0, l = selectedModules.length; i < l; ++i) {
-         selectedModules[i] = $.trim(selectedModules[i]);
-         //$('<li>'+selectedModules[i]+'</li>').appendTo( $('#modulesList') );
-         }
-         pi.modules = selectedModules;
+          selectedModules[i] = $.trim(selectedModules[i]);
+        }
+        pi.modules = selectedModules;
       });
 
     });
@@ -904,6 +932,7 @@
 
     $('#loadBtn').click( function() {
       loadTimeline();
+      $('#scenename, #piname, #blocknameVisu').text("Select...");
     });
 
 
@@ -963,8 +992,6 @@
 
     function savePool(){
       var exportPool = [];
-      console.log(gridwidth);
-
       //sort Order en fonction de la position --> pour la reconstruction
       // (si on fa ca a chaque sorting, on perd le fil des indexs ??)
       allPi.sort(function(pi1, pi2) {
@@ -1038,7 +1065,7 @@
     }
 
 
-    //////////////////////// CHOOSE  SCENARIO   /////////////////////////
+    //////////////////////// CHOOSE  TIMELINE   /////////////////////////
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
 		var allTimelines = [];
@@ -1052,14 +1079,13 @@
           }
       })
       .done(function(filelist) {
-        console.log(filelist);
         var alltime = JSON.parse(filelist);
         $.each(alltime,function(index,name){
             var newname = name.replace('.json','');
             allTimelines.push(newname);
 
         });
-        console.log(allTimelines);
+        //console.log(allTimelines);
 				$.each(allTimelines, function(index,file){
 					$('#selFile').append(('<option value="'+file+'">'+file+'</option>'));
 				});
@@ -1074,6 +1100,62 @@
 			window.open(url+'#'+timelineName,"_self");
 			location.reload(true);
 		});
+
+    //////////////////////// CHOOSE  DISPO   ////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    var dispotemp = {hostname:'Select...', description: 'when', active: 'yes'};
+    var dispo1 = {hostname:'dispo1', description: 'when', active: 'yes'};
+    var dispo2 = {hostname:'dispo2', description: 'where', active: 'yes'};
+    var dispo3 = {hostname:'dispo3', description: 'what', active: 'yes'};
+    var dispo4 = {hostname:'dispo4', description: 'who', active: 'yes'};
+
+    var disposList = new Array();
+    disposList.push(dispotemp);
+    disposList.push(dispo1);
+    disposList.push(dispo2);
+    disposList.push(dispo3);
+    disposList.push(dispo4);
+
+		$.ajax({
+			type: 'GET',
+			timeout: 1000,
+		  url: "http://2.0.1.89:8080/disposList",
+			dataType: "jsonp",
+		}).done(function(data) {
+			disposList = data.devices;
+			disposList.unshift(dispotemp);
+      updateDispos();
+		});
+
+		function updateDispos(){
+			$('#disposelector').empty();
+			$.each(disposList, function(index,dispo){
+        if (dispo.active == 'yes'){
+	        $('#disposelector').append(('<option value="'+dispo.hostname+'">'+dispo.hostname+'</option>'));
+        }
+			});
+		}
+		updateDispos();
+
+    $('#disposelector').change(function(){
+      var editedPi;
+      $.each(pool.getActivePi(), function(index,pi) {
+        editedPi = pi;
+      });
+      var newval = $('#disposelector option:selected').text();
+      if (editedPi != null){
+        editedPi.raspiname = newval
+        editedPi.linename.text(newval);
+        $('#piname').text(newval);
+        $.each(disposList,function(index,dispo){
+          if (dispo.name == newval){
+            editedPi.description = dispo.description;
+          }
+        })
+      }
+    });
+
 
 
 });

@@ -87,19 +87,19 @@ void beforekill(int signum)
 }
 
 void myInterruptTELECO(void) {
+  fprintf(stderr, "interteleco\n");
   if (myteleco.fisrtView()){
     delay(200);
-    if (digitalRead(21)==LOW) {
-      return;
+    fprintf(stderr, "delaypass\n");
+  }
+  if (digitalRead(21)==HIGH) {
+    fprintf(stderr, "reel interrupt\n");
+    myteleco.readInterrupt();
+    if (myteleco.fisrtView()) {
+      myteleco.start();
+      sendStatusTeleco();
     }
   }
-  fprintf(stderr, "interteleco\n");
-  myteleco.readInterrupt();
-  if (myteleco.fisrtView()) {
-    myteleco.start();
-    sendStatusTeleco();
-  }
-
 }
 
 
@@ -294,7 +294,6 @@ int parseInput(){
     }// end setlight
     
     if ("setgyro"==parsedInput) {
-      mytitreur.allLedOff();
       int speed=350;
       int strob=0;
       while (ss>>parsedInput){
@@ -374,6 +373,16 @@ int main (int argc, char * argv[]){
   
 signal(SIGTERM, beforekill);
 signal(SIGINT, beforekill);
+ 
+  wiringPiSetupGpio();
+  pinMode (21, INPUT);
+  delay(2);
+if (myteleco.fisrtView() && digitalRead(21)==HIGH) {
+  fprintf(stderr, "teleco add at boot\n");
+    myteleco.readInterrupt();
+    myteleco.start();
+  }
+
   
 cout << "#INITHARDWARE" << endl;
   
@@ -382,8 +391,7 @@ cout << "#INITHARDWARE" << endl;
     parseInput();
   }
   if(version_py=="-")myteleco.initCarte(1);else myteleco.initCarte(1);
-  wiringPiSetupGpio();
-  pinMode (21, INPUT);
+
   
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
