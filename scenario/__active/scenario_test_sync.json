@@ -1,0 +1,54 @@
+{
+    "boxes": [
+        {
+            "allArgs": {
+                "": null, 
+                "dest": [
+                    "All"
+                ], 
+                "media": "ALPIL_04nadiaillustr.mp4", 
+                "repeat": null
+            }, 
+            "arguments": {
+                "": null, 
+                "repeat": null
+            }, 
+            "boxname": "box4", 
+            "category": "VIDEO", 
+            "dispoBOO": true, 
+            "dispositifs": [
+                "All"
+            ], 
+            "media": "ALPIL_04nadiaillustr.mp4", 
+            "name": "PLAY_B", 
+            "positionX": 168, 
+            "positionY": 327
+        }, 
+        {
+            "allArgs": {
+                "": null
+            }, 
+            "arguments": {
+                "": null
+            }, 
+            "boxname": "box2", 
+            "category": "GENERAL", 
+            "dispoBOO": false, 
+            "name": "WAIT", 
+            "positionX": 508, 
+            "positionY": 161
+        }
+    ], 
+    "connections": [
+        {
+            "From": "WAIT", 
+            "SourceId": "Connector_box2", 
+            "TargetId": "box4", 
+            "To": "PLAY_B", 
+            "connectionLabel": "TELECO_PUSH_A"
+        }
+    ], 
+    "origins": [
+        "box2"
+    ]
+}

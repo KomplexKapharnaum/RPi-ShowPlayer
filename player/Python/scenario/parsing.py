@@ -79,6 +79,7 @@ def parse_arg_function(jfunction):
 
 def parse_function(jobj):
     fnct = None
+    from functions import *
     exec jobj["CODE"]
     pool.Etapes_and_Functions[jobj["ID"]] = fnct  # fnct define in the exec CODE
     return fnct

@@ -1,0 +1,26 @@
+[
+    {
+        "arguments": [
+            "repeat", 
+            "", 
+            ""
+        ], 
+        "category": "VIDEO", 
+        "code": "print(__locals__)\nsendSignal(\"GO\")", 
+        "dispos": true, 
+        "medias": true, 
+        "name": "PLAY_B"
+    }, 
+    {
+        "arguments": [
+            "", 
+            "", 
+            ""
+        ], 
+        "category": "GENERAL", 
+        "code": "print 'OK WAITING'\nif True:\n\tprint 'OK WAITING'\n", 
+        "dispos": false, 
+        "medias": false, 
+        "name": "WAIT"
+    }
+]
