@@ -78,10 +78,11 @@ $ git fetch --all			# On s'assure d'être à jour sur toutes les branches
 
 2 : Récupération des modifications sur **la branche distante de develop** (Bien penser à puller ses modifications locales avant)
 $ git merge origin develop		# Merge de la branche distante develop vers master
+$ git push
 
 3 : Tag et envoie sur le serveur de la nouvelle version 
 $ git tag -a vX.Y -m "Version X.Y du 30 avril 2015 : détail de la version"
-$ git push vX.Y
+$ git push origin vX.Y
 
 4 : Retour sur develop
 $ git checkout develop

@@ -51,6 +51,7 @@ DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7"
 DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
+DEFAULT_SETTING["path"]["amixer"] = "/usr/bin/amixer set PCM"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 # DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
 # DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
@@ -85,14 +86,14 @@ DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the sa
 DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 60   # 180 seconds
 DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
 DEFAULT_SETTING["sync"]["usb_mount_timeout"] = 5        # 5 seconds max for mounting/unmounting usb device
-DEFAULT_SETTING["sync"]["netctl_autorestart"] = True    # 5 seconds max for mounting/unmounting usb device
+DEFAULT_SETTING["sync"]["netctl_autorestart"] = False   # 5 seconds max for mounting/unmounting usb device
 DEFAULT_SETTING["sync"]["usb_speed_min"] = 5000         # (Ko/s) Behind 5 Mo/s it's not intresting to usb usb sync
 DEFAULT_SETTING["sync"]["scp_speed_min"] = 500          # (Ko/s) Behind 100 Ko/s it's too slow for scp
 DEFAULT_SETTING["sync"]["protected_space"] = 20000      # (Ko) Space protected to keep the rest of the project safe
 DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3    # Wait 3 sec, if no newer flag, we are update
 DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2    # 2 sec before remove mount point
 DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 15 sec before restart netctl after unplug usb storage device
-DEFAULT_SETTING["sync"]["timeout_media_version"] = 180  # 180 sec between each send media list version
+DEFAULT_SETTING["sync"]["timeout_media_version"] = 360  # 180 sec between each send media list version
 DEFAULT_SETTING["sync"]["scp_options"] = "-p -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"   # -p useless
 
 DEFAULT_SETTING["managers"] = ['DeviceControl', 'SceneControl', 'WebInterface', 'KxkmCard']
@@ -147,7 +148,7 @@ DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
 DEFAULT_SETTING["log"]["teleco"] = dict()
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5       # Block 1.5 s for assure error displaying
-DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 1.5        # Block 1.5 s before displaying an other message
+DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 3          # Block 1.5 s before displaying an other message
 DEFAULT_SETTING["log"]["teleco"]["linelength"] = 16         # Number of char per line
 DEFAULT_SETTING["log"]["teleco"]["level"] = "warning"       # For the teleco
 
@@ -163,7 +164,10 @@ DEFAULT_SETTING["perf"]["history"]["format"] = "simple"     # History prompt for
 DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10          # Undeclared FSM (stopped) to be keept with history
 
 DEFAULT_SETTING["sys"] = dict()
-DEFAULT_SETTING["sys"]["raspi"] = True    # This settings is for debug, if raspi is False it will prevent pc for error
+DEFAULT_SETTING["sys"]["raspi"] = True              # This settings is for debug, if raspi is False it will prevent pc for error
+DEFAULT_SETTING["sys"]["ref_volume"] = 0            # Set the default system volume to 0dB (no negative !)
+DEFAULT_SETTING["sys"]["volume"] = 0                # Set the volume difference with the reference (in dB) can be neg
+DEFAULT_SETTING["sys"]["vlc_volume"] = 512          # Default vlc volume. 512 = 100%
 
 
 DEFAULT_SETTING["temp"] = dict()            # TEMP SETTINGS FOR TEST

@@ -10,7 +10,7 @@ from engine.log import set_default_log_by_settings
 set_default_log_by_settings(settings)                   # Set default log level and output via settings
 
 import engine
-from engine import fsm
+from engine import fsm, alsa
 import scenario
 import modules
 from libs import oscack
@@ -26,6 +26,8 @@ def init(autoload=True):
     # LOAD INPUT KEYBOARD THREAD
     k = inputThread()
     k.start()
+    # SET SYSTEM VOLUME
+    alsa.set_absolute_amixer()
     # INIT THREAD
     engine.threads.init()
     # LOAD SUPER-MODULES IN ENGINE

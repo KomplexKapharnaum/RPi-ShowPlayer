@@ -28,6 +28,7 @@ void Teleco::initCarte(char pow){
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
   needtestroutine=0;
+  uninit=1;
 }
 
 //check if start
@@ -40,6 +41,7 @@ void Teleco::start(){
   fprintf(stderr, "teleco - teleco start\n");
   uninit=0;
   setLedWarning(0);
+  writeValue(T_INIT,1);
 }
 
 //reset remote
@@ -47,6 +49,7 @@ void Teleco::reset(){
   fprintf(stderr, "teleco - teleco reset\n");
   setLedWarning(1);
   writeValue(T_INIT,0);
+  uninit=1;
 }
 
 //acces to led status
@@ -70,7 +73,7 @@ void Teleco::sendString(char Str1[], char Str2[], int val){
   for(int i=0;i<17;i++){
     buff[i+2+16]= *(Str2+i);
   }
-  fprintf(stderr, "teleco - teleco send string : %s\n",buff);
+  fprintf(stderr, "teleco - teleco send string type=%u : %s\n",val,buff);
   SPIcarte.send(0,buff,38);
   setLedWarning(0);
 }
