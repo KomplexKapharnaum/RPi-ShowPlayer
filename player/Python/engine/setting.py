@@ -14,7 +14,8 @@ from libs import subprocess32
 
 log = init_log("setting")
 
-DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+# DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+DEFAULT_SETTING_PATH = "~/dnc_settings/"
 
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
@@ -60,8 +61,8 @@ DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
-DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "devices.json"
-DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "devicesV2.json"
+DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "settings/devices.json"
+DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "settings/devicesV2.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
 DEFAULT_SETTING["path"]["relative"]["video"] = "video"
 DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
@@ -236,23 +237,53 @@ class Settings(dict):
         self._path = path
         self.correctly_load = None
         dict.__init__(self, DEFAULT_SETTING)
-        try:
-            with open(path, 'r') as fp:
+
+        ### NEW: scan le dossier de settings locaux et importe tous les json trouvés
+        
+        # Liste les fichiers à traiter (recursif si dossier fourni)
+        files = list()
+        if os.path.isdir(path):
+            for local_set in os.listdir(path):
+                if local_set.endswith(".json"):
+                    files.append(os.path.join(path,local_set))
+        elif os.path.isfile(path):
+            files.append(path)
+        else:
+            log.error("File not found : {0}".format(path))
+            self.correctly_load = False
+
+        # Importe les settings pour tous les fichiers concernés
+        for f_path in files:
+            with open(f_path, 'r') as fp:
                 try:
                     self.update(json.load(fp))
                     log.info("Settings loaded from {0}".format(path))
-                    self.correctly_load = True
+                    if self.correctly_load is None:
+                        self.correctly_load = True
                 except Exception as e:
                     log.error("Could not load settings at {0}".format(path))
                     log.exception(log.show_exception(e))
                     self.correctly_load = False
-        except IOError:
-            log.info("No settings found at path {0}, create one".format(path))
-            with open(path, 'wr') as fp:
-                Settings.__init__(self)  # Restart loading settings
-        except json.scanner.JSONDecodeError as e:
-            log.error("Could not load settings : {0}".format(e))
-            self.correctly_load = False
+
+        ### OLD: ancien fonctionnement avec un seul fichier local de setting
+        # try:
+        #     with open(path, 'r') as fp:
+        #         try:
+        #             self.update(json.load(fp))
+        #             log.info("Settings loaded from {0}".format(path))
+        #             self.correctly_load = True
+        #         except Exception as e:
+        #             log.error("Could not load settings at {0}".format(path))
+        #             log.exception(log.show_exception(e))
+        #             self.correctly_load = False
+        # except IOError:
+        #     log.info("No settings found at path {0}, create one".format(path))
+        #     with open(path, 'wr') as fp:
+        #         Settings.__init__(self)  # Restart loading settings
+        # except json.scanner.JSONDecodeError as e:
+        #     log.error("Could not load settings : {0}".format(e))
+        #     self.correctly_load = False
+
 
     def save(self):
         return self._save(self._path, "w")
