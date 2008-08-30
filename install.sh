@@ -76,5 +76,7 @@ if [ -n "$newbranch" ]; then
 fi
 echo ""
 echo "Reboot ? [y/n] "
-read newip
-sudo reboot
+read reboot
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+	sudo reboot
+fi
