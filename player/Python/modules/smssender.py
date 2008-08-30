@@ -8,10 +8,13 @@ import urllib2
 from xml.etree.ElementTree import Element, SubElement, Comment
 from xml.etree import ElementTree
 from xml.dom import minidom
+from _classes import module
 from modules import link, exposesignals
 from engine.setting import settings
 from engine.log import init_log
-log = init_log("video")
+from engine.threads import patcher
+from engine.fsm import Flag
+log = init_log("sms")
 
 URL = settings.get("sms", "server")
 ACCOUNT = settings.get("sms", "account")
@@ -79,11 +82,14 @@ def sendSMS(message):
     if len(message) > 0:
         if len(destinataires) > 0:
             ans = post(URL, makeXmlPush(destinataires, message))
-            if ans.isnumeric():
-                log.info('SMS sent successfully with code: {0}'.format(ans))
+            ans = '{0}'.format(ans)
+            if ans.isdigit():
+                log.log('important', 'SMS sent successfully with code: {0}'.format(ans))
                 patcher.patch( Flag('SMS_SENT').get() )
             else:
                 log.warning('SMS failed to send: {0}'.format(ans))
+                if ans == 'BAD PASSWORD':
+                    log.warning('Don\'t forget to set password in the local config file! (sms->password)')
         else:
             log.warning('Can\'t send SMS, no dest found in {0}'.format(DESTFILE))
     else:
@@ -95,7 +101,7 @@ exposesignals({'SMS_SENT': [True]})
 
 # ETAPE AND SIGNALS
 @module('SmsSender')
-@link({"/sms/send [message]": "sms_send"})
+@link({"/sms/sendsms [message]": "sms_send"})
 def sms_machine(flag, **kwargs):
     pass
 

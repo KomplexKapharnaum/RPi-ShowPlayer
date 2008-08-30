@@ -68,14 +68,14 @@ DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
 DEFAULT_SETTING["path"]["relative"]["text"] = "text"
 DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
 
-<<<<<<< HEAD
 # SMS
 DEFAULT_SETTING["path"]["relative"]["sms_destlist"] = "media/sms/dest.txt"
 DEFAULT_SETTING["sms"] = dict()
 DEFAULT_SETTING["sms"]["server"] = "http://highpush-v50.hcnx.eu/api"
 DEFAULT_SETTING["sms"]["account"] = "EUREKA"
 DEFAULT_SETTING["sms"]["password"] = ""  # Set Me in Local config file to avoid GitHub Leak ;)
-=======
+
+# VLC
 DEFAULT_SETTING["vlc"] = dict()
 DEFAULT_SETTING["vlc"]["options"] = dict()
 DEFAULT_SETTING["vlc"]["options"]["default"] = {
@@ -87,17 +87,11 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
     "gain": 1,
     "again": 1
 }
-DEFAULT_SETTING["vlc"]["options"]["audio"] = {
-    "vout": "none"
-}
-DEFAULT_SETTING["vlc"]["options"]["video"] = {
-    "vout": "mmal_vout"
-}
-
+DEFAULT_SETTING["vlc"]["options"]["audio"] = {"vout": "none"}
+DEFAULT_SETTING["vlc"]["options"]["video"] = {"vout": "mmal_vout"}
 DEFAULT_SETTING["vlc"]["volume"] = dict()
 DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 % (~=256)
 DEFAULT_SETTING["vlc"]["volume"]["scenes"] = dict()     # Master scene volume for VLC 100 = 100 % (~=256) #TODO
->>>>>>> 2ec0cb0cffd8579b9f56615bb34d62fdb2b83160
 
 DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["scp"] = dict()
