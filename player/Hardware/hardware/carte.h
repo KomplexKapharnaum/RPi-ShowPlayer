@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "extSPI.h"
+#include <string>
 
 //VALUE FOR PINOUT
 #define LEDRVALUE 0
@@ -73,6 +74,7 @@ private:
   int GPIO_RESET;
   int value[];
   int GPIO_RELAIS;
+
   
 protected:
   extSPI SPIcarte;
@@ -87,6 +89,7 @@ public :
   void led10WValue(int v, int fadetime = 0, int strob=0);
   void setGyro(int mode, int speed, int strob=0);
   void setRelais(int val);
+    std::string debug;
   
   ~Carte();
   

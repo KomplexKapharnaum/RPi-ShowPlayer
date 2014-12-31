@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "extSPI.h"
+#include <string>
 
 #define MODULE_24x16 48 //nombre de char dans la matrice
 #define MODULE_32x8 32
@@ -24,6 +25,7 @@ private:
   int typeModule;
   int cleanCharArray(char Str1[]);
   int messageLength;
+
   
 protected:
   int nb_module;
@@ -46,6 +48,7 @@ protected:
   void allLedOff();
   int charbyline();
   ~Titreur();
+    std::string debug;
   
 };
 

@@ -21,12 +21,14 @@
 #include "ht1632.h"
 #include "font2.h"
 
+#include <string>
 #include <string.h>
 
-std::string debug="titreur - ";
+
 
 
 void Titreur::initTitreur(int _nb_module, int _typeModule){
+  debug="titreur - ";
   nb_module=_nb_module;
   typeModule=_typeModule;
   SPIspeed=1000000;
@@ -51,7 +53,7 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
 //problem, plutôt faire des commandes écrites pour être directement envoyée en SPI.
 
 void Titreur::initModule(int m){
-  fprintf(stderr, "%sinit titreur module %u\n",debug,m);
+  fprintf(stderr, "%sinit titreur module %u\n",debug.c_str(),m);
   //mySPI.setkeepSelect();
   
   ht1632_sendcmd(m, HT1632_CMD_SYSDIS);  // Disable system
@@ -122,7 +124,7 @@ void Titreur::putChar(int x, int y, char c){
 
 void Titreur::text(int x, int y,char Str1[]){
   messageLength = cleanCharArray(Str1);
-  fprintf(stderr,"%sdrawtext %u\n\r",debug,messageLength);
+  fprintf(stderr,"%sdrawtext %u\n\r",debug.c_str(),messageLength);
   for (int i =0; i<messageLength ; i++){
     putChar(x+(i)*6, y,Str1[i]);
   }
@@ -171,7 +173,7 @@ void Titreur::flushMatrix(){
 
 
 void Titreur::testScreen(){
-  fprintf(stderr, "%stest titreur module\n",debug);
+  fprintf(stderr, "%stest titreur module\n",debug.c_str());
   for (int i=0; i<typeModule*nb_module; i++) {
       *(matrix+i)=i;
     }
@@ -181,7 +183,7 @@ void Titreur::testScreen(){
 }
 
 void Titreur::printScreen(){
-  fprintf(stderr, "%sprint  %u",debug,m);
+  fprintf(stderr, "%sprint : ",debug.c_str());
   for (int m=0; m<nb_module; m++) {
   *output = 160;
   fprintf(stderr, "module %u",m);

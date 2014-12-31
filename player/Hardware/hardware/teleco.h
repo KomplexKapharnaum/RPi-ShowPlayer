@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "carte.h"
+#include <string>
 
 
 //VALUE FOR PINOUT

@@ -33,6 +33,8 @@
 #ifndef __testc__extSPI__
 #define __testc__extSPI__
 
+#include <string>
+
 struct ChipSelect{
   int GPIO; //will be the same for all on the same hc595
   int HC595;
@@ -72,7 +74,7 @@ private:
   
   int keepSelect;
   
-  
+
   
 
 public:
@@ -88,6 +90,7 @@ public:
   void setkeepSelect();
   void releaseSelect();
   int sendWithPause(int _selectedChip, unsigned char *_tab,int _len);
+    std::string debug;
   
   
 };
