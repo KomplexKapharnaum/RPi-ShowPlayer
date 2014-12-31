@@ -109,7 +109,7 @@ class ThreadPatcher(threading.Thread):
 
     def run(self):
         while not self._stop.is_set() or not self._queue.empty():
-            signal = self._queue.get()
+            signal = self._queue.get() 
             if signal is None:
                 continue
             log.log('raw', '{0}'.format(signal))
