@@ -139,8 +139,8 @@ exposesignals(KxkmCard.Filters)
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
-       "/carte/lights [rgb] [led10w-1] [led10w-2] [strob] [fade]": "kxkm_card_lights",
-       "/carte/gyro [speed] [strob] [mode]": "kxkm_card_gyro"})
+       "/lumiere/lights [rgb] [led10w-1] [led10w-2] [strob] [fade]": "kxkm_card_lights",
+       "/lumiere/gyro [speed] [strob] [mode]": "kxkm_card_gyro"})
 def kxkm_card(flag, **kwargs):
     if "kxkmcard" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
