@@ -11,7 +11,29 @@
                     "name": "block1", 
                     "position": 0, 
                     "scenarios": [
-                        "SC2_video"
+                        "SC1_temp"
+                    ], 
+                    "start": 0
+                }
+            ], 
+            "modules": [
+                "AudioPlayer", 
+                "VideoPlayer"
+            ], 
+            "name": "Pi1"
+        }, 
+        {
+            "blocks": [
+                {
+                    "end": 50, 
+                    "group": {
+                        "color": "218C8D", 
+                        "name": "group1"
+                    }, 
+                    "name": "block1", 
+                    "position": 0, 
+                    "scenarios": [
+                        "SC1_temp"
                     ], 
                     "start": 0
                 }
@@ -21,28 +43,6 @@
                 "VideoPlayer"
             ], 
             "name": "raspi2mgr"
-        }, 
-        {
-            "blocks": [
-                {
-                    "end": -108, 
-                    "group": {
-                        "color": "D83E3E", 
-                        "name": "group2"
-                    }, 
-                    "name": "block2", 
-                    "position": -2.16, 
-                    "scenarios": [
-                        "SC2_video"
-                    ], 
-                    "start": -108
-                }
-            ], 
-            "modules": [
-                "AudioPlayer", 
-                "VideoPlayer"
-            ], 
-            "name": "Pi1"
         }
     ], 
     "scenes": [

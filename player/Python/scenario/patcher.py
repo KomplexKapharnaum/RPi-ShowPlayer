@@ -90,11 +90,12 @@ class ThreadPatcher(threading.Thread):
         if "abs_time_sync" not in signal.args.keys():
             s, ns = rtplib.get_time()
             signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
-        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
         if settings.get("scenario", "dest_all") in sendto:
             log.log("raw", "dispatch to all dest")
+            msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=False)
             message.send(message.Address("255.255.255.255"), msg_to_send)
         else:
+            msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
             if settings.get("scenario", "dest_group") in sendto:
                 log.log("raw", "add group in dispatch list")
                 sendto.remove(settings.get("scenario", "dest_group"))

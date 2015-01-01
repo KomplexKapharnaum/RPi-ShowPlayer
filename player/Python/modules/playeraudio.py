@@ -9,6 +9,7 @@ from _classes import ExternalProcess, module
 from modules import link, exposesignals                         
 from engine.setting import settings
 from engine.log import init_log
+from libs import rtplib
 log = init_log("audio")
 
 
@@ -95,7 +96,11 @@ def audio_play(flag, **kwargs):
     # repeat = flag.args["oscargs"][1] if len(flag.args["oscargs"]) >= 2 else None
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
-    kwargs["_fsm"].vars["audio"].play(media, repeat)
+    if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args: 
+        rtplib.wait_abs_time(*flag.args['abs_time_sync'])
+        kwargs["_fsm"].vars["audio"].play(media, repeat)
+        log.debug('+++ SYNC PLAY')
+    
     kwargs["_etape"].preemptible.set()
 
 
