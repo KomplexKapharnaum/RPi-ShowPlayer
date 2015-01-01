@@ -62,9 +62,17 @@ class ExternalProcess(object):
             log.warning("There is no where ({0}) to put log of {1}".format(logfile, self.name))
             self.stderr = None
         self._running.set()
-        self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
-                                         close_fds=False, shell=False, cwd=None, env=None,
-                                         universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=lambda : os.nice(-20))
+        if self.name == 'vlcvideo':
+            log.debug('HIGH PRIORITY')
+            self._popen = Popen( 'chrt -a -r 80 '+self.command, bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
+                                             close_fds=False, shell=True, cwd=None, env=None,
+                                             universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
+                                            # preexec_fn=lambda : os.nice(-20)
+        else: 
+            self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
+                                             close_fds=False, shell=False, cwd=None, env=None,
+                                             universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
+                                            # preexec_fn=lambda : os.nice(-20)
         self._watchdog.start()
         register_thread(self)
         if self.onOpen:
