@@ -86,8 +86,8 @@ exposesignals(Mpg123.Filters)
         "/audio/stop": "audio_stop"})
 def audio_player(flag, **kwargs):
     if "audio" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["audio"] = Mpg123()
-        #kwargs["_fsm"].vars["audio"] = VlcAudio()
+        #kwargs["_fsm"].vars["audio"] = Mpg123()
+        kwargs["_fsm"].vars["audio"] = VlcAudio()
 
 
 @link({None: "audio_player"})
