@@ -21,6 +21,7 @@ class VlcPlayer(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'vlcvideo')
         self.onClose = "VIDEO_END"
+        self.media = None
         current_userid = os.getuid()
         if current_userid == 0:
             os.seteuid(1000)
@@ -34,19 +35,22 @@ class VlcPlayer(ExternalProcess):
     #     cmd = "echo {txt} | nc -c localhost {port}".format(txt=message, port=self._rcport)
     #     subprocess.call(cmd, shell=True)
 
-    def play(self, filename=None, repeat=None):
+    def preload(self, filename=None, repeat=None):
         media = os.path.join(settings.get("path", "video"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             self.say("clear")
-            self.say("add {media}".format(media=self.media))
+            
             if repeat is not None:
-                self.repeat = repeat
-                switch = 'on' if self.repeat else 'off'
-                self.say("repeat {switch}".format(switch=switch))
+                self.repeat = 'on' if repeat else 'off'
             self.say("play")
         else:
             log.warning("Media File not found {0}".format(media))
+
+    def play(self):
+        self.say("add {media}".format(media=self.media))
+        self.say("repeat {switch}".format(switch=self.repeat))
+
 
     Filters = {
         'VIDEO_END': [True]
@@ -101,11 +105,15 @@ def video_play(flag, **kwargs):
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
 
+    kwargs["_fsm"].vars["video"].preload(media, repeat)
+    kwargs["_fsm"].vars["video"].play()
+    kwargs["_fsm"].vars["video"].say("pause")
+
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args: 
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
+        kwargs["_fsm"].vars["video"].say("pause")
         log.debug('+++ SYNC PLAY')
-
-    kwargs["_fsm"].vars["video"].play(media, repeat)
+    
     
     kwargs["_etape"].preemptible.set()
 
