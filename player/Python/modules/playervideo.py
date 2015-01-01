@@ -22,12 +22,8 @@ class VlcPlayer(ExternalProcess):
         ExternalProcess.__init__(self, 'vlcvideo')
         self.onClose = "VIDEO_END"
         self.media = None
-        current_userid = os.getuid()
-        if current_userid == 0:
-            os.seteuid(1000)
+        self.repeat = 'off'
         self.start()
-        if current_userid == 0:
-            os.seteuid(0)
         # self._rcport = 1250
         # self.command += " -I rc --rc-host 0.0.0.0:{port} --no-osd --aout alsa".format(port=self._rcport)
 
@@ -63,9 +59,10 @@ class VlcPlayerOneShot(VlcPlayer):
     def __init__(self):
         ExternalProcess.__init__(self, 'vlcvideo')
         self.onClose = "VIDEO_END"
+        self.media = None
+        self.repeat = 'off'
 
     def play(self, filename=None, repeat=None):
-        
         media = os.path.join(settings.get("path", "video"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
@@ -113,6 +110,7 @@ def video_play(flag, **kwargs):
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
         kwargs["_fsm"].vars["video"].say("pause")
         log.debug('+++ SYNC PLAY')
+
     
     
     kwargs["_etape"].preemptible.set()
