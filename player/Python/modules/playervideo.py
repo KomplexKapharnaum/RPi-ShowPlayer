@@ -10,6 +10,7 @@ from _classes import ExternalProcess, module
 from modules import link, exposesignals
 from engine.setting import settings
 from engine.log import init_log
+from libs import rtplib
 log = init_log("video")
 
 
@@ -95,7 +96,7 @@ def video_player(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
-    log.debug('+++ {0}'.format(flag))
+    # log.debug('+++ {0}'.format(flag.args['abs_time_sync']))
     # flag.args['media']
     # flag.args["args"][0]
     if "video" in kwargs["_fsm"].vars.keys():
@@ -103,6 +104,9 @@ def video_play(flag, **kwargs):
     kwargs["_fsm"].vars["video"] = VlcPlayerOneShot()
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
+    
+    if 'abs_time_sync' in flag.args: 
+        rtplib.wait_abs_time(*flag.args['abs_time_sync'])
     kwargs["_fsm"].vars["video"].play(media, repeat)
     kwargs["_etape"].preemptible.set()
 
