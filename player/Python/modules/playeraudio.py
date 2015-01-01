@@ -26,13 +26,13 @@ class VlcAudio(ExternalProcess):
         media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
-            self.say("clear")
+            # self.say("clear")
             self.say("add {media}".format(media=self.media))
             if repeat is not None:
                 self.repeat = repeat
                 switch = 'on' if self.repeat else 'off'
                 self.say("repeat {switch}".format(switch=switch))
-            self.say("pause")
+            # self.say("pause")
         else:
             log.warning("Media File not found {0}".format(media))
 
