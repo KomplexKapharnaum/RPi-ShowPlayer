@@ -11,9 +11,22 @@
                     "name": "block1", 
                     "position": 0, 
                     "scenarios": [
-                        "SC1_playvideo"
+                        "SC1_sound"
                     ], 
                     "start": 0
+                }, 
+                {
+                    "end": 100, 
+                    "group": {
+                        "color": "F9E559", 
+                        "name": "group3"
+                    }, 
+                    "name": "block2", 
+                    "position": 1, 
+                    "scenarios": [
+                        "SC2_video"
+                    ], 
+                    "start": 50
                 }
             ], 
             "modules": [
@@ -27,15 +40,28 @@
                 {
                     "end": 50, 
                     "group": {
-                        "color": "D83E3E", 
-                        "name": "group2"
+                        "color": "218C8D", 
+                        "name": "group1"
                     }, 
                     "name": "block1", 
                     "position": 0, 
                     "scenarios": [
-                        "SC1_playvideo"
+                        "SC1_sound"
                     ], 
                     "start": 0
+                }, 
+                {
+                    "end": 100, 
+                    "group": {
+                        "color": "F9E559", 
+                        "name": "group3"
+                    }, 
+                    "name": "block2", 
+                    "position": 1, 
+                    "scenarios": [
+                        "SC2_video"
+                    ], 
+                    "start": 50
                 }
             ], 
             "modules": [
@@ -49,6 +75,10 @@
         {
             "name": "SC1", 
             "position": 0
+        }, 
+        {
+            "name": "SC2", 
+            "position": 50
         }
     ]
 }

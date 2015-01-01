@@ -1,3 +1,4 @@
+import os
 import shlex
 import threading
 
@@ -62,8 +63,8 @@ class ExternalProcess(object):
             self.stderr = None
         self._running.set()
         self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
-                                         preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None,
-                                         universal_newlines=False, startupinfo=None, creationflags=0)
+                                         close_fds=False, shell=False, cwd=None, env=None,
+                                         universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=lambda : os.nice(-20))
         self._watchdog.start()
         register_thread(self)
         if self.onOpen:
