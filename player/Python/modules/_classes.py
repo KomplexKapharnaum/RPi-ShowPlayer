@@ -64,7 +64,7 @@ class ExternalProcess(object):
         self._running.set()
         if self.name == 'vlcvideo':
             log.debug('HIGH PRIORITY')
-            self._popen = Popen( 'chrt -a -r 80 '+self.command, bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
+            self._popen = Popen( 'chrt -r 80 '+self.command, bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
                                              close_fds=False, shell=True, cwd=None, env=None,
                                              universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
                                             # preexec_fn=lambda : os.nice(-20)
