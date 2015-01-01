@@ -6,7 +6,7 @@
 #
 import os
 from _classes import ExternalProcess, module
-from modules import link
+from modules import link, exposesignals                         
 from engine.setting import settings
 from engine.log import init_log
 log = init_log("audio")
@@ -18,7 +18,7 @@ log = init_log("audio")
 class VlcAudio(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'vlcaudio')
-        self.onClose = "AUDIO_EVENT_CLOSE"
+        self.onClose = "AUDIO_END"
         self.start()
 
     def play(self, filename=None, repeat=None):
@@ -41,6 +41,10 @@ class VlcAudio(ExternalProcess):
     def pause(self):
         self.say("pause")
 
+    Filters = {
+        'AUDIO_END': [True]
+    }
+
 
 # MPG123 AUDIO PLAYER CLASS
 ## FILE2FILE: BAD
@@ -49,7 +53,7 @@ class VlcAudio(ExternalProcess):
 class Mpg123(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'mpg123')
-        self.onClose = "AUDIO_EVENT_STOP"
+        self.onClose = "AUDIO_END"
 
     def play(self, filename=None, repeat=None):
         media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
@@ -66,6 +70,12 @@ class Mpg123(ExternalProcess):
 
     def pause(self):
         self.say("s")
+
+    Filters = {
+        'AUDIO_END': [True]
+    }
+
+exposesignals(Mpg123.Filters)
 
 
 # ETAPE AND SIGNALS

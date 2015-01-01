@@ -48,12 +48,6 @@ class VlcPlayer(ExternalProcess):
         else:
             log.warning("Media File not found {0}".format(media))
 
-    def stop(self):
-        self.say("stop")
-
-    def pause(self):
-        self.say("pause")
-
     Filters = {
         'VIDEO_END': [True]
     }
@@ -84,6 +78,7 @@ class VlcPlayerOneShot(VlcPlayer):
 
 exposesignals(VlcPlayer.Filters)
 
+PROCESS = VlcPlayerOneShot()
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
@@ -99,26 +94,30 @@ def video_play(flag, **kwargs):
     # log.debug('+++ {0}'.format(flag.args['abs_time_sync']))
     # flag.args['media']
     # flag.args["args"][0]
-    if "video" in kwargs["_fsm"].vars.keys():
+    if 'video' in kwargs["_fsm"].vars:
         kwargs["_fsm"].vars["video"].stop()
     kwargs["_fsm"].vars["video"] = VlcPlayerOneShot()
+
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
-    
-    if 'abs_time_sync' in flag.args: 
+
+    if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args: 
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
+        log.debug('+++ SYNC PLAY')
+
     kwargs["_fsm"].vars["video"].play(media, repeat)
+    
     kwargs["_etape"].preemptible.set()
 
 
 @link({None: "video_player"})
 def video_stop(flag, **kwargs):
-    kwargs["_fsm"].vars["video"].stop()
+    kwargs["_fsm"].vars["video"].say("stop")
 
 
 @link({None: "video_player"})
 def video_pause(flag, **kwargs):
-    kwargs["_fsm"].vars["video"].pause()
+    kwargs["_fsm"].vars["video"].say("pause")
 
 
 

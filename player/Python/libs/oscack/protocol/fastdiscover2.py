@@ -149,14 +149,14 @@ def server_sync(flag):
                             flag_timeout_task_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))   # TODO check if work
     machine.current_state.preemptible.set()
-    time.sleep(0.5)     # Wait for the client to pass in the correct state
+    time.sleep(3)     # Wait for the client to pass in the correct state
     # BEGIN TIME CRITICAL #
     message.send(target, msg_ping.get(**kwargs_ping))
     t_start = rtplib.get_time()
     # n_try = 0
     while not machine.current_state.stop.is_set():
         try:
-            pong = pong_queue.get(True, 5)
+            pong = pong_queue.get(True, 6)
         except Queue.Empty as e:
             # n_try += 1
             log.exception(log.show_exception(e))
