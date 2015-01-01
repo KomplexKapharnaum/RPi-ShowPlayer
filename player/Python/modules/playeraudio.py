@@ -16,35 +16,69 @@ log = init_log("audio")
 # VLC AUDIO PLAYER CLASS
 ## FILE2FILE: GOOD
 ## LOOP: BAD
-class VlcAudio(ExternalProcess):
+class VlcPlayer(ExternalProcess):
+    """
+    Video Lan VLC Player interface
+    """
     def __init__(self):
-        ExternalProcess.__init__(self, 'vlcaudio')
-        self.onClose = "AUDIO_END"
+        ExternalProcess.__init__(self, 'vlcvideo')
+        self.onClose = "VIDEO_END"
+        self.media = None
+        current_userid = os.getuid()
+        if current_userid == 0:
+            os.seteuid(1000)
         self.start()
+        if current_userid == 0:
+            os.seteuid(0)
+        # self._rcport = 1250
+        # self.command += " -I rc --rc-host 0.0.0.0:{port} --no-osd --aout alsa".format(port=self._rcport)
 
-    def play(self, filename=None, repeat=None):
+    # def say(self, message):
+    #     cmd = "echo {txt} | nc -c localhost {port}".format(txt=message, port=self._rcport)
+    #     subprocess.call(cmd, shell=True)
+
+    def preload(self, filename=None, repeat=None):
         media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
-            # self.say("clear")
-            self.say("add {media}".format(media=self.media))
+            self.say("clear")
+            
             if repeat is not None:
-                self.repeat = repeat
-                switch = 'on' if self.repeat else 'off'
-                self.say("repeat {switch}".format(switch=switch))
-            # self.say("pause")
+                self.repeat = 'on' if repeat else 'off'
+            self.say("play")
         else:
             log.warning("Media File not found {0}".format(media))
 
-    def stop(self):
-        self.say("stop")
+    def play(self):
+        self.say("add {media}".format(media=self.media))
+        self.say("repeat {switch}".format(switch=self.repeat))
 
-    def pause(self):
-        self.say("pause")
 
     Filters = {
         'AUDIO_END': [True]
     }
+
+
+
+class VlcPlayerOneShot(VlcPlayer):
+
+    def __init__(self):
+        ExternalProcess.__init__(self, 'vlcvideo')
+        self.onClose = "VIDEO_END"
+
+    def play(self, filename=None, repeat=None):
+        
+        media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
+        if os.path.isfile(media):
+            self.media = media
+            self.command += ' '+self.media 
+            self.start()
+            # if repeat is not None:
+            #     self.repeat = repeat
+            #     switch = 'on' if self.repeat else 'off'
+            #     self.say("repeat {switch}".format(switch=switch))
+        else:
+            log.warning("Media File not found {0}".format(media))
 
 
 # MPG123 AUDIO PLAYER CLASS
@@ -76,7 +110,7 @@ class Mpg123(ExternalProcess):
         'AUDIO_END': [True]
     }
 
-exposesignals(Mpg123.Filters)
+exposesignals(VlcPlayerOneShot.Filters)
 
 
 # ETAPE AND SIGNALS
@@ -87,11 +121,14 @@ exposesignals(Mpg123.Filters)
 def audio_player(flag, **kwargs):
     if "audio" not in kwargs["_fsm"].vars.keys():
         #kwargs["_fsm"].vars["audio"] = Mpg123()
-        kwargs["_fsm"].vars["audio"] = VlcAudio()
+        kwargs["_fsm"].vars["audio"] = VlcPlayerOneShot()
 
 
 @link({None: "audio_player"})
 def audio_play(flag, **kwargs):
+    if 'audio' in kwargs["_fsm"].vars:
+        kwargs["_fsm"].vars["audio"].stop()
+    kwargs["_fsm"].vars["audio"] = VlcPlayerOneShot()
     # media = flag.args["oscargs"][0] if len(flag.args["oscargs"]) >= 1 else None
     # repeat = flag.args["oscargs"][1] if len(flag.args["oscargs"]) >= 2 else None
     media = flag.args["media"] if 'media' in flag.args else None
