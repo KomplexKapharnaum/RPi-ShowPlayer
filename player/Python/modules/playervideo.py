@@ -34,7 +34,7 @@ class VideoVLCPlayer(AbstractVLC):
         arguments = copy.copy(settings.get("vlc", "options", "default"))
         """:type: dict"""
         arguments.update(settings.get("vlc", "options", "video"))
-        log.log("debug", "Hplayer command : {0}".format(command.format(**arguments)))
+        log.log("raw", "Hplayer command : {0}".format(command.format(**arguments)))
         AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments), filters=FILTERS)
 
     def check_media(self, media):
@@ -128,7 +128,7 @@ exposesignals(FILTERS)
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
-@link({"/video/play [media:str] [repeat:bool]": "video_play", #do not set volume in play box because we do not want rewrite all the scenario
+@link({"/video/play [media:str] [repeat:bool] [volume:int]": "video_play",
        "/video/pause": "video_pause",
        "/video/resume": "video_resume",
        "/video/toggle": "video_toggle",

@@ -166,7 +166,7 @@ class ExternalProcess(object):
                     log.debug("Ignore {0} on process {1} because it's stopped".format(message, self.name))
                 break
             self._direct_stdin_writer(message)
-            self._log("important", "write to stdin : {0}".format(message.encode("utf-8")))
+            self._log("raw", "write to stdin : {0}".format(message.encode("utf-8")))
 
     def _direct_stdin_writer(self, msg):
         """
@@ -177,7 +177,7 @@ class ExternalProcess(object):
         with self._stdin_lock:
             msg += "\n"
             m = msg.encode("utf-8")
-            self._log("debug", "write to stdin : {0}".format(m))
+            self._log("raw", "write to stdin : {0}".format(m))
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
@@ -187,7 +187,7 @@ class ExternalProcess(object):
         self._is_launched.wait()
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
-            self._log("important", "stdout : {0}".format(line.strip()))
+            self._log("raw", "stdout : {0}".format(line.strip()))
             self.stdout_queue.put_nowait(line.strip())
         self.stdout_queue.put_nowait(None)  # Stop queue consumers
 
@@ -417,9 +417,9 @@ class AbstractVLC(ExternalProcessFlag):
         This function update the volume of the current VLC player with all volume level
         :return:
         """
-        log.debug("self._volume : {0}, type : {1}".format(self._volume, type(self._volume)))
-        log.debug("self._media_volume : {0}, type : {1}".format(self._media_volume, type(self._media_volume)))
-        log.debug("setting volume : {0}, type : {1}".format(settings.get("vlc", "volume", "master"), type(settings.get("vlc", "volume", "master"))))
+        self._log("raw", "self._volume : {0}, type : {1}".format(self._volume, type(self._volume)))
+        self._log("raw", "self._media_volume : {0}, type : {1}".format(self._media_volume, type(self._media_volume)))
+        self._log("debug", "setting volume : {0}, type : {1}".format(settings.get("vlc", "volume", "master"), type(settings.get("vlc", "volume", "master"))))
         volume = float(int(self._volume) * int(self._media_volume) * int(settings.get("vlc", "volume", "master")) / 10000)
         if volume > 100:
             volume = 100
@@ -609,9 +609,9 @@ class _ExternalProcess(object):
         :param message:
         :return:
         """
-        log.important("Add {0} message to {1} queue".format(message, self.name))
+        log.raw("Add {0} message to {1} queue".format(message, self.name))
         if message == "stop":
-            log.important(show_trace())
+            log.debug(show_trace())
         if not self.is_running() and message == "stop":
             log.error("CATCH AND AVOID stop BEFORE LAUNCED VLC")
             return
@@ -627,7 +627,7 @@ class _ExternalProcess(object):
             message += "\n"
             m = message.encode("utf-8")
             self._popen.stdin.write(m)
-            log.log("important", " " + message)
+            log.log("raw", " " + message)
         else:
             log.log("debug", "Message aborted, Thread not active ")
 

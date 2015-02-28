@@ -19,6 +19,10 @@
 #include <iostream>
 #include <string>
 
+#include <sys/time.h>
+#include <unistd.h>
+#include <inttypes.h>
+
 
 
 //init carte
@@ -80,6 +84,19 @@ int Carte::readValue(int valueType){
   return buff[1];
 }
 
+/* TIME MEASURE */
+unsigned long long mstime() {
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+
+	unsigned long long millisecondsSinceEpoch =
+	    (unsigned long long)(tv.tv_sec) * 1000 +
+	    (unsigned long long)(tv.tv_usec) / 1000;
+
+	return millisecondsSinceEpoch;
+}
+
 //read carte interrupt and out corresponding message
 int Carte::readInterrupt(){
   unsigned char buff[2];
@@ -97,6 +114,13 @@ int Carte::readInterrupt(){
       //@todo : faire un tableau et l'envoyer
     case PUSH1:
       std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
+      if (valeur==1){
+        startchrono = mstime();
+        checkchrono = true;
+      }
+      if (checkchrono && valeur==0){
+        if(mstime()-startchrono>10000) system ("sudo reboot");
+      }
       break;
     case PUSH2:
       std::cout << "#CARTE_PUSH_2 "<< valeur << std::endl;
