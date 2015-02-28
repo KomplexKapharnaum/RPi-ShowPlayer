@@ -11,6 +11,14 @@ if [ $screen -eq 1 ]; then       # There isn't the GNU screen binary, try to ins
     echo "termcapinfo xterm* ti@:te@" > ~/.screenrc
 fi
 
+USER_START=0
+while getopts "o" opt; do
+    case "$opt" in
+    o)  USER_START=1
+        ;;
+    esac
+done
+
 if [ $screen -eq 0 ]; then      # There is the GNU screen binary
     echo "Using GNU screen.."
     if [ "$(screen -ls | grep dnc)" = "" ]; then
@@ -28,7 +36,11 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
         fi
     fi
     echo "Start in a GNU screen session named 'dnc'"
-    screen -S dnc -d -m /dnc/dnc.sh -o
+    if ((USER_START)); then
+        screen -S dnc -d -m /dnc/dnc.sh -o -u
+    else
+        screen -S dnc -d -m /dnc/dnc.sh -o
+    fi
     if [ "$(screen -ls | grep netctl)" = "" ]; then
         sleep 0.2
     else
@@ -46,12 +58,9 @@ fi
 
 screen -ls
 
-while getopts "o" opt; do
-    case "$opt" in
-    o)  screen -r dnc
-        ;;
-    esac
-done
+if ((USER_START)); then
+    screen -r dnc
+fi
 
 exit $?
 

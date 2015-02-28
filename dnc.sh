@@ -1,27 +1,45 @@
 #!/bin/bash
 
 if [ $(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) -eq 3 ]; then
-    echo "DNC starter begin .."
+sleep 1
+echo "
+                    ___                    ___           ___                                  ___                         ___           ___           ___     
+     _____         /\  \                  /\  \         /\  \                                /\__\                       /\__\         /\  \         /\  \    
+    /::\  \       /::\  \                 \:\  \       /::\  \         ___                  /:/  /                      /:/ _/_       /::\  \        \:\  \   
+   /:/\:\  \     /:/\:\  \                 \:\  \     /:/\:\  \       /\__\                /:/  /                      /:/ /\__\     /:/\:\  \        \:\  \  
+  /:/  \:\__\   /:/  \:\  \            _____\:\  \   /:/  \:\  \     /:/  /               /:/  /  ___   ___     ___   /:/ /:/ _/_   /:/ /::\  \   _____\:\  \ 
+ /:/__/ \:|__| /:/__/ \:\__\          /::::::::\__\ /:/__/ \:\__\   /:/__/               /:/__/  /\__\ /\  \   /\__\ /:/_/:/ /\__\ /:/_/:/\:\__\ /::::::::\__\ 
+ \:\  \ /:/  / \:\  \ /:/  /          \:\~~\~~\/__/ \:\  \ /:/  /  /::\  \               \:\  \ /:/  / \:\  \ /:/  / \:\/:/ /:/  / \:\/:/  \/__/ \:\~~\~~\/__/
+  \:\  /:/  /   \:\  /:/  /            \:\  \        \:\  /:/  /  /:/\:\  \               \:\  /:/  /   \:\  /:/  /   \::/_/:/  /   \::/__/       \:\  \      
+   \:\/:/  /     \:\/:/  /              \:\  \        \:\/:/  /   \/__\:\  \               \:\/:/  /     \:\/:/  /     \:\/:/  /     \:\  \        \:\  \     
+    \::/  /       \::/  /                \:\__\        \::/  /         \:\__\               \::/  /       \::/  /       \::/  /       \:\__\        \:\__\    
+     \/__/         \/__/                  \/__/         \/__/           \/__/                \/__/         \/__/         \/__/         \/__/         \/__/        
+"
 else
     echo "An instance is already running .. "$(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) > /tmp/dnc_l
     echo "EXIT because already running"
     exit 0
 fi
 
-# WAIT 2 Seconds 
-# to be sure ALsa & Other services are UP and Running
-sleep 2
-
 running=1
 DIRECT_INOUT=0
+AUTO_START=1
 
 # NAMED ARGUMENTS
-while getopts "o" opt; do
+while getopts "ou" opt; do
     case "$opt" in
     o)  DIRECT_INOUT=1
         ;;
+    u)  AUTO_START=0
+        ;;
     esac
 done
+
+# Wait for other process to start on boot
+if ((AUTO_START)); then
+    echo "= DNC Loading"
+    sleep 5
+fi
 
 quit()
 {
@@ -52,12 +70,12 @@ while (( running )); do
 	kill_zombies
 
     # Maintenance
-    echo "Run Update / Maintenance"
+    echo "= DNC Update"
     /dnc/update.sh
     cd /dnc
 
     # MAIN
-	echo "ShowPlayer Start"
+	echo "= DNC Start"
     if ((DIRECT_INOUT)); then
     	nice -n -20 ./player/Python/main.py
     else
