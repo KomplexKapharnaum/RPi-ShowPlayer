@@ -8,6 +8,9 @@ else
     exit 0
 fi
 
+# WAIT 2 Seconds 
+# to be sure ALsa & Other services are UP and Running
+sleep 2
 
 running=1
 DIRECT_INOUT=0
