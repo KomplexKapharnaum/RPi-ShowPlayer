@@ -234,17 +234,19 @@ class ThreadTeleco(threading.Thread):
         """
         try:
             message = ThreadTeleco.prepare_message(message)
-            for n, bloc in enumerate(message):
-                args = dict()
-                args["ligne1"] = str(bloc[0])
-                if len(bloc) > 1:
-                    args["ligne2"] = str(bloc[1])
-                else:
-                    args["ligne2"] = ""
-                args["page"] = page
-                engine.threads.patcher.patch(flag_popup.get(args=args))
-                if len(message) >= n + 1:
-                    time.sleep(settings.get("log", "teleco", "autoscroll"))
+            if message is not None:
+                for n, bloc in enumerate(message):
+                    args = dict()
+                    if len(bloc) > 0:
+                        args["ligne1"] = str(bloc[0])
+                        if len(bloc) > 1:
+                            args["ligne2"] = str(bloc[1])
+                        else:
+                            args["ligne2"] = ""
+                        args["page"] = page
+                        engine.threads.patcher.patch(flag_popup.get(args=args))
+                        if len(message) >= n + 1:
+                            time.sleep(settings.get("log", "teleco", "autoscroll"))
         except Exception as e:
             log.warning(log.show_exception(e))
 
@@ -263,10 +265,11 @@ class ThreadTeleco(threading.Thread):
             blocs = list()
             blocs.append(list())
             for line in message:
-                while len(line) > linelength:
-                    lines.append(line[:linelength])
-                    line = line[linelength:]
-                lines.append(line)
+                if hasattr(line, '__len__'):
+                    while len(line) > linelength:
+                        lines.append(line[:linelength])
+                        line = line[linelength:]
+                    lines.append(line)
             for line in lines:
                 if len(blocs[-1]) == 2:
                     blocs.append(list())  # New block
@@ -274,6 +277,7 @@ class ThreadTeleco(threading.Thread):
             return blocs
         except Exception as e:
             log.warning(log.show_exception(e))
+            return None
 
 def show_trace():
     traceback.print_stack()

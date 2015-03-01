@@ -93,8 +93,10 @@ while (( running )); do
     echo "ShowPlayer exited $exitcode"
     if (( running )); then
     		echo "Respawning.."
+            echo ""
+            echo ""
+            sleep 1
     fi
-    sleep 1
 done
 kill_zombies
 
