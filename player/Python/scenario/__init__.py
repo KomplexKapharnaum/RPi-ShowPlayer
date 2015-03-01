@@ -94,7 +94,7 @@ def start_scene():
         if settings.get("uName") in scene.cartes.keys() and scene.start_etapes[settings.get("uName")] is not None:
             log.log('important', '= SCENE ' + scene.name)
             tools.log_teleco(("start scene", scene.name), "scenario")
-            if settings["uName"] in scene.cartes.keys():  # Fond scene !
+            if settings["uName"] in scene.cartes.keys():  # Found scene !
                 log.debug("Found scene to launch : {0}".format(scene))
                 stop_scene()
                 global CURRENT_SCENE_FRAME
@@ -106,6 +106,7 @@ def start_scene():
                                     "Self" in action[1]["args"]["dest"] or settings.get("uName") in action[1]["args"]["dest"]):
                             fsm = classes.ScenarioFSM(etape.uid, source=scene.name)
                             fsm.start(etape)
+                            log.debug("add sfsm {0}".format(fsm))
                             SCENE_FSM.append(fsm)
                             break
                         else:
@@ -126,6 +127,7 @@ def stop_scene():
     for sfsm in SCENE_FSM:
         sfsm.stop()
         SCENE_FSM.remove(sfsm)
+        log.debug("stop and remove sfsm {0}".format(sfsm))
     for mfsm in MODULES_FSM:
         mfsm.append_flag(stop_flag.get())
     for mfsm in engine.MODULES_FSM.values():           # TODO check what is that engine.MODULES_FSM.values() ??

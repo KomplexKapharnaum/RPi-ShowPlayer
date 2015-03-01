@@ -388,7 +388,7 @@ class AbstractVLC(ExternalProcessFlag):
         path = self.check_media(media)
         if path is False:
             self._log("warning", "Unknown media {0} => aborting".format(media))
-            return False
+            #return False           prevent continue to play or play last media, force send unknow file to load to vlc
         # self.stdin_queue.put_nowait()
         self._direct_stdin_writer("load {0}".format(path))
 
