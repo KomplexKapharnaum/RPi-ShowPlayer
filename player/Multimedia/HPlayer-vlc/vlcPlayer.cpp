@@ -124,8 +124,9 @@ vlcPlayer::vlcPlayer(libvlc_instance_t *instance, int id, dualPlayerCallbacks *c
 }
 
 /* COMMANDS */
-void vlcPlayer::load(string filepath, bool lock)
+bool vlcPlayer::load(string filepath, bool lock)
 {
+	this->filepath = filepath;
 	if (fileexists(filepath))
 	{
 		//printf("LOADING %llu\n",mstime());
@@ -136,8 +137,10 @@ void vlcPlayer::load(string filepath, bool lock)
 		libvlc_media_player_set_media(this->player, media);
 		libvlc_media_release(media);
 		libvlc_media_player_play (this->player);
+		return true;
 	}
-	else std::cout << "#FILENOTFOUND " << filepath << endl;
+	std::cout << "#FILENOTFOUND " << filepath << endl;
+	return false;
 }
 
 void vlcPlayer::load(string filepath)
@@ -147,7 +150,8 @@ void vlcPlayer::load(string filepath)
 
 void vlcPlayer::play(string filepath)
 {
-	this->load(filepath, false);
+	// if the load=>play fails = we should stop everything..
+	if (!this->load(filepath, false)) this->callback->onFileNotFound();
 }
 
 void vlcPlayer::play()

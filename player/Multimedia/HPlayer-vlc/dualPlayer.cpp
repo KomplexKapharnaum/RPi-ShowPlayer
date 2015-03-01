@@ -183,6 +183,10 @@ void dualPlayer::onPlayerStateChange(int playerID, int state)
 	}
 }
 
+void dualPlayer::onFileNotFound()
+{
+	this->activePlayer()->stop();
+}
 
 /* INTERNAL */
 vlcPlayer* dualPlayer::player(int n)

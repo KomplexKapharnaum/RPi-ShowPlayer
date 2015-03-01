@@ -29,6 +29,7 @@ class dualPlayer : public dualPlayerCallbacks
 		void setRepeat(bool r);
 
 		void onPlayerStateChange(int playerID, int state);
+		void onFileNotFound();
 		vlcPlayer* player(int n);
 		vlcPlayer *player1;
 		vlcPlayer *player2;
