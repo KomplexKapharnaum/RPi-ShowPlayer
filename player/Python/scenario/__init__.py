@@ -106,8 +106,8 @@ def start_scene():
                                     "Self" in action[1]["args"]["dest"] or settings.get("uName") in action[1]["args"]["dest"]):
                             fsm = classes.ScenarioFSM(etape.uid, source=scene.name)
                             fsm.start(etape)
-                            log.debug("add sfsm {0}".format(fsm))
                             SCENE_FSM.append(fsm)
+                            log.debug("SCENE_FSM {0}".format(fsm))
                             break
                         else:
                             log.debug("Ignore etape {0} because it's not for us".format(etape))
@@ -125,9 +125,9 @@ def start_scene():
 def stop_scene():
     stop_flag = fsm.Flag("SCENE_STOPPING", JTL=2, TTL=None)      # TODO : refactor this in an other place !
     for sfsm in SCENE_FSM:
+        log.debug("stop and remove sfsm {0}".format(sfsm))
         sfsm.stop()
         SCENE_FSM.remove(sfsm)
-        log.debug("stop and remove sfsm {0}".format(sfsm))
     for mfsm in MODULES_FSM:
         mfsm.append_flag(stop_flag.get())
     for mfsm in engine.MODULES_FSM.values():           # TODO check what is that engine.MODULES_FSM.values() ??
