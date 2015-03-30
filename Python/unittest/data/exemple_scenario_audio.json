@@ -1,0 +1,186 @@
+{
+	"Timeline" : [
+		[
+			{
+				"scene" : "SCENE_1",
+				"cartes" : ["Poubelle1"]
+			}
+		]
+				],
+	"Scene" : [
+		{
+			"ID" : "SCENE_1",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_1", "INIT_AUDIO_PLAYER"]
+				}
+							]
+		}
+				],
+	"Etape" :  [
+		{
+			"ID" : "INIT_SCENE_1",
+			"ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "ENTER INIT !"
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "QUIT INIT !"
+						}],
+			"TRANSITIONS" : [
+				{
+					"signal" : "None",
+					"goto" : "CONTROL_PLAYER"
+				}
+							]
+		},
+	  	{
+			"ID" : "CONTROL_PLAYER",
+			"ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "ENTER CONTROL PLAYER !"
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "QUIT CONTROL PLAYER !"
+						},
+                        {
+                    "function": "ADD_SIGNAL",
+                    "signal": "AUDIO_PLAYER_STOP"
+                        }],
+			"TRANSITIONS" : [
+				{
+					"signal" : "NEXT_SCENE",
+					"goto" : "NEXT_SCENE"
+				}
+							]
+		},
+        {
+			"ID" : "NEXT_SCENE",
+			"ACTIONS" : [{"function": "FNCT_NEXT_SCENE"}],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : []
+		}
+				],
+	"Function" :  [
+		{
+			"ID" : "FNCT_SAY",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+		            "    log.info(kwargs['text'])"]
+		},
+        {
+			"ID" : "FNCT_NEXT_SCENE",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+			    "   pool.MANAGER.append_flag(manager.next_flag.get())"]
+		},
+        {
+		    "ID" : "FNCT_TREATMENT",
+		    "CODE" : [
+		        "def fnct(flag, **kwargs):",
+		        "   tools.serve_signal(signal='START')"]
+		}
+
+					],
+	"Carte" : [
+		{
+			"ID" : "Poubelle1",
+			"DEVICE" : "POUBELLE"
+		}
+				],
+	"Signal" : [
+		{
+			"ID" : "ONE_FLAG",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "ZERO_FLAG",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_PLAY",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_PAUSE",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_STOP",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_NEXT",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "VOLUME_CHANGE",
+			"JTL" : "None",
+			"TTL" : 0.1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		}
+				],
+	"Device" : [
+		{
+			"ID" : "POUBELLE",
+			"MODULES" : ["VIDEO", "SON"],
+			"PATCH_IN_NUM" : [],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : ["MSG_PATCHER"]
+		},
+		{
+			"ID" : "CARTONLIGHT",
+			"MODULES" : ["LIGHT"],
+			"PATCH_IN_NUM" : [],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : ["MSG_PATCHER"]
+		}
+					],
+	"Patch" :  [
+		{
+			"ID" : "MSG_PATCHER",
+			"SIGNAL" : "RECV_MSG",
+			"TREATMENT": {
+			    "function": "MSG_SIGNAL_PATCHER",
+			    "/signal/go": "RECV_GO",
+			  	"/signal/next": "RECV_NEXT"
+			            }
+		}
+				],
+
+	"Media" :  [
+		{
+			"ID" : "AUDIO_STAVROZ",
+			"PATH" : "audio/Stavroz.wav",
+			"CHECKSUM" : "f123e42ad42f980ec"
+		}
+				]
+}

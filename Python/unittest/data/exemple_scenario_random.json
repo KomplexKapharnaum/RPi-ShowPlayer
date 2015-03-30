@@ -1,0 +1,273 @@
+{
+	"Timeline" : [
+		[
+			{ 
+				"scene" : "SCENE_1",
+				"cartes" : ["Poubelle1"]
+			},
+			{
+				"scene" : "SCENE_2",
+				"cartes" : ["Poubelle2", "CartonLight"]
+			}
+		],
+		[
+			{
+				"scene" : "SCENE_3",
+				"cartes" : ["Poubelle1"]
+			}
+		],
+		[
+			{
+				"scene" : "SCENE_4",
+				"cartes" : ["Poubelle1", "Poubelle2"]
+			},
+			{
+				"scene" : "SCENE_5",
+				"cartes" : ["CartonLight"]
+			}
+		]		
+				],
+	"Scene" : [
+		{
+			"ID" : "SCENE_1",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_1", "INIT_PLAYER_VIDEO"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_2",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle2",
+					"etapes" : ["INIT_SCENE_2_POUBELLE2", "INIT_PLAYER_VIDEO"]
+				},
+				{
+					"carte" : "CartonLight",
+					"etapes" : ["INIT_SCENE_2_CARTONLIGHT"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_3",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_3"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_4",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_4", "INIT_PLAYER_VIDEO", "INIT_SYNC_SON"]
+				},
+				{
+					"carte" : "Poubelle2",
+					"etapes" : ["INIT_SCENE_4", "INIT_PLAYER_VIDEO", "INIT_SYNC_SON"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_5",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "CartonLight",
+					"etapes" : ["SCENE_END"]
+				}
+							]
+		}
+				],
+	"Etape" :  [
+		{
+			"ID" : "INIT_ETAPE",
+			"ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "ENTER INIT !"
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "QUIT INIT !"
+						}],
+			"TRANSITIONS" : [
+				{
+					"signal" : "ZERO_FLAG",
+					"goto" : "ETAPE_ZERO"
+				},
+				{
+					"signal" : "ONE_FLAG",
+					"goto" : "ETAPE_ONE"
+				}
+							]
+		},
+		{
+			"ID" : "ETAPE_ZERO",
+			"ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "ENTER ZERO !"
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "QUIT ZERO !"
+						}],
+			"TRANSITIONS" : []
+		},
+		{
+			"ID" : "ETAPE_ONE",
+			"ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "ENTER ONE !"
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "QUIT ONE !"
+						}],
+			"TRANSITIONS" : []
+		}
+				],
+	"Function" :  [
+		{
+			"ID" : "FNCT_SAY",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+		            "    log.info(kwargs['text'])"]
+		}
+		
+					],
+	"Carte" : [
+		{
+			"ID" : "Poubelle1",
+			"DEVICE" : "POUBELLE"
+		},
+		{
+			"ID" : "Poubelle2",
+			"DEVICE" : "POUBELLE"
+		},
+		{
+			"ID" : "CartonLight",
+			"DEVICE" : "CARTONLIGHT"
+		}
+				],
+	"Signal" : [
+		{
+			"ID" : "ONE_FLAG",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "ZERO_FLAG",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_PLAY",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_PAUSE",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_STOP",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_NEXT",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "VOLUME_CHANGE",
+			"JTL" : "None",
+			"TTL" : 0.1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		}
+				],
+	"Device" : [
+		{
+			"ID" : "POUBELLE",
+			"MODULES" : ["VIDEO", "SON"],
+			"PATCH_IN_NUM" : [
+				{
+					"signal": "IN_1_ON",
+					"patched": "BOUTON_PLAY"
+				},
+				{
+					"signal": "IN_2_ON",
+					"patched": "BOUTON_PAUSE"
+				},
+				{
+					"signal": "IN_3_ON",
+					"patched": "BOUTON_STOP"
+				},
+				{
+					"signal": "IN_4_ON",
+					"patched": "BOUTON_NEXT"
+				}
+							],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [
+				{
+					"signal" : "IN_ANA_1_CHANGE",
+					"patched": {"freq": "3",
+								"min" : "0",
+								"max" : "100",
+								"change" : "VOLUME_CHANGE"}
+				}
+							],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : []
+		},
+		{
+			"ID" : "CARTONLIGHT",
+			"MODULES" : ["LIGHT"],
+			"PATCH_IN_NUM" : [],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : ["MSG_PATCH"]
+		}
+					],
+	"Patch" :  [
+		{
+			"ID" : "EXEMPLE_PATCH",
+			"SIGNAL" : "ONE_SIGNAL",
+			"TREATMENT": "FNCT_TREATMENT"
+		},
+		{
+			"ID" : "MSG_PATCH",
+			"SIGNAL" : "RECV_MSG",
+			"TREATMENT" : "FNCT_DISPATCH_MSG"
+		}
+				],
+				
+	"Media" :  [
+		{
+			"ID" : "VIDE0_XYZ",
+			"PATH" : "media/video/xyz.mp4",
+			"CHECKSUM" : "f123e42ad42f980ec"
+		}
+				]			
+}		

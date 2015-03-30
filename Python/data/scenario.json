@@ -1,0 +1,420 @@
+{
+	"Timeline" : [
+		[
+			{ 
+				"scene" : "SCENE_1",
+				"cartes" : ["Poubelle1"]
+			},
+			{
+				"scene" : "SCENE_2",
+				"cartes" : ["Poubelle2", "CartonLight"]
+			}
+		],
+		[
+			{
+				"scene" : "SCENE_3",
+				"cartes" : ["Poubelle1"]
+			}
+		],
+		[
+			{
+				"scene" : "SCENE_4",
+				"cartes" : ["Poubelle1", "Poubelle2"]
+			},
+			{
+				"scene" : "SCENE_5",
+				"cartes" : ["CartonLight"]
+			}
+		]		
+				],
+	"Scene" : [
+		{
+			"ID" : "SCENE_1",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_1", "INIT_PLAYER_VIDEO"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_2",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle2",
+					"etapes" : ["INIT_SCENE_2_POUBELLE2", "INIT_PLAYER_VIDEO"]
+				},
+				{
+					"carte" : "CartonLight",
+					"etapes" : ["INIT_SCENE_2_CARTONLIGHT"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_3",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_3"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_4",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_4", "INIT_PLAYER_VIDEO", "INIT_SYNC_SON"]
+				},
+				{
+					"carte" : "Poubelle2",
+					"etapes" : ["INIT_SCENE_4", "INIT_PLAYER_VIDEO", "INIT_SYNC_SON"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_5",
+			"INIT_ETAPES" : [ 
+				{
+					"carte" : "CartonLight",
+					"etapes" : ["SCENE_END"]
+				}
+							]
+		}
+				],
+	"Etape" :  [
+		{
+			"ID" : "INIT_SCENE_1",
+			"ACTIONS" : [],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [
+				{
+					"signal" : "BOUTON_PLAY",
+					"goto" : "SCENE_1_VIDEO"
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_1_VIDEO",
+			"ACTIONS" : [{
+					"function": "FNCT_ADD_SIGNAL",
+					"signal" :  {
+							"ID": "PLAY_VIDEO",
+							"media": "VIDEO_XYZ"
+							  	}
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_ADD_SIGNAL",
+					"signal" :  {
+							"ID": "STOP_VIDEO"
+								}
+							}],
+			"TRANSITIONS" : [
+				{
+					"signal" : "BOUTON_NEXT",
+					"goto" : "SCENE_END"
+				},
+				{
+					"signal" : "VIDEO_END",
+					"goto" : "SCENE_END"
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_END",
+			"ACTIONS" : [{
+					"function": "FNCT_NEXT_SCENE"
+						}],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : []
+		},
+		{
+			"ID" : "INIT_SCENE_2_POUBELLE2",
+			"ACTIONS" : [],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [
+				{
+					"signal" : "BOUTON_PLAY",
+					"goto" : "SCENE_2_VIDEO"
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_2_VIDEO",
+			"ACTIONS" : [{
+					"function": "FNCT_ADD_SIGNAL",
+					"signal" :  {
+							"ID": "PLAY_VIDEO",
+							"media": "VIDEO_POUBELLE_2"
+							  	}
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_ADD_SIGNAL",
+					"signal" :  {
+							"ID": "STOP_VIDEO"
+								}
+							}],
+			"TRANSITIONS" : [
+				{
+					"signal" : "BOUTON_NEXT",
+					"goto" : "SCENE_END"
+				},
+				{
+					"signal" : "VIDEO_END",
+					"goto" : "SCENE_END"
+				}
+							]
+		},
+		{
+			"ID" : "INIT_SCENE_2_CARTONLIGHT",
+			"ACTIONS" : [],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [
+				{
+					"signal" : "NONE",
+					"goto" : "SCENE_2_CHASER"
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_2_CHASER",
+			"ACTIONS" : [{
+					"function": "FNCT_CHASER_START"
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_CHASER_END"
+							}],
+			"TRANSITIONS" : [
+				{
+					"signal" : "RECV_MSG_IVE_CHANGE_SCENE",
+					"goto" : "SCENE_END"
+				}
+							]
+		},
+		{
+			"ID" : "INIT_SCENE_3",
+			"ACTIONS" : [],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [
+				{
+					"signal" : "BOUTON_PLAY",
+					"goto" : "SCENE_3_VIDEO"
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_3_VIDEO",
+			"ACTIONS" : [{
+					"function": "FNCT_ADD_SIGNAL",
+					"signal" :  {
+							"ID": "PLAY_VIDEO",
+							"media": "VIDEO_SCENE_3"
+							  	}
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_ADD_SIGNAL",
+					"signal" :  {
+							"ID": "STOP_VIDEO"
+								}
+							}],
+			"TRANSITIONS" : [
+				{
+					"signal" : "BOUTON_NEXT",
+					"goto" : "SCENE_END"
+				},
+				{
+					"signal" : "VIDEO_END",
+					"goto" : "SCENE_END"
+				}
+							]
+		},
+		{
+			"ID" : "INIT_SCENE_4",
+			"ACTIONS" : [],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [
+				{
+					"signal" : "NONE",
+					"goto" : "SCENE_4_SON_SYNC"
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_4_SON_SYNC",
+			"ACTIONS" : [{
+					"function" : "ADD_TIMER",
+					"id" : "TIMER_START_VIDEO",
+					"temps" : "10"
+						},
+						{
+					"function": "FNCT_SYNC_SON",
+					"signal" :  {
+							"ID": "INIT_SYNC_SON",
+							"media": "SON_SCENE_4",
+							"synctime": "1.5",
+							"cartes": ["Poubelle1", "Poubelle2"]
+							  	}
+						}],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [
+				{
+					"signal" : "TIMEOUT",
+					"goto" : "SCENE_4_VIDEO"
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_4_VIDEO",
+			"ACTIONS" : [{
+					"function": "FNCT_ADD_SIGNAL",
+					"signal" :  {
+							"ID": "PLAY_VIDEO",
+							"media": "VIDEO_FINALE"
+							  	}
+						}],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [
+				{
+					"signal" : "VIDEO_END",
+					"goto" : "SCENE_END"
+				}
+							]
+		}
+				],
+	"Function" :  [
+		{
+			"ID" : "FNCT_ADD_SIGNAL",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+                "    signal = kwargs['signal'].ID",
+                "    kwargs = kwargs['signal].__dict__",
+                "    del kwargs['ID']",
+                "    scene.add_signal(global.getSignal(signal, **kwargs))"]
+		},
+		{
+			"ID" : "FNCT_CHASER_START",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+			    "   arduino.send_chaser(.......)"]      
+		}
+		
+					],
+	"Carte" : [
+		{
+			"ID" : "Poubelle1",
+			"DEVICE" : "POUBELLE"
+		},
+		{
+			"ID" : "Poubelle2",
+			"DEVICE" : "POUBELLE"
+		},
+		{
+			"ID" : "CartonLight",
+			"DEVICE" : "CARTONLIGHT"
+		}
+				],
+	"Signal" : [
+		{
+			"ID" : "BOUTON_PLAY",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_PAUSE",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_STOP",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_NEXT",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "VOLUME_CHANGE",
+			"JTL" : "None",
+			"TTL" : 0.1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		}
+				],
+	"Device" : [
+		{
+			"ID" : "POUBELLE",
+			"MODULES" : ["VIDEO", "SON"],
+			"PATCH_IN_NUM" : [
+				{
+					"signal": "IN_1_ON",
+					"patched": "BOUTON_PLAY"
+				},
+				{
+					"signal": "IN_2_ON",
+					"patched": "BOUTON_PAUSE"
+				},
+				{
+					"signal": "IN_3_ON",
+					"patched": "BOUTON_STOP"
+				},
+				{
+					"signal": "IN_4_ON",
+					"patched": "BOUTON_NEXT"
+				}
+							],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [
+				{
+					"signal" : "IN_ANA_1_CHANGE",
+					"patched": {"freq": "3",
+								"min" : "0",
+								"max" : "100",
+								"change" : "VOLUME_CHANGE"}
+				}
+							],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : []
+		},
+		{
+			"ID" : "CARTONLIGHT",
+			"MODULES" : ["LIGHT"],
+			"PATCH_IN_NUM" : [],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : ["MSG_PATCH"]
+		}
+					],
+	"Patch" :  [
+		{
+			"ID" : "EXEMPLE_PATCH",
+			"SIGNAL" : "ONE_SIGNAL",
+			"TREATMENT": "FNCT_TREATMENT"
+		},
+		{
+			"ID" : "MSG_PATCH",
+			"SIGNAL" : "RECV_MSG",
+			"TREATMENT" : "FNCT_DISPATCH_MSG"
+		}
+				],
+				
+	"Media" :  [
+		{
+			"ID" : "VIDE0_XYZ",
+			"PATH" : "media/video/xyz.mp4",
+			"CHECKSUM" : "f123e42ad42f980ec"
+		}
+				]			
+}		

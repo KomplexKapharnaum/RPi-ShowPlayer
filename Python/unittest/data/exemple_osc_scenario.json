@@ -1,0 +1,308 @@
+{
+	"Timeline" : [
+		[
+			{
+				"scene" : "SCENE_1",
+				"cartes" : ["Poubelle1", "Poubelle2"]
+			}
+		],
+		[
+			{
+				"scene" : "SCENE_2",
+				"cartes" : ["Poubelle1", "Poubelle2"]
+			}
+		]
+				],
+	"Scene" : [
+		{
+			"ID" : "SCENE_1",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_1"]
+				},
+				{
+					"carte" : "Poubelle2",
+					"etapes" : ["INIT_SCENE_1"]
+				}
+							]
+		},
+		{
+			"ID" : "SCENE_2",
+			"INIT_ETAPES" : [
+				{
+					"carte" : "Poubelle1",
+					"etapes" : ["INIT_SCENE_2"]
+				},
+                {
+                    "carte" : "Poubelle2",
+                    "etapes" : ["INIT_SCENE_2"]
+                }
+							]
+		}
+		        ],
+	"Etape" :   [
+	    {
+			"ID" : "INIT_SCENE_1",
+			"ACTIONS" : [
+              {
+                "function": "FNCT_SAY",
+                "text": "ENTER INIT SCENE 1 !"
+              }],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [{
+			    "signal": "None",
+			    "goto": "WAIT_SCENE_1"
+                			}]
+		},
+        {
+			"ID" : "WAIT_SCENE_1",
+			"ACTIONS" : [
+              {
+                "function": "FNCT_SAY",
+                "text": "ENTER WAIT SCENE 1 !"
+              }],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [{
+			    "signal": "RECV_GO",
+			    "goto": "SEND_NEXT"
+                			},
+              {
+                "signal": "RECV_NEXT",
+                "goto": "NEXT_SCENE"
+              }]
+		},
+        {
+			"ID" : "SEND_NEXT",
+			"ACTIONS" : [
+              {
+                "function": "FNCT_SAY",
+                "text": "ENTER SEND NEXT SCENE !"
+              },
+              {
+                "function": "SEND_OSC_NEIGHBOUR",
+                "path": "/signal/next"
+              }],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : [{
+			    "signal": "None",
+			    "goto": "NEXT_SCENE"
+                			}]
+		},
+		{
+			"ID" : "NEXT_SCENE",
+			"ACTIONS" : [{"function": "FNCT_NEXT_SCENE"}],
+			"OUT_ACTIONS" : [],
+			"TRANSITIONS" : []
+		},
+		{
+			"ID" : "INIT_SCENE_2",
+			"ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "ENTER INIT SCENE 2 !"
+						}],
+			"OUT_ACTIONS" : [{
+					"function": "FNCT_SAY",
+					"text": "QUIT INIT SCENE 2 !"
+						}],
+			"TRANSITIONS" : []
+		}
+				  ],
+	"Function" :  [
+		{
+			"ID" : "FNCT_ADD_SIGNAL",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+                "    pass"]
+		},
+		{
+			"ID" : "FNCT_SAY",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+		            "    log.info(kwargs['text'])"]
+		},
+		{
+			"ID" : "FNCT_CHASER_START",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+			    "   pass"]
+		},
+		{
+			"ID" : "FNCT_SYNC_SON",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+			    "   pass"]
+		},
+		{
+			"ID" : "FNCT_CHASER_END",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+			    "   pass"]
+		},
+		{
+		    "ID" : "FNCT_TREATMENT",
+		    "CODE" : [
+		        "def fnct(flag, **kwargs):",
+		        "   tools.serve_signal(signal='START')"]
+		},
+		{
+			"ID" : "FNCT_NEXT_SCENE",
+			"CODE" : [
+			    "def fnct(flag, **kwargs):",
+			    "   pool.MANAGER.append_flag(manager.next_flag.get())"]
+		}
+
+					],
+	"Carte" : [
+		{
+			"ID" : "Poubelle1",
+			"DEVICE" : "POUBELLE"
+		},
+		{
+			"ID" : "Poubelle2",
+			"DEVICE" : "POUBELLE"
+		},
+		{
+			"ID" : "CartonLight",
+			"DEVICE" : "CARTONLIGHT"
+		}
+				],
+	"Signal" : [
+	  	{
+			"ID" : "RECV_GO",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+	  	{
+			"ID" : "RECV_NEXT",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+	  	{
+			"ID" : "START",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "START_2",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_PLAY",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_PAUSE",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_STOP",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "BOUTON_NEXT",
+			"JTL" : 1,
+			"TTL" : 1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		},
+		{
+			"ID" : "VOLUME_CHANGE",
+			"JTL" : "None",
+			"TTL" : 0.1,
+			"IGNORE" : {},
+			"ARGS" : {}
+		}
+				],
+	"Device" : [
+		{
+			"ID" : "POUBELLE",
+			"MODULES" : ["VIDEO", "SON"],
+			"PATCH_IN_NUM" : [
+				{
+					"signal": "IN_1_ON",
+					"patched": "BOUTON_PLAY"
+				},
+				{
+					"signal": "IN_2_ON",
+					"patched": "BOUTON_PAUSE"
+				},
+				{
+					"signal": "IN_3_ON",
+					"patched": "BOUTON_STOP"
+				},
+				{
+					"signal": "IN_4_ON",
+					"patched": "BOUTON_NEXT"
+				}
+							],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [
+				{
+					"signal" : "IN_ANA_1_CHANGE",
+					"patched": {"freq": "3",
+								"min" : "0",
+								"max" : "100",
+								"change" : "VOLUME_CHANGE"}
+				}
+							],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : ["EXEMPLE_PATCH", "MSG_PATCHER"]
+		},
+		{
+			"ID" : "CARTONLIGHT",
+			"MODULES" : ["LIGHT"],
+			"PATCH_IN_NUM" : [],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : []
+		}
+					],
+	"Patch" :  [
+		{
+			"ID" : "EXEMPLE_PATCH",
+			"SIGNAL" : "START_2",
+			"TREATMENT": {
+			    "function": "FNCT_TREATMENT"
+			            }
+		},
+	    {
+			"ID" : "MSG_PATCHER",
+			"SIGNAL" : "RECV_MSG",
+			"TREATMENT": {
+			    "function": "MSG_SIGNAL_PATCHER",
+			    "/signal/go": "RECV_GO",
+			  	"/signal/next": "RECV_NEXT"
+			            }
+		}
+				],
+
+	"Media" :  [
+		{
+			"ID" : "VIDE0_XYZ",
+			"PATH" : "media/video/xyz.mp4",
+			"CHECKSUM" : "f123e42ad42f980ec"
+		}
+				]
+}

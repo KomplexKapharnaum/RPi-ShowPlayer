@@ -1,0 +1,81 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		A05F39AB1A38D96300DE58E6 /* extSPI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = extSPI.cpp; sourceTree = "<group>"; };
+		A05F39AC1A38D96300DE58E6 /* extSPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = extSPI.h; sourceTree = "<group>"; };
+		A06115E61A38A69C004AA5E0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		A06115E71A38A69C004AA5E0 /* main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
+		A09ED88F1A3999D6004C93D7 /* PI_GPIO.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = PI_GPIO.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		A06115DF1A38A651004AA5E0 = {
+			isa = PBXGroup;
+			children = (
+				A06115E61A38A69C004AA5E0 /* main.cpp */,
+				A06115E71A38A69C004AA5E0 /* main.h */,
+				A05F39AB1A38D96300DE58E6 /* extSPI.cpp */,
+				A05F39AC1A38D96300DE58E6 /* extSPI.h */,
+				A09ED88F1A3999D6004C93D7 /* PI_GPIO.c */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		A06115E01A38A651004AA5E0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+			};
+			buildConfigurationList = A06115E31A38A651004AA5E0 /* Build configuration list for PBXProject "testc" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A06115DF1A38A651004AA5E0;
+			productRefGroup = A06115DF1A38A651004AA5E0;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		A06115E41A38A652004AA5E0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		A06115E51A38A652004AA5E0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A06115E31A38A651004AA5E0 /* Build configuration list for PBXProject "testc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A06115E41A38A652004AA5E0 /* Debug */,
+				A06115E51A38A652004AA5E0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A06115E01A38A651004AA5E0 /* Project object */;
+}
