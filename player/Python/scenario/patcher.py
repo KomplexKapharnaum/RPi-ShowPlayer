@@ -88,4 +88,3 @@ class ThreadPatcher(threading.Thread):
         self._stop.set()
         self._queue.put(None)  # To unblock the get in run function
         unregister_thread(self)
-

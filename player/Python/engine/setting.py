@@ -16,8 +16,11 @@ DEFAULT_SETTING_PATH = "/dnc/settings.json"
 
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = "DEFAULT_CARD"
+
 DEFAULT_SETTING["localport"] = dict()
 DEFAULT_SETTING["localport"]["inhplayer"] = 9000
+DEFAULT_SETTING["localport"]["interface"] = 8080
+
 DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
 DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
@@ -31,8 +34,11 @@ DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["vlc"] = "/usr/local/bin/cvlc"
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123"
+DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/bottleserver.py"
+
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
+
 DEFAULT_SETTING["OSC"] = dict()
 DEFAULT_SETTING["OSC"]["iamhere_interval"] = 60
 DEFAULT_SETTING["OSC"]["checkneighbour_interval"] = 130
@@ -40,12 +46,14 @@ DEFAULT_SETTING["OSC"]["classicport"] = 1781
 DEFAULT_SETTING["OSC"]["ackport"] = 1782
 DEFAULT_SETTING["OSC"]["TTL"] = 1
 DEFAULT_SETTING["OSC"]["JTL"] = 1
+
 DEFAULT_SETTING["rtp"] = dict()
 DEFAULT_SETTING["rtp"]["timeout"] = 5
 DEFAULT_SETTING["rtp"]["stack_length"] = 3
 DEFAULT_SETTING["rtp"]["accuracy_start_ns"] = 3000000   # 3 ms
 DEFAULT_SETTING["rtp"]["accuracy_max_ns"] = 12000000   # 12 ms
 DEFAULT_SETTING["rtp"]["accuracy_factor"] = 1.05   # 5% per try
+
 DEFAULT_SETTING["ack"] = dict()
 DEFAULT_SETTING["ack"]["stack_recv"] = 256
 DEFAULT_SETTING["ack"]["interval_critical"] = (0.010, 0.015, 0.020, 0.025, 0.050, 0.100, 0.100, 0.100, 0.100, 0.100)
@@ -53,6 +61,7 @@ DEFAULT_SETTING["ack"]["interval_classical"] = (0.30, 0.50, 0.50, 0.50, 0.50, 0.
 DEFAULT_SETTING["ack"]["interval_protocol"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 DEFAULT_SETTING["ack"]["interval_short"] = (0.100, 0.150, 0.200)
 DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.200, 0.500)
+
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "raw"
 DEFAULT_SETTING["log"]["output"] = "Console"

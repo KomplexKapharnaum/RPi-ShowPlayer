@@ -7,9 +7,9 @@ from collections import deque
 
 from libs import rtplib
 from engine.log import init_log
+import scenario
 
 log = init_log("fsm")
-
 
 class FSMException(Exception):
     pass
@@ -24,7 +24,7 @@ class Flag:
      * Args, flag can carry some informations like an OSC message
     """
 
-    def __init__(self, flag_uid, args={}, JTL=0, TTL=0.500, ignore_cb=None, ignore_cb_args=()):
+    def __init__(self, flag_uid, args={}, JTL=0, TTL=0.500, ignore_cb=None, ignore_cb_args=(), public_name=None):
         """
         Init method
         :param flag_uid: unique id for the Flag type
@@ -42,6 +42,12 @@ class Flag:
         self.ignore_cb = ignore_cb
         self.ignore_cb_args = tuple(ignore_cb_args)
         self._time_created = None  # This object haven't been get
+
+        # auto-declare Flag to Scenario
+        if public_name is None:
+            public_name = self.uid
+        scenario.DECLARED_SIGNALS[public_name] = self
+
 
     def get(self, args=None, **kwargs):
         """
@@ -235,7 +241,7 @@ class FiniteStateMachine:
         :return:
         """
         with self._lock_flag_stack:
-            log.log("raw", "- FSM ({0}) : Start clean flag stack ".format(self))
+            log.log("debug", "- FSM ({0}) : Start clean flag stack ".format(self.name))
             expired_flags = list()
             for flag in self._flag_stack:
                 if flag.JTL is not None:
@@ -244,10 +250,12 @@ class FiniteStateMachine:
                     if flag.JTL < 0:
                         flag.ignore(reason="JTL < 0")
                         expired_flags.append(flag)
+                        log.log("debug", "JTL Expiration: {0}".format(flag.uid))
                 if flag.TTL is not None:
                     if rtplib.is_expired(*flag.TTL):
                         flag.ignore(reason="TTL expired")
                         expired_flags.append(flag)
+                        log.log("debug", "TTL Expiration: {0}".format(flag.uid))
             for flag in expired_flags:
                 try:
                     log.log("raw", "Remove flag {0}".format(flag.uid))

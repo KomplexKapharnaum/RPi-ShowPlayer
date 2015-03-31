@@ -76,7 +76,7 @@ class Message(liblo.Message):
             del kwargs["ACK"]
         # else: TODO : check and delete
         #     if add_port:
-        #         args.append(globalContext.settings.OSC.RAW.port)
+        #         args.append(globalContext.settings.oscack.RAW.port)
         if "ACKSPEED" in kwargs.keys():
             self.ACKSPEED = kwargs["ACKSPEED"].upper()
             del kwargs["ACKSPEED"]
@@ -119,7 +119,7 @@ class ThreadSendMessage(threading.Thread):
             register(self, self.msg.uid)
         else:
             self.broadcast = True
-            OSC.broadcast_ack_threads.append(self.msg.uid)
+            oscack.broadcast_ack_threads.append(self.msg.uid)
             # globalContext.protocol.ack.ACK_BROADCAST_REGISTER.append(self.msg.uid) TODO : check and remove
         self.sending = threading.Lock()
 
@@ -208,18 +208,18 @@ def unregister(uid):
     :param uid:
     :return:
     """
-    if uid in OSC.broadcast_ack_threads:
+    if uid in oscack.broadcast_ack_threads:
             return  # It's a broadcast ack so pass
     try:
         if log.isEnabledFor("raw"):
             log.log("raw", "Try to unresgister : " + str(uid) + " on " + str(
-                OSC.ack_threads))
-        OSC.ack_threads[uid].stop()
-        del OSC.ack_threads[uid]
+                oscack.ack_threads))
+        oscack.ack_threads[uid].stop()
+        del oscack.ack_threads[uid]
     except Exception as e:
         log.exception(
             "Try to unregister a ack send thread which doesn't exist :\n Error : " + str(e) + " \n UID : " + str(uid))
-        log.exception("ACK_THREAD_REGISTER : " + str(OSC.ack_threads))
+        log.exception("ACK_THREAD_REGISTER : " + str(oscack.ack_threads))
         log.exception("UID1, UID2 : " + str(uid))
 
 
@@ -231,7 +231,7 @@ def register(thread, uid):
     :return:
     """
     log.log("raw", "Register thread send ack : " + str(uid))
-    OSC.ack_threads[uid] = thread
+    oscack.ack_threads[uid] = thread
     # globalContext.protocol.ack.ACK_THREAD_REGISTER[uid] = thread TODO: check and remove
 
 

@@ -3,7 +3,7 @@
 # This file is a file with all objects define in the scenario
 #
 
-from engine import fsm
+# from engine import fsm
 
 Etapes_and_Functions = dict()
 Signals = dict()
@@ -15,7 +15,8 @@ Patchs = dict()
 Medias = dict()
 cross_ref = list()
 
-MANAGER = fsm.FiniteStateMachine
+# MANAGER = fsm.FiniteStateMachine
+MANAGER = None
 CURRENT_FRAME = None
 CURRENT_SCENE = None
 FSM = list()

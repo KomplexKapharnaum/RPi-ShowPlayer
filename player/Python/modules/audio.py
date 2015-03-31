@@ -5,151 +5,210 @@
 #
 #
 
-# -*- coding: utf-8 -*-
-#
-#
-# This should be a temporary module
-#
-#
-
 import shlex
 import threading
 import os
 
 from libs import subprocess32
-from scenario import signals
+import scenario
 from engine.tools import register_thread, unregister_thread
 from engine.setting import settings
 from engine.threads import patcher
+from engine.fsm import Flag
 
 from libs import rtplib
 from engine.log import init_log
 log = init_log("sound")
 
 
-class AudioPlayer:
+# GENERIC THREAD FOR EXTERNAL PROCESS
+class ExternalProcess:
     """
-    The Audio Play allow playing a sound and control it
+    Watchdog thread to control external processes
     """
-
-    def __init__(self, path):
+    def __init__(self):
         """
-        :param path: Path to the media
         :return:
         """
         register_thread(self)
-        self.path = path
-        self._waiting_th = threading.Thread(target=self._wait_process_end)
-        self._popen = None
+        self._watchdog = threading.Thread(target=self._watch)
         self._running = threading.Event()
-        self.arguments = ()
+        self._popen = None
+        self.command = ''
+        self.onStart = None
+        self.onStop = None
 
     def start(self):
         """
-        Start the player
+        Start the external process
         :return:
         """
         if self._running.is_set():
             return
         self._running.set()
-        self._popen = subprocess32.Popen(self.arguments, bufsize=0, executable=None, stdin=None, stdout=None,
+        self._popen = subprocess32.Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=None, stdout=None,
                                          stderr=None,
                                          preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None,
                                          universal_newlines=False, startupinfo=None, creationflags=0)
-        self._waiting_th.start()
+        self._watchdog.start()
+        if self.onStart:
+            patcher.patch(self.onStart.get())
 
-    def stop(self):
-        """
-        Ask to stop the processus
-        :return:
-        """
-        self._popen.terminate()  # Send SIGTERM to the player, asking to stop
-        self._waiting_th.join(timeout=0.1)  # Waiting maximum of 250 ms before killing brutaly the processus
-        if self._waiting_th.is_alive():
-            self._popen.kill()  # Send SIGNKILL to brutaly kill the process
-        unregister_thread(self)
-
-    def _wait_process_end(self):
+    def _watch(self):
         """
         This function wait the process to end and add a signal when it appends
         :return:
         """
         self._popen.wait()
-        patcher.patch(signals.signal_audio_end_player.get())
+        if self.onStop:
+            patcher.patch(self.onStop.get())
         self._running.clear()
+
+    def stop(self):
+        """
+        Ask to stop the external process
+        :return:
+        """
+        if self._popen.poll():
+            self._popen.terminate()  # Send SIGTERM to the player, asking to stop
+        self._watchdog.join(timeout=0.1)  # Waiting maximum of 250 ms before killing brutaly the processus
+        if self._watchdog.is_alive():
+            self._popen.kill()  # Send SIGNKILL to brutaly kill the process
+        unregister_thread(self)
 
     def join(self, timeout=None):
         """
         Join the video player to end
         :return:
         """
-        return self._waiting_th.join(timeout=timeout)
+        return self._watchdog.join(timeout=timeout)
 
 
-class AlsaPlayer(AudioPlayer):
+class AlsaPlayer(ExternalProcess):
     """
     AlsaPlayer use aplay to provide a simple audio player
     """
-
     def __init__(self, path):
-        AudioPlayer.__init__(self, path)
-        self._cmd_line = "{exe} {file}".format(exe=settings.get("path", "aplay"),
-                                               file=os.path.join(
-                                                   settings.get("path", "media"),
-                                                   self.path))
-        self.arguments = shlex.split(self._cmd_line)
+        ExternalProcess.__init__(self)
+        path = os.path.join(settings.get("path", "media"),path)
+        self.command = "{exe} {file}".format(exe=settings.get("path", "aplay"), file=path)
+        self.onStop = signal_audio_player_end
 
-class Mpg123(AudioPlayer):
+class Mpg123(ExternalProcess):
     """
     Mpg123  simple audio player
     """
-
     def __init__(self, path):
-        AudioPlayer.__init__(self, path)
-        self._cmd_line = "{exe} {file}".format(exe=settings.get("path", "mpg123"),
-                                               file=os.path.join(
-                                                   settings.get("path", "media"),
-                                                   self.path))
-        self.arguments = shlex.split(self._cmd_line)
+        ExternalProcess.__init__(self)
+        path = os.path.join(settings.get("path", "media"),path)
+        self.command = "{exe} {file}".format(exe=settings.get("path", "mpg123"), file=path)
+        self.onStop = signal_audio_player_end
 
 
+# ETAPE AND SIGNALS
 
 
-try:
-    import pygame
-
-    pygame.init()
-
-
-    def play_sound_at(time_s, time_ns, path):
-        """
-        This function load a sound, wait for an absolute time and go !
-        :param dt_s:
-        :param dt_ns:
-        :param path:
-        :return:
-        """
-        log.log("raw", "Load sound {path} at {s}s {ns}ns ".format(path=path, s=time_s, ns=time_ns))
-        pygame.mixer.music.load(path)
-        log.log("raw", "... load ending, now wait..")
-        r = rtplib.wait_abs_time(time_s, time_ns)
-        if r != 0:
-            log.error("Try to play sound {path} at {s}s {ns}ns but wait_abs_time return : {r}".format(path=path, s=time_s,
-                                                                                                     ns=time_ns, r=r))
-            return
-        #log.log("raw", ".. wait ending, now play !")
-        pygame.mixer.music.play(10)
-        log.log("debug", "Play sound {path} at {s}s {ns}ns ".format(path=path, s=time_s, ns=time_ns))
+def init_audio_player(flag, **kwargs):
+    """
+    Stop an eventual existing audio player
+    :param flag:
+    :param kwargs:
+    :return:
+    """
+    if "player" in kwargs["_fsm"].vars.keys():
+        try:
+            kwargs["_fsm"].vars["player"].stop()
+        except Exception as e:
+            log.error("CAN'T EXIT AUDIO PLAYER !")
+            log.error(": " + str(e))
 
 
-    def play_sound(path):
-        """
-        This function just use pygame to play a sound
-        :param path: path to the file
-        :return:
-        """
-        pygame.mixer.music.load(path)
-        pygame.mixer.music.play(10)
+def start_playing_audio_media(flag, **kwargs):
+    """
+    Start playing a media
+    :param flag:
+    :return:
+    """
+    if "player" in kwargs["_fsm"].vars.keys():
+        try:
+            kwargs["_fsm"].vars["player"].stop()
+        except Exception as e:
+            log.error("CAN'T EXIT AUDIO PLAYER !")
+            log.error(": " + str(e))
+    kwargs["_fsm"].vars["player"] = Mpg123(flag.args["args"][0])
+                            #video.OMXVideoPlayer(flag.args["args"][0],hardware=False)
+                            #audio.Mpg123(flag.args["args"][0]) ou video.VLCPlayer(flag.args["args"][0])
 
-except ImportError:
-    log.warning("No pygame lib found")
+    kwargs["_fsm"].vars["player"].start()
+    # log.log("raw", "set preemptible ")
+    kwargs["_etape"].preemptible.set()
+    # log.log("raw", "end start_playing_audio_media")
+
+
+def control_player(flag, **kwargs):
+    """
+    Control media player
+    :param flag:
+    :param kwargs:
+    :return:
+    """
+    try:
+        log.log("raw", "Control player : {0}".format(flag.args["args"][0]))
+        if flag.args["args"][0] == "toggle":
+            kwargs["_fsm"].vars["player"].toggle_play()
+        elif flag.args["args"][0] == "vup":
+            kwargs["_fsm"].vars["player"].volume_up()
+        elif flag.args["args"][0] == "vdown":
+            kwargs["_fsm"].vars["player"].volume_down()
+        elif flag.args["args"][0] == "info":
+            kwargs["_fsm"].vars["player"].show_info()
+    except Exception as e:
+        log.error(log.show_exception(e))
+
+
+# SIGNAUX
+signal_audio_player_end = Flag("AUDIO_PLAYER_END")
+#scenario.signals.declaresignal(signal_audio_player_end)
+
+signal_audio_player_stop = Flag("AUDIO_PLAYER_STOP")
+#scenario.signals.declaresignal(signal_audio_player_stop)
+
+signal_play_audio = Flag("AUDIO_PLAYER_PLAY")
+#scenario.signals.declaresignal(signal_play_audio)
+
+signal_control_audio = Flag("AUDIO_PLAYER_CTRL")
+#scenario.signals.declaresignal(signal_control_audio)
+
+# ETAPES
+init_audio_player = scenario.classes.Etape("INIT_AUDIO_PLAYER", actions=((init_audio_player, {}), ))
+scenario.etapes.declareetape(init_audio_player)
+
+start_audio_player = scenario.classes.Etape("START_AUDIO_PLAYER", actions=((start_playing_audio_media, {}), ))
+scenario.etapes.declareetape(start_audio_player)
+
+wait_control_audio = scenario.classes.Etape("WAIT_CONTROL_AUDIO")
+scenario.etapes.declareetape(wait_control_audio)
+
+etape_control_audio = scenario.classes.Etape("CONTROL_AUDIO", actions=((control_player, {}), ))
+scenario.etapes.declareetape(etape_control_audio)
+
+
+init_audio_player.transitions = {
+    signal_play_audio.uid: start_audio_player,
+}
+
+start_audio_player.transitions = {
+    None: wait_control_audio
+}
+
+
+wait_control_audio.transitions = {
+    signal_audio_player_end.uid: init_audio_player,
+    signal_audio_player_stop.uid: init_audio_player,
+    signal_play_audio.uid: start_audio_player,
+    signal_control_audio.uid: etape_control_audio
+}
+
+etape_control_audio.transitions = {
+    None: wait_control_audio
+}

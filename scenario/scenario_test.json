@@ -7,6 +7,34 @@
 			}
 		]
 				],
+	"Device" : [
+		{
+			"ID" : "POUBELLE",
+			"MODULES" : ["VIDEO", "SON"],
+			"PATCH_IN_NUM" : [],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : ["MAIN_DEVICE_MANAGER_WAIT", "INTERFACE_START"],
+			"OTHER_PATCH" : ["MSG_PATCHER"]
+		},
+		{
+			"ID" : "CARTONLIGHT",
+			"MODULES" : ["LIGHT"],
+			"PATCH_IN_NUM" : [],
+			"PATCH_OUT_NUM" : [],
+			"PATCH_IN_ANA" : [],
+			"PATCH_OUT_ANA" : [],
+			"MANAGERS" : [],
+			"OTHER_PATCH" : ["MSG_PATCHER"]
+		}
+					],
+	"Carte" : [
+		{
+			"ID" : "CarteTEST",
+			"DEVICE" : "POUBELLE"
+		}
+				],
 	"Scene" : [
 		{
 			"ID" : "SCENE_1",
@@ -88,12 +116,6 @@
 		        "   function.serve_signal(signal='START')"]
 		}
 					],
-	"Carte" : [
-		{
-			"ID" : "CarteTEST",
-			"DEVICE" : "POUBELLE"
-		}
-				],
 	"Signal" : [
 		{
 			"ID" : "ONE_FLAG",
@@ -145,28 +167,6 @@
 			"ARGS" : {}
 		}
 				],
-	"Device" : [
-		{
-			"ID" : "POUBELLE",
-			"MODULES" : ["VIDEO", "SON"],
-			"PATCH_IN_NUM" : [],
-			"PATCH_OUT_NUM" : [],
-			"PATCH_IN_ANA" : [],
-			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : ["MAIN_DEVICE_MANAGER_WAIT"],
-			"OTHER_PATCH" : ["MSG_PATCHER"]
-		},
-		{
-			"ID" : "CARTONLIGHT",
-			"MODULES" : ["LIGHT"],
-			"PATCH_IN_NUM" : [],
-			"PATCH_OUT_NUM" : [],
-			"PATCH_IN_ANA" : [],
-			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : [],
-			"OTHER_PATCH" : ["MSG_PATCHER"]
-		}
-					],
 	"Patch" :  [
 		{
 			"ID" : "MSG_PATCHER",
@@ -175,7 +175,7 @@
 			    "function": "MSG_SIGNAL_PATCHER",
 			    "/signal/go": "RECV_GO",
 			  	"/signal/next": "RECV_NEXT",
-			  	"/signal/audio/play": "PLAY_MEDIA_AUDIO",
+			  	"/signal/audio/play": "AUDIO_PLAYER_PLAY",
 			  	"/signal/audio/stop": "AUDIO_PLAYER_STOP",
 			  	"/signal/video/play": "PLAY_MEDIA_VIDEO",
 			  	"/signal/video/stop": "VIDEO_PLAYER_STOP",

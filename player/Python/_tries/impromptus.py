@@ -17,18 +17,18 @@ def set_python_path(depth=0):
 
 set_python_path(depth=1)
 
-from src.setting import settings
-from src import log
+from engine.setting import settings
+from engine import log
 log.DEFAULT_LEVEL = settings.get("log", "level")
 log.DEFAULT_LOG_TYPE = settings.get("log", "output")
-from src.log import init_log
+from engine.log import init_log
 log = init_log("main", log_lvl="raw", log_type="Console")
 
 import OSC
-from src import threads
-from src.modules import video, audio
-from libc import rtplib
-from libc import subprocess32
+from engine import threads
+from modules import video, audio
+from libs import rtplib
+from libs import subprocess32
 
 
 def test_sound_omx(path, args, types, src):
