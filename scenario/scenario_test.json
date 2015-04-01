@@ -41,7 +41,7 @@
 			"INIT_ETAPES" : [
 				{
 					"carte" : "CarteTEST",
-					"etapes" : ["INIT_SCENE_1", "INIT_AUDIO_PLAYER"]
+					"etapes" : ["INIT_SCENE_1", "INIT_AUDIO_PLAYER", "INIT_VIDEO_PLAYER"]
 				}
 			]
 		}
@@ -177,7 +177,7 @@
 			  	"/signal/next": "RECV_NEXT",
 			  	"/signal/audio/play": "AUDIO_PLAYER_PLAY",
 			  	"/signal/audio/stop": "AUDIO_PLAYER_STOP",
-			  	"/signal/video/play": "PLAY_MEDIA_VIDEO",
+			  	"/signal/video/play": "VIDEO_PLAYER_PLAY",
 			  	"/signal/video/stop": "VIDEO_PLAYER_STOP",
 			  	"/signal/media/control": "CONTROL_MEDIA",
 			  	"/device/control": "DEVICE_CONTROL"

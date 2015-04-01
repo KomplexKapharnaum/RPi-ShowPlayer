@@ -241,7 +241,7 @@ class FiniteStateMachine:
         :return:
         """
         with self._lock_flag_stack:
-            log.log("debug", "- FSM ({0}) : Start clean flag stack ".format(self.name))
+            log.log("raw", "- FSM ({0}) : Start clean flag stack ".format(self.name))
             expired_flags = list()
             for flag in self._flag_stack:
                 if flag.JTL is not None:
@@ -250,12 +250,12 @@ class FiniteStateMachine:
                     if flag.JTL < 0:
                         flag.ignore(reason="JTL < 0")
                         expired_flags.append(flag)
-                        log.log("debug", "JTL Expiration: {0}".format(flag.uid))
+                        log.log("raw", "JTL Expiration: {0}".format(flag.uid))
                 if flag.TTL is not None:
                     if rtplib.is_expired(*flag.TTL):
                         flag.ignore(reason="TTL expired")
                         expired_flags.append(flag)
-                        log.log("debug", "TTL Expiration: {0}".format(flag.uid))
+                        log.log("raw", "TTL Expiration: {0}".format(flag.uid))
             for flag in expired_flags:
                 try:
                     log.log("raw", "Remove flag {0}".format(flag.uid))

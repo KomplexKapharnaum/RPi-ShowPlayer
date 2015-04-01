@@ -1,7 +1,8 @@
 import shlex
 import threading
 from libs import subprocess32
-import scenario
+from scenario.classes import Etape
+from scenario import signals
 from engine.tools import register_thread, unregister_thread
 from engine.setting import settings
 from engine.threads import patcher
@@ -57,7 +58,7 @@ class Webserver:
         :return:
         """
         self._popen.wait()
-        patcher.patch(scenario.signals.signal_web_end_server.get())
+        patcher.patch(signals.signal_web_end_server.get())
         self._running.clear()
 
     def join(self, timeout=None):
@@ -78,5 +79,4 @@ def interface_start(flag, **kwargs):
             log.error(": " + str(e))
 
 # REGISTER ETAPES & SIGNALS
-etape_interface_start = scenario.classes.Etape("INTERFACE_START", actions=((interface_start, {}), ))
-scenario.etapes.declareetape(etape_interface_start)
+etape_interface_start = Etape("INTERFACE_START", actions=((interface_start, {}), ))

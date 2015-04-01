@@ -4,121 +4,133 @@
 #
 #
 
-import shlex
-import threading
 import os
-import signal
-import time
 import socket
+import subprocess
 
-import liblo
-
-from libs import subprocess32, rtplib
-from scenario import signals
-from engine.tools import register_thread, unregister_thread
+from modules.module import ExternalProcess
 from engine.setting import settings
-from engine.threads import patcher
+from scenario.classes import Etape
+from engine.fsm import Flag
 from engine.log import init_log
-
-# liblo.send(liblo.Address(3456), liblo.Message("path", "Args", "args", 1, 345, ('f', 1.2)))
-
 log = init_log("video")
 
-class VideoPlayer:
+
+class VLCPlayer(ExternalProcess):
     """
-    The Video Play allow playing a video and control it
+    Video Lan VLC Player interface
     """
 
-    def __init__(self, path, *args, **kwargs):
-        """
-        :param path: Path to the media
-        :param audio_output: Audio output to use (local = jack, hdmi = hdmi )
-        :param hardware: Use the -hw option to decode audio with hardware
-        :param args: Stings args to add to the omxplayer commande
-        :return:
-        """
-        register_thread(self)
-        self.path = path
-        self._waiting_th = threading.Thread(target=self._wait_process_end)
-        self._popen = None
-        self._running = threading.Event()
-        self.arguments = ()
+    def __init__(self):
+        ExternalProcess.__init__(self)
+        self._rcport = 1250
+        self.command = "{exe} -I rc --rc-host 0.0.0.0:{port} --no-osd --aout alsa".format(exe=settings.get("path", "vlc"), port=self._rcport)
+        self.onClose = signal_video_player_close
+        self.start()
 
-    def start(self):
-        """
-        Start the player
-        :return:
-        """
-        log.log("raw", "Start video player : {0} ".format(self.arguments))
-        if self._running.is_set():
-            return
-        self._running.set()
-        self._popen = subprocess32.Popen(self.arguments, bufsize=0, executable=None, stdin=None, stdout=None,
-                                         stderr=None,
-                                         preexec_fn=os.setsid, close_fds=False, shell=True, cwd=None, env=None,
-                                         universal_newlines=False, startupinfo=None, creationflags=0)
-        self._waiting_th.start()
+    def say(self, message):
+        cmd = "echo {txt} | nc -c localhost {port}".format(txt=message, port=self._rcport)
+        subprocess.call(cmd, shell=True)
 
-    def stop(self):
-        """
-        Ask to stop the processus
-        :return:
-        """
-        log.log("raw", "Asking to end the video")
-        log.log("raw", "Process : {0}".format(self._popen))
-        self._terminate()
-        self._waiting_th.join(timeout=0.1)  # Waiting maximum of 250 ms before killing brutaly the processus
-        if self._waiting_th.is_alive():
-            log.log("raw", "Send kill to the process")
-            self._kill()
-        unregister_thread(self)
-        log.log("raw", "end the video")
+
+    def play(self, path):
+        path = os.path.join(settings.get("path", "media"), path)
+        self.say('add '+path)
 
     def toggle_play(self):
-        log.log("raw", "Not implemented")
-
-    def volume_up(self):
-        log.log("raw", "Not implemented")
-
-    def volume_down(self):
-        log.log("raw", "Not implemented")
-
-    def show_info(self):
-        log.log("raw", "Not implemented")
-
-    def _terminate(self):
-        """
-        Send the terminate (15) signal to the process
-        :return:
-        """
-        self._popen.terminate()  # Send SIGTERM to the player, asking to stop
-
-    def _kill(self):
-        """
-        Send the kill (9) signal to the process
-        :return:
-        """
-        self._popen.kill()  # Send SIGNKILL to brutaly kill the process
-
-    def _wait_process_end(self):
-        """
-        This function wait the process to end and add a signal when it appends
-        :return:
-        """
-        self._popen.wait()
-        patcher.patch(signals.signal_video_end_player.get())
-        log.log("raw", "Watcinh process end thread ok !")
-        self._running.clear()
-
-    def join(self, timeout=None):
-        """
-        Join the video player to end
-        :return:
-        """
-        return self._waiting_th.join(timeout=timeout)
+        log.info("VLC PAUSE")
+        try:
+            s = socket.socket(socket.AF_UNIX)
+            s.connect(self._socket_path)
+            s.send("pause")
+        except Exception as e:
+            log.error(log.show_exception(e))
+        finally:
+            try:
+                s.close()
+            except Exception as e:
+                log.error(log.show_exception(e))
 
 
-class HVideoPlayer(VideoPlayer):
+# ETAPE AND SIGNALS
+def init_video_player(flag, **kwargs):
+    """
+    :param flag:
+    :param kwargs:
+    :return:
+    """
+    if "video" not in kwargs["_fsm"].vars.keys():
+        kwargs["_fsm"].vars["video"] = VLCPlayer()
+    elif not kwargs["_fsm"].vars["video"].is_alive():
+        kwargs["_fsm"].vars["video"].start()
+
+
+def start_playing_video_media(flag, **kwargs):
+    """
+    Start playing a media
+    :param flag:
+    :return:
+    """
+    if "video" in kwargs["_fsm"].vars.keys():
+        kwargs["_fsm"].vars["video"].play(flag.args["args"][0])
+        kwargs["_etape"].preemptible.set()
+
+
+def control_video_player(flag, **kwargs):
+    """
+    Control media player
+    :param flag:
+    :param kwargs:
+    :return:
+    """
+    try:
+        if flag.args["args"][0] == "toggle":
+            kwargs["_fsm"].vars["video"].toggle_play()
+        elif flag.args["args"][0] == "vup":
+            kwargs["_fsm"].vars["video"].volume_up()
+        elif flag.args["args"][0] == "vdown":
+            kwargs["_fsm"].vars["video"].volume_down()
+        elif flag.args["args"][0] == "info":
+            kwargs["_fsm"].vars["video"].show_info()
+    except Exception as e:
+        log.error(log.show_exception(e))
+
+
+# SIGNAUX
+signal_video_player_stop = Flag("VIDEO_PLAYER_STOP")
+signal_play_video = Flag("VIDEO_PLAYER_PLAY")
+signal_control_video = Flag("VIDEO_PLAYER_CTRL")
+signal_video_player_close = Flag("VIDEO_PLAYER_CLOSE")
+
+# ETAPES
+init_video_player = Etape("INIT_VIDEO_PLAYER", actions=((init_video_player, {}), ))
+start_video_player = Etape("START_VIDEO_PLAYER", actions=((start_playing_video_media, {}), ))
+wait_control_video = Etape("WAIT_CONTROL_VIDEO")
+etape_control_video = Etape("CONTROL_VIDEO", actions=((control_video_player, {}), ))
+
+# TRANSITIONS
+init_video_player.transitions = {
+    signal_play_video.uid: start_video_player,
+}
+
+start_video_player.transitions = {
+    None: wait_control_video
+}
+
+
+wait_control_video.transitions = {
+    signal_video_player_close.uid: init_video_player,
+    signal_play_video.uid: start_video_player,
+    signal_control_video.uid: etape_control_video
+}
+
+etape_control_video.transitions = {
+    None: wait_control_video
+}
+
+
+'''
+class HPlayer(ExternalProcess):
     """
     The HVideoPlayer allow playing a video and control it via HPlayer
     """
@@ -173,53 +185,8 @@ class HVideoPlayer(VideoPlayer):
         liblo.send(self._target, self._msg["resume"])
 
 
-class OldOMXVideoPlayer(VideoPlayer):
-    """
-    The OMX Video Play allow playing a video via omxplayer
-    """
 
-    def __init__(self, path, hdmi_audio=False, hardware=True, *_args):
-        """
-        :param path: Path to the media
-        :param audio_output: Audio output to use (local = jack, hdmi = hdmi )
-        :param hardware: Use the -hw option to decode audio with hardware
-        :param args: Stings args to add to the omxplayer commande
-        :return:
-        """
-        VideoPlayer.__init__(self, path)
-        args = list(_args)
-
-        if hardware:
-            args.append("--hw")
-        if hdmi_audio:
-            audio_output = "hdmi"
-        else:
-            audio_output = "local"
-        self._cmd_line = "{exe} -o {audio} {params} {file}".format(exe=settings.get("path", "omxplayer"),
-                                                                   audio=audio_output,
-                                                                   params=" ".join(args),
-                                                                   file=os.path.join(
-                                                                       settings.get("path", "media"), path))
-        # self.arguments = shlex.split(self._cmd_line)  # TODO : if Shell=True, this line is useless
-        self.arguments = self._cmd_line
-        log.log("raw", "Video player arguments : {0}".format(self.arguments))
-
-    def _terminate(self):
-        """
-        Send the terminate (15) signal to the process
-        :return:
-        """
-        os.killpg(self._popen.pid, signal.SIGTERM)  # Send SIGTERM to the player, asking to stop
-
-    def _kill(self):
-        """
-        Send the kill (9) signal to the process
-        :return:
-        """
-        os.killpg(self._popen.pid, signal.SIGKILL)  # Send SIGNKILL to brutaly kill the process
-
-
-class OMXVideoPlayer(VideoPlayer):
+class OMXVideoPlayer(ExternalProcess):
     """
     The OMX Video Play allow playing a video via omxplayer
     """
@@ -339,7 +306,6 @@ class OMXVideoPlayer(VideoPlayer):
         """
         os.killpg(self._popen.pid, signal.SIGKILL)  # Send SIGNKILL to brutaly kill the process
 
-
 class VLCPlayer(VideoPlayer):
     """
     Video Lan VLC Player interface
@@ -373,3 +339,5 @@ class VLCPlayer(VideoPlayer):
 
     def stop(self):
         VideoPlayer.stop(self)
+    '''
+

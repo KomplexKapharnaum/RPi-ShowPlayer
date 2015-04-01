@@ -13,6 +13,7 @@ from engine import fsm
 from engine import media
 from engine.threads import patcher
 from engine.setting import settings
+import scenario
 from scenario import pool
 
 from engine.log import init_log
@@ -23,7 +24,7 @@ class Etape(fsm.State):
     """
         This class overide the State class and represent an Etape in the scenario system
     """
-    def __init__(self, uid, actions=(), out_actions=(), transitions={}):
+    def __init__(self, uid, actions=(), out_actions=(), transitions={}, public_name=None):
         """
         Etape init function
         :param uid: Unique ID
@@ -37,6 +38,11 @@ class Etape(fsm.State):
         self.out_actions = tuple(out_actions)
         self.transitions = dict(transitions)
         self._current_running_function = None
+
+        # auto-declare Etape to Scenario
+        if public_name is None:
+            public_name = self.uid
+        scenario.DECLARED_ETAPES[public_name] = self
 
     def _run_fnct(self, _fsm, fnct, flag, kwargs):
         """
