@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>CA34E766-0F80-4C47-A300-988AC60F248A</string>
+	<key>IDESourceControlProjectName</key>
+	<string>testc</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>6E84B941-2B30-4A75-B349-EC01FA4D135A</key>
+		<string>https://github.com/KomplexKapharnaum/RPi-ShowPlayer.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>player/Hardware/hardware/testc.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>6E84B941-2B30-4A75-B349-EC01FA4D135A</key>
+		<string>../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/KomplexKapharnaum/RPi-ShowPlayer.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>6E84B941-2B30-4A75-B349-EC01FA4D135A</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>6E84B941-2B30-4A75-B349-EC01FA4D135A</string>
+			<key>IDESourceControlWCCName</key>
+			<string>RPi-ShowPlayer</string>
+		</dict>
+	</array>
+</dict>
+</plist>

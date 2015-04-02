@@ -33,7 +33,12 @@
 #ifndef __testc__extSPI__
 #define __testc__extSPI__
 
-
+struct ChipSelect{
+  int GPIO; //will be the same for all on the same hc595
+  int HC595;
+  int speed;
+  
+};
 
 
 class extSPI{
@@ -43,27 +48,46 @@ private:
   int spiWRMode;
   int spiRDMode;
   int spiBitsPerWord;
-  int spiSpeed;
-  int cs;
+  
+  ChipSelect chipSelect[12];
+  int csmax;
+  
+  int selectedChip;
+  
   int rck;
   int nbmodule;
   int classmode;
-  int selectedCSofHC595;
+  int GPIO_244_ENABLE;
+  int GPIO_LED_G;
   
   void commonInit(int _spiSpeed);
-  void HC595select();
-  void HC595unselect();
   int check();
+  
+  void activeCS();
+  void inactiveCS();
+  void HC595select();
+  
+  int csactivated;
+  int hc595activated;
+  
+  int keepSelect;
+  
+  
   
 
 public:
   extSPI();
-  void initSPI(int csGPIOpin,int _spiSpeed);
-  void initSPIHC595(int _nbHC595, int rckGPIOpin, int _spiSpeed);
-  void selectHC595csline(int _selectedCSofHC595);
+  void initSPI(int speed=100000);
+  void addChipSelect(int GPIO,int speed);
+  void addChipSelectWithHC595Buffer(int RCK, int HC595,int speed);
+  //void initSPIHC595(int _nbHC595, int rckGPIOpin, int _spiSpeed);
+  //void selectHC595csline(int _selectedCSofHC595);*/
   //cs from 0 coresponding in the first out from hc595 daisy chain
-  int send(unsigned char _byte);
-  int send(unsigned char *_tab,int _len);
+  int send(int _selectedChip, unsigned char _byte);
+  int send(int _selectedChip, unsigned char *_tab,int _len);
+  void setkeepSelect();
+  void releaseSelect();
+  int sendWithPause(int _selectedChip, unsigned char *_tab,int _len);
   
   
 };

@@ -54,10 +54,9 @@ unsigned * PI_IOmmap(off_t where) {
    // ne réouvre pas /dev/mem si on l'a déjà ouvert
    if (mmap_fd <= 0) {
      // ouvre /dev/mem
-     if ((mmap_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0){
+     if ((mmap_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0)
        //erreur("Echec à l'ouverture de /dev/mem");
        int i=1;
-     }
    }
 
    // projette les registres GPIO dans la mémoire de notre programme
@@ -70,10 +69,9 @@ unsigned * PI_IOmmap(off_t where) {
       where             // adresse de la zone à accéder
    );
 
-   if (map == MAP_FAILED) {
-       //erreur("Echec de mmap()");
-       int i = 1;
-   }
+   if (map == MAP_FAILED)
+     //erreur("Echec de mmap()");
+    int i=1;
 
    return (unsigned*)map;
 }
