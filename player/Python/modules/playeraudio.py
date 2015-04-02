@@ -13,7 +13,6 @@ from engine.fsm import Flag
 from engine.log import init_log
 log = init_log("sound")
 
-
 #AUDIO PLAYER CLASS
 class AlsaPlayer(ExternalProcess):
     """
