@@ -1,5 +1,12 @@
-#Media directory
-media/
+#Media Files
+*.mp4
+*.mov
+*.avi
+*.mp3
+*.wav
+*.m4v
+*.aac
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
