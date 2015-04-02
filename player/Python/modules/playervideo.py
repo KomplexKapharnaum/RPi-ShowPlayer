@@ -97,16 +97,16 @@ def control_video_player(flag, **kwargs):
 
 
 # SIGNAUX
-signal_video_player_stop = Flag("VIDEO_PLAYER_STOP")
-signal_play_video = Flag("VIDEO_PLAYER_PLAY")
-signal_control_video = Flag("VIDEO_PLAYER_CTRL")
-signal_video_player_close = Flag("VIDEO_PLAYER_CLOSE")
+signal_video_player_stop = Flag("VIDEO_PLAYER_STOP").register()
+signal_play_video = Flag("VIDEO_PLAYER_PLAY").register()
+signal_control_video = Flag("VIDEO_PLAYER_CTRL").register()
+signal_video_player_close = Flag("VIDEO_PLAYER_CLOSE").register()
 
 # ETAPES
-init_video_player = Etape("INIT_VIDEO_PLAYER", actions=((init_video_player, {}), ))
-start_video_player = Etape("START_VIDEO_PLAYER", actions=((start_playing_video_media, {}), ))
-wait_control_video = Etape("WAIT_CONTROL_VIDEO")
-etape_control_video = Etape("CONTROL_VIDEO", actions=((control_video_player, {}), ))
+init_video_player = Etape("INIT_VIDEO_PLAYER", actions=((init_video_player, {}), )).register()
+start_video_player = Etape("START_VIDEO_PLAYER", actions=((start_playing_video_media, {}), )).register()
+wait_control_video = Etape("WAIT_CONTROL_VIDEO").register()
+etape_control_video = Etape("CONTROL_VIDEO", actions=((control_video_player, {}), )).register()
 
 # TRANSITIONS
 init_video_player.transitions = {

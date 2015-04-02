@@ -24,7 +24,7 @@ class Etape(fsm.State):
     """
         This class overide the State class and represent an Etape in the scenario system
     """
-    def __init__(self, uid, actions=(), out_actions=(), transitions={}, public_name=None):
+    def __init__(self, uid, actions=(), out_actions=(), transitions={}):
         """
         Etape init function
         :param uid: Unique ID
@@ -39,10 +39,12 @@ class Etape(fsm.State):
         self.transitions = dict(transitions)
         self._current_running_function = None
 
+    def register(self, public_name=None):
         # auto-declare Etape to Scenario
         if public_name is None:
             public_name = self.uid
         scenario.DECLARED_ETAPES[public_name] = self
+        return self
 
     def _run_fnct(self, _fsm, fnct, flag, kwargs):
         """
@@ -216,6 +218,9 @@ class Device:
         log.log("raw", "Adding device pacths to the patcher")
         for patch in self.patchs:
             patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
+        for name, patch in scenario.DECLARED_PATCHER.items():
+            log.debug("Default add {0} into device".format(name))
+            patcher.add_patch(patch)
 
     def launch_manager(self):
         """

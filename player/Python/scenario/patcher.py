@@ -6,7 +6,9 @@
 
 import threading
 import Queue
+import cpickle
 
+from libs import oscack
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
 from engine.log import init_log
@@ -68,12 +70,29 @@ class ThreadPatcher(threading.Thread):
             if function[0](signal, **function[1]) is False:
                 ThreadPatcher.serve(signal)
 
+    def _dispatch(self, signal):
+        # envoyer au destinataire via OSC
+        for dest in signal.args["dest"]:
+            if dest in oscack.DNCserver.networkmap.keys():
+                oscack.message.send(oscack.DNCserver.networkmap[dest].target,
+                                    oscack.message.Message("/signal", signal.uid, ('b', cpickle.dumps(signal,2)), ACK=True))
+            elif dest != "_self_":
+                log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
+
+        # reposer dans la pile si _self_
+        if "_self_" in signal.args["dest"]:
+            del signal.args["dest"]
+            self._queue.put(signal)           
+
+
     def run(self):
         while not self._stop.is_set() or not self._queue.empty():
             signal = self._queue.get()
             if signal is None:
                 continue
-            if signal.uid in self._patchs.keys():
+            if "dest" in signal.args.keys():
+                self._dispatch(signal)
+            elif signal.uid in self._patchs.keys():
                 ThreadPatcher._patch(signal, self._patchs[signal.uid])
             else:
                 ThreadPatcher.serve(signal)
@@ -88,3 +107,4 @@ class ThreadPatcher(threading.Thread):
         self._stop.set()
         self._queue.put(None)  # To unblock the get in run function
         unregister_thread(self)
+

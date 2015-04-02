@@ -38,7 +38,6 @@ class decalrefunction(object):
         scenario.DECLARED_FUNCTIONS[self.public_name] = f
         return f
 
-
 @decalrefunction("ADD_TIMER")
 def add_timer(*args, **kwargs):
     """
@@ -99,6 +98,22 @@ def send_osc_neighbour(*args, **kwargs):
                 message.send(libs.oscack.DNCserver.networkmap[carte].target, msg)
             except KeyError:
                 log.error("There is no {0} carte in NetworkMap".format(carte))
+
+
+@decalrefunction("FORWARD_SIGNAL_RECV")
+def forward_signal(*args, **kwargs):
+    """
+    This function add a timer which wait some time and launch the function whith args
+    :param time: Time to wait (in seconds)
+    :param task: NAME of the function to call
+    :param args: List of args to pass to the function
+    :return:
+    """
+    log.log("raw", "Add timer : {0}, {1}, {2}".format(kwargs["time"], kwargs["task"], kwargs["args"]))
+    scenario_scheduler.enter(kwargs["time"], pool.Etapes_and_Functions[kwargs["task"]], kwargs=kwargs["args"])
+
+# DEFAULT PATCHERS
+Patch("SIGNAL Forwarder", "RECV_MSG", (forward_signal, dict()))
 
 
 @decalrefunction("MSG_SIGNAL_PATCHER")

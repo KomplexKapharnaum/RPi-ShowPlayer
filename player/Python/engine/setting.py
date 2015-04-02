@@ -34,7 +34,7 @@ DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["vlc"] = "/usr/local/bin/cvlc"
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123"
-DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/bottleserver.py"
+DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"

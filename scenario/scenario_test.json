@@ -182,6 +182,14 @@
 			  	"/signal/media/control": "CONTROL_MEDIA",
 			  	"/device/control": "DEVICE_CONTROL"
 			            }
+
+		},
+		{
+			"ID" : "FORWARD_PATCHER",
+			"SIGNAL" : "RECV_MSG",
+			"TREATMENT" : {
+				"function": "FORWARD_SIGNAL_RECV"
+			}
 		}
 				],
 

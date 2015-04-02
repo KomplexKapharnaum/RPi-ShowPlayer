@@ -27,4 +27,4 @@ def interface_start(flag, **kwargs):
 
 
 # REGISTER ETAPES & SIGNALS
-etape_interface_start = Etape("INTERFACE_START", actions=((interface_start, {}), ))
+etape_interface_start = Etape("INTERFACE_START", actions=((interface_start, {}), )).register()

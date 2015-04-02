@@ -1,0 +1,13 @@
+
+=> Parser les étapes (les ID sont pas interessant, car 1 Etape = 1 Fonction)
+=> Parser après les transitions
+
+=> Fournir à Jé en json la liste des fonctions hardcodées disponibles
+
+=> Pour les scène, Jé envoi une liste de scenario actifs,
+aller chercher dans chaque scenario les étapes d'entrées (marquées comme telle)
+
+Modules:
+=> Creer des fonctions publiques 
+=> Supprimer les étapes et les transitions
+ 

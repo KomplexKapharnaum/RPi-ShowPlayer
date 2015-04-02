@@ -260,4 +260,3 @@ def send_state(name, target, msg, args=(), kwargs={}):
         send(host, msg.get(**_kwargs))
 
     return fsm.State(name, _send_state)
-

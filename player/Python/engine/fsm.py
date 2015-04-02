@@ -43,10 +43,13 @@ class Flag:
         self.ignore_cb_args = tuple(ignore_cb_args)
         self._time_created = None  # This object haven't been get
 
+
+    def register(self, public_name=None):
         # auto-declare Flag to Scenario
         if public_name is None:
             public_name = self.uid
         scenario.DECLARED_SIGNALS[public_name] = self
+        return self
 
 
     def get(self, args=None, **kwargs):
@@ -251,7 +254,7 @@ class FiniteStateMachine:
                         flag.ignore(reason="JTL < 0")
                         expired_flags.append(flag)
                         log.log("raw", "JTL Expiration: {0}".format(flag.uid))
-                if flag.TTL is not None:
+                if flag.TTL is not None and flag not in expired_flags:
                     if rtplib.is_expired(*flag.TTL):
                         flag.ignore(reason="TTL expired")
                         expired_flags.append(flag)
@@ -261,7 +264,7 @@ class FiniteStateMachine:
                     log.log("raw", "Remove flag {0}".format(flag.uid))
                     self._flag_stack.remove(flag)
                 except ValueError:
-                    log.log("debug", "ERROR Removing flag {0}".format(flag.uid))
+                    log.log("debug", "[{1}] ERROR Removing flag {0}".format(flag.uid,self.name))
             if len(self._flag_stack) == 0:
                 # self._event_flag_stack_not_empty.clear()
                 self._event_flag_stack_new.clear()

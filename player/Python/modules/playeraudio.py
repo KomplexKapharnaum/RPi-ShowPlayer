@@ -6,6 +6,7 @@
 #
 import os
 
+from libs import oscack
 from modules.module import ExternalProcess
 from engine.setting import settings
 from scenario.classes import Etape
@@ -70,6 +71,11 @@ def start_playing_audio_media(flag, **kwargs):
     kwargs["_fsm"].vars["player"] = Mpg123(flag.args["args"][0])
     # kwargs["_fsm"].vars["player"].start()
     # log.log("raw", "set preemptible ")
+    
+    dest = ["a", "b"]
+    for elem in dest:
+        oscack.message.send(oscack.DNCserver.networkmap[elem].target, oscack.message.Message("/test", args1, args2, ('f', args3), ACK=True))
+
     kwargs["_etape"].preemptible.set()
     # log.log("raw", "end start_playing_audio_media")
 
@@ -96,16 +102,16 @@ def control_audio_player(flag, **kwargs):
 
 
 # SIGNAUX
-signal_audio_player_stop = Flag("AUDIO_PLAYER_STOP")
-signal_play_audio = Flag("AUDIO_PLAYER_PLAY")
-signal_control_audio = Flag("AUDIO_PLAYER_CTRL")
-signal_audio_player_close = Flag("AUDIO_PLAYER_CLOSE")
+signal_audio_player_stop = Flag("AUDIO_PLAYER_STOP").register()
+signal_play_audio = Flag("AUDIO_PLAYER_PLAY").register()
+signal_control_audio = Flag("AUDIO_PLAYER_CTRL").register()
+signal_audio_player_close = Flag("AUDIO_PLAYER_CLOSE").register()
 
 # ETAPES
-init_audio_player = Etape("INIT_AUDIO_PLAYER", actions=((init_audio_player, {}), ))
-start_audio_player = Etape("START_AUDIO_PLAYER", actions=((start_playing_audio_media, {}), ))
-wait_control_audio = Etape("WAIT_CONTROL_AUDIO")
-etape_control_audio = Etape("CONTROL_AUDIO", actions=((control_audio_player, {}), ))
+init_audio_player = Etape("INIT_AUDIO_PLAYER", actions=((init_audio_player, {}), )).register()
+start_audio_player = Etape("START_AUDIO_PLAYER", actions=((start_playing_audio_media, {}), )).register()
+wait_control_audio = Etape("WAIT_CONTROL_AUDIO").register()
+etape_control_audio = Etape("CONTROL_AUDIO", actions=((control_audio_player, {}), )).register()
 
 # TRANSITIONS
 init_audio_player.transitions = {
