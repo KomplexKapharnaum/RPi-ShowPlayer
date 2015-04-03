@@ -41,25 +41,14 @@ class Mpg123(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@globaletape("INIT_AUDIO_PLAYER", {
+@globaletape("AUDIO_PLAYER", {
                 "AUDIO_PLAYER_PLAY": "START_AUDIO_PLAYER"})
 def init_audio_player(flag, **kwargs):
-    """
-    Stop an eventual existing audio player
-    :param flag:
-    :param kwargs:
-    :return:
-    """
-    if "audio" in kwargs["_fsm"].vars.keys():
-        try:
-            kwargs["_fsm"].vars["audio"].stop()
-        except Exception as e:
-            log.error("CAN'T EXIT AUDIO PLAYER !")
-            log.error(": " + str(e))
+    pass
 
 
 @globaletape("START_AUDIO_PLAYER", {
-                None: "WAIT_CONTROL_AUDIO"})
+                None: "AUDIO_PLAYER"})
 def start_playing_audio_media(flag, **kwargs):
     """
     Start playing a media
@@ -73,19 +62,15 @@ def start_playing_audio_media(flag, **kwargs):
             log.error("CAN'T EXIT AUDIO PLAYER !")
             log.error(": " + str(e))
     kwargs["_fsm"].vars["player"] = Mpg123(flag.args["args"][0])
-    # kwargs["_fsm"].vars["player"].start()
-    # log.log("raw", "set preemptible ")
+    kwargs["_etape"].preemptible.set()
 
     # dest = ["a", "b"]
     # for elem in dest:
     #    oscack.message.send(oscack.DNCserver.networkmap[elem].target, oscack.message.Message("/test", args1, args2, ('f', args3), ACK=True))
 
-    kwargs["_etape"].preemptible.set()
-    # log.log("raw", "end start_playing_audio_media")
-
 
 @globaletape("WAIT_CONTROL_AUDIO", {
-                "AUDIO_PLAYER_CLOSE": "INIT_AUDIO_PLAYER"})
+                "AUDIO_PLAYER_CLOSE": "AUDIO_PLAYER"})
 def wait_player_audio(flag, **kwargs):
     pass
 

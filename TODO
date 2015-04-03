@@ -1,13 +1,34 @@
 
-=> Parser les étapes (les ID sont pas interessant, car 1 Etape = 1 Fonction)
-=> Parser après les transitions
+=> Parsing des scenes
+=> Scenario distinct sur différent groupe
+=> Scene commander
 
-=> Fournir à Jé en json la liste des fonctions hardcodées disponibles
+=> Synchro scènes // Key frames ?
 
-=> Pour les scène, Jé envoi une liste de scenario actifs,
-aller chercher dans chaque scenario les étapes d'entrées (marquées comme telle)
+Module
+=> Carte [Mercredi]
+=> Alsa mixer / Alsaequal [Mardi]
+=> Video [Mardi]
+=> Son [Mardi]
+=> Synchro media
+=> Telecommande
 
-Modules:
-=> Creer des fonctions publiques 
-=> Supprimer les étapes et les transitions
- 
+
+Interface [Jeudi]
+=> Liste des modules pour librairie de fonctions
+=> Parser 
+	les étapes (les ID sont pas interessant, car 1 Etape = 1 Fonction)
+	les transitions après
+
+
+
+Architecture
+=> Synchro horloges
+=> Communication inter devices
+=> Synchro ordres
+=> Synchro scenario
+
+
+
+
+

@@ -72,10 +72,10 @@ def parse_patch(jobj):
 
 
 def parse_device(jobj):
-    managers = list()
+    managers = dict()
     patchs = list()
     for etape in jobj["MANAGERS"]:
-        managers.append(pool.Etapes_and_Functions[etape])
+        managers[etape] = pool.Etapes_and_Functions[etape]
     for patch in jobj["OTHER_PATCH"]:
         patchs.append(pool.Patchs[patch])
     d = classes.Device(jobj["ID"], jobj["MODULES"], patchs, managers)  # TODO : End correct parsing !

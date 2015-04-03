@@ -37,13 +37,6 @@ class Etape(fsm.State):
         self.transitions = dict(transitions)
         self._current_running_function = None
 
-    def register(self, public_name=None):
-        # auto-declare Etape to Scenario
-        if public_name is None:
-            public_name = self.uid
-        scenario.DECLARED_ETAPES[public_name] = self
-        return self
-
     def _run_fnct(self, _fsm, fnct, flag, kwargs):
         """
         This function run a function, when it's end set preemptible
@@ -208,7 +201,9 @@ class Device:
         self.modules = modules
         self.patchs = patchs
         self.managers = managers
-
+        for manager_uid in scenario.DECLARED_MANAGER:
+            if manager_uid in pool.Etapes_and_Functions.keys():
+                self.managers[manager_uid] = pool.Etapes_and_Functions[manager_uid]
     # def register_patchs(self):
     #     """
     #     This function is called when the manager init to add devices patch to the patch thread
@@ -225,7 +220,7 @@ class Device:
         This function is launch at startup and init device managers fsm
         """
         log.log("debug", "Launching manager devices")
-        for manager in self.managers:
+        for manager in self.managers.values():
             log.log("raw", "--  manager devices {0} launch..".format(manager.uid))
             pool.DEVICE_FSM.append(ScenarioFSM(manager.uid))
             pool.DEVICE_FSM[-1].start(manager)

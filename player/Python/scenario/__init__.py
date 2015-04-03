@@ -12,7 +12,7 @@ DECLARED_ETAPES = dict()
 DECLARED_SIGNALS = dict()
 DECLARED_PATCHER = dict()
 DECLARED_TRANSITION = dict()
-
+DECLARED_MANAGER = []
 
 def init_declared_objects():
     import functions
@@ -50,7 +50,6 @@ def init_declared_objects():
     pool.Etapes_and_Functions.update(DECLARED_ETAPES)
     pool.Signals.update(DECLARED_SIGNALS)
     pool.Patchs.update(DECLARED_PATCHER)
-
 
 
 class globalfunction(object):
@@ -95,16 +94,20 @@ class globaletape(object):
     """
     This is a decorator which declare function as etape in scenario scope
     """
-    def __init__(self, uid=None, transitions=dict(), options=dict()):
+    def __init__(self, uid=None, transitions=dict(), options=dict(), autoload=False):
         """
         :param public_name: Name of the function in the scenario scope
         """
         self.uid = uid
         self.options = options
         self.transitions = transitions
+        self.autoload = autoload
 
     def __call__(self, f):
         global DECLARED_ETAPES
         DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
         DECLARED_TRANSITION[self.uid] = self.transitions
+        if self.autoload and self.uid not in DECLARED_MANAGER:
+            DECLARED_MANAGER.append(self.uid)
+            log.warning("AUTO MANAGER : "+self.uid)
         return f

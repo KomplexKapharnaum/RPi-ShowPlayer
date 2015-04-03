@@ -51,6 +51,9 @@ class ExternalProcess:
             self._popen.kill()  # Send SIGNKILL to brutaly kill the process
         unregister_thread(self)
 
+    def is_alive(self):
+        return self._running.is_set()
+
     def _watch(self):
         """
         This function wait the process to end and add a signal when it appends
@@ -60,9 +63,6 @@ class ExternalProcess:
         if self.onClose:
             patcher.patch(Flag(self.onClose).get())
         self._running.clear()
-
-    def _is_alive():
-        return self._running.is_set()
 
     def _join(self, timeout=None):
         """

@@ -12,14 +12,14 @@ from engine.log import init_log
 log = init_log("etapes")
 
 
-@globaletape("MAIN_DEVICE_MANAGER", {
-                "MAIN_DEVICE_CONTROL": "MAIN_DEVICE_MANAGER_CONTROL"})
+@globaletape("DEVICE_MANAGER", {
+                "DEVICE_CONTROL": "DEVICE_MANAGER_CONTROL"})
 def wait_player_audio(flag, **kwargs):
     pass
 
 
-@globaletape("MAIN_DEVICE_MANAGER_CONTROL", {
-                None: "START_VIDEO_PLAYER"})
+@globaletape("DEVICE_MANAGER_CONTROL", {
+                None: "DEVICE_MANAGER"})
 def main_device_control(flag, **kwargs):
     """
     This function provide main control on the device

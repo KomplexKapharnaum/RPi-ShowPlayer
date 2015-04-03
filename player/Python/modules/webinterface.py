@@ -19,7 +19,7 @@ class Webserver(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@globaletape("INTERFACE_START")
+@globaletape("INTERFACE_START", autoload=True)
 def interface_start(flag, **kwargs):
     if "interface" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["interface"] = Webserver()

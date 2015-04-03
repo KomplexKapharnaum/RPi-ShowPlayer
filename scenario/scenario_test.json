@@ -10,12 +10,12 @@
 	"Device" : [
 		{
 			"ID" : "POUBELLE",
-			"MODULES" : ["VIDEO", "SON"],
+			"MODULES" : [],
 			"PATCH_IN_NUM" : [],
 			"PATCH_OUT_NUM" : [],
 			"PATCH_IN_ANA" : [],
 			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : ["MAIN_DEVICE_MANAGER"],
+			"MANAGERS" : ["VIDEO_PLAYER", "AUDIO_PLAYER"],
 			"OTHER_PATCH" : ["MSG_PATCHER"]
 		},
 		{
@@ -25,7 +25,7 @@
 			"PATCH_OUT_NUM" : [],
 			"PATCH_IN_ANA" : [],
 			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : ["MAIN_DEVICE_MANAGER"],
+			"MANAGERS" : [],
 			"OTHER_PATCH" : ["MSG_PATCHER"]
 		}
 					],
@@ -41,7 +41,7 @@
 			"INIT_ETAPES" : [
 				{
 					"carte" : "CarteTEST",
-					"etapes" : ["INIT_SCENE_1", "INIT_AUDIO_PLAYER", "VIDEO_PLAYER"]
+					"etapes" : ["INIT_SCENE_1"]
 				}
 			]
 		}
@@ -84,7 +84,7 @@
                         }],
 			"TRANSITIONS" : [
 				{
-					"signal" : "NEXT_SCENE",
+					"signal" : "RECV_NEXT",
 					"goto" : "NEXT_SCENE"
 				}
 							]
@@ -103,17 +103,11 @@
 			    "def fnct(flag, **kwargs):",
 		            "    log.info(kwargs['text'])"]
 		},
-        {
+		{
 			"ID" : "FNCT_NEXT_SCENE",
 			"CODE" : [
 			    "def fnct(flag, **kwargs):",
-			    "   pool.MANAGER.append_flag(manager.next_flag.get())"]
-		},
-        {
-		    "ID" : "FNCT_TREATMENT",
-		    "CODE" : [
-		        "def fnct(flag, **kwargs):",
-		        "   function.serve_signal(signal='START')"]
+		            "    log.info('NEXT SCENE !')"]
 		}
 					],
 	"Signal" : [

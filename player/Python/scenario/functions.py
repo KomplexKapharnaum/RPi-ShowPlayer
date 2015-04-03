@@ -13,6 +13,7 @@ from scenario import globalfunction
 from engine.setting import settings
 from engine.threads import scenario_scheduler, patcher
 from scenario import pool
+from engine.fsm import Flag
 from engine.log import init_log
 
 log = init_log("tools")
@@ -44,7 +45,14 @@ def add_signal(*args, **kwargs):
     log.log("raw", "Add signal : {0}, {1}".format(kwargs["signal"], kwargs["args"]))
     # for sfsm in pool.FSM:  # TODO : Here we must use the future signal patcher !
     # sfsm.append_flag(pool.Signals[kwargs["signal"]].get(*kwargs["args"]))
-    patcher.patch(pool.Signals[kwargs["signal"]].get(*kwargs["args"]))
+    if "signal" in kwargs.keys():
+        sig_uid = kwargs["signal"]
+        if sig_uid in pool.Signals.keys():
+            signal = pool.Signals[sig_uid]
+        else:
+            signal = Flag(sig_uid)
+            log.log("raw", "This signal was unknown..  {0}".format(sig_uid))
+        patcher.patch(signal.get(*kwargs["args"]))
 
 
 @globalfunction("SERVE_SIGNAL")
@@ -89,7 +97,14 @@ def msg_patcher(*args, **kwargs):
     :return:
     """
     if args[0].args["path"] in kwargs.keys():
-        patcher.serve(pool.Signals[kwargs[args[0].args["path"]]].get(args=args[0].args))
+        sig_uid = kwargs[args[0].args["path"]]
+        log.log("raw", "Add signal : {0}, {1}".format(sig_uid, args[0].args))
+        if sig_uid in pool.Signals.keys():
+            signal = pool.Signals[sig_uid]
+        else:
+            signal = Flag(sig_uid)
+            log.log("raw", "This signal was not declared..  {0}".format(sig_uid))
+        patcher.serve(signal.get(args=args[0].args))
     else:
         return False
 
