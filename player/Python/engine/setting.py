@@ -139,5 +139,5 @@ class Settings(dict):
 settings = Settings(DEFAULT_SETTING_PATH)
 if not os.path.exists(settings.get("path", "tmp")):
     os.makedirs(settings.get("path", "tmp"))
-log.info("uName set to : {0}".format(settings["uName"]))
-log.info(settings)
+# log.info("uName set to : {0}".format(settings["uName"]))
+# log.info(settings)

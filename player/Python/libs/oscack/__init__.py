@@ -26,10 +26,8 @@ log.debug("Init time tag : {0} ".format(timetag))
 
 from engine.setting import settings
 
-import network
-import message
-import utils
 import protocol
+import message
 import server
 
 

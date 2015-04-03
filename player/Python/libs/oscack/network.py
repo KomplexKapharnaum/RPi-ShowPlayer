@@ -6,11 +6,9 @@
 
 import threading
 
-
+from libs.oscack import discover_machine
+from engine.fsm import Flag
 from engine.threads import network_scheduler
-import libs.oscack
-from engine import fsm
-from engine import threads
 from libs.oscack import message
 # from oscack.protocol import discover
 from engine.setting import settings
@@ -22,7 +20,7 @@ log = init_log("network")
 to_auto_add = []
 
 
-recv_msg = fsm.Flag("RECV_MSG")
+recv_msg = Flag("RECV_MSG")
 
 
 class NetworkElement:
@@ -159,7 +157,7 @@ def add_signal_to_protocol(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    libs.oscack.discover_machine.append_flag(*args, **kwargs)
+    discover_machine.append_flag(*args, **kwargs)
 
 
 class UnifiedMessageInterpretation:

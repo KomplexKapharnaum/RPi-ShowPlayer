@@ -4,6 +4,7 @@ import threading
 from libs import subprocess32
 from engine.threads import patcher
 from engine.tools import register_thread, unregister_thread
+from engine.fsm import Flag
 
 # GENERIC THREAD TO HANDLE EXTERNAL PROCESS
 class ExternalProcess:
@@ -36,17 +37,7 @@ class ExternalProcess:
                                          universal_newlines=False, startupinfo=None, creationflags=0)
         self._watchdog.start()
         if self.onOpen:
-            patcher.patch(self.onOpen.get())
-
-    def _watch(self):
-        """
-        This function wait the process to end and add a signal when it appends
-        :return:
-        """
-        self._popen.wait()
-        if self.onClose:
-            patcher.patch(self.onClose.get())
-        self._running.clear()
+            patcher.patch(Flag(self.onOpen).get())
 
     def stop(self):
         """
@@ -60,10 +51,20 @@ class ExternalProcess:
             self._popen.kill()  # Send SIGNKILL to brutaly kill the process
         unregister_thread(self)
 
-    def is_alive():
+    def _watch(self):
+        """
+        This function wait the process to end and add a signal when it appends
+        :return:
+        """
+        self._popen.wait()
+        if self.onClose:
+            patcher.patch(Flag(self.onClose).get())
+        self._running.clear()
+
+    def _is_alive():
         return self._running.is_set()
 
-    def join(self, timeout=None):
+    def _join(self, timeout=None):
         """
         Join the video player to end
         :return:

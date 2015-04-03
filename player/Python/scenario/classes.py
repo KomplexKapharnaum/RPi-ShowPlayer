@@ -11,11 +11,9 @@ import traceback
 
 from engine import fsm
 from engine import media
-from engine.threads import patcher
 from engine.setting import settings
-import scenario
 from scenario import pool
-
+import scenario
 from engine.log import init_log
 log = init_log("classes")
 
@@ -211,16 +209,16 @@ class Device:
         self.patchs = patchs
         self.managers = managers
 
-    def register_patchs(self):
-        """
-        This function is called when the manager init to add devices patch to the patch thread
-        """
-        log.log("raw", "Adding device pacths to the patcher")
-        for patch in self.patchs:
-            patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
-        for name, patch in scenario.DECLARED_PATCHER.items():
-            log.debug("Default add {0} into device".format(name))
-            patcher.add_patch(patch)
+    # def register_patchs(self):
+    #     """
+    #     This function is called when the manager init to add devices patch to the patch thread
+    #     """
+    #     log.log("raw", "Adding device patchs to the patcher")
+    #     for patch in self.patchs:
+    #         patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
+    #     for name, patch in scenario.DECLARED_PATCHER.items():
+    #         log.debug("Default add {0} into device".format(name))
+    #         patcher.add_patch(patch)
 
     def launch_manager(self):
         """

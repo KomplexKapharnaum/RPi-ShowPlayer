@@ -8,10 +8,9 @@ import os
 import socket
 import subprocess
 
-from modules.module import ExternalProcess
+from modules.basemodule import ExternalProcess
 from engine.setting import settings
-from scenario.classes import Etape
-from engine.fsm import Flag
+from scenario import globaletape
 from engine.log import init_log
 log = init_log("video")
 
@@ -20,22 +19,21 @@ class VLCPlayer(ExternalProcess):
     """
     Video Lan VLC Player interface
     """
-
     def __init__(self):
         ExternalProcess.__init__(self)
         self._rcport = 1250
         self.command = "{exe} -I rc --rc-host 0.0.0.0:{port} --no-osd --aout alsa".format(exe=settings.get("path", "vlc"), port=self._rcport)
-        self.onClose = signal_video_player_close
+        self.onClose = "VIDEO_PLAYER_CLOSE"
         self.start()
 
-    def say(self, message):
+    def _send(self, message):
         cmd = "echo {txt} | nc -c localhost {port}".format(txt=message, port=self._rcport)
         subprocess.call(cmd, shell=True)
 
 
     def play(self, path):
         path = os.path.join(settings.get("path", "media"), path)
-        self.say('add '+path)
+        self._send('add '+path)
 
     def toggle_play(self):
         log.info("VLC PAUSE")
@@ -53,6 +51,8 @@ class VLCPlayer(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
+@globaletape("VIDEO_PLAYER", {
+                "VIDEO_PLAYER_PLAY": "START_VIDEO_PLAYER"})
 def init_video_player(flag, **kwargs):
     """
     :param flag:
@@ -65,6 +65,8 @@ def init_video_player(flag, **kwargs):
         kwargs["_fsm"].vars["video"].start()
 
 
+@globaletape("START_VIDEO_PLAYER", {
+                None: "VIDEO_PLAYER"})
 def start_playing_video_media(flag, **kwargs):
     """
     Start playing a media
@@ -76,57 +78,30 @@ def start_playing_video_media(flag, **kwargs):
         kwargs["_etape"].preemptible.set()
 
 
-def control_video_player(flag, **kwargs):
-    """
-    Control media player
-    :param flag:
-    :param kwargs:
-    :return:
-    """
-    try:
-        if flag.args["args"][0] == "toggle":
-            kwargs["_fsm"].vars["video"].toggle_play()
-        elif flag.args["args"][0] == "vup":
-            kwargs["_fsm"].vars["video"].volume_up()
-        elif flag.args["args"][0] == "vdown":
-            kwargs["_fsm"].vars["video"].volume_down()
-        elif flag.args["args"][0] == "info":
-            kwargs["_fsm"].vars["video"].show_info()
-    except Exception as e:
-        log.error(log.show_exception(e))
+@globaletape("WAIT_CONTROL_VIDEO", {
+                "VIDEO_PLAYER_CLOSE": "INIT_VIDEO_PLAYER"})
+def wait_player_audio(flag, **kwargs):
+    pass
 
 
-# SIGNAUX
-signal_video_player_stop = Flag("VIDEO_PLAYER_STOP").register()
-signal_play_video = Flag("VIDEO_PLAYER_PLAY").register()
-signal_control_video = Flag("VIDEO_PLAYER_CTRL").register()
-signal_video_player_close = Flag("VIDEO_PLAYER_CLOSE").register()
-
-# ETAPES
-init_video_player = Etape("INIT_VIDEO_PLAYER", actions=((init_video_player, {}), )).register()
-start_video_player = Etape("START_VIDEO_PLAYER", actions=((start_playing_video_media, {}), )).register()
-wait_control_video = Etape("WAIT_CONTROL_VIDEO").register()
-etape_control_video = Etape("CONTROL_VIDEO", actions=((control_video_player, {}), )).register()
-
-# TRANSITIONS
-init_video_player.transitions = {
-    signal_play_video.uid: start_video_player,
-}
-
-start_video_player.transitions = {
-    None: wait_control_video
-}
-
-
-wait_control_video.transitions = {
-    signal_video_player_close.uid: init_video_player,
-    signal_play_video.uid: start_video_player,
-    signal_control_video.uid: etape_control_video
-}
-
-etape_control_video.transitions = {
-    None: wait_control_video
-}
+# def control_video_player(flag, **kwargs):
+#     """
+#     Control media player
+#     :param flag:
+#     :param kwargs:
+#     :return:
+#     """
+#     try:
+#         if flag.args["args"][0] == "toggle":
+#             kwargs["_fsm"].vars["video"].toggle_play()
+#         elif flag.args["args"][0] == "vup":
+#             kwargs["_fsm"].vars["video"].volume_up()
+#         elif flag.args["args"][0] == "vdown":
+#             kwargs["_fsm"].vars["video"].volume_down()
+#         elif flag.args["args"][0] == "info":
+#             kwargs["_fsm"].vars["video"].show_info()
+#     except Exception as e:
+#         log.error(log.show_exception(e))
 
 
 '''

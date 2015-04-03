@@ -10,10 +10,9 @@ import os
 from collections import deque
 
 from src.threads import network_scheduler
-import OSC
 from src import fsm
 from src import media
-from OSC import message, network
+from oscack import message, network, BroadcastAddress
 
 from src.setting import settings
 from src.log import init_log
@@ -67,7 +66,7 @@ def trans_isitok(flag):
 
 
 def ask_media(flag):
-    message.send(OSC.BroadcastAddress, msg_askmedia.get(flag.args["to_treat"].checksum))
+    message.send(BroadcastAddress, msg_askmedia.get(flag.args["to_treat"].checksum))
 
 
 

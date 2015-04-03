@@ -1,6 +1,6 @@
 
-from modules.module import ExternalProcess
-from scenario.classes import Etape
+from modules.basemodule import ExternalProcess
+from scenario import globaletape
 from engine.setting import settings
 from engine.log import init_log
 
@@ -19,12 +19,9 @@ class Webserver(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
+@globaletape("INTERFACE_START")
 def interface_start(flag, **kwargs):
     if "interface" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["interface"] = Webserver()
     elif not kwargs["_fsm"].vars["interface"].is_alive():
         kwargs["_fsm"].vars["interface"].start()
-
-
-# REGISTER ETAPES & SIGNALS
-etape_interface_start = Etape("INTERFACE_START", actions=((interface_start, {}), )).register()

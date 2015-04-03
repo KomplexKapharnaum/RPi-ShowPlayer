@@ -7,7 +7,7 @@ from collections import deque
 
 from libs import rtplib
 from engine.log import init_log
-import scenario
+# import scenario
 
 log = init_log("fsm")
 
@@ -44,12 +44,12 @@ class Flag:
         self._time_created = None  # This object haven't been get
 
 
-    def register(self, public_name=None):
-        # auto-declare Flag to Scenario
-        if public_name is None:
-            public_name = self.uid
-        scenario.DECLARED_SIGNALS[public_name] = self
-        return self
+    # def register(self, public_name=None):
+    #     # auto-declare Flag to Scenario
+    #     if public_name is None:
+    #         public_name = self.uid
+    #     scenario.DECLARED_SIGNALS[public_name] = self
+    #     return self
 
 
     def get(self, args=None, **kwargs):

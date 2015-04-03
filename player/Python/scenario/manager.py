@@ -8,7 +8,7 @@ import libs.oscack
 from engine.threads import patcher
 from engine import fsm
 from engine.setting import settings
-from scenario import pool
+from scenario import pool, DECLARED_PATCHER
 
 from engine.log import init_log
 log = init_log("manager")
@@ -21,7 +21,17 @@ def patch_msg(path, args, types, src,):
 def init(flag):
     log.debug("Init manager")
     pool.CURRENT_FRAME = 0
-    pool.Cartes[settings["uName"]].device.register_patchs()
+
+    # Register Device Patchs
+    # pool.Cartes[settings["uName"]].device.register_patchs()
+    for patch in pool.Cartes[settings["uName"]].device.patchs:
+        patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
+
+    # Register Global Patchs
+    for name, patch in DECLARED_PATCHER.items():
+        log.debug("Default add {0} into device".format(name))
+        patcher.add_patch(patch)
+
     libs.oscack.DNCserver.add_method(None, None, patch_msg)       # TODO WE DO NOT NEED OSC FOR SCENARIO SYSTEM, deplace !
 
 

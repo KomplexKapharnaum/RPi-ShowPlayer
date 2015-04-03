@@ -9,7 +9,7 @@ import time
 
 import liblo
 
-import libs.oscack
+from libs.oscack import ack_threads, broadcast_ack_threads
 # OLD # import utils # REPLACE BY :
 from libs import acklib
 from engine.setting import settings
@@ -119,7 +119,7 @@ class ThreadSendMessage(threading.Thread):
             register(self, self.msg.uid)
         else:
             self.broadcast = True
-            oscack.broadcast_ack_threads.append(self.msg.uid)
+            broadcast_ack_threads.append(self.msg.uid)
             # globalContext.protocol.ack.ACK_BROADCAST_REGISTER.append(self.msg.uid) TODO : check and remove
         self.sending = threading.Lock()
 
@@ -208,18 +208,18 @@ def unregister(uid):
     :param uid:
     :return:
     """
-    if uid in oscack.broadcast_ack_threads:
+    if uid in broadcast_ack_threads:
             return  # It's a broadcast ack so pass
     try:
         if log.isEnabledFor("raw"):
             log.log("raw", "Try to unresgister : " + str(uid) + " on " + str(
-                oscack.ack_threads))
-        oscack.ack_threads[uid].stop()
-        del oscack.ack_threads[uid]
+                ack_threads))
+        ack_threads[uid].stop()
+        del ack_threads[uid]
     except Exception as e:
         log.exception(
             "Try to unregister a ack send thread which doesn't exist :\n Error : " + str(e) + " \n UID : " + str(uid))
-        log.exception("ACK_THREAD_REGISTER : " + str(oscack.ack_threads))
+        log.exception("ACK_THREAD_REGISTER : " + str(ack_threads))
         log.exception("UID1, UID2 : " + str(uid))
 
 
@@ -231,7 +231,7 @@ def register(thread, uid):
     :return:
     """
     log.log("raw", "Register thread send ack : " + str(uid))
-    oscack.ack_threads[uid] = thread
+    ack_threads[uid] = thread
     # globalContext.protocol.ack.ACK_THREAD_REGISTER[uid] = thread TODO: check and remove
 
 

@@ -15,7 +15,7 @@
 			"PATCH_OUT_NUM" : [],
 			"PATCH_IN_ANA" : [],
 			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : ["MAIN_DEVICE_MANAGER_WAIT", "INTERFACE_START"],
+			"MANAGERS" : ["MAIN_DEVICE_MANAGER"],
 			"OTHER_PATCH" : ["MSG_PATCHER"]
 		},
 		{
@@ -25,7 +25,7 @@
 			"PATCH_OUT_NUM" : [],
 			"PATCH_IN_ANA" : [],
 			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : [],
+			"MANAGERS" : ["MAIN_DEVICE_MANAGER"],
 			"OTHER_PATCH" : ["MSG_PATCHER"]
 		}
 					],
@@ -41,7 +41,7 @@
 			"INIT_ETAPES" : [
 				{
 					"carte" : "CarteTEST",
-					"etapes" : ["INIT_SCENE_1", "INIT_AUDIO_PLAYER", "INIT_VIDEO_PLAYER"]
+					"etapes" : ["INIT_SCENE_1", "INIT_AUDIO_PLAYER", "VIDEO_PLAYER"]
 				}
 			]
 		}
@@ -183,13 +183,6 @@
 			  	"/device/control": "DEVICE_CONTROL"
 			            }
 
-		},
-		{
-			"ID" : "FORWARD_PATCHER",
-			"SIGNAL" : "RECV_MSG",
-			"TREATMENT" : {
-				"function": "FORWARD_SIGNAL_RECV"
-			}
 		}
 				],
 

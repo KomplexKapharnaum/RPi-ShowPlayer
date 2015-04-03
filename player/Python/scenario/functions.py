@@ -4,14 +4,12 @@
 #
 
 import os
-import shlex
-from libs import subprocess32
 
 CREATE_NEW_PROCESS_GROUP = 512
 
 import libs.oscack
 from libs.oscack import message
-import scenario
+from scenario import globalfunction
 from engine.setting import settings
 from engine.threads import scenario_scheduler, patcher
 from scenario import pool
@@ -20,25 +18,7 @@ from engine.log import init_log
 log = init_log("tools")
 
 
-class decalrefunction(object):
-    """
-    This is a decorator which declare function in scenario scope
-    """
-
-    def __init__(self, public_name=None):
-        """
-        :param public_name: Name of the function in the scenario scope
-        """
-        self.public_name = public_name
-
-    def __call__(self, f):
-        if self.public_name is None:
-            self.public_name = f.__name__
-        global DECALRED_FUNCTIONS
-        scenario.DECLARED_FUNCTIONS[self.public_name] = f
-        return f
-
-@decalrefunction("ADD_TIMER")
+@globalfunction("ADD_TIMER")
 def add_timer(*args, **kwargs):
     """
     This function add a timer which wait some time and launch the function whith args
@@ -51,7 +31,7 @@ def add_timer(*args, **kwargs):
     scenario_scheduler.enter(kwargs["time"], pool.Etapes_and_Functions[kwargs["task"]], kwargs=kwargs["args"])
 
 
-@decalrefunction("ADD_SIGNAL")
+@globalfunction("ADD_SIGNAL")
 def add_signal(*args, **kwargs):
     """
     This function add a signal in the scenario manager
@@ -67,7 +47,7 @@ def add_signal(*args, **kwargs):
     patcher.patch(pool.Signals[kwargs["signal"]].get(*kwargs["args"]))
 
 
-@decalrefunction("SERVE_SIGNAL")
+@globalfunction("SERVE_SIGNAL")
 def serve_signal(*args, **kwargs):
     """
     This function serve directly a signal without patching him
@@ -81,7 +61,7 @@ def serve_signal(*args, **kwargs):
     patcher.serve(pool.Signals[kwargs["signal"]].get(*kwargs["args"]))
 
 
-@decalrefunction("SEND_OSC_NEIGHBOUR")
+@globalfunction("SEND_OSC_NEIGHBOUR")
 def send_osc_neighbour(*args, **kwargs):
     """
     This function send an OSC message to all neighbour (cartes in the same scene)
@@ -100,23 +80,7 @@ def send_osc_neighbour(*args, **kwargs):
                 log.error("There is no {0} carte in NetworkMap".format(carte))
 
 
-@decalrefunction("FORWARD_SIGNAL_RECV")
-def forward_signal(*args, **kwargs):
-    """
-    This function add a timer which wait some time and launch the function whith args
-    :param time: Time to wait (in seconds)
-    :param task: NAME of the function to call
-    :param args: List of args to pass to the function
-    :return:
-    """
-    log.log("raw", "Add timer : {0}, {1}, {2}".format(kwargs["time"], kwargs["task"], kwargs["args"]))
-    scenario_scheduler.enter(kwargs["time"], pool.Etapes_and_Functions[kwargs["task"]], kwargs=kwargs["args"])
-
-# DEFAULT PATCHERS
-Patch("SIGNAL Forwarder", "RECV_MSG", (forward_signal, dict()))
-
-
-@decalrefunction("MSG_SIGNAL_PATCHER")
+@globalfunction("MSG_SIGNAL_PATCHER")
 def msg_patcher(*args, **kwargs):
     """
     This function patch a msg if it fit to a path
@@ -129,7 +93,7 @@ def msg_patcher(*args, **kwargs):
     else:
         return False
 
-@decalrefunction("ACTIVE_MSG_SIGNAL_PATCHER")
+@globalfunction("ACTIVE_MSG_SIGNAL_PATCHER")
 def active_msg_patcher(*args, **kwargs):
     """
     This function serve signal only if the device is in active mode
@@ -154,7 +118,7 @@ def active_msg_patcher(*args, **kwargs):
         msg_patcher(*args, **kwargs)
 
 
-@decalrefunction("REBOOT_MANAGER")
+@globalfunction("REBOOT_MANAGER")
 def reboot_manager(*args, **kwargs):
     """
     This function called the reboot_dnc script

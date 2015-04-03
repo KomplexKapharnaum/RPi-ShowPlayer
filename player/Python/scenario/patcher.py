@@ -6,9 +6,11 @@
 
 import threading
 import Queue
-import cpickle
+import cPickle
+from copy import copy
 
-from libs import oscack
+# from libs.oscack.objects import message
+# from libs.oscack import DNCserver
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
 from engine.log import init_log
@@ -72,18 +74,19 @@ class ThreadPatcher(threading.Thread):
 
     def _dispatch(self, signal):
         # envoyer au destinataire via OSC
-        for dest in signal.args["dest"]:
-            if dest in oscack.DNCserver.networkmap.keys():
-                oscack.message.send(oscack.DNCserver.networkmap[dest].target,
-                                    oscack.message.Message("/signal", signal.uid, ('b', cpickle.dumps(signal,2)), ACK=True))
+        sendto = copy(signal.args["dest"])
+        del signal.args["dest"]
+        for dest in sendto:
+            if dest in DNCserver.networkmap.keys():
+                # message.send(DNCserver.networkmap[dest].target,
+                #                    message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal,2)), ACK=True))
+                pass
             elif dest != "_self_":
                 log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
         # reposer dans la pile si _self_
-        if "_self_" in signal.args["dest"]:
-            del signal.args["dest"]
-            self._queue.put(signal)           
-
+        if "_self_" in sendto:
+            self._queue.put(signal)
 
     def run(self):
         while not self._stop.is_set() or not self._queue.empty():
@@ -107,4 +110,3 @@ class ThreadPatcher(threading.Thread):
         self._stop.set()
         self._queue.put(None)  # To unblock the get in run function
         unregister_thread(self)
-
