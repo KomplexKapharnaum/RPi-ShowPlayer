@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
 #
@@ -9,6 +10,7 @@ from engine import log, fsm, threads
 from engine.setting import settings
 from scenario import parsing, pool, manager
 from libs import oscack
+from engine.log import dumpclean
 
 
 def set_python_path(depth=0):
@@ -32,11 +34,14 @@ try:
     oscack.start_protocol()
     scenario_path = os.path.join(settings.get("path", "scenario"), "scenario_test.json")
     parsing.parse_scenario(scenario_path)
-    pool.Cartes[settings["uName"]].device.launch_manager()
-    managefsm = fsm.FiniteStateMachine("Manager")
-    managefsm.start(manager.step_init)
-    pool.MANAGER = managefsm
-    managefsm.append_flag(manager.start_flag.get())
+    if settings["uName"] in pool.Cartes.keys():
+        pool.Cartes[settings["uName"]].device.launch_manager()
+        managefsm = fsm.FiniteStateMachine("Manager")
+        managefsm.start(manager.step_init)
+        pool.MANAGER = managefsm
+        managefsm.append_flag(manager.start_flag.get())
+    else:
+        log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
 
     while True:
         try:
@@ -77,5 +82,7 @@ for sfsm in pool.FSM:
 for sfsm in pool.DEVICE_FSM:
     sfsm.stop()
     sfsm.join()
+log.info("Ending OscAck Servers")
 oscack.stop_protocol()
 threads.stop()
+os._exit(0)

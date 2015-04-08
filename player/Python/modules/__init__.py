@@ -27,7 +27,7 @@ class ExternalProcess:
         self._running = threading.Event()
         self._popen = None
         self.command = ''
-        self.stdout = None
+        self.stderr = None
         self.onOpen = None
         self.onClose = None
         if name:
@@ -42,9 +42,9 @@ class ExternalProcess:
         self.stop()# Stop current process
         self._watchdog = threading.Thread(target=self._watch)
         logfile = settings.get("path", "logs")+'/'+self.name+'.log'
-        self.stdout = open(logfile, 'w')
+        self.stderr = open(logfile, 'w')
         self._running.set()
-        self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=self.stdout, stderr=self.stdout,
+        self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
                                          preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None,
                                          universal_newlines=False, startupinfo=None, creationflags=0)
         self._watchdog.start()
@@ -82,11 +82,14 @@ class ExternalProcess:
         This function wait the process to end and add a signal when it appends
         :return:
         """
-        self._popen.wait()
+        #self._popen.wait()
+        lines_iterator = iter(self._popen.stdout.readline, b"")
+        for line in lines_iterator:
+            log.log("debug",line)
         if self.onClose:
             patcher.patch(Flag(self.onClose).get())
         self._running.clear()
-        self.stdout.close()
+        self.stderr.close()
 
     def join(self, timeout=None):
         """

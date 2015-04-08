@@ -14,7 +14,7 @@ from engine import media
 from engine.setting import settings
 from scenario import pool
 import scenario
-from engine.log import init_log
+from engine.log import init_log, dumpclean
 log = init_log("classes")
 
 
@@ -46,6 +46,8 @@ class Etape(fsm.State):
         :param kwargs: kwargs to pass
         :return:
         """
+        if kwargs is None:
+            kwargs = dict()
         kwargs["_fsm"] = _fsm
         kwargs["_etape"] = self
         try:
@@ -204,22 +206,12 @@ class Device:
         for manager_uid in scenario.DECLARED_MANAGER:
             if manager_uid in pool.Etapes_and_Functions.keys():
                 self.managers[manager_uid] = pool.Etapes_and_Functions[manager_uid]
-    # def register_patchs(self):
-    #     """
-    #     This function is called when the manager init to add devices patch to the patch thread
-    #     """
-    #     log.log("raw", "Adding device patchs to the patcher")
-    #     for patch in self.patchs:
-    #         patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
-    #     for name, patch in scenario.DECLARED_PATCHER.items():
-    #         log.debug("Default add {0} into device".format(name))
-    #         patcher.add_patch(patch)
 
     def launch_manager(self):
         """
         This function is launch at startup and init device managers fsm
         """
-        log.log("debug", "Launching manager devices")
+        log.log("raw", "Launching manager devices")
         for manager in self.managers.values():
             log.log("raw", "--  manager devices {0} launch..".format(manager.uid))
             pool.DEVICE_FSM.append(ScenarioFSM(manager.uid))

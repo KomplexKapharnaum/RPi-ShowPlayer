@@ -5,12 +5,10 @@
 #
 
 import os
-import socket
-import subprocess
 
 from modules import ExternalProcess
 from engine.setting import settings
-from scenario import globaletape
+from scenario import link
 from engine.log import init_log
 log = init_log("video")
 
@@ -51,19 +49,15 @@ class VlcPlayer(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@globaletape("VIDEO_PLAYER", {
-                "VIDEO_PLAY": "VIDEO_PLAYER_PLAY",
-                "VIDEO_PAUSE": "VIDEO_PLAYER_PAUSE",
-                "VIDEO_STOP": "VIDEO_PLAYER_STOP"})
-def video_init(flag, **kwargs):
+@link({"/video/play": "video_play",
+        "/video/pause": "video_pause",
+        "/video/stop": "video_stop"})
+def video_player(flag, **kwargs):
     if "video" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["video"] = VlcPlayer()
-    #elif not kwargs["_fsm"].vars["video"].is_running():
-    #    kwargs["_fsm"].vars["video"].start()
 
 
-@globaletape("VIDEO_PLAYER_PLAY", {
-                None: "VIDEO_PLAYER"})
+@link({None: "video_player"})
 def video_play(flag, **kwargs):
     media = flag.args["args"][0] if len(flag.args["args"]) >= 1 else None
     repeat = flag.args["args"][1] if len(flag.args["args"]) >= 2 else None
@@ -71,14 +65,12 @@ def video_play(flag, **kwargs):
     kwargs["_etape"].preemptible.set()
 
 
-@globaletape("VIDEO_PLAYER_STOP", {
-                None: "VIDEO_PLAYER"})
+@link({None: "video_player"})
 def video_stop(flag, **kwargs):
     kwargs["_fsm"].vars["video"].stop()
 
 
-@globaletape("VIDEO_PLAYER_PAUSE", {
-                None: "VIDEO_PLAYER"})
+@link({None: "video_player"})
 def video_pause(flag, **kwargs):
     kwargs["_fsm"].vars["video"].pause()
 

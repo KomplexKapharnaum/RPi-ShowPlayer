@@ -7,7 +7,7 @@
 import os
 from modules import ExternalProcess
 from engine.setting import settings
-from scenario import globaletape
+from scenario import link
 from engine.log import init_log
 log = init_log("audio")
 
@@ -67,19 +67,18 @@ class Mpg123(ExternalProcess):
     def pause(self):
         self.say("s")
 
+
 # ETAPE AND SIGNALS
-@globaletape("AUDIO_PLAYER", {
-                "AUDIO_PLAY": "AUDIO_PLAYER_PLAY",
-                "AUDIO_PAUSE": "AUDIO_PLAYER_PAUSE",
-                "AUDIO_STOP": "AUDIO_PLAYER_STOP"})
-def audio_init(flag, **kwargs):
+@link({"/audio/play": "audio_play",
+        "/audio/pause": "audio_pause",
+        "/audio/stop": "audio_stop"})
+def audio_player(flag, **kwargs):
     if "audio" not in kwargs["_fsm"].vars.keys():
-        #kwargs["_fsm"].vars["audio"] = Mpg123()
-        kwargs["_fsm"].vars["audio"] = VlcAudio()
+        kwargs["_fsm"].vars["audio"] = Mpg123()
+        #kwargs["_fsm"].vars["audio"] = VlcAudio()
 
 
-@globaletape("AUDIO_PLAYER_PLAY", {
-                None: "AUDIO_PLAYER"})
+@link({None: "audio_player"})
 def audio_play(flag, **kwargs):
     media = flag.args["args"][0] if len(flag.args["args"]) >= 1 else None
     repeat = flag.args["args"][1] if len(flag.args["args"]) >= 2 else None
@@ -87,14 +86,12 @@ def audio_play(flag, **kwargs):
     kwargs["_etape"].preemptible.set()
 
 
-@globaletape("AUDIO_PLAYER_STOP", {
-                None: "AUDIO_PLAYER"})
+@link({None: "audio_player"})
 def audio_stop(flag, **kwargs):
     kwargs["_fsm"].vars["audio"].stop()
 
 
-@globaletape("AUDIO_PLAYER_PAUSE", {
-                None: "AUDIO_PLAYER"})
+@link({None: "audio_player"})
 def audio_pause(flag, **kwargs):
     kwargs["_fsm"].vars["audio"].pause()
 
@@ -103,10 +100,6 @@ def audio_pause(flag, **kwargs):
     #    oscack.message.send(oscack.DNCserver.networkmap[elem].target, oscack.message.Message("/test", args1, args2, ('f', args3), ACK=True))
 
 
-@globaletape("WAIT_CONTROL_AUDIO", {
-                "AUDIO_PLAYER_CLOSE": "AUDIO_PLAYER"})
-def wait_player_audio(flag, **kwargs):
-    pass
 
 
 # @globaletape("CONTROL_AUDIO")

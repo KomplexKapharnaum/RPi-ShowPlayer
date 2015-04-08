@@ -75,7 +75,6 @@ int parseInput(){
     //strcpy (buff,inputParse);
     mytitreur.text(0,0,buff);
     //mytitreur.text(0,0,parseInput);
-    
   }
 }
 

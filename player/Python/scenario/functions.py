@@ -102,6 +102,7 @@ def msg_patcher(*args, **kwargs):
         sig_uid = kwargs[args[0].args["path"]]
         # log.log("raw", "Add signal : {0}, {1}".format(sig_uid, args[0].args))
         log.log("debug", "{0} => {1}".format(args[0].args["path"],sig_uid))
+        #log.log('shit')
         if sig_uid in pool.Signals.keys():
             signal = pool.Signals[sig_uid]
         else:

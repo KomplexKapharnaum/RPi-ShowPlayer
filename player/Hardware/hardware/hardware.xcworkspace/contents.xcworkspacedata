@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <Group
+      location = "group:../prog atmega"
+      name = "prog atmega">
+      <Group
+         location = "group:dnc_prod_carte"
+         name = "dnc_prod_carte">
+         <FileRef
+            location = "group:dnc_prod_carte.ino">
+         </FileRef>
+      </Group>
+      <Group
+         location = "group:dnc_prod_teleco"
+         name = "dnc_prod_teleco">
+         <FileRef
+            location = "group:dnc_prod_teleco.ino">
+         </FileRef>
+      </Group>
+   </Group>
+   <FileRef
+      location = "group:makefile">
+   </FileRef>
+   <Group
+      location = "container:"
+      name = "utils">
+      <FileRef
+         location = "group:extSPI.h">
+      </FileRef>
+      <FileRef
+         location = "group:extSPI.cpp">
+      </FileRef>
+      <FileRef
+         location = "group:PI_GPIO.c">
+      </FileRef>
+   </Group>
+   <Group
+      location = "container:"
+      name = "titreur">
+      <FileRef
+         location = "group:font2.h">
+      </FileRef>
+      <FileRef
+         location = "group:ht1632.h">
+      </FileRef>
+      <FileRef
+         location = "group:titreur.h">
+      </FileRef>
+      <FileRef
+         location = "group:titreur.cpp">
+      </FileRef>
+   </Group>
+   <Group
+      location = "container:"
+      name = "carte">
+      <FileRef
+         location = "group:carte.h">
+      </FileRef>
+      <FileRef
+         location = "group:carte.cpp">
+      </FileRef>
+      <FileRef
+         location = "group:teleco.h">
+      </FileRef>
+      <FileRef
+         location = "group:teleco.cpp">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "group:main.h">
+   </FileRef>
+   <FileRef
+      location = "group:main.cpp">
+   </FileRef>
+</Workspace>

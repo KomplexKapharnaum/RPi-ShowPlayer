@@ -1,0 +1,95 @@
+
+####FRESH ARCH INSTALL
+
+## AS ROOT
+
+# SYSTEM INSTALL/UPDATE
+pacman -Sy --noconfirm pacman
+pacman-key --init
+pacman -S --noconfirm archlinux-keyring
+pacman-key --populate archlinux
+pacman -Syu --noconfirm --ignore filesystem
+pacman -S --noconfirm filesystem --force
+pacman -S --noconfirm sudo adduser
+visudo  			#allow wheel sudoers group
+adduser 			#adduser pi with additional group wheel (sudoers)
+nano /boot/config.txt #add overclocking options
+
+pacman -S --noconfirm wget nfs-utils htop openssh autofs alsa-utils alsa-firmware alsa-lib alsa-plugins 
+pacman -S --noconfirm git zsh base-devel libtool diffutils libnewt polkit
+pacman -S --noconfirm mesa-libgl 
+
+
+#ENABLE SPI
+nano /boot/config.txt 
+-> enable SPI
+echo 'spi-bcm2708' >> /etc/modules-load.d/raspberrypi.conf
+echo 'spidev' >> /etc/modules-load.d/raspberrypi.conf
+reboot  #as root
+useradd spi
+chown -R root:spi /dev/spidev0.*
+chmod 770 -R /dev/spidev0.*
+usermod -a -G spi pi
+
+
+## AS PI
+
+#RE-LOG WITH USER pi
+nano ~/.bashrc 		#add: export EDITOR="nano"
+
+#WIRING PI
+cd && git clone git://git.drogon.net/wiringPi
+cd wiringPi
+sudo ./build
+gpio -v
+
+###YAOURT
+cd && wget https://aur.archlinux.org/packages/pa/package-query/package-query.tar.gz
+tar -xvzf package-query.tar.gz
+cd package-query
+makepkg -si
+cd .. 
+wget https://aur.archlinux.org/packages/ya/yaourt/yaourt.tar.gz
+tar -xvzf yaourt.tar.gz
+cd yaourt
+makepkg -si
+ 
+
+###SDL2 Compiling
+cd && wget https://www.libsdl.org/release/SDL2-2.0.3.tar.gz
+tar zxvf SDL2-2.0.3.tar.gz
+cd SDL2-2.0.3 && mkdir build && cd build
+../configure --host=armv7l-raspberry-linux-gnueabihf --disable-pulseaudio --disable-esd --disable-video-mir --disable-video-wayland --disable-video-x11 --disable-video-opengl
+make -j 3		#might fail, restart or lower the value
+sudo make install
+cd
+wget http://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.0.tar.gz
+tar zxvf SDL2_image-2.0.0.tar.gz
+cd SDL2_image-2.0.0 && mkdir build && cd build
+../configure
+make -j 3
+sudo make install
+#TEST code: https://solarianprogrammer.com/2015/01/22/raspberry-pi-raspbian-getting-started-sdl-2/
+
+
+####VLC Compiling
+sudo pacman -S --noconfirm lua ffmpeg a52dec libdvdread libkate fluidsynth libmtp libgoom2 twolame libdca mpg123 libmodplug libass libdvbpsi libxml2 libxpm libxinerama libxext libmpcdec libmpeg2 libogg schroedinger libx264 libbluray 
+cd && git clone --depth 1 git://git.videolan.org/vlc.git
+cd vlc
+./bootstrap
+./configure --enable-rpi-omxil --enable-dvbpsi --enable-x264 --enable-alsa
+make clean
+make -j3	#might fail, restart or lower the value
+sudo make install
+
+
+####DNC Dependencies
+sudo pacman -S --noconfirm python2-setuptools
+yaourt python2-pyliblo
+yaourt python2-simplejson
+yaourt omxplayer 
+sudo /dnc/player/Libs/recompile.sh /dnc/player/Libs
+
+
+
+   

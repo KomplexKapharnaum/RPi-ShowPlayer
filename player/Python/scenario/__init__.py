@@ -4,22 +4,24 @@
 import pool
 from scenario.classes import Patch, Etape
 from engine.fsm import Flag
-from engine.log import init_log
+from engine.log import init_log, dumpclean
 log = init_log("scenario")
 
 DECLARED_FUNCTIONS = dict()
 DECLARED_ETAPES = dict()
 DECLARED_SIGNALS = dict()
 DECLARED_PATCHER = dict()
+DECLARED_OSCROUTES = dict()
 DECLARED_TRANSITION = dict()
 DECLARED_MANAGER = []
+
 
 def init_declared_objects():
     import functions
     import etapes
     import signals
     import modules
-    global DECLARED_ETAPES, DECLARED_FUNCTIONS, DECLARED_SIGNALS, DECLARED_PATCHER, DECLARED_TRANSITION
+    global DECLARED_ETAPES, DECLARED_FUNCTIONS, DECLARED_SIGNALS, DECLARED_PATCHER, DECLARED_TRANSITION, DECLARED_OSCROUTES
     #dumpclean(DECLARED_TRANSITION)
     # ..
     # Attach declared Transition to declared Etapes and create corresponding signals
@@ -49,6 +51,13 @@ def init_declared_objects():
     pool.Etapes_and_Functions.update(DECLARED_FUNCTIONS)
     pool.Etapes_and_Functions.update(DECLARED_ETAPES)
     pool.Signals.update(DECLARED_SIGNALS)
+    #..
+    # Import declared OSC routes in one common patcher
+    if len(DECLARED_OSCROUTES) > 0:
+        fn_sgn_patcher = pool.Etapes_and_Functions["MSG_SIGNAL_PATCHER"]
+        DECLARED_PATCHER["DECLARED_OSCROUTES"] = Patch("DECLARED_OSCROUTES", "RECV_MSG", (fn_sgn_patcher, DECLARED_OSCROUTES))
+    #..
+    # Import declared Patches
     pool.Patchs.update(DECLARED_PATCHER)
 
 
@@ -90,6 +99,11 @@ class globalpatcher(object):
         return f
 
 
+class oscpatcher(globalpatcher):
+    def __init__(self, public_name=None, trigger_signal="RECV_MSG", options=dict()):
+        globalpatcher.__init__(self, public_name, trigger_signal, options)
+
+
 class globaletape(object):
     """
     This is a decorator which declare function as etape in scenario scope
@@ -104,10 +118,42 @@ class globaletape(object):
         self.autoload = autoload
 
     def __call__(self, f):
-        global DECLARED_ETAPES
+        global DECLARED_ETAPES, DECLARED_TRANSITION, DECLARED_MANAGER
         DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
         DECLARED_TRANSITION[self.uid] = self.transitions
+        # log.debug("DECLARE ETAPE: "+self.uid+" -> "+f.__name__)
+        # for transfrom, transto in DECLARED_TRANSITION[self.uid].items():
+            # log.debug("DECLARE TRANS: {0} -> {1}".format(transfrom,transto))
         if self.autoload and self.uid not in DECLARED_MANAGER:
             DECLARED_MANAGER.append(self.uid)
             log.debug("AUTO MANAGER :: "+self.uid)
         return f
+
+
+class link(globaletape):
+    """
+    This is a decorator which declare function as etape
+    The signal is added
+    If an osc path is supplied, it is converted into signal, 
+    and the corresponding patch is added
+    """
+    def __init__(self, routes=dict(), autoload=False):
+        globaletape.__init__(self, None, dict(), dict(), autoload)
+        self.oscroutes = routes
+
+    def __call__(self, f):
+        self.uid = f.__name__.upper()
+        global DECLARED_OSCROUTES
+        for oscpath in self.oscroutes.keys():
+            if oscpath is not None and oscpath[0] == '/':
+                signal_osc = oscpath.replace('/','_')[1:].upper()
+                DECLARED_OSCROUTES[oscpath] = signal_osc
+                # log.debug("DECLARE ROUTE: "+oscpath+" -> "+signal_osc)
+            else:
+                signal_osc = None
+            self.transitions[signal_osc] = self.oscroutes[oscpath].upper()
+        super(link, self).__call__(f)
+
+
+def oscroute(from_oscpath, to_signal):
+    DECLARED_OSCROUTES[from_oscpath] = to_signal

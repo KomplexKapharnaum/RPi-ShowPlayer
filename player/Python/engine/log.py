@@ -91,6 +91,22 @@ def makeRecord(name, lvl, fn, lno, msg, args, exc_info, func=None, extra=None):
                                      extra={"fnamelineo": os.path.basename(fname) + ":" + str(
                                          flineo) + " [" + funcname + "]"})
 
+def dumpclean(obj):
+    if type(obj) == dict:
+        for k, v in obj.items():
+            if hasattr(v, '__iter__'):
+                print k
+                dumpclean(v)
+            else:
+                print '%s : %s' % (k, v)
+    elif type(obj) == list:
+        for v in obj:
+            if hasattr(v, '__iter__'):
+                dumpclean(v)
+            else:
+                print v
+    else:
+        print obj
 
 class BaseLog:
     """
