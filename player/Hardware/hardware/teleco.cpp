@@ -47,20 +47,41 @@ void Teleco::sendString(char Str1[]){
 }
 
 int Teleco::readInterrupt(){
-  int init=1;
   unsigned char buff[2];
-  buff[0]= (char)(READCOMMAND+INTERRUPT);
+  buff[0]= (char)(READCOMMAND+T_INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "read i %u\n",buff[1]);
-  if (buff[1]==0) {
-    init=-1;
-    buff[1]=T_INIT;
-  }
-  buff[0]= (char)(READCOMMAND+buff[1]);
+  int address = buff[1];
+  //if (address==0) {
+  //  uninit=0;
+  //}
+  buff[0]= (char)(READCOMMAND+address);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "read v %u\n",buff[1]);
-  if(init=-1)return init;
-  else return buff[1];
+  int valeur = buff[1];
+  switch (address) {
+    case T_PUSHA:
+      std::cout << "teleco_pushA "<< valeur << std::endl;
+      break;
+    case T_PUSHB:
+      std::cout << "teleco_pushB "<< valeur << std::endl;
+      break;
+    case T_PUSHROTARY:
+      std::cout << "teleco_pushRotary "<< valeur << std::endl;
+      break;
+    case T_PUSHOK:
+      std::cout << "teleco_pushOK "<< valeur << std::endl;
+      break;
+    case T_REED:
+      std::cout << "teleco_reed "<< valeur << std::endl;
+      break;
+    case T_FLOAT:
+      std::cout << "teleco_float "<< valeur << std::endl;
+      break;
+      
+    default:
+      break;
+  }
 }

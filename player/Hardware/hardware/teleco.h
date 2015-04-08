@@ -51,6 +51,13 @@
 
 #define T_MODEBASE 1
 
+#define T_INPUT 1
+#define T_OUTPUT 1
+
+#define T_START 99;
+
+
+
 class Teleco : public Carte {
   int uninit;
 

@@ -70,6 +70,7 @@ private:
   int gamme_tension;
   int pwm_ledb_or_10w2;
   int GPIO_READ_BATT;
+  int GPIO_RESET;
   int value[];
   
 protected:

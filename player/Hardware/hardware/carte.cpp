@@ -16,6 +16,7 @@
 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
+#include <iostream>
 
 
 
@@ -27,11 +28,20 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   pwm_ledb_or_10w2=_pwm_ledb_or_10w2;
   wiringPiSetupGpio();
   GPIO_READ_BATT=25;
-  pinMode (GPIO_READ_BATT, OUTPUT) ;
+  GPIO_RESET=27;
+  pinMode (GPIO_READ_BATT, OUTPUT);
+  pinMode (GPIO_RESET, OUTPUT);
+  digitalWrite (GPIO_RESET, HIGH);
+  delay(1);
+  digitalWrite (GPIO_RESET, LOW);
+  delay(1);
+  digitalWrite (GPIO_RESET, HIGH);
+  delay(10);
   checkTension();
   fprintf(stderr, "tension initiale : %f mode : %uV\n", (float)value[UBATT]/10, value[VOLTAGEMODE]);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
+  writeValue(INTERRUPT,0);
 }
 
 
@@ -63,11 +73,30 @@ int Carte::readInterrupt(){
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "read i %u\n",buff[1]);
+  int address = buff[1];
   buff[0]= (char)(READCOMMAND+buff[1]);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "read v %u\n",buff[1]);
-  return buff[1];
+  int valeur =buff[1];
+  switch (address) {
+    case PUSH1:
+      std::cout << "carte_push1 "<< valeur << std::endl;
+      break;
+    case PUSH2:
+      std::cout << "carte_push2 "<< valeur << std::endl;
+      break;
+    case PUSH3:
+      std::cout << "carte_push3 "<< valeur << std::endl;
+      break;
+    case FLOAT:
+      std::cout << "carte_float "<< valeur << std::endl;
+      break;
+      
+    default:
+      break;
+  }
+  
 }
 
 int Carte::checkTension(){
