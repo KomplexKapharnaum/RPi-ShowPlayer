@@ -123,6 +123,7 @@ void initSPIslave() {
   SPCR |= _BV(SPE);
   // turn on interrupts
   SPCR |= _BV(SPIE);
+  SPDR = 0;
 }
 
 void waitforinit(){
@@ -163,8 +164,6 @@ ISR (SPI_STC_vect)
         }
         return;
       }
-
-
     }
     //renvoie la valeur enregistree
     if (command == READCOMMAND) {
@@ -175,8 +174,8 @@ ISR (SPI_STC_vect)
         Value[T_INTERRUPT] = newValue[T_INTERRUPT];
         digitalWrite(outpin[T_INTERRUPT], LOW);
       }
-      //Serial.print("r ");
-      //Serial.println (Value[adress],DEC);
+      Serial.print("r ");
+      Serial.println (Value[adress],DEC);
     }
 
   }
@@ -225,7 +224,7 @@ void loop (void) {
   if (Value[T_STROBLVSPEED] > 0) strobLVRoutine(0);
   //if (Value[T_STROBLVSPEED] > 0) strobLVRoutine();
   checkStringReceive();
-  //checkInput();
+  checkInput();
 
 }  // end of loop
 
@@ -260,7 +259,8 @@ void updateInput(byte i) {
     Value[i] = newValue[i];
     newValue[T_INTERRUPT] = i;
     Value[T_INTERRUPT] = newValue[T_INTERRUPT];
-    Serial.println("interupt");
+    Serial.print ("interupt ");
+    Serial.println(Value[T_INTERRUPT]);
     digitalWrite(outpin[T_INTERRUPT], HIGH);
     SPDR = i;
   }
@@ -273,8 +273,8 @@ void checkInput() {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
       newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
-      Serial.print("b");
-      Serial.println(i, DEC);
+      //Serial.print("b");
+      //Serial.println(i, DEC);
     }
     if (Value[T_BOARDCHECKFLOAT] == 1) newValue[T_FLOAT] = map(analogRead(inpinanalog[T_FLOAT - T_DECALALOGPIN]), 0, 1024, 0, 255);
     lastCheckInput = millis();
