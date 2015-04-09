@@ -20,7 +20,12 @@ class VlcPlayer(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'vlcvideo')
         self.onClose = "VIDEO_EVENT_CLOSE"
+        current_userid = os.getuid()
+        if current_userid == 0:
+            os.seteuid(1000)
         self.start()
+        if current_userid == 0:
+            os.seteuid(0)
         # self._rcport = 1250
         # self.command += " -I rc --rc-host 0.0.0.0:{port} --no-osd --aout alsa".format(port=self._rcport)
 
@@ -38,6 +43,7 @@ class VlcPlayer(ExternalProcess):
                 self.repeat = repeat
                 switch = 'on' if self.repeat else 'off'
                 self.say("repeat {switch}".format(switch=switch))
+            self.say("play")
         else:
             log.warning("Media File not found {0}".format(media))
 

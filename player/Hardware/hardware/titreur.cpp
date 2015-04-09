@@ -205,6 +205,9 @@ void Titreur::printScreen(){
   
 }
 
+int Titreur::charbyline(){
+  return nb_module*typeModule/6;
+}
 
 
 Titreur::~Titreur(){

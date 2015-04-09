@@ -126,7 +126,7 @@ class globaletape(object):
             # log.debug("DECLARE TRANS: {0} -> {1}".format(transfrom,transto))
         if self.autoload and self.uid not in DECLARED_MANAGER:
             DECLARED_MANAGER.append(self.uid)
-            log.debug("AUTO MANAGER :: "+self.uid)
+            log.debug("START ETAPE :: "+self.uid+" (Auto)")
         return f
 
 
@@ -145,12 +145,14 @@ class link(globaletape):
         self.uid = f.__name__.upper()
         global DECLARED_OSCROUTES
         for oscpath in self.oscroutes.keys():
-            if oscpath is not None and oscpath[0] == '/':
+            if oscpath is None or oscpath == '':
+                signal_osc = None
+            elif oscpath[0] == '/':
                 signal_osc = oscpath.replace('/','_')[1:].upper()
                 DECLARED_OSCROUTES[oscpath] = signal_osc
                 # log.debug("DECLARE ROUTE: "+oscpath+" -> "+signal_osc)
             else:
-                signal_osc = None
+                signal_osc = oscpath.upper()
             self.transitions[signal_osc] = self.oscroutes[oscpath].upper()
         super(link, self).__call__(f)
 

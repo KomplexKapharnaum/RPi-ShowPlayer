@@ -5,9 +5,10 @@
 
 import time
 import random
+from libs import subprocess32
 
-from engine.log import Log
-# log = Log("utils")
+from engine.log import init_log
+log = init_log("utils")
 
 
 def gen_uids(port):
@@ -38,3 +39,7 @@ def decode_uids(uidt, uidp):
     :return: uid, port
     """
     return (uidp | (uidt << 32)), (0x0000FFFF & uidp)
+
+def get_ip():
+    ip = subprocess32.check_output(['hostname', '-i'])
+    return ip

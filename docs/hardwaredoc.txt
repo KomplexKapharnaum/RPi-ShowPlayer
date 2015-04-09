@@ -1,0 +1,22 @@
+hardware doc
+
+===== cin format 
+
+initconfig -titreurNbr (int) -carteVolt (int) -name (string) -ip (string)
+
+texttitreur [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-scroll]
+
+setlight [-fade (int)] [-strob (int)] [-rgb (int) (int) (int)] [-10w1 (int)] [-10w2 (int)] 
+// fade en seconde // strob en miliseconde // possible de changer plusieurs lumières en une seule ligne mais elles auront les mêmes valeur de fade et de strob
+
+setgyro [-speed (int)] [-strob (int)] -mode (string)
+// speed en ms // strob en ms // mode peut être égale à "alloff" "allon" "turnR" ou "turnL"
+
+
+
+===== cout format
+
+from carte : "#CARTE_PUSH_1 " "#CARTE_PUSH_2 " "#CARTE_PUSH_3 " "#CARTE_FLOAT "
+
+from teleco : "#TELECO_PUSH_A " "#TELECO_PUSH_B " "#TELECO_PUSH_ROTARY " 
+"#TELECO_PUSH_OK " "#TELECO_REED " "#TELECO_FLOAT "

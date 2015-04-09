@@ -113,6 +113,7 @@ int extSPI::send(int _selectedChip, unsigned char _byte){
 int extSPI::send(int _selectedChip, unsigned char *_tab,int _len){
   selectedChip=_selectedChip;
   if(check())return -1;
+  
   //if(classmode==HC595)HC595select();
   //else if(cs>1)digitalWrite (cs, LOW);
   activeCS();
@@ -132,13 +133,13 @@ int extSPI::sendWithPause(int _selectedChip, unsigned char *_tab,int _len){
   for (int i=0; i<_len; i++) {
     buff[0]=_tab[i];
     wiringPiSPIDataRW (0, buff, 1);
-    fprintf(stderr, "swp %u->%u ",_tab[i],buff[0]);
+    //fprintf(stderr, "swp %u->%u ",_tab[i],buff[0]);
     _tab[i]= buff[0];
     delay(1);
     //nanosleep((struct timespec[]){{0, 20000}}, NULL);
     //nanosleep(&tim);
   }
-  fprintf(stderr, "\n");
+  //fprintf(stderr, "\n");
   inactiveCS();
   
   return 0;

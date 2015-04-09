@@ -62,6 +62,7 @@ class ExternalProcess:
                 self._popen.terminate()  # Send SIGTERM to the player, asking to stop
             self._watchdog.join(timeout=0.1)  # Waiting maximum of 250 ms before killing brutaly the processus
             if self._watchdog.is_alive():
+                #os.system("sudo kill %d"%(self._popen.pid))
                 self._popen.kill()  # Send SIGNKILL to brutaly kill the process
             unregister_thread(self)
         self.join()# Wait for watchdog thread to terminate
@@ -72,7 +73,7 @@ class ExternalProcess:
     def say(self, message):
         if self.is_running():
             self._popen.stdin.write(message+"\n")
-            # log.log("debug",message)
+            log.log("raw"," "+message)
         else:
             # log.log("debug", "Message aborted, Thread not active ")
             pass
@@ -85,7 +86,14 @@ class ExternalProcess:
         #self._popen.wait()
         lines_iterator = iter(self._popen.stdout.readline, b"")
         for line in lines_iterator:
-            log.log("debug",line)
+            line = line.strip()
+            # log.log("raw",self.name.upper()+" SAYS: "+line)
+            cmd = line.split(' ', 1)[0]
+            args = line.split(' ', 1)[1:]
+            if cmd[0] == '#':
+                signal_name = (self.name+"_"+cmd[1:]).upper()
+                log.log("raw",cmd+" => "+signal_name)
+                patcher.patch(Flag(signal_name).get())
         if self.onClose:
             patcher.patch(Flag(self.onClose).get())
         self._running.clear()

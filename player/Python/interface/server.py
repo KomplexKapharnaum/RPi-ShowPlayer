@@ -1,7 +1,9 @@
 
 import sys
 import os
-
+from os import listdir
+from os.path import isfile, join
+from scenario import DECLARED_OSCROUTES
 
 # SET PYTHON PATH IN PARENT DIR
 def set_python_path(depth=0):
@@ -22,6 +24,52 @@ import json
 app = Bottle()
 staticpath = os.path.dirname(os.path.realpath(__file__))+'/www/'
 scenariopath = settings.get("path", "scenario")
+
+
+def sendjson(data):
+    response.content_type = 'application/json'
+    if 'callback' in request.query:
+        return request.query['callback'] + "(" + json.dumps(data) + ")"
+    return json.dumps(data)
+
+
+@app.route('/medialist')
+def medialist():
+    path = settings.get('path', 'media')
+    answer = dict()
+    answer['all'] = []
+    answer['audio'] = []
+    answer['video'] = []
+    answer['txt'] = []
+    for f in listdir(path):
+        if isfile(join(path,f)):
+            answer['all'].append(f)
+            if f.endswith('.mp3') or f.endswith('.wav') or f.endswith('.aac'):
+                answer['audio'].append(f)
+            elif f.endswith('.mp4') or f.endswith('.mov') or f.endswith('.avi'):
+                answer['video'].append(f)
+            elif f.endswith('.txt'):
+                answer['txt'].append(f)
+    return sendjson(answer)
+
+
+@app.route('/library')
+def librarylist():
+    answer = dict()
+    answer['functions'] = []
+    for oscpath, signal in DECLARED_OSCROUTES.items():
+        box = {
+            'name': oscpath.split('/')[-1].upper(),
+            'category': oscpath.split('/')[1].upper(),
+            'dispos': True,
+            'medias': True,
+            'arguments': ['', '', ''],
+            'code': 'sendSignal("'+signal+'")'
+        }
+        answer['functions'].append(box)
+    return sendjson(answer)
+
+
 
 # TEST Json save
 @app.route('/test')
@@ -100,4 +148,5 @@ def hello():
     return "Hello World!"
 
 
-run(app, host='0.0.0.0', port=8080)
+def start():
+    run(app, host='0.0.0.0', port=8080, quiet=True)

@@ -22,7 +22,6 @@ void Teleco::initCarte(){
   fprintf(stderr, "add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
-  uninit=1;
 }
 
 int Teleco::fisrtView(){
@@ -53,9 +52,6 @@ int Teleco::readInterrupt(){
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "read i %u\n",buff[1]);
   int address = buff[1];
-  //if (address==0) {
-  //  uninit=0;
-  //}
   buff[0]= (char)(READCOMMAND+address);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
@@ -63,25 +59,26 @@ int Teleco::readInterrupt(){
   int valeur = buff[1];
   switch (address) {
     case T_PUSHA:
-      std::cout << "teleco_pushA "<< valeur << std::endl;
+      std::cout << "#TELECO_PUSH_A "<< valeur << std::endl;
       break;
     case T_PUSHB:
-      std::cout << "teleco_pushB "<< valeur << std::endl;
+      std::cout << "#TELECO_PUSH_B "<< valeur << std::endl;
       break;
     case T_PUSHROTARY:
-      std::cout << "teleco_pushRotary "<< valeur << std::endl;
+      std::cout << "#TELECO_PUSH_ROTARY "<< valeur << std::endl;
       break;
     case T_PUSHOK:
-      std::cout << "teleco_pushOK "<< valeur << std::endl;
+      std::cout << "#TELECO_PUSH_OK "<< valeur << std::endl;
       break;
     case T_REED:
-      std::cout << "teleco_reed "<< valeur << std::endl;
+      std::cout << "#TELECO_REED "<< valeur << std::endl;
       break;
     case T_FLOAT:
-      std::cout << "teleco_float "<< valeur << std::endl;
+      std::cout << "#TELECO_FLOAT "<< valeur << std::endl;
       break;
       
     default:
+      uninit=1;
       break;
   }
 }

@@ -13,7 +13,7 @@ from copy import copy
 # from libs.oscack import DNCserver
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
-from engine.log import init_log
+from engine.log import init_log, dumpclean
 log = init_log("patcher")
 
 

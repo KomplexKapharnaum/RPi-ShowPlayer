@@ -44,6 +44,7 @@ protected:
   void printScreen();
   void allLedOn();
   void allLedOff();
+  int charbyline();
   ~Titreur();
   
 };

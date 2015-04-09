@@ -22,6 +22,9 @@
    <FileRef
       location = "group:makefile">
    </FileRef>
+   <FileRef
+      location = "group:../../../docs/hardwaredoc.txt">
+   </FileRef>
    <Group
       location = "container:"
       name = "utils">

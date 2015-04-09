@@ -19,6 +19,9 @@ pacman -S --noconfirm wget nfs-utils htop openssh autofs alsa-utils alsa-firmwar
 pacman -S --noconfirm git zsh base-devel libtool diffutils libnewt polkit
 pacman -S --noconfirm mesa-libgl 
 
+timedatectl set-timezone Europe/Paris
+timedatectl ste-ntp true
+
 
 #ENABLE SPI
 nano /boot/config.txt 

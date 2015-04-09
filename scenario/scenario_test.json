@@ -15,7 +15,7 @@
 			"PATCH_OUT_NUM" : [],
 			"PATCH_IN_ANA" : [],
 			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : ["AUDIO_PLAYER", "KXKM_CARD"],
+			"MANAGERS" : ["VIDEO_PLAYER", "AUDIO_PLAYER"],
 			"OTHER_PATCH" : ["MSG_PATCHER"]
 		},
 		{

@@ -26,10 +26,14 @@
 #include <cstring>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 
 using namespace std;
 
+string carte_name;
+string carte_ip;
+int init=0;
 
 Carte mycarte;
 Teleco myteleco;
@@ -51,9 +55,9 @@ void myInterruptTELECO(void) {
     int tension = mycarte.checkTension();
     float v = tension;
     v=v/10;
-    char mess[18];
+    char mess[32];
     fprintf(stderr, "%u,%.1f\n",tension,v);
-    sprintf(mess,"hello t=%.1fV",v);
+    sprintf(mess,"%s %.1fV %s",carte_name.c_str(),v,carte_ip.c_str());
     myteleco.sendString(mess);
   }
 
@@ -66,40 +70,175 @@ int parseInput(){
   stringstream ss(input);
   string parsedInput;
   ss>>parsedInput;
-   if ("initname"==parsedInput) {
-     ss>>parsedInput;
+  if (init==0){
+    if ("initconfig"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-titreurNbr"==parsedInput){
+          int nbmodule;
+          ss>>nbmodule;
+          mytitreur.initTitreur(nbmodule,MODULE_24x16);
+        }
+        if ("-carteVolt"==parsedInput){
+          int voltage;
+          ss>>voltage;
+          mycarte.initCarte(PWM_LEDB,voltage);
+        }
+        if ("-name"==parsedInput){
+          ss>>parsedInput;
+          carte_name=parsedInput;
+        }
+        if ("-ip"==parsedInput){
+          ss>>parsedInput;
+          carte_ip=parsedInput;
+        }
+      }
+      init=1;
+      
+      mytitreur.allLedOff();
+      char buff[24];
+      strncpy(buff, carte_name.c_str(), sizeof(buff));
+      mytitreur.text(0,0,buff);
+      strncpy(buff, carte_ip.c_str(), sizeof(buff));
+      mytitreur.text(0,8,buff);
+    }else{
+      fprintf(stderr, "error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
+    }
+    if ("S"==parsedInput) {
+      fprintf(stderr, "overpass standard debug init\n");
+      mytitreur.initTitreur(6,MODULE_24x16);
+      mycarte.initCarte(PWM_LEDB,12);
+      carte_name="S";
+      carte_ip="0";
+      init=1;
+    }
     
-    mytitreur.allLedOff();
-    char buff[24];
-     strncpy(buff, parsedInput.c_str(), sizeof(buff));
-    //strcpy (buff,inputParse);
-    mytitreur.text(0,0,buff);
-    //mytitreur.text(0,0,parseInput);
+  }else{
+    if ("initconfig"==parsedInput) {
+      fprintf(stderr, "error already init\n");
+    }
+    //init ok, traitement des autres commandes
+    if ("texttitreur"==parsedInput) {
+      mytitreur.allLedOff();
+      while (ss>>parsedInput){
+        char buff[mytitreur.charbyline()];
+        if ("-line1"==parsedInput){
+          ss>>parsedInput;
+          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
+          strncpy(buff, parsedInput.c_str(), sizeof(buff));
+          mytitreur.text(0,0,buff);
+        }
+        if ("-line2"==parsedInput){
+          ss>>parsedInput;
+          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
+          strncpy(buff, parsedInput.c_str(), sizeof(buff));
+          mytitreur.text(0,8,buff);
+        }
+        if ("-scroll"==parsedInput){
+          // todo mytitreur.scroll();
+        }
+      }
+    }// end textTitreur
+    
+    if ("setlight"==parsedInput) {
+      int fade=0;
+      int strob=0;
+      while (ss>>parsedInput){
+        char buff[mytitreur.charbyline()];
+        if ("-rgb"==parsedInput){
+          int r,g,b;
+          ss>>r; ss>>g; ss>>b;
+          mycarte.rgbValue(r,g,b,fade,strob);
+        }
+        if ("-10w1"==parsedInput){
+          int v;
+          ss>>v;
+          mycarte.led10WValue(v,fade,strob);
+        }
+        if ("-10w2"==parsedInput){
+          // todo led10W2Value();
+        }
+        if ("-fade"==parsedInput){
+          ss>>fade;
+        }
+        if ("-strob"==parsedInput){
+          ss>>strob;
+        }
+        
+      }
+    }// end setlight
+    
+    if ("setgyro"==parsedInput) {
+      mytitreur.allLedOff();
+      int speed=350;
+      int strob=0;
+      while (ss>>parsedInput){
+        char buff[mytitreur.charbyline()];
+        if ("-mode"==parsedInput){
+          ss>>parsedInput;
+          int m;
+          if ("alloff"==parsedInput)m=0;
+          if ("allon"==parsedInput)m=1;
+          if ("turnR"==parsedInput)m=2;
+          if ("turnL"==parsedInput)m=3;
+          mycarte.setGyro(m,speed,strob);
+        }
+        if ("-speed"==parsedInput){
+          ss>>speed;
+        }
+        if ("-strob"==parsedInput){
+          ss>>strob;
+        }
+        
+      }
+    }// end setgyro
+    
+    
+    if ("DR"==parsedInput) {
+      int reg = 0;
+      int val = 0;
+      int fade = 0;
+      while (ss>>parsedInput){
+        char buff[mytitreur.charbyline()];
+        if ("-reg"==parsedInput){
+          ss>>reg;
+        }
+        if ("-val"==parsedInput){
+          ss>>val;
+        }
+        if ("-fade"==parsedInput){
+          ss>>fade;
+        }
+      }
+      fprintf(stderr, "direct acces %u %u %u\n",reg,val,fade);
+      mycarte.writeValue(reg,val,fade);
+      
+    }// end directaccess
+    
+    
   }
+  
 }
 
 
 int main (int argc, char * argv[]){
   
   
-  mytitreur.initTitreur(6,MODULE_24x16);
-
-  mycarte.initCarte(PWM_LEDB,12);
-  myteleco.initCarte();
+ 
+cout << "#INITHARDWARE" << endl;
   
-  char text[] = "hello";
-  mytitreur.text(0,0,text);
-
+  myteleco.initCarte();
+  while(!init){
+    parseInput();
+  }
+  
 
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
 
-  cout << "inithardware" << endl;
+  
   
   while(1){
     parseInput();
-
-
   }
   
   return 1;

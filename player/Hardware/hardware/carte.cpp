@@ -34,9 +34,9 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   digitalWrite (GPIO_RESET, HIGH);
   delay(1);
   digitalWrite (GPIO_RESET, LOW);
-  delay(1);
+  delay(5);
   digitalWrite (GPIO_RESET, HIGH);
-  delay(10);
+  delay(50);
   checkTension();
   fprintf(stderr, "tension initiale : %f mode : %uV\n", (float)value[UBATT]/10, value[VOLTAGEMODE]);
   writeValue(GYROSPEED,2);
@@ -46,9 +46,10 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
 
 
 void Carte::writeValue(int valueType,int value, int fadetime){
+  fprintf(stderr, "writeValue %u : %u (f:%u) ", valueType,value,fadetime);
   int size;
-  if(fadetime==0)size=2; else size=4;
-  unsigned char buff[4];
+  if(fadetime==0){size=2; }else {size=4;}
+  unsigned char buff[5];
   buff[0]= (char)(WRITECOMMANDVALUE+valueType);
   buff[1]= (char)value;
   if(fadetime!=0){
@@ -80,19 +81,19 @@ int Carte::readInterrupt(){
   fprintf(stderr, "read v %u\n",buff[1]);
   int valeur =buff[1];
   switch (address) {
+      //@todo : faire un tableau et l'envoyer
     case PUSH1:
-      std::cout << "carte_push1 "<< valeur << std::endl;
+      std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
       break;
     case PUSH2:
-      std::cout << "carte_push2 "<< valeur << std::endl;
+      std::cout << "#CARTE_PUSH_2 "<< valeur << std::endl;
       break;
     case PUSH3:
-      std::cout << "carte_push3 "<< valeur << std::endl;
+      std::cout << "#CARTE_PUSH_3 "<< valeur << std::endl;
       break;
     case FLOAT:
-      std::cout << "carte_float "<< valeur << std::endl;
+      std::cout << "#CARTE_FLOAT "<< valeur << std::endl;
       break;
-      
     default:
       break;
   }

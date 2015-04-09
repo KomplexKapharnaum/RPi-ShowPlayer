@@ -128,6 +128,7 @@ void initSPIslave() {
 
 void waitforinit(){
   delay(500);
+  SPDR = 0;
   digitalWrite(outpin[T_INTERRUPT], HIGH);
   while(command==0);
   digitalWrite(outpin[T_INTERRUPT], LOW);
@@ -149,8 +150,7 @@ ISR (SPI_STC_vect)
     //Serial.print(" com");
     command = c & COMMANDMASK;
     //Serial.println(command, HEX);
-  }
-  else {
+  } else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
       //Serial.println ("wv");
@@ -165,7 +165,9 @@ ISR (SPI_STC_vect)
         return;
       }
     }
-    //renvoie la valeur enregistree
+  }
+  
+  //renvoie la valeur enregistree
     if (command == READCOMMAND) {
       SPDR = Value[adress];
       command = 1;
@@ -178,7 +180,7 @@ ISR (SPI_STC_vect)
       Serial.println (Value[adress],DEC);
     }
 
-  }
+  
 
 
 }  // end of interrupt service routine (ISR) SPI_STC_vect

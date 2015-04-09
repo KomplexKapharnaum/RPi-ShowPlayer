@@ -64,7 +64,7 @@ try:
                 log.info(f.current_state)
                 log.info(f._flag_stack)
             log.info(" = oscack.DNCServer.networkmap : ")
-            log.info(oscack.DNCengine.networkmap)
+            log.info(oscack.DNCserver.networkmap)
             log.info(" = oscack.timetag : ")
             log.info(oscack.timetag)
             log.info(" = oscack.accuracy : ")
