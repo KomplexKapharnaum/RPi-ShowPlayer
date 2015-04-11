@@ -63,6 +63,35 @@ void myInterruptTELECO(void) {
 
 }
 
+void testRoutine(int n){
+  string msg;
+  char buff[24];
+  msg="test";
+  strncpy(buff, msg.c_str(), sizeof(buff));
+  mytitreur.text(0,0,buff);
+  while (n>0){
+    mycarte.rgbValue(255,0,0,0,0);
+    delay(1000);
+    mycarte.rgbValue(0,255,0,0,0);
+    delay(1000);
+    mycarte.rgbValue(0,0,255,0,0);
+    delay(1000);
+    mycarte.rgbValue(0,0,0,0,0);
+    mycarte.led10WValue(255,3,0);
+    delay(3000);
+    mycarte.led10WValue(0,0,0);
+    mycarte.setGyro(2,200,0);
+    delay(3000);
+    mycarte.setGyro(0,0,0);
+    n--;
+  }
+  msg="end";
+  strncpy(buff, msg.c_str(), sizeof(buff));
+  mytitreur.text(0,0,buff);
+  
+}
+
+
 int parseInput(){
   string input;
   getline(cin, input);
@@ -110,6 +139,7 @@ int parseInput(){
       carte_name="S";
       carte_ip="0";
       init=1;
+      mytitreur.putChar(0,0,'S');
     }
     
   }else{
@@ -214,6 +244,18 @@ int parseInput(){
       
     }// end directaccess
     
+    if ("testroutine"==parsedInput) {
+      int nbr = 1;
+      while (ss>>parsedInput){
+        char buff[mytitreur.charbyline()];
+        if ("-nbr"==parsedInput){
+          ss>>nbr;
+        }
+      }
+      fprintf(stderr, "test routine\n");
+      testRoutine(nbr);
+      
+    }// end testroutine
     
   }
   
@@ -244,7 +286,6 @@ cout << "#INITHARDWARE" << endl;
   return 1;
   
 }
-
 
 
 
