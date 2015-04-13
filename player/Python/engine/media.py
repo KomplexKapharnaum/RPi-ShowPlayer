@@ -98,6 +98,7 @@ def get_scenario_by_group_in_osc(osc_args):
     :param osc_args: OSC args
     :return: dictionary with groups in keys and foreach a list of version
     """
+    log.debug("Recv osc_args : {0}".format(osc_args))
     scenario_by_group = dict()
     if len(osc_args) % 2 != 0:
         log.critical("We must have n*2 arguments (one for group the other for date)")
