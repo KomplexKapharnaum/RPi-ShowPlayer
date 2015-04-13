@@ -38,8 +38,10 @@ def init_scenprotocol(flag):
     :return:
     """
     from libs.oscack import BroadcastAddress as _bc
-    global BroadcastAddress
+    from libs.oscack import DNCserver as _ds
+    global BroadcastAddress, DNCserver
     BroadcastAddress = _bc
+    DNCserver = _ds
     log.log("debug", "Start scenario sync protocol machine")
     groups = media.get_scenario_by_group_in_fs()
     log.log("info", "Parsed fs groups {0}".format(groups))
