@@ -146,3 +146,7 @@ step_get_scenario.transitions = {
     True: trans_must_i_get_scenario
 }
 
+step_send_version.transitions = {
+    None: step_main_wait
+}
+
