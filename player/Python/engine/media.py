@@ -52,7 +52,7 @@ class ScenarioFile:
         """
         filename = os.path.basename(path)
         group = filename[:-settings.get("scenario", "date_len")]
-        edit_date = filename[-settings.get("scenario", "date_format") - 1:-4]
+        edit_date = filename[-settings.get("scenario", "date_len") -1:-4]
         dateobj = datetime.datetime.strptime(edit_date, settings.get("scenario", "date_format"))
         return ScenarioFile(path, group, edit_date, dateobj)
 
