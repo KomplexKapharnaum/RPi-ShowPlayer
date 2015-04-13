@@ -73,13 +73,17 @@ def trans_must_i_get_scenario(flag):
     :param flag: Flag
     :return:
     """
+    log.log("debug", "Transition..")
     if flag.args["path"] != OSC_PATH_SCENARIO_VERSION or \
                     flag.args["src"].get_hostname() == DNCserver.net_elem._ip:
+        log.log("debug", "Not a scenario/version msg")
         if flag.args["path"] == OSC_PATH_SCENARIO_ASK:  # We ask if someone is newer than me
+            log.log("debug", "It's a newer asking {0}@{1}".format(flag.args["args"][0], flag.args["args"][1]))
             local_scenario = media.get_scenario_by_group_in_fs()
             newer = media.get_newer_scenario(local_scenario[flag.args["args"][0]])
             if flag.args["args"][0] in local_scenario.keys():  # If we have this scenario group
                 if media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag["args"][1]) < newer:  # He is old
+                    log.log("debug", "He is older than us")
                     message.send(flag.args["src"], message.Message(OSC_PATH_SCENARIO_VERSION,
                                                                                  ('s', flag.args["args"][0]),
                                                                                  ('s', newer.date)))
