@@ -12,7 +12,7 @@ import simplejson as json
 from engine.log import init_log
 log = init_log("setting")
 
-DEFAULT_SETTING_PATH = "/dnc/settings.json"
+DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
 
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = "DEFAULT_CARD"
