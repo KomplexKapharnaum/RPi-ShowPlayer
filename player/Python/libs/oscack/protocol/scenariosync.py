@@ -23,10 +23,7 @@ log = init_log("ssync")
 OSC_PATH_SCENARIO_VERSION = "/sync/scenario/version"
 OSC_PATH_SCENARIO_ASK = "/sync/scenario/amiuptodate"
 
-msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=(
-    ('s', "a"),
-    ('s', 'b')
-))
+msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None)
 msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None)
 
 machine = fsm.FiniteStateMachine(name="syncscenario")
