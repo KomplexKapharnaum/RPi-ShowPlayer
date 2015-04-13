@@ -105,7 +105,7 @@ def get_scenario_by_group_in_osc(osc_args):
         log.critical("We must have n*2 arguments (one for group the other for date)")
         return []
     for i in range(len(osc_args)/2):
-        scenario = ScenarioFile.create_by_OSC(osc_args[i], osc_args[i+1])
+        scenario = ScenarioFile.create_by_OSC(osc_args[2*i], osc_args[2*i+1])
         log.debug("[i={0}]Create scenario : {1}".format(i, scenario))
         if scenario.group not in scenario_by_group.keys():
             log.debug("New group : {0}".format(scenario.group))
