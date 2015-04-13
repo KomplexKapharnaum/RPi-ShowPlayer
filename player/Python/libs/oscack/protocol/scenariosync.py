@@ -76,7 +76,7 @@ def send_version(flag):
         for scenario in group:
             if i >= settings.get("sync", "max_scenario_sync"):  # In order to avoid 100000 sync files
                 break
-            args.append(('s', scenario.groupname))
+            args.append(('s', groupname))
             args.append(('s', scenario.date))
             i += 1
     message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_VERSION, *args, ACK=False))
