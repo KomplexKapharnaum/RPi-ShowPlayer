@@ -6,6 +6,7 @@
 #
 
 from libs.oscack import message, network, DNCserver #, BroadcastAddress
+from engine.threads import network_scheduler
 
 from engine import media
 from engine import fsm
@@ -30,6 +31,7 @@ msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_A
 
 machine = fsm.FiniteStateMachine(name="syncscenario")
 
+flag_timeout = fsm.Flag("TIMEOUT_SEND_VERSION")
 
 def init_scenprotocol(flag):
     """
@@ -50,7 +52,12 @@ def init_scenprotocol(flag):
     message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_ASK,
                                                                         ('s', current_newer_timeline.group),
                                                                         ('s', current_newer_timeline.date)))
+    add_timeout_flag()
 
+
+def add_timeout_flag():
+    machine.append_flag(flag_timeout.get(JTL=None))
+    network_scheduler.enter(settings.get("sync", "scenario_sync_timeout"), add_timeout_flag)
 
 def _pass(*args, **kwargs):
     pass
@@ -124,9 +131,6 @@ def get_scenario(flag):
     log.log("debug", "Try to get wia scp : {0}".format(to_get))
     to_get.get_from_distant(flag.args["src"].get_hostname())
 
-
-flag_timeout_send_iamhere = fsm.Flag("TIMEOUT_SEND_VERSION")
-
 step_init = fsm.State("SYNC_SCENARIO_INIT", function=init_scenprotocol)
 step_main_wait = fsm.State("SYNC_SCENARIO_MAIN_WAIT", function=_pass)
 step_send_version = fsm.State("SYNC_SCENARIO_SEND_VERSION", function=send_version)
@@ -137,7 +141,8 @@ step_init.transitions = {
 }
 
 step_main_wait.transitions = {
-    "RECV_MSG": trans_must_i_get_scenario
+    "RECV_MSG": trans_must_i_get_scenario,
+    flag_timeout.uid: step_send_version
 }
 
 step_get_scenario.transitions = {
