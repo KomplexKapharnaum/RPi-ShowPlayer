@@ -5,7 +5,7 @@
 # It's sync only scenario
 #
 
-from libs import oscack
+from libs.oscack import message, DNCserver, BroadcastAddress
 
 from engine import media
 from engine import fsm
@@ -31,7 +31,7 @@ def init_scenprotocol(flag):
     groups = media.get_scenario_by_group_in_fs()
     current_newer_timeline = media.get_newer_scenario(groups[settings.get("current_timeline")])
     log.log("debug", "Current timeline : {0}".format(current_newer_timeline))
-    oscack.message.send(oscack.BroadcastAddress, oscack.message.Message(OSC_PATH_SCENARIO_ASK,
+    message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_ASK,
                                                                         ('s', current_newer_timeline.group),
                                                                         ('s', current_newer_timeline.date)))
 
@@ -56,7 +56,7 @@ def send_version(flag):
             args.append(('s', scenario.group))
             args.append(('s', scenario.date))
             i += 1
-    oscack.message.send(oscack.BroadcastAddress, oscack.message.Message(OSC_PATH_SCENARIO_VERSION, *args, ACK=False))
+    message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_VERSION, *args, ACK=False))
 
 
 def trans_must_i_get_scenario(flag):
@@ -66,13 +66,13 @@ def trans_must_i_get_scenario(flag):
     :return:
     """
     if flag.args["path"] != OSC_PATH_SCENARIO_VERSION or \
-                    flag.args["src"].get_hostname() == oscack.DNCserver.net_elem._ip:
+                    flag.args["src"].get_hostname() == DNCserver.net_elem._ip:
         if flag.args["path"] == OSC_PATH_SCENARIO_ASK:  # We ask if someone is newer than me
             local_scenario = media.get_scenario_by_group_in_fs()
             newer = media.get_newer_scenario(local_scenario[flag.args["args"][0]])
             if flag.args["args"][0] in local_scenario.keys():  # If we have this scenario group
                 if media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag["args"][1]) < newer:  # He is old
-                    oscack.message.send(flag.args["src"], oscack.message.Message(OSC_PATH_SCENARIO_VERSION,
+                    message.send(flag.args["src"], message.Message(OSC_PATH_SCENARIO_VERSION,
                                                                                  ('s', flag.args["args"][0]),
                                                                                  ('s', newer.date)))
                     # We send our newer version of scenario
