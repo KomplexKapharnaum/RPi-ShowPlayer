@@ -99,7 +99,8 @@ class ExternalProcess(object):
         if self.onClose:
             patcher.patch(Flag(self.onClose).get())
         self._running.clear()
-        self.stderr.close()
+        if self.stderr is not None:
+            self.stderr.close()
 
     def join(self, timeout=None):
         """
