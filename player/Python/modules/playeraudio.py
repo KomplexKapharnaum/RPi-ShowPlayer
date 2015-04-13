@@ -80,8 +80,10 @@ def audio_player(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_play(flag, **kwargs):
-    media = flag.args["oscargs"][0] if len(flag.args["oscargs"]) >= 1 else None
-    repeat = flag.args["oscargs"][1] if len(flag.args["oscargs"]) >= 2 else None
+    # media = flag.args["oscargs"][0] if len(flag.args["oscargs"]) >= 1 else None
+    # repeat = flag.args["oscargs"][1] if len(flag.args["oscargs"]) >= 2 else None
+    media = flag.args["media"] if 'media' in flag.args else None
+    repeat = flag.args["repeat"] if 'repeat' in flag.args else None
     kwargs["_fsm"].vars["audio"].play(media, repeat)
     kwargs["_etape"].preemptible.set()
 

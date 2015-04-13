@@ -42,4 +42,8 @@ def decode_uids(uidt, uidp):
 
 def get_ip():
     ip = subprocess32.check_output(['hostname', '-i'])
-    return ip
+    return ip.strip()
+
+def get_hostname():
+    host = subprocess32.check_output(['hostname'])
+    return host.strip()

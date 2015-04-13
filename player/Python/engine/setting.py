@@ -10,12 +10,14 @@ import os
 # import json
 import libs.simplejson as json
 from engine.log import init_log
+from libs import subprocess32
 log = init_log("setting")
+
 
 DEFAULT_SETTING_PATH = "/dnc/settings.json"
 
 DEFAULT_SETTING = dict()
-DEFAULT_SETTING["uName"] = "DEFAULT_CARD"
+DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
 
 DEFAULT_SETTING["localport"] = dict()
 DEFAULT_SETTING["localport"]["inhplayer"] = 9000

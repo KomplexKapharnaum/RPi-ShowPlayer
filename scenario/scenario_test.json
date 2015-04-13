@@ -3,7 +3,7 @@
 		[
 			{
 				"scene" : "SCENE_1",
-				"cartes" : ["CarteTEST"]
+				"cartes" : ["raspi2mgr", "imageA"]
 			}
 		]
 				],
@@ -19,20 +19,24 @@
 			"OTHER_PATCH" : ["MSG_PATCHER"]
 		},
 		{
-			"ID" : "CARTONLIGHT",
+			"ID" : "TITREUR",
 			"MODULES" : ["LIGHT"],
 			"PATCH_IN_NUM" : [],
 			"PATCH_OUT_NUM" : [],
 			"PATCH_IN_ANA" : [],
 			"PATCH_OUT_ANA" : [],
-			"MANAGERS" : [],
+			"MANAGERS" : ["KXKM_CARD"],
 			"OTHER_PATCH" : ["MSG_PATCHER"]
 		}
 					],
 	"Carte" : [
 		{
-			"ID" : "CarteTEST",
+			"ID" : "raspi2mgr",
 			"DEVICE" : "POUBELLE"
+		},
+		{
+			"ID" : "imageA",
+			"DEVICE" : "TITREUR"
 		}
 				],
 	"Scene" : [
@@ -40,7 +44,11 @@
 			"ID" : "SCENE_1",
 			"INIT_ETAPES" : [
 				{
-					"carte" : "CarteTEST",
+					"carte" : "raspi2mgr",
+					"etapes" : ["BOX1"]
+				},
+				{
+					"carte" : "imageA",
 					"etapes" : ["BOX1"]
 				}
 			]
