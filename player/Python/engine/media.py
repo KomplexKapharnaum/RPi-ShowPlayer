@@ -105,9 +105,12 @@ def get_scenario_by_group_in_osc(osc_args):
         return []
     for i in range(len(osc_args)/2):
         scenario = ScenarioFile.create_by_OSC(osc_args[i], osc_args[i+1])
+        log.debug("[i={0}]Create scenario : {1}".format(i, scenario))
         if scenario.group not in scenario_by_group.keys():
+            log.debug("New group : {0}".format(scenario.group))
             scenario_by_group[scenario.group] = list()
         scenario_by_group[scenario.group].append(scenario)
+    log.debug("Return : {0}".format(scenario_by_group))
     return scenario_by_group
 
 
