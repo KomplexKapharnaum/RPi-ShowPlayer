@@ -98,14 +98,17 @@ def trans_must_i_get_scenario(flag):
                                                                                  ('s', newer.date)))
                     # We send our newer version of scenario
         return None  # Not a distant OSC version message
+    log.log("debug", ".. It's a OSC_PATH_SCENARIO_VERSION ")
     if "scenario" not in flag.args.keys():  # We just recv the OSC msg
-        log.log("raw", "First iter on loop get_scenario")
+        log.log("debug", "First iter on loop get_scenario")
         flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"])
         flag.args["local_scenario"] = media.get_scenario_by_group_in_fs()
     for groupname, group in flag.args["scenario"].items():
+        log.log("debug", "For loop groupname {0} , group {1} ".format(groupname, group))
         while len(group) > 0:
             scenario = group.pop()
             if scenario.dateobj > media.get_newer_scenario(flag.args["local_scenario"][groupname]).dateobj:  # It's newer
+                log.log("debug", "It's newer : {0} ".format(scenario))
                 flag.args["to_get"] = scenario
                 return step_get_scenario
     return step_main_wait  # End treatment
