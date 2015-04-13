@@ -12,6 +12,7 @@ log = init_log("Osc Ack")
 DNCserver = None
 discover_machine = None
 BroadcastAddress = None
+machine_waiting_osc = list()
 accuracy = -1
 timetag = rtplib.get_time()
 timetag = int((timetag[0] & 0xFFFF0000 | timetag[1] & 0x0000FFFF))
@@ -31,7 +32,7 @@ import server
 
 
 def start_protocol():
-    global DNCserver, discover_machine, BroadcastAddress
+    global DNCserver, discover_machine, BroadcastAddress, machine_waiting_osc
     if not isinstance(DNCserver, server.DNCServer):
         DNCserver = server.DNCServer(settings["uName"], classicport=settings["OSC"]["classicport"],
                                      ackport=settings["OSC"]["ackport"])
@@ -43,6 +44,7 @@ def start_protocol():
     #protocol.discover.add_flag_send_iamhere()
     sync_machine = protocol.scenariosync.machine
     sync_machine.start(protocol.scenariosync.step_init)
+    machine_waiting_osc.append(sync_machine)
 
 
 def stop_protocol():

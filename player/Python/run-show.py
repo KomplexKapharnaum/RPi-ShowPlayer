@@ -87,6 +87,7 @@ try:
         if cmd[0] == "info":
             # log.info(managefsm.current_state)
             log.info(oscack.protocol.discover.machine.current_state)
+            log.info(oscack.protocol.scenariosync.machine.current_state)
             for f in pool.FSM:
                 log.info(f.current_state)
                 log.info(f._flag_stack)

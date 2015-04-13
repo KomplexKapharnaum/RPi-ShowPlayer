@@ -156,8 +156,11 @@ def add_signal_to_protocol(*args, **kwargs):
     :param kwargs:
     :return:
     """
-    from libs.oscack import discover_machine
-    discover_machine.append_flag(*args, **kwargs)
+    # from libs.oscack import discover_machine
+    # discover_machine.append_flag(*args, **kwargs)
+    from libs.oscack import machine_waiting_osc
+    for machine in machine_waiting_osc:
+        machine.append_flag(*args, **kwargs)
     pass
 
 
@@ -195,7 +198,10 @@ class UnifiedMessageInterpretation:
         kwargs = {}
         try:
             for i in xrange(len(args)):
-                kwargs[self.values[i][1]] = args[i]
+                if self.values is not None:
+                    kwargs[self.values[i][1]] = args[i]
+                else:
+                    kwargs[i] = args[i]     # Compatibility for unknown exact message definition
         except TypeError as e:
             log.error("Error parsing message : args : {args}, values : {values}".format(args=args, values=self.values))
             log.exception(e)
@@ -215,8 +221,11 @@ class UnifiedMessageInterpretation:
 
     def get(self, *args, **kwargs):
         msg_args = list()
-        for value in self.values:
-            msg_args.append((value[0], kwargs[value[1]]))
+        if self.values is not None:
+            for value in self.values:
+                msg_args.append((value[0], kwargs[value[1]]))
+        else:
+            msg_args = args     # Compitibility for unknown exact message definition
         return message.Message(self.path, *msg_args, ACK=self.ACK)
 
     @staticmethod

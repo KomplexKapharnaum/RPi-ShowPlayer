@@ -5,7 +5,7 @@
 # It's sync only scenario
 #
 
-from libs.oscack import message, DNCserver #, BroadcastAddress
+from libs.oscack import message, network, DNCserver #, BroadcastAddress
 
 from engine import media
 from engine import fsm
@@ -21,6 +21,12 @@ log = init_log("ssync")
 
 OSC_PATH_SCENARIO_VERSION = "/sync/scenario/version"
 OSC_PATH_SCENARIO_ASK = "/sync/scenario/amiuptodate"
+
+msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=(
+    ('s', "a"),
+    ('s', 'b')
+))
+msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None)
 
 machine = fsm.FiniteStateMachine(name="syncscenario")
 
@@ -82,13 +88,14 @@ def trans_must_i_get_scenario(flag):
             local_scenario = media.get_scenario_by_group_in_fs()
             newer = media.get_newer_scenario(local_scenario[flag.args["args"][0]])
             if flag.args["args"][0] in local_scenario.keys():  # If we have this scenario group
-                if media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag["args"][1]) < newer:  # He is old
+                if media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag.args["args"][1]).dateobj < newer.dateobj:  # He is old
                     log.log("debug", "He is older than us")
+                    log.log("debug", "His : {0}, us {1}".format(media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag.args["args"][1]), newer))
                     message.send(flag.args["src"], message.Message(OSC_PATH_SCENARIO_VERSION,
                                                                                  ('s', flag.args["args"][0]),
                                                                                  ('s', newer.date)))
                     # We send our newer version of scenario
-        return False  # Not a distant OSC version message
+        return None  # Not a distant OSC version message
     if "scenario" not in flag.args.keys():  # We just recv the OSC msg
         log.log("raw", "First iter on loop get_scenario")
         flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"])
