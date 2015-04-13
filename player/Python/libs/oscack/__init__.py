@@ -42,7 +42,7 @@ def start_protocol():
     protocol.discover.machine.start(protocol.discover.step_init)
     protocol.discover.add_flag_send_iamhere()
     sync_machine = protocol.scenariosync.machine
-    sync_machine.start(protocol.discover.step_init)
+    sync_machine.start(protocol.scenariosync.step_init)
 
 
 def stop_protocol():
