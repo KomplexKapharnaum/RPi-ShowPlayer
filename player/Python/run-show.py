@@ -34,44 +34,44 @@ try:
     threads.init()
     oscack.start_protocol()
 
-    parsing.clear_scenario()
-
-    basescenario = os.path.join(settings.get("path", "scenario"), "scenario_test.json")
-    jobject = parsing.parse_file(basescenario)
-    for fnct in jobject["Function"]:
-        parsing.parse_function(fnct)
-    for signal in jobject["Signal"]:
-        parsing.parse_signal(signal)
-    for etape in jobject["Etape"]:
-        parsing.parse_etape(etape)
-    pool.do_cross_ref()  # Resolve cross-references
-    for patch in jobject["Patch"]:
-        parsing.parse_patch(patch)
-    for device in jobject["Device"]:
-        parsing.parse_device(device)
-    for carte in jobject["Carte"]:
-        parsing.parse_carte(carte)
-
-    libscenario = os.path.join(settings.get("path", "scenario"), "libs.json")
-    parsing.parse_customlibrary(libscenario)
-
-    givenscenario = os.path.join(settings.get("path", "scenario"), "1.json")
-    parsing.parse_customscenario(givenscenario)
-
-    for scene in jobject["Scene"]:
-         parsing.parse_scene(scene)
-    parsing.parse_timeline(jobject["Timeline"])
-
-    
-
-    if settings["uName"] in pool.Cartes.keys():
-        pool.Cartes[settings["uName"]].device.launch_manager()
-        managefsm = fsm.FiniteStateMachine("Manager")
-        managefsm.start(manager.step_init)
-        pool.MANAGER = managefsm
-        managefsm.append_flag(manager.start_flag.get())
-    else:
-        log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
+    # parsing.clear_scenario()
+    #
+    # basescenario = os.path.join(settings.get("path", "scenario"), "scenario_test.json")
+    # jobject = parsing.parse_file(basescenario)
+    # for fnct in jobject["Function"]:
+    #     parsing.parse_function(fnct)
+    # for signal in jobject["Signal"]:
+    #     parsing.parse_signal(signal)
+    # for etape in jobject["Etape"]:
+    #     parsing.parse_etape(etape)
+    # pool.do_cross_ref()  # Resolve cross-references
+    # for patch in jobject["Patch"]:
+    #     parsing.parse_patch(patch)
+    # for device in jobject["Device"]:
+    #     parsing.parse_device(device)
+    # for carte in jobject["Carte"]:
+    #     parsing.parse_carte(carte)
+    #
+    # libscenario = os.path.join(settings.get("path", "scenario"), "libs.json")
+    # parsing.parse_customlibrary(libscenario)
+    #
+    # givenscenario = os.path.join(settings.get("path", "scenario"), "1.json")
+    # parsing.parse_customscenario(givenscenario)
+    #
+    # for scene in jobject["Scene"]:
+    #      parsing.parse_scene(scene)
+    # parsing.parse_timeline(jobject["Timeline"])
+    #
+    #
+    #
+    # if settings["uName"] in pool.Cartes.keys():
+    #     pool.Cartes[settings["uName"]].device.launch_manager()
+    #     managefsm = fsm.FiniteStateMachine("Manager")
+    #     managefsm.start(manager.step_init)
+    #     pool.MANAGER = managefsm
+    #     managefsm.append_flag(manager.start_flag.get())
+    # else:
+    #     log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
 
     while True:
         try:
@@ -85,7 +85,7 @@ try:
             continue
         cmd = c.split()
         if cmd[0] == "info":
-            log.info(managefsm.current_state)
+            # log.info(managefsm.current_state)
             log.info(oscack.protocol.discover.machine.current_state)
             for f in pool.FSM:
                 log.info(f.current_state)
@@ -103,8 +103,8 @@ except Exception as e:
     log.exception(log.show_exception(e))
     log.error(e)
 
-managefsm.stop()
-managefsm.join()
+# managefsm.stop()
+# managefsm.join()
 log.info("Ending Manager")
 for sfsm in pool.FSM:
     sfsm.stop()
