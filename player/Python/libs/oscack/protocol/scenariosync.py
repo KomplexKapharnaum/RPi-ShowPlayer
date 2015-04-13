@@ -71,12 +71,12 @@ def send_version(flag):
     """
     args = list()
     groups = media.get_scenario_by_group_in_fs()
-    for group in groups:
+    for groupname, group in groups.items():
         i = 0
         for scenario in group:
             if i >= settings.get("sync", "max_scenario_sync"):  # In order to avoid 100000 sync files
                 break
-            args.append(('s', scenario.group))
+            args.append(('s', scenario.groupname))
             args.append(('s', scenario.date))
             i += 1
     message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_VERSION, *args, ACK=False))
