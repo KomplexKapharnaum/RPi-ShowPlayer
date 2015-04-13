@@ -16,6 +16,7 @@ DEFAULT_SETTING_PATH = "/dnc/settings.json"
 
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = "DEFAULT_CARD"
+DEFAULT_SETTING["current_timeline"] = "DEFAULT_TIMELINE"
 
 DEFAULT_SETTING["localport"] = dict()
 DEFAULT_SETTING["localport"]["inhplayer"] = 9000
@@ -26,6 +27,7 @@ DEFAULT_SETTING["path"]["main"] = "/dnc"
 DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
 DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
 DEFAULT_SETTING["path"]["media"] = "/dnc/media"
+DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
 DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
 DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
@@ -37,6 +39,16 @@ DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout al
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
+
+DEFAULT_SETTING["sync"] = dict()
+DEFAULT_SETTING["sync"]["video"] = True                 # Explain if the scyn protocol must sync video or not
+DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the same group to be sync
+DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 3    # 3 seconds
+DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
+
+DEFAULT_SETTING["scenario"] = dict()
+DEFAULT_SETTING["scenario"]["date_format"] = "%Y-%m-%d_%H:%M:%S"
+DEFAULT_SETTING["scenario"]["date_len"] = 24    # extension + date length + @
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
