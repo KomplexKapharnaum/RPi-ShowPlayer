@@ -150,7 +150,7 @@ class Settings(dict):
         return d
 
 
-settings = Settings(DEFAULT_SETTING_PATH)
+settings = Settings(os.path.expanduser(DEFAULT_SETTING_PATH))
 if not os.path.exists(settings.get("path", "tmp")):
     os.makedirs(settings.get("path", "tmp"))
 # log.info("uName set to : {0}".format(settings["uName"]))
