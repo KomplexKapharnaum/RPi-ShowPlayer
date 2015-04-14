@@ -17,7 +17,7 @@ DECLARED_MANAGERS = dict()
 DECLARED_PUBLICSIGNALS = []
 
 
-def init_declared_objects():
+def init():
     import functions
     import modules
     import intercom

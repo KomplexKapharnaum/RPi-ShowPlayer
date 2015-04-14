@@ -26,18 +26,19 @@ CURRENT_SCENE = None
 FSM = list()
 DEVICE_FSM = list()
 GLOBALS = dict()
+MANAGERMODULE = None
 
-
-def init():
+def init(managermodule):
     """
     This function init pool variable before parsing a new scenario file
     :return:
     """
     global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, Patchs, Medias, cross_ref
-    global MANAGER, CURRENT_FRAME, CURRENT_SCENE, FSM, DEVICE_FSM, GLOBALS
+    global MANAGER, CURRENT_FRAME, CURRENT_SCENE, FSM, DEVICE_FSM, GLOBALS, MANAGERMODULE
 
     stop()
 
+    MANAGERMODULE = managermodule
     Etapes_and_Functions = dict()
     Signals = dict()
     Scenes = dict()
@@ -55,16 +56,21 @@ def init():
     GLOBALS = dict()
 
 
-def start(manager):
+def start():
     global MANAGER
     if settings["uName"] in Cartes.keys():
         Cartes[settings["uName"]].device.launch_manager()
         MANAGER = fsm.FiniteStateMachine("Manager")
-        MANAGER.start(manager.step_init)
-        MANAGER.append_flag(manager.start_flag.get())
+        MANAGER.start(MANAGERMODULE.step_init)
+        MANAGER.append_flag(MANAGERMODULE.start_flag.get())
     else:
         MANAGER = None
         log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
+
+
+def restart():
+    stop()
+    start()
 
 
 def stop():
