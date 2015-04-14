@@ -6,8 +6,11 @@
 import sys
 import os
 import time
-from engine import log, fsm, threads
 from engine.setting import settings
+from engine.log import set_default_log_by_settings
+set_default_log_by_settings(settings)                   # Set default log level and output via settings
+
+from engine import log, fsm, threads
 import scenario
 from scenario import parsing, pool, manager
 from libs import oscack
@@ -25,8 +28,8 @@ def set_python_path(depth=0):
 set_python_path(depth=1)
 
 
-log.DEFAULT_LEVEL = settings.get("log", "level")
-log.DEFAULT_LOG_TYPE = settings.get("log", "output")
+# log.DEFAULT_LEVEL = settings.get("log", "level")
+# log.DEFAULT_LOG_TYPE = settings.get("log", "output")
 
 log = log.init_log("main")
 
