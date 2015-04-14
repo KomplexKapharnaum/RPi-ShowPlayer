@@ -120,12 +120,12 @@ def sync_time(flag):
                                          flag.args["kwargs"]["dt"] / 1000000000))
     # END # TIME CRITICAL
     if r != 0:
-        log.error("Can't set time system, error code {err}".format(err=r))
+        log.log("error", "Can't set time system, error code {err}".format(err=r))
     else:
-        log.info("Set time system to {sec}.{nsec}".format(sec=flag.args["kwargs"]["time_s"],
+        log.log("info", "Set time system to {sec}.{nsec}".format(sec=flag.args["kwargs"]["time_s"],
                                                           nsec=flag.args["kwargs"]["time_ns"] + flag.args["kwargs"][
                                                               "dt"]))
-        log.info("  `-> delta time : {dt} ns, accuracy : {acc} ns".format(dt=flag.args["kwargs"]["dt"],
+        log.log("info", "  `-> delta time : {dt} ns, accuracy : {acc} ns".format(dt=flag.args["kwargs"]["dt"],
                                                                           acc=flag.args["kwargs"]["accuracy"]))
         libs.oscack.timetag = flag.args["kwargs"]["timetag"]
         libs.oscack.accuracy = flag.args["kwargs"]["accuracy"]
