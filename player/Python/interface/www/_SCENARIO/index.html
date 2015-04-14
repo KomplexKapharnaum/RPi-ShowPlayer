@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <!-- JQUERY -->
+    <script type='text/javascript' src='library/jquery/jquery.min.js'></script>
+    <script type='text/javascript' src='library/jquery/jquery-ui.min.js'></script>
+    <link rel="stylesheet" type="text/css" href="library/jquery/jquery-ui.css">
+    <!-- JSPLUMB -->
+    <script src="library/jsPlumb/lib/jsBezier-0.6.js"></script>
+    <script src="library/jsPlumb/lib/mottle-0.5.js"></script>
+    <script src="library/jsPlumb/lib/biltong-0.2.js"></script>
+    <script src="library/jsPlumb/src/util.js"></script>
+    <script src="library/jsPlumb/src/browser-util.js"></script>
+    <script src="library/jsPlumb/src/dom-adapter.js"></script>
+    <script src="library/jsPlumb/src/jsPlumb.js"></script>
+    <script src="library/jsPlumb/src/overlay-component.js"></script>
+    <script src="library/jsPlumb/src/endpoint.js"></script>
+    <script src="library/jsPlumb/src/connection.js"></script>
+    <script src="library/jsPlumb/src/anchors.js"></script>
+    <script src="library/jsPlumb/src/defaults.js"></script>
+    <script src="library/jsPlumb/src/connectors-bezier.js"></script>
+    <script src="library/jsPlumb/src/connectors-statemachine.js"></script>
+    <script src="library/jsPlumb/src/connectors-flowchart.js"></script>
+    <script src="library/jsPlumb/src/connector-editors.js"></script>
+    <script src="library/jsPlumb/src/renderers-svg.js"></script>
+    <script src="library/jsPlumb/src/renderers-vml.js"></script>
+    <script src="library/jsPlumb/src/base-library-adapter.js"></script>
+    <script src="library/jsPlumb/src/jquery.jsPlumb.js"></script>
+    <!-- CODEMIRROR -->
+    <link rel=stylesheet href="library/codemirror/docs.css">
+    <link rel="stylesheet" href="library/codemirror/codemirror.css">
+    <script src="library/codemirror/codemirror.js"></script>
+    <script src="library/codemirror/matchbrackets.js"></script>
+    <script src="library/codemirror/python.js"></script>
+    <!-- MULTISELECT -->
+    <script src="library/Multiple-select/jquery.multiple.select.js"></script>
+    <link rel="stylesheet" href="library/Multiple-select/multiple-select.css" />
+    <!-- INT -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="script.js"></script>
+
+    <title>SCENARIO EDITOR</title>
+
+  </head>
+
+  <body>
+    <div id="container"></div>
+
+
+    <div id="colonne2" class="inspector">
+
+      <div id="titre" class="titre">Graph</div>
+      <select name="selFile" id="selFile" class="dropdownGnrl">
+      </select>
+      <input type="button" id="clearGraph" class="btn" value="CLEAR" />
+      <input type="button" id="saveGraph" class="btn" value="SAVE" />
+      <input type="button" id="loadGraph" class="btn" value="LOAD" />
+      <input type="button" id="openInfos" class="btn" value="?" /><br><br>
+
+
+      <div id="titre" class="titre">Lib</div>
+      <select name="selCat" id="selCat" class="dropdownGnrl">
+      </select><br>
+      <div id="lib"></div>
+      <input type="button" id="openAdder" class="btn" value="+" /><br><br>
+
+
+      <div id="signalEdit">
+        <div class="titre">SIGNAL EDIT</div>
+          <div class="properties">
+            <select name="signalselector" id="signalselector" class="dropdown"></select><br><br>
+            <input id="signalName" class="textarea">
+          </div>
+      </div>
+      <br /><br><br><br><br>
+      <div id="infosDisplay" class="infos"></div><br />
+      <div id="serverDisplay" class="infos"></div><br />
+    </div>
+
+    <div id="colonne3">
+
+      <div id="newBox">
+        <div class="titre">NEW</div>
+        <div class="properties">
+          <input type="text" id="addName"/><br><br>
+          <select name="addCat" id="addCat" class="dropdown"></select><br><br>
+          <INPUT type="checkbox" id="addDisposList" value="1"> DISPOS LIST<br>
+          <INPUT type="checkbox" id="addMediasList" value="1"> MEDIAS LIST<br>
+          <input type="text" id="addArg1" class="argsList"/><br>
+          <input type="text" id="addArg2" class="argsList"/><br>
+          <input type="text" id="addArg3" class="argsList"/><br><br>
+          <div>
+            <textarea id="code" name="code"></textarea>
+          </div>
+          <br><br>
+          <input type="button" id="cancelAdd" class="btnValid" value="CANCEL" />
+          <input type="button" id="addBox" class="btnValid" value="ADD" />
+        </div>
+      </div>
+
+      <div id="editBox">
+        <div class="titre">EDIT</div>
+        <div class="properties">
+          <input type="text" id="editName"/><br><br>
+          <select name="addCat" id="editCat" class="dropdown"></select><br><br>
+          <INPUT type="checkbox" id="editDisposList" value="1"> DISPOS LIST<br>
+          <INPUT type="checkbox" id="editMediasList" value="1"> MEDIAS LIST<br>
+          <input type="text" id="editArg1" class="argsList"/><br>
+          <input type="text" id="editArg2" class="argsList"/><br>
+          <input type="text" id="editArg3" class="argsList"/><br><br>
+          <div>
+            <textarea id="codeed" name="codeed"></textarea>
+          </div>
+          <br><br>
+          <input type="button" id="deleteBox" class="btnValid" value="DELETE" />
+          <input type="button" id="cancelEdit" class="btnValid" value="CANCEL" />
+          <input type="button" id="modifBox" class="btnValid" value="OK" />
+        </div>
+      </div>
+
+      <div id="informations">
+        <div class="titre">INFOS</div>
+        <div class="properties">
+          Connecter les Zones Blanches<br>
+          Delete: touche -<br>
+          <input type="button" id="closeInfos" class="btnValid" value="OK" />
+        </div>
+      </div>
+
+    </div>
+
+
+
+
+  </body>
+
+
+</html>
