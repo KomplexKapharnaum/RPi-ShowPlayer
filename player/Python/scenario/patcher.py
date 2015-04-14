@@ -95,7 +95,8 @@ class ThreadPatcher(threading.Thread):
                 sendto += [x.uid for x in pool.CURRENT_SCENE.cartes if x.uid not in sendto]
             for dest in sendto:
                 if dest in DNCserver.networkmap.keys():
-                    if dest != settings["uName"] or settings.get("scenario", "dest_self") not in sendto:       # Avoid multiple self send
+                    if dest != settings["uName"] or settings.get(
+                            "scenario", "dest_self") not in sendto:     # Avoid multiple self send
                         message.send(DNCserver.networkmap[dest].target,
                                      message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
                 elif dest != settings.get("scenario", "dest_self"):
