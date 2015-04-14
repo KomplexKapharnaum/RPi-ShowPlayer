@@ -10,9 +10,11 @@ import cPickle
 from copy import copy
 
 from libs.oscack import message
+from libs.oscack import BroadcastAddress
 from libs.oscack import DNCserver
 # import libs.oscack.message
 # import libs.oscack.DNCserver
+from engine.setting import settings
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
 from engine.log import init_log, dumpclean
@@ -78,17 +80,24 @@ class ThreadPatcher(threading.Thread):
         # envoyer au destinataire via OSC
         sendto = copy(signal.args["dest"])
         del signal.args["dest"]
-        for dest in sendto:
-            if dest in DNCserver.networkmap.keys():
-                message.send(DNCserver.networkmap[dest].target,
-                             message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal,2)), ACK=True))
-                pass
-            elif dest != "_self_":
-                log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
+        if "all" in sendto:
+            message.send(BroadcastAddress,
+                             message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
+        else:
+            if "group" in sendto:
+                sendto.remove("group")
+                sendto += [x.uid for x in pool.CURRENT_SCENE.cartes if x.uid not in sendto]
+            for dest in sendto:
+                if dest in DNCserver.networkmap.keys():
+                    if dest != settings["uName"] or "self" not in sendto:       # Avoid multiple self send
+                        message.send(DNCserver.networkmap[dest].target,
+                                     message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
+                elif dest != "self":
+                    log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
-        # reposer dans la pile si _self_
-        if "_self_" in sendto:
-            self._queue.put(signal)
+            # reposer dans la pile si _self_
+            if "self" in sendto:
+                self._queue.put(signal)
 
     def run(self):
         while not self._stop.is_set() or not self._queue.empty():

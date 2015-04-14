@@ -86,6 +86,17 @@ try:
             log.info(oscack.timetag)
             log.info(" = oscack.accuracy : ")
             log.info(oscack.accuracy)
+        if cmd[0] == "signal":
+            if len(cmd) > 1:
+                if cmd[1] == "testall":
+                    flag_all = fsm.Flag("TEST_ALL").get()
+                    flag_all.args["dest"] = "all"
+                    threads.patcher.patch(flag_all)
+                if cmd[1] == "testgroup":
+                    flag_group = fsm.Flag("TEST_GROUP").get()
+                    flag_group.args["dest"] = "group"
+                    threads.patcher.patch(flag_group)
+
 except Exception as e:
     log.exception(log.show_exception(e))
     log.error(e)
