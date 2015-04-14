@@ -578,14 +578,22 @@
         thisState.box.css('background-color','lawngreen');
         $("#signalEdit").hide();
 
-				if (thisState.category == 'TITREUR' && mediaBOO == true){
-					$('#editText').fadeIn(200);
-					console.log ('titreur Edit');}
-					thisState.loadText();
+				// if (thisState.category == 'TITREUR' && mediaBOO == true){
+				// 	 console.log('loading txt...');
+				// 	$('#editText').fadeIn(200);
+				// 	console.log ('titreur Edit');
+				// 	thisState.loadText();
+				// 	}
+
 
   		});
 
+			$('#mediasList').on('click',function(){
+				console.log("dedededededededede");
+			});
+
 			this.loadText = function(){
+				console.log(thisState.media);
         $.ajax({
             url: "data/loadText.php",
             dataType: "json",
@@ -596,9 +604,7 @@
             if (reponse.status == 'success') { $('#txted').text(reponse.contents); }
         });
 			}
-			$('#okTxtedit').click(function(){
-				thisState.saveText();
-			})
+
 			this.saveText = function (){
 				var contenu = $('#txted').val();
 				$.ajax({
@@ -606,18 +612,18 @@
             dataType: "json",
             type: "POST",
             data: { filename: thisState.media, type: 'text', contents: contenu }
-        })
-        .done(function(reponse) {
-            console.log('done');
         });
-
 			}
 
+			$('#okTxtedit').click(function(){
+				//$( "#okTxtedit").unbind( "click" );
+				thisState.saveText();
+				$('#editText').hide();
+			})
+			$('#cancelTxtedit').click(function(){
+				$('#editText').hide();
+			})
 
-
-      this.resetColor = function(){
-        this.box.css('background-color','#'+this.color);
-      }
 
 
       //////////////////////////  ARGUMENTS //////////////////////////////
@@ -687,6 +693,12 @@
 
       this.recoverInfos = function(media){
         $(thisState.mediasList).val(media);
+				thisState.media = media;
+      }
+
+
+      this.resetColor = function(){
+        this.box.css('background-color','#'+this.color);
       }
 
 
@@ -823,8 +835,6 @@
       $('.box').remove();
       allStates = [];
     }
-
-
 
 
 
