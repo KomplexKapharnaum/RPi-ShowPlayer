@@ -81,8 +81,7 @@ class ThreadPatcher(threading.Thread):
         # sendto = copy(signal.args["dest"])
         # del signal.args["dest"]
         sendto = deepcopy(signal.args["dest"])
-        # signal.args["dest"] = None
-        # del signal.args["dest"]
+        signal.args["dest"] = None
         log.log("raw", "dispatch to : {0}".format(sendto))
         if settings.get("scenario", "dest_all") in sendto:
             log.log("raw", "dispatch to all dest")
@@ -111,7 +110,7 @@ class ThreadPatcher(threading.Thread):
             if signal is None:
                 continue
             log.log('raw', '{0}'.format(signal))
-            if "dest" in signal.args.keys():
+            if "dest" in signal.args.keys() and signal.args["dest"] is not None:        # TODO !!! TEST bug if no dest
                 self._dispatch(signal)
             elif signal.uid in self._patchs.keys():
                 ThreadPatcher._patch(signal, self._patchs[signal.uid])
