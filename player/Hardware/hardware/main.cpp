@@ -57,7 +57,7 @@ void myInterruptTELECO(void) {
     v=v/10;
     char mess[32];
     fprintf(stderr, "%u,%.1f\n",tension,v);
-    sprintf(mess,"%s %.1fV %s",carte_name.c_str(),v,carte_ip.c_str());
+    sprintf(mess,"%s $ %s - %.1fV",carte_name.c_str(),carte_ip.c_str(),v);
     myteleco.sendString(mess);
   }
 
@@ -138,8 +138,8 @@ int parseInput(){
       fprintf(stderr, "overpass standard debug init\n");
       mytitreur.initTitreur(6,MODULE_24x16);
       mycarte.initCarte(PWM_LEDB,12);
-      carte_name="S";
-      carte_ip="0";
+      carte_name="TEST STAND";
+      carte_ip="2.0.2.XXX";
       init=1;
       mytitreur.putChar(0,0,'S');
     }

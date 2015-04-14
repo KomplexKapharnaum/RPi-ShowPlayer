@@ -3,7 +3,9 @@
 #include <LiquidCrystal595.h>
 #include <Encoder.h>
 
-char buf [17];
+char buf [34];
+char line1 [17];
+char line2 [17];
 
 
 Encoder rotary(2, 3);
@@ -243,9 +245,17 @@ void checkStringReceive() {
   if (command == 0 && adress == T_STRING) {
     buf [pos] = 0;
     Serial.println (buf);
+    int dollar;
+    for(int d=0;d<strlen(buf);d++) {
+      if(buf[d] == '$') dollar=d;
+    }
+    memcpy( line1, &buf[0], dollar );
+    memcpy( line2, &buf[dollar+1], strlen(buf)-dollar-1 );
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print(buf);
+    lcd.print(line1);
+    lcd.setCursor(1, 0);
+    lcd.print(line2);
     pos = 0;
     adress = 0;
   }
