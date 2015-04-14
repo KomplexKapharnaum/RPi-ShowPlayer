@@ -5,6 +5,7 @@
 #
 
 import random
+import time
 from collections import deque
 import Queue
 import shlex
@@ -138,7 +139,7 @@ def server_sync(flag):
     reach_acc = settings.get("rtp", "accuracy_start_ns")
     dt_stack = deque(maxlen=settings.get("rtp", "stack_length"))
     target = message.Address(flag.args["src"].get_hostname())
-    msg = msg_ping.get(**kwargs_ping)
+    #msg = msg_ping.get(**kwargs_ping)
     def catch_pong(path, args, types, src):
         pong_queue.put(args)
         message.send(target, msg_ping.get(**kwargs_ping))
@@ -146,17 +147,24 @@ def server_sync(flag):
     libs.oscack.DNCserver.ackServer.add_method("/rtp/pong", None, catch_pong)
     network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
                             flag_timeout_task_sync.get(
-                                TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))
+                                TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))   # TODO check if work
     machine.current_state.preemptible.set()
+    time.sleep(0.1)     # Wait for the client to pass in the correct state
     # BEGIN TIME CRITICAL #
     message.send(target, msg_ping.get(**kwargs_ping))
     t_start = rtplib.get_time()
+    # n_try = 0
     while not machine.current_state.stop.is_set():
         try:
             pong = pong_queue.get(True, 5)
         except Queue.Empty as e:
+            # n_try += 1
             log.exception(log.show_exception(e))
-            continue
+            # if n_try > 3:
+            #     log.critical("Too much try to get pong after timeout ! quit loop => need to be fixed")
+            #     break
+            # continue
+            break
         t_end = rtplib.get_time()
         # END TIME CRITICAL #
         _dt = int(((t_end[0] - t_start[0]) * 1000000000 + t_end[1] - t_start[1]) / 2)
