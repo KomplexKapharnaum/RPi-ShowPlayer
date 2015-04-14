@@ -121,9 +121,12 @@ def trans_must_i_get_scenario(flag):
             flag.args["local_newer"] = None
     for groupname, group in flag.args["scenario"].items():
         log.log("raw", "For loop groupname {0} , group {1} ".format(groupname, group))
+        new_group = False
+        if groupname not in flag.args["local_scenario"]:
+            new_group = True
         while len(group) > 0:
             scenario = group.pop()
-            if scenario not in flag.args["local_scenario"][groupname]:  # It's newer
+            if new_group or scenario not in flag.args["local_scenario"][groupname]:  # It's newer # TODO waring
                 log.log("raw", "It's newer : {0} ".format(scenario))
                 flag.args["to_get"] = scenario
                 return step_get_scenario
