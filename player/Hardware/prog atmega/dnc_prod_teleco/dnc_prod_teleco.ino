@@ -63,7 +63,7 @@ volatile byte adress = 0;
 #define T_MODEBASE 1
 
 
-char menu[T_NBMENU][16] = {"startscene","restartscene","nextscene","blinkgroup","poweroff","reboot"};
+char menu[T_NBMENU][16] = {"start scene","restart scene","next scene","blink group","poweroff","test routine"};
 
 byte Value[T_REGISTERSIZE];
 byte newValue[T_REGISTERSIZE];
@@ -291,7 +291,7 @@ void checkInput() {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
       if(T_DECINPIN+i==T_PUSHROTARY){
-        if((1-digitalRead(inpin[i]))==1) {newValue[T_DECINPIN + i] = positionLeft+1;} else {newValue[T_DECINPIN + i] =0;}
+        if( 1-digitalRead(inpin[i])==1 && positionLeft%(T_NBMENU+1)!=0 ) {newValue[T_DECINPIN + i] = positionLeft%(T_NBMENU+1);} else {newValue[T_DECINPIN + i] =0;}
       }else{
         newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
       //Serial.print("b");
@@ -301,19 +301,20 @@ void checkInput() {
     //if (Value[T_BOARDCHECKFLOAT] == 1) newValue[T_FLOAT] = map(analogRead(inpinanalog[T_FLOAT - T_DECALALOGPIN]), 0, 1024, 0, 255);
     
     long newLeft;
-    newLeft = (long)(rotary.read()*1.0/10);
+    newLeft = (long)rotary.read()*1.0/2;
     if (newLeft != positionLeft) {
-      if(positionLeft>=0 && positionLeft<T_NBMENU){        
-        Serial.print("Left = ");
-        Serial.print(newLeft);
-        Serial.println();lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print(menu[newLeft]);
+        lcd.clear();     
+        if(newLeft%(T_NBMENU+1)==0){
+          lcd.setCursor(0, 0);
+          lcd.print(line1);
+          lcd.setCursor(0, 1);
+          lcd.print(line2);
+        }else{
+          lcd.setCursor(0, 0);
+          lcd.print(menu[newLeft%(T_NBMENU+1)-1]);
+        }
         positionLeft = newLeft;
       }
-      if(newLeft<0) {positionLeft = T_NBMENU-1; rotary.write((T_NBMENU-1)*10);} 
-      if(newLeft>=T_NBMENU) {positionLeft = 0; rotary.write(0);}
-    }
     
     lastCheckInput = millis();
   }
