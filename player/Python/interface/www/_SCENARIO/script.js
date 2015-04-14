@@ -578,22 +578,18 @@
         thisState.box.css('background-color','lawngreen');
         $("#signalEdit").hide();
 
-				// if (thisState.category == 'TITREUR' && mediaBOO == true){
-				// 	 console.log('loading txt...');
-				// 	$('#editText').fadeIn(200);
-				// 	console.log ('titreur Edit');
-				// 	thisState.loadText();
-				// 	}
+				if (thisState.category == 'TITREUR' && mediaBOO == true){
+					 console.log('loading txt...');
+					$('#editText').fadeIn(200);
+					console.log ('titreur Edit');
+					thisState.loadText();
+					}
 
 
   		});
 
-			$('#mediasList').on('click',function(){
-				console.log("dedededededededede");
-			});
-
 			this.loadText = function(){
-				console.log(thisState.media);
+				console.log('LOADING TEXT'+thisState.media);
         $.ajax({
             url: "data/loadText.php",
             dataType: "json",
@@ -616,13 +612,14 @@
 			}
 
 			$('#okTxtedit').click(function(){
-				//$( "#okTxtedit").unbind( "click" );
-				thisState.saveText();
+				if (thisState.category == 'TITREUR' && mediaBOO == true){
+					thisState.saveText();
+				}
 				$('#editText').hide();
-			})
+			});
 			$('#cancelTxtedit').click(function(){
 				$('#editText').hide();
-			})
+			});
 
 
 
@@ -731,7 +728,7 @@
       $.each(allStates, function(index, state){
         state.active = false;
       });
-
+			$('#editText').hide();
       var label = connectionSelected.getLabel();
 			$("#signalEdit").fadeIn(400);
 
@@ -742,7 +739,7 @@
 			$("#signalselector").change(function(){
 				var newval = $('#signalselector option:selected').text();
 				connectionSelected.setLabel(newval);
-				connectionSelected.id=newval;
+				//connectionSelected.id=newval;
 			});
 
       $("#signalName").val('Enter New...');
@@ -867,7 +864,8 @@
       var connections = [];
       $.each(jsPlumb.getConnections(), function (index, connection) {
         connections.push({
-          connectionId: connection.id,
+          //connectionId: connection.id,
+					connectionLabel: connection.getLabel(),
           From:$("#"+connection.sourceId).parent().children(".title").attr("id"),
           To: $("#"+connection.targetId).children(".title").attr("id"),
           // on retrouve le state.name (ou le title.attr('id')) de SourceId et TargetId,
@@ -914,8 +912,8 @@
         })
         .done(function(reponse)
         {
-            // if (reponse.status == 'success')
-            // {  $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(Graphique) );  }
+            if (reponse.status == 'success')
+            {  $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(Graphique) );  }
         })
         .fail(function()
           { $('#serverDisplay').html( 'Impossible de joindre le serveur...' ); }
@@ -943,7 +941,7 @@
         .done(function(reponse) {
             if (reponse.status == 'success')
             {
-                //$('#serverDisplay').html('Loaded: <br>' + reponse.contents );
+                $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
                 Graphique = JSON.parse(reponse.contents);
 								if (loadGraphAfter == true) { loadGraphique(); }
             }
@@ -978,8 +976,8 @@
             target: connection.TargetId
             //anchors: ["BottomCenter", [0.75, 0, 0, -1]]
         });
-        newConnection.setLabel(connection.connectionId);
-        newConnection.id=connection.connectionId;
+        newConnection.setLabel(connection.connectionLabel);
+        //newConnection.id=connection.connectionId;
       });
 
     }
