@@ -61,6 +61,7 @@ void myInterruptTELECO(void) {
     sprintf(mess,"%s",carte_name.c_str());
     fprintf(stderr, "%s\n",mess);
     myteleco.sendString(mess,1);
+    delay(5);
     sprintf(mess,"%s - %.1fV",carte_ip.c_str(),v);
     fprintf(stderr, "%s\n",mess);
     myteleco.sendString(mess,2);
