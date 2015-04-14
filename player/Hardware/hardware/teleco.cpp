@@ -42,7 +42,7 @@ void Teleco::sendString(char Str1[]){
   for(int i=0;i<16;i++){
     buff[i+1]= *(Str1+i);
   }
-  SPIcarte.send(0,buff,17);
+  SPIcarte.send(0,buff,34);
 }
 
 int Teleco::readInterrupt(){
