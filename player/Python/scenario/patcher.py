@@ -81,7 +81,7 @@ class ThreadPatcher(threading.Thread):
         sendto = copy(signal.args["dest"])
         del signal.args["dest"]
         if "all" in sendto:
-            message.send(BroadcastAddress,
+            message.send(message.Address("255.255.255.255"),
                              message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
         else:
             if "group" in sendto:
