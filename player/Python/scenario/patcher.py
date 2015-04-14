@@ -81,25 +81,25 @@ class ThreadPatcher(threading.Thread):
         sendto = copy(signal.args["dest"])
         del signal.args["dest"]
         log.log("raw", "dispatch to : {0}".format(sendto))
-        if "all" in sendto:
+        if settings.get("scenario", "dest_all") in sendto:
             log.log("raw", "dispatch to all dest")
             message.send(message.Address("255.255.255.255"),
                              message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
         else:
-            if "group" in sendto:
+            if settings.get("scenario", "dest_group") in sendto:
                 log.log("raw", "add group in dispatch list")
-                sendto.remove("group")
+                sendto.remove(settings.get("scenario", "dest_group"))
                 sendto += [x.uid for x in pool.CURRENT_SCENE.cartes if x.uid not in sendto]
             for dest in sendto:
                 if dest in DNCserver.networkmap.keys():
-                    if dest != settings["uName"] or "self" not in sendto:       # Avoid multiple self send
+                    if dest != settings["uName"] or settings.get("scenario", "dest_self") not in sendto:       # Avoid multiple self send
                         message.send(DNCserver.networkmap[dest].target,
                                      message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
-                elif dest != "self":
+                elif dest != settings.get("scenario", "dest_self"):
                     log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
             # reposer dans la pile si _self_
-            if "self" in sendto:
+            if settings.get("scenario", "dest_self") in sendto:
                 self._queue.put(signal)
 
     def run(self):
