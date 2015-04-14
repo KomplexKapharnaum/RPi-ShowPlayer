@@ -30,6 +30,7 @@ machine = fsm.FiniteStateMachine(name="syncscenario")
 
 flag_timeout = fsm.Flag("TIMEOUT_SEND_VERSION")
 
+
 def init_scenprotocol(flag):
     """
     This function init the sync by asking if you are uptodate
@@ -56,6 +57,7 @@ def add_timeout_flag():
     machine.append_flag(flag_timeout.get(JTL=None))
     network_scheduler.enter(settings.get("sync", "scenario_sync_timeout"), add_timeout_flag)
 
+
 def _pass(*args, **kwargs):
     pass
 
@@ -70,6 +72,7 @@ def send_version(flag):
     groups = media.get_scenario_by_group_in_fs()
     for groupname, group in groups.items():
         i = 0
+        group.sort(key=lambda r: r.dateobj)
         for scenario in group:
             if i >= settings.get("sync", "max_scenario_sync"):  # In order to avoid 100000 sync files
                 break
