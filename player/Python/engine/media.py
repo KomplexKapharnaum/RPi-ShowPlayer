@@ -147,11 +147,16 @@ def get_scenario_by_group_in_fs():
                                                     "escape_scenario_dir"))] == settings.get("sync",
                                                                                              "escape_scenario_dir"):
             continue            # Ignore this directory
-        for file in files:
-            scenario = ScenarioFile.create_by_path(os.path.join(path, file))
-            if scenario.group not in scenario_by_group.keys():
-                scenario_by_group[scenario.group] = list()
-            scenario_by_group[scenario.group].append(scenario)
+        group = os.path.basename(path)
+        if group not in scenario_by_group.keys():
+            scenario_by_group[group] = list()
+        for sfile in files:
+            try:
+                scenario = ScenarioFile.create_by_path(os.path.join(path, sfile))
+                scenario_by_group[group].append(scenario)
+            except Exception as e:
+                log.warning("Error during parsing a archive scenario file at {0}".format(sfile))
+                log.exception(log.show_exception(e))
     return scenario_by_group
 
 
