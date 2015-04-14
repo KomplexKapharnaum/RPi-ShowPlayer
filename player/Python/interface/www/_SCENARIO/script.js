@@ -131,6 +131,7 @@
     ///////////////////////////   NEW  ///////////////////////////////
 
     $('#openAdder').on('click',function(){
+			unselectAll();
       $('#informations').hide();
 			$('#editText').hide();
       $('#editBox').hide();
@@ -171,6 +172,7 @@
     function editable(){
       $( ".btn2").unbind( "click" );
       $('.lib').on('click', function(){
+				unselectAll();
         $('#newBox').hide();
 				$('#editText').hide();
         $('#informations').hide();
@@ -566,15 +568,14 @@
 
         $.each(allStates, function(index, state){
           state.active = false;
+					this.resetColor();
         });
         thisState. active = true;
 				selected='box';
         connectionSelected = null;
         listening = true;
         unselectConnections();
-        $.each(allStates, function(index, state){
-          this.resetColor();
-        });
+
         thisState.box.css('background-color','lawngreen');
         $("#signalEdit").hide();
 
@@ -712,8 +713,6 @@
 
 
 
-
-
     ///////////////////////  CONNECTION /////////////////////////////////
     /////////////////////////////////////////////////////////////////////
 
@@ -780,14 +779,14 @@
 		var selected;
     /////////////////  DELETE  /////////////////
      $(document).keyup(function(e){
-        if((e.keyCode == 189)&&(listening == true)&&(connectionSelected != null)&&(selected=='connection') ){ ////del : 8 , - : 189
+        if((e.keyCode == 8)&&(listening == true)&&(connectionSelected != null)&&(selected=='connection') ){ ////del : 8 , - : 189
           e.preventDefault();
           jsPlumb.detach(connectionSelected);
           $("#signalEdit").hide();
 					selected = 'nothing';
         }
 
-        if((e.keyCode == 189)&&(listening == true)&&(selected=='box')){
+        if((e.keyCode == 8)&&(listening == true)&&(selected=='box')){
           e.preventDefault();
           var indextoremove;
           $.each(allStates, function(index, state) {
@@ -806,6 +805,18 @@
 	    /////////////////////////////////////////////////////////////////////
 	    /////////////////////////////////////////////////////////////////////
 
+
+			unselectAll = function(){
+				$.each(allStates, function(index, state){
+					state.active = false;
+					state.box.css('background-color','#'+state.color);
+				});
+				state. active = true;
+				selected='nothing';
+				connectionSelected = null;
+				listening = false;
+				unselectConnections();
+			}
 
 
 
