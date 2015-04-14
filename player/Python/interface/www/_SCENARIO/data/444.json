@@ -1,1 +1,1 @@
-{"boxes":[],"connections":[],"origins":[]}
+{"boxes":[{"name":"PLAY","boxname":"box1","category":"VIDEO","positionX":70,"positionY":52,"dispoBOO":true,"dispositifs":["Self","All","ras2","Pi2"],"media":"Select...","arguments":{"repeat":null},"allArgs":{"repeat":null,"media":"Select...","dest":["Self","All","ras2","Pi2"]}}],"connections":[],"origins":[]}
