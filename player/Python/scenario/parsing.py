@@ -13,6 +13,7 @@ from scenario import classes, pool
 from engine.setting import settings
 from operator import itemgetter
 import libs.simplejson as json
+from engine import media
 
 from engine.log import init_log
 log = init_log("parse")
@@ -35,6 +36,7 @@ def load():
 
 
 def load_files():
+    media.load_scenario_from_fs(settings["current_timeline"])       # Reload newer tar file of group into active dir
     path = settings.get("path", "activescenario")
     files = [ f for f in listdir(path) if isfile(join(path,f)) ]
     for f in files:
