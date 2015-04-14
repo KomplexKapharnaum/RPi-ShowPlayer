@@ -59,7 +59,9 @@ def load_scenario_from_fs(group, date_timestamp=None):
     # RM current scenario active directory ! #
     shutil.rmtree(os.path.join(settings.get("path", "scenario"), settings.get("path", "activescenario")))
     ##
-    tarfile.extractall(path=settings.get("path", "scenario"))
+    path = os.path.join(settings.get("path", "scenario"), group)
+    tar = tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "r")
+    tar.extractall(path=settings.get("path", "scenario"))
 
 
 class ScenarioFile:
