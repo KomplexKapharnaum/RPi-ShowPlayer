@@ -46,6 +46,7 @@ DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserve
 
 DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["video"] = True                 # Explain if the scyn protocol must sync video or not
+DEFAULT_SETTING["sync"]["enable"] = True                # Put False to disable sync
 DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the same group to be sync
 DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 30    # 30 seconds
 DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
@@ -66,6 +67,7 @@ DEFAULT_SETTING["OSC"]["TTL"] = 1
 DEFAULT_SETTING["OSC"]["JTL"] = 1
 
 DEFAULT_SETTING["rtp"] = dict()
+DEFAULT_SETTING["rtp"]["enable"] = True                 # Put False to unactive rtp
 DEFAULT_SETTING["rtp"]["timeout"] = 5
 DEFAULT_SETTING["rtp"]["stack_length"] = 3
 DEFAULT_SETTING["rtp"]["accuracy_start_ns"] = 3000000   # 3 ms
