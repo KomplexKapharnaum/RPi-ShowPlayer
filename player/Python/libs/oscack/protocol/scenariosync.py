@@ -135,7 +135,9 @@ def get_scenario(flag):
     log.log("debug", "Try to get wia scp : {0}".format(to_get))
     to_get.get_from_distant(flag.args["src"].get_hostname())
     if "reload" not in flag.args.keys() and flag.args["local_newer"].group == to_get.group:
+        log.log("debug", "{0} is same group as us".format(to_get))
         if to_get.dateobj > flag.args["local_newer"].dateobj:
+            log.log("debug", "{0} is a newer version of our group, we should update".format(to_get))
             flag.args["reload"] = True
 
 step_init = fsm.State("SYNC_SCENARIO_INIT", function=init_scenprotocol)
