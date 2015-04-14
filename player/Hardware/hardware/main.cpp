@@ -55,19 +55,12 @@ void myInterruptTELECO(void) {
     int tension = mycarte.checkTension();
     float v = tension;
     v=v/10;
-    char mess[17];
-    delay(50);
-    fprintf(stderr, "clear",mess);
-    myteleco.sendString(mess,0);
+    char mess1[17];
+    char mess2[17];
     delay(10);
-    fprintf(stderr, "%u,%.1f\n",tension,v);
-    sprintf(mess,"%s",carte_name.c_str());
-    fprintf(stderr, "%s\n",mess);
-    myteleco.sendString(mess,1);
-    delay(10);
-    sprintf(mess,"%s - %.1fV",carte_ip.c_str(),v);
-    fprintf(stderr, "%s\n",mess);
-    myteleco.sendString(mess,2);
+    sprintf(mess1,"%s",carte_name.c_str());
+    sprintf(mess2,"%s - %.1fV",carte_ip.c_str(),v);
+    myteleco.sendString(mess1,mess2);
   }
 
 }
