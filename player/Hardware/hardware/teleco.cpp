@@ -37,7 +37,7 @@ void Teleco::start(){
 
 void Teleco::sendString(char Str1[]){
   fprintf(stderr, "send %s\n",Str1);
-  unsigned char buff[17];
+  unsigned char buff[34];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
   for(int i=0;i<16;i++){
     buff[i+1]= *(Str1+i);
