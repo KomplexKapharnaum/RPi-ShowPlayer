@@ -6,8 +6,9 @@
 #
 
 from libs.oscack import message, network, DNCserver #, BroadcastAddress
-from engine.threads import network_scheduler
+from engine.threads import network_scheduler, patcher
 
+from scenario import DECLARED_SIGNALS
 from engine import media
 from engine import fsm
 from engine.setting import settings
@@ -93,9 +94,11 @@ def trans_must_i_get_scenario(flag):
             local_scenario = media.get_scenario_by_group_in_fs()
             newer = media.get_newer_scenario(local_scenario[flag.args["args"][0]])
             if flag.args["args"][0] in local_scenario.keys():  # If we have this scenario group
-                if media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag.args["args"][1]).dateobj < newer.dateobj:  # He is old
+                if media.ScenarioFile.create_by_OSC(flag.args["args"][0],
+                                                    flag.args["args"][1]).dateobj < newer.dateobj:  # He is old
                     log.log("debug", "He is older than us")
-                    log.log("debug", "His : {0}, us {1}".format(media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag.args["args"][1]), newer))
+                    log.log("debug", "His : {0}, us {1}".format(
+                        media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag.args["args"][1]), newer))
                     message.send(flag.args["src"], message.Message(OSC_PATH_SCENARIO_VERSION,
                                                                                  ('s', flag.args["args"][0]),
                                                                                  ('s', newer.date)))
@@ -106,6 +109,8 @@ def trans_must_i_get_scenario(flag):
         log.log("debug", "First iter on loop get_scenario")
         flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"])
         flag.args["local_scenario"] = media.get_scenario_by_group_in_fs()
+        flag.args["local_newer"] = media.get_newer_scenario(
+            flag.args["local_scenario"][settings.get("current_timeline")])
     for groupname, group in flag.args["scenario"].items():
         log.log("debug", "For loop groupname {0} , group {1} ".format(groupname, group))
         while len(group) > 0:
@@ -114,6 +119,8 @@ def trans_must_i_get_scenario(flag):
                 log.log("debug", "It's newer : {0} ".format(scenario))
                 flag.args["to_get"] = scenario
                 return step_get_scenario
+    if "reload" in flag.args.keys():
+        patcher.patch(DECLARED_SIGNALS["FS_TIMELINE_UPDATED"].get)   # Emit signal to warn somewhere there is new T.L.
     return step_main_wait  # End treatment
 
 
@@ -126,6 +133,9 @@ def get_scenario(flag):
     to_get = flag.args["to_get"]
     log.log("debug", "Try to get wia scp : {0}".format(to_get))
     to_get.get_from_distant(flag.args["src"].get_hostname())
+    if "reload" not in flag.args.keys() and flag.args["local_newer"].group == to_get.group:
+        if to_get.dateobj > flag.args["local_newer"].dateobj:
+            flag.args["reload"] = True
 
 step_init = fsm.State("SYNC_SCENARIO_INIT", function=init_scenprotocol)
 step_main_wait = fsm.State("SYNC_SCENARIO_MAIN_WAIT", function=_pass)
