@@ -718,7 +718,9 @@
     /////////////////////////////////////////////////////////////////////
 
     jsPlumb.bind("connection", function (info) {
-        info.connection.setLabel(info.connection.id);
+        //info.connection.setLabel(info.connection.id);
+				info.connection.setLabel('');
+
     });
 
 
@@ -845,7 +847,8 @@
       $.each(allStates, function(index, state) {
 
       var $box = $(state.box);
-			var allArgs = $.extend({}, state.argumentsArray, {media : state.media});
+			var allArgs = $.extend({}, state.argumentsArray, {media : state.media, dest: state.dispositifs });
+
 
       boxes.push({
         name: state.name,
