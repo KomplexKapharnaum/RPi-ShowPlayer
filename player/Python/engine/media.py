@@ -31,6 +31,12 @@ class ScenarioFile:
         self.date = edit_date
         self.dateobj = dateobj
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.group == other.group and self.date == other.date
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def get_from_distant(self, ip):
         """
             This function use scp to copy a distant scenario to the local filesystem
