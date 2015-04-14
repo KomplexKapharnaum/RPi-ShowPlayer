@@ -779,6 +779,7 @@
 		var selected;
     /////////////////  DELETE  /////////////////
      $(document).keyup(function(e){
+			console.log(e.keyCode);
         if((e.keyCode == 8)&&(listening == true)&&(connectionSelected != null)&&(selected=='connection') ){ ////del : 8 , - : 189
           e.preventDefault();
           jsPlumb.detach(connectionSelected);
