@@ -26,7 +26,7 @@ def save_scenario_on_fs(group, date_timestamp):
     :param date_timestamp: Scenario date to save
     :return:
     """
-    edit_date = datetime.fromtimestamp(date_timestamp).strftime(settings.get("scenario", "date_format"))
+    edit_date = datetime.datetime.fromtimestamp(date_timestamp).strftime(settings.get("scenario", "date_format"))
     path = os.path.join(settings.get("path", "scenario"), group)
     if not os.path.exists(path):
         os.mkdir(path)
@@ -47,7 +47,7 @@ def load_scenario_from_fs(group, date_timestamp=None):
     if date_timestamp is None:
         newer = get_newer_scenario(groups[group])
     else:
-        edit_date = datetime.fromtimestamp(date_timestamp).strftime(settings.get("scenario", "date_format"))
+        edit_date = datetime.datetime.fromtimestamp(date_timestamp).strftime(settings.get("scenario", "date_format"))
         newer = None
         for scenario in groups[group]:
             if scenario.date == edit_date:
