@@ -18,7 +18,7 @@ from engine.setting import settings
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
 from engine.log import init_log, dumpclean
-log = init_log("patcher")
+log = init_log("patcher", log_lvl="raw")
 
 
 class ThreadPatcher(threading.Thread):
@@ -78,7 +78,10 @@ class ThreadPatcher(threading.Thread):
 
     def _dispatch(self, signal):
         # envoyer au destinataire via OSC
+        # sendto = copy(signal.args["dest"])
+        # del signal.args["dest"]
         sendto = copy(signal.args["dest"])
+        signal.args["dest"] = None
         del signal.args["dest"]
         log.log("raw", "dispatch to : {0}".format(sendto))
         if settings.get("scenario", "dest_all") in sendto:
