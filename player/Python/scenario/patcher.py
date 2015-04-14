@@ -14,6 +14,7 @@ from libs.oscack import BroadcastAddress
 import libs.oscack
 # import libs.oscack.message
 # import libs.oscack.DNCserver
+from libs import rtplib
 from engine.setting import settings
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
@@ -84,12 +85,14 @@ class ThreadPatcher(threading.Thread):
         # sendto = copy(signal.args["dest"])
         # del signal.args["dest"]
         sendto = deepcopy(signal.args["dest"])
-        signal.args["dest"] = None
+        signal.args["dest"] = list()
         log.log("raw", "dispatch to : {0}".format(sendto))
+        s, ns = rtplib.get_time()
+        signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
+        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
         if settings.get("scenario", "dest_all") in sendto:
             log.log("raw", "dispatch to all dest")
-            message.send(message.Address("255.255.255.255"),
-                             message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
+            message.send(message.Address("255.255.255.255"), msg_to_send)
         else:
             if settings.get("scenario", "dest_group") in sendto:
                 log.log("raw", "add group in dispatch list")
@@ -99,8 +102,7 @@ class ThreadPatcher(threading.Thread):
                 if dest in libs.oscack.DNCserver.networkmap.keys():
                     if dest != settings["uName"] or settings.get(
                             "scenario", "dest_self") not in sendto:     # Avoid multiple self send
-                        message.send(libs.oscack.DNCserver.networkmap[dest].target,
-                                     message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
+                        message.send(libs.oscack.DNCserver.networkmap[dest].target, msg_to_send)
                 elif dest != settings.get("scenario", "dest_self"):
                     log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
@@ -114,7 +116,9 @@ class ThreadPatcher(threading.Thread):
             if signal is None:
                 continue
             log.log('raw', '{0}'.format(signal))
-            if "dest" in signal.args.keys() and signal.args["dest"] is not None:        # TODO !!! TEST bug if no dest
+            if "dest" not in signal.args.keys():
+                signal.args["dest"] = list()
+            if len(signal.args["dest"]) == 0 or signal.args["dest"][0] == settings.get("scenario", "dest_self"):
                 self._dispatch(signal)
             elif signal.uid in self._patchs.keys():
                 ThreadPatcher._patch(signal, self._patchs[signal.uid])

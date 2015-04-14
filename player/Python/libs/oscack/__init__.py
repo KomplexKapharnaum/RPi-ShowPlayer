@@ -29,6 +29,7 @@ from engine.setting import settings
 protocol = None
 
 def start_protocol():
+    log.debug("start protocol")
     import protocol as _protocol
     global protocol
     protocol = _protocol
@@ -39,6 +40,7 @@ def start_protocol():
         DNCserver = server.DNCServer(settings["uName"], classicport=settings["OSC"]["classicport"],
                                      ackport=settings["OSC"]["ackport"])
     if not DNCserver.started.is_set():
+        log.log("raw", "try to launch DNCserver")
         DNCserver.start()
     BroadcastAddress = message.Address("255.255.255.255")
     discover_machine = protocol.discover.machine
