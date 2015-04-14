@@ -153,8 +153,8 @@ class AckOSCServer(ClassicalOSCServer):
                     "Add method : " + str([self, args[0], args[1], self.return_method(args[2]), args[3:], kwargs]))
         liblo.ServerThread.add_method(self, args[0], args[1], self.return_method(args[2]), *args[3:], **kwargs)
 
-    def del_method(self, *args, **kwargs):
-        liblo._ServerBase.del_method(self, *args, **kwargs)
+    # def del_method(self, *args, **kwargs):
+    #     liblo.ServerThread.del_method(self, *args, **kwargs)
 
 
 class DNCServer(object):
