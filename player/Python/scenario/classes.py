@@ -9,6 +9,7 @@ import sys
 import os
 import traceback
 from collections import deque
+from copy import deepcopy
 
 from engine import fsm
 # from engine import media
@@ -41,7 +42,8 @@ class Etape(fsm.State):
         self._current_running_function = None
 
     def get(self):
-        return Etape(self.uid, self.actions, self.out_actions, self.transitions)
+        #return deepcopy(self)
+        return Etape(self.uid, deepcopy(self.actions), deepcopy(self.out_actions), deepcopy(self.transitions))
 
     def is_blocking(self):
         if None in self.transitions.keys(): return False

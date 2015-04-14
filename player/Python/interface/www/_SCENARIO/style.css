@@ -43,7 +43,7 @@ body
 }
 .textOption{
   padding: 0px;
-  width: 126px;
+  width: 116px;
 }
 
 .connect {
@@ -236,6 +236,15 @@ body
 
 .argsList{
   margin-top: 10px;
+}
+
+#txted{
+  width: 275px;
+  height: 180px;
+}
+
+#txted:focus{
+  outline:none;
 }
 
 /* ///////////////  CHECKBOX ///////////// */

@@ -69,7 +69,7 @@ def add_signal(*args, **kwargs):
     if "args" not in kwargs.keys():
         kwargs["args"] = dict()
     # log.log("raw", "Add signal : {0}, {1}".format(kwargs["signal"], kwargs["args"]))
-    log.log("debug", "Add signal : {0}".format(kwargs["signal"]))
+    log.log("raw", "Add signal : {0}".format(kwargs))
     # for sfsm in pool.FSM:  # TODO : Here we must use the future signal patcher !
     # sfsm.append_flag(pool.Signals[kwargs["signal"]].get(*kwargs["args"]))
     if "signal" in kwargs.keys():

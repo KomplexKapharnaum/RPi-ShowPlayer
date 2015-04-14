@@ -268,15 +268,18 @@ def parse_customscenario(name):
             if 'allArgs' in box:
                 etape.actions[0][1]["args"] = box['allArgs']
             importEtapes[etape.uid] = etape
-            log.log('raw', 'ADD PREBUILD ETAPE '+etape.uid)
+            log.log('debug', 'ADD PREBUILD ETAPE '+etape.uid)
         # Parsed function from JSON
         elif etapename+'_USERFUNC' in pool.Etapes_and_Functions.keys():
             fn = pool.Etapes_and_Functions[box['category']+'_'+box['name']+'_USERFUNC']
             etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
             importEtapes[etape.uid] = etape
-            log.log('raw', 'ADD USER FUNC '+etape.uid)
+            log.log('debug', 'ADD USER FUNC '+etape.uid)
         else:
             log.log('warning', 'Can\'t create '+etapename)
+
+    for etape in importEtapes.values():
+        log.log('debug', 'WITH ARGS {0}'.format(etape.actions[0][1]["args"]))
 
     for con in jobject['connections']:
         #Signal
@@ -298,4 +301,3 @@ def parse_customscenario(name):
 
     for etape in importEtapes.values():
         pool.Etapes_and_Functions[etape.uid] = etape
-    log.debug('POOL: {0}'.format(pool.Etapes_and_Functions['VIDEO_BTN_BOX1'].transitions))

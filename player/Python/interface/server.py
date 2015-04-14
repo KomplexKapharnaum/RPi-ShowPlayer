@@ -26,7 +26,7 @@ import json
 app = Bottle()
 staticpath = os.path.dirname(os.path.realpath(__file__))+'/www/'
 scenariopath = settings.get("path", "activescenario")
-
+mediapath = settings.get("path", "media")
 
 def sendjson(data):
     response.content_type = 'application/json'
@@ -89,6 +89,45 @@ def moduleslist():
 # def test():
 #     return '<form action="/save/test.json" method="post">Json <input type="text" name="content" /><input type="submit" value="Save" /></form>'
 
+@app.route('/_SCENARIO/data/loadText.php', method='POST')
+def loadText():
+    response.content_type = 'application/json'
+    filename = request.forms.get('filename')
+    filetype = request.forms.get('type')
+    try:
+        path = mediapath+"/"+filename
+        answer = dict()
+        answer['status'] = 'success'
+        with open(path, 'r') as file:   # Use file to refer to the file object     
+            answer['contents'] = file.read()
+        return json.dumps(answer)
+    except:
+        answer = dict()
+        answer['status'] = 'error'
+        answer['message'] = 'File not found'
+        return json.dumps(answer)
+
+
+@app.route('/_SCENARIO/data/saveText.php', method='POST')
+def saveText():
+    response.content_type = 'application/json'
+    filename = request.forms.get('filename')
+    content = request.forms.get('contents')
+    filetype = request.forms.get('type')
+    timestamp = request.forms.get('timestamp')
+    try:
+        path = mediapath+"/"+filename
+        answer = dict()
+        with open(path, 'w') as file:
+            file.write(content)
+    except:
+        answer['status'] = 'error'
+        answer['message'] = 'Write Error'
+        return json.dumps(answer)
+
+    answer['status'] = 'success'
+    return json.dumps(answer)
+
 
 @app.route('/_TIMELINE/data/save.php', method='POST')
 @app.route('/_SCENARIO/data/save.php', method='POST')
@@ -110,7 +149,6 @@ def save():
     try:
         path = scenariopath
         path = path+"/"+filetype+'_'+filename+".json"
-        print path
         with open(path, 'w') as file:
             file.write(json.dumps(contjson, indent=4, sort_keys=True))
     except:

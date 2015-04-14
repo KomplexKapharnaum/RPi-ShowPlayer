@@ -102,14 +102,11 @@
 
         var thispi = this;
 
-
-
         this.line.dblclick( function()
         {
-          //$("#scenariosms").multipleSelect("setSelects", 0);
           thispi.allBlocks.push(new block(thispi));
           $("#blocknameVisu").text("Select...");
-
+          $("#scenariosms").multipleSelect("setSelects", 0);
         });
 
 
@@ -703,7 +700,7 @@
           .done(function(reponse) {
               if (reponse.status == 'success')
               {
-                  $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
+                  //$('#serverDisplay').html('Loaded: <br>' + reponse.contents );
                   poolExport = JSON.parse(reponse.contents);
                   loadPool();
               }
@@ -731,7 +728,9 @@
           .done(function(reponse)
           {
               if (reponse.status == 'success')
-              {  $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(poolExport) );  }
+              {
+                //$('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(poolExport) );
+              }
               else if (reponse.status == 'error')
               { $('#serverDisplay').html( 'Erreur serveur: '+reponse.message ); }
           })
