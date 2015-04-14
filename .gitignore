@@ -10,6 +10,9 @@
 *.m4v
 *.aac
 
+#SCENARIO ARCHIVES
+*.tar
+
 #Log Files
 *.log
 
