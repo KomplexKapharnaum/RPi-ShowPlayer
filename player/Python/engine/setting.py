@@ -108,8 +108,9 @@ class Settings(dict):
                 try:
                     self.update(json.load(fp))
                     log.info("Settings loaded from {0}".format(path))
-                except:
-                    log.error("Could not load settings")
+                except Exception as e:
+                    log.error("Could not load settings at {0}".format(path))
+                    log.exception(log.show_exception(e))
         except IOError:
             log.info("No settings found at path {0}, create one".format(path))
             with open(path, 'wr') as fp:
