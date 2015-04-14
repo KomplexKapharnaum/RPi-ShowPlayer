@@ -63,7 +63,7 @@ def load_scenario_from_fs(group, date_timestamp=None):
         log.exception(log.show_exception(e))
     ##
     path = os.path.join(settings.get("path", "scenario"), group)
-    tar = tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "r")
+    tar = tarfile.open(os.path.join(path, group + "@" + newer.date + ".tar"), "r")
     tar.extractall(path=settings.get("path", "scenario"))
 
 
