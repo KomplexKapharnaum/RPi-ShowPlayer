@@ -59,7 +59,7 @@ class Flag:
         :param **kwargs: Can overload default parameter for the copy
         :return: Flag object, but initialized to be a real signal
         """
-        flag = copy.copy(self)
+        flag = copy.deepcopy(self)
         if args is not None:
             flag.args = args
         for key, item in kwargs.items():
