@@ -284,7 +284,7 @@ void checkInput() {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
       if(T_DECINPIN+i==T_PUSHROTARY){
-        if((1-digitalRead(inpin[i]))==1) {newValue[T_DECINPIN + i] = positionLeft;}
+        if((1-digitalRead(inpin[i]))==1) {newValue[T_DECINPIN + i] = positionLeft+1;} else {newValue[T_DECINPIN + i] =0;}
       }else{
         newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
       //Serial.print("b");
