@@ -4,8 +4,10 @@ import os
 from os import listdir
 from os.path import isfile, join
 from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_MANAGERS
-from engine.log import init_log, dumpclean
+from engine.log import init_log
 from engine.media import save_scenario_on_fs
+from engine.threads import patcher
+from engine import fsm
 log = init_log("webserver")
 
 # SET PYTHON PATH IN PARENT DIR
@@ -159,6 +161,7 @@ def save():
 
     answer['status'] = 'success'
     save_scenario_on_fs(settings["current_timeline"], date_timestamp=float(timestamp)/1000.0)
+    patcher.patch(fsm.Flag("SCENARIO_RESTART").get())
     return json.dumps(answer)
 
 @app.route('/_TIMELINE/data/load.php', method='POST')

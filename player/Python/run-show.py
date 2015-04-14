@@ -34,11 +34,12 @@ set_python_path(depth=1)
 log = log.init_log("main")
 
 try:
+    # INIT
     threads.init()
-    pool.init()
-    scenario.init_declared_objects()
-    parsing.load()
+    pool.init(manager)
+    scenario.init()
 
+    # GLOBAL MACHINES
     webfsm = classes.ScenarioFSM("WebInterface")
     patcher.FSM_GLOBAL.append(webfsm)
     webfsm.start(scenario.DECLARED_ETAPES["INTERFACE_START"])
@@ -47,14 +48,14 @@ try:
     devicefsm.start(scenario.DECLARED_ETAPES["DEVICE_CONTROL"])
     patcher.FSM_GLOBAL.append(devicefsm)
 
+    # START
+    parsing.load()
     oscack.start_protocol()
+    pool.start()
 
-    pool.start(manager)
-
-
+    # DEV
     flag_group = fsm.Flag("TEST_GROUP").get()
     flag_group.args["dest"] = [settings.get("scenario", "dest_group"), ]
-
     flag_all = fsm.Flag("TEST_ALL").get()
     flag_all.args["dest"] = [settings.get("scenario", "dest_all"), ]
 

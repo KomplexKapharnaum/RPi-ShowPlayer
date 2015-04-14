@@ -6,7 +6,7 @@
 #
 
 from scenario import globaletape, link
-from scenario import functions
+from scenario import functions, pool
 from engine.log import init_log
 from engine.setting import settings
 from engine.media import load_scenario_from_fs
@@ -15,20 +15,20 @@ log = init_log("etapes")
 
 
 @link({"FS_TIMELINE_UPDATED": "DEVICE_UPDATE_TIMELINE",
+        "/scenario/restart": "DEVICE_SCENARIO_RESTART",
         "TELECO_MESSAGE": "DEVICE_TELECO_CMD"})
 def device_control(flag, **kwargs):
     pass
 
-@link({None: "DEVICE_CONTROL"})
+@link({None: "DEVICE_SCENARIO_RESTART"})
 def device_update_timeline(flag, **kwargs):
     # TODO GET THE TAR // UPDATE ACTIVE SCENARIO // RELOAD SCENARIO
     load_scenario_from_fs(settings["current_timeline"])
-    log.debug('Reload new scenario')
     # TODO restart scenario !!
 
 @link({None: "DEVICE_CONTROL"})
-def device_teleco_cmd(flag, **kwargs):
-    
+def device_scenario_restart(flag, **kwargs):
+    pool.restart()
     pass
 
 
