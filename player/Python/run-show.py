@@ -50,6 +50,7 @@ try:
         pool.MANAGER = managefsm
         managefsm.append_flag(manager.start_flag.get())
     else:
+        managefsm = None
         log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
 
     while True:
@@ -64,7 +65,8 @@ try:
             continue
         cmd = c.split()
         if cmd[0] == "info":
-            log.info(managefsm.current_state)
+            if managefsm is not None:
+                log.info(managefsm.current_state)
             log.info(oscack.protocol.discover.machine.current_state)
             log.info(oscack.protocol.scenariosync.machine.current_state)
             for f in pool.FSM:
@@ -83,8 +85,9 @@ except Exception as e:
     log.exception(log.show_exception(e))
     log.error(e)
 
-managefsm.stop()
-managefsm.join()
+if managefsm is not None:
+    managefsm.stop()
+    managefsm.join()
 log.info("Ending Manager")
 for sfsm in pool.FSM:
     sfsm.stop()
