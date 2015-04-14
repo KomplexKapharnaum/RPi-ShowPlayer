@@ -158,7 +158,7 @@ def save():
         return json.dumps(answer)
 
     answer['status'] = 'success'
-    save_scenario_on_fs(settings["current_timeline"], date_timestamp=timestamp)
+    save_scenario_on_fs(settings["current_timeline"], date_timestamp=timestamp/1000.0)
     return json.dumps(answer)
 
 @app.route('/_TIMELINE/data/load.php', method='POST')
