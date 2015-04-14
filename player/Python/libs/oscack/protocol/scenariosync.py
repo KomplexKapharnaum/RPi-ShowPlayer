@@ -8,6 +8,7 @@
 from libs.oscack import message, network, DNCserver #, BroadcastAddress
 from engine.threads import network_scheduler, patcher
 
+from modules import  devicecontrol      # in order to be sure that FS_TIMELINE_UPDATED signal is declared
 from scenario import DECLARED_SIGNALS
 from engine import media
 from engine import fsm
