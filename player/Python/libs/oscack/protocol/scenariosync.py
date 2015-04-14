@@ -126,7 +126,10 @@ def trans_must_i_get_scenario(flag):
         new_group = False
         if groupname not in flag.args["local_scenario"]:
             new_group = True
-            os.mkdir(os.path.join(settings.get("path", "scenario"), groupname))
+            try:
+                os.mkdir(os.path.join(settings.get("path", "scenario"), groupname))
+            except OSError as e:
+                log.exception(log.show_exception(e))
         while len(group) > 0:
             scenario = group.pop()
             if new_group or scenario not in flag.args["local_scenario"][groupname]:  # It's newer # TODO waring
