@@ -27,8 +27,6 @@ log.debug("Init time tag : {0} ".format(timetag))
 from engine.setting import settings
 
 protocol = None
-message = None
-server = None
 
 def start_protocol():
     import protocol as _protocol
