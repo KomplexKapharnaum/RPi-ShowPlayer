@@ -31,8 +31,7 @@ def save_scenario_on_fs(group, date_timestamp):
     if not os.path.exists(path):
         os.mkdir(path)
     with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
-        tar.add(os.path.join(settings.get("path", "scenario"), settings.get("path", "activescenario")),
-                arcname=settings.get("path", "activescenario"))
+        tar.add(settings.get("path", "activescenario"), arcname=os.path.basename(settings.get("path", "activescenario")))
     tar.close()
 
 
@@ -64,7 +63,7 @@ def load_scenario_from_fs(group, date_timestamp=None):
     ##
     path = os.path.join(settings.get("path", "scenario"), group)
     tar = tarfile.open(os.path.join(path, group + "@" + newer.date + ".tar"), "r")
-    tar.extractall(path=settings.get("path", "scenario"))
+    tar.extractall()        # path=settings.get("path", "scenario"))
 
 
 class ScenarioFile:
