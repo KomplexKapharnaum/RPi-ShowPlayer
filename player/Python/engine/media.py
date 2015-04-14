@@ -6,7 +6,9 @@
 
 import os
 import shutil
+import shutil
 import datetime
+import tarfile
 
 from modules import ExternalProcess
 from libs import pyhashxx
@@ -15,6 +17,49 @@ from engine.setting import settings
 from engine.log import init_log
 
 log = init_log("media")
+
+
+def save_scenario_on_fs(group, date_timestamp):
+    """
+    This function tar scenario files and copy the archive on the right location
+    :param group: Group of the scenario to saved
+    :param date_timestamp: Scenario date to save
+    :return:
+    """
+    edit_date = datetime.fromtimestamp(date_timestamp).strftime(settings.get("scenario", "date_format"))
+    path = os.path.join(settings.get("path", "scenario"), group)
+    if not os.path.exists(path):
+        os.mkdir(path)
+    with open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
+        tar.add(os.path.join(settings.get("path", "scenario"), settings.get("path", "activescenario")),
+                arcname=settings.get("path", "activescenario"))
+    tar.close()
+
+
+def load_scenario_from_fs(group, date_timestamp=None):
+    """
+    This function load a scenario from tar and extract on fs
+    :param group: Group of the scenario
+    :param date_timestamp: Date of the scenario, if None, the newest is taken
+    :return:
+    """
+    groups = get_scenario_by_group_in_fs()
+    if date_timestamp is None:
+        newer = get_newer_scenario(groups[group])
+    else:
+        edit_date = datetime.fromtimestamp(date_timestamp).strftime(settings.get("scenario", "date_format"))
+        newer = None
+        for scenario in groups[group]:
+            if scenario.date == edit_date:
+                newer = scenario
+                break
+        if newer is None:          # Can't find scenario in fs
+            log.error("Can't find scenario ({0}@{1}) in fs".format(group, edit_date))
+            return False
+    # RM current scenario active directory ! #
+    shutil.rmtree(os.path.join(settings.get("path", "scenario"), settings.get("path", "activescenario")))
+    ##
+    tarfile.extractall(path=settings.get("path", "scenario"))
 
 
 class ScenarioFile:
