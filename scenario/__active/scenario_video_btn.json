@@ -3,7 +3,7 @@
         {
             "allArgs": {
                 "dest": [
-                    "All"
+                    "Group"
                 ], 
                 "media": "drums.mp3", 
                 "repeat": null
@@ -15,12 +15,12 @@
             "category": "AUDIO", 
             "dispoBOO": true, 
             "dispositifs": [
-                "All"
+                "Group"
             ], 
             "media": "drums.mp3", 
             "name": "PLAY", 
-            "positionX": 491, 
-            "positionY": 255
+            "positionX": 417, 
+            "positionY": 281
         }, 
         {
             "allArgs": {

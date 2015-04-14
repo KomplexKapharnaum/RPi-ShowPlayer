@@ -20,6 +20,7 @@ from scenario import pool
 from engine.log import init_log, dumpclean
 log = init_log("patcher")
 
+FSM_GLOBAL = list()
 
 class ThreadPatcher(threading.Thread):
     """
@@ -55,6 +56,8 @@ class ThreadPatcher(threading.Thread):
             fsm.append_flag(signal)
         for fsm in pool.DEVICE_FSM:
             fsm.append_flag(signal)
+        for fsm in FSM_GLOBAL:
+            fsm.append_flag(signal)
 
     def patch(self, signal):
         """
@@ -82,7 +85,6 @@ class ThreadPatcher(threading.Thread):
         # del signal.args["dest"]
         sendto = deepcopy(signal.args["dest"])
         signal.args["dest"] = None
-        del signal.args["dest"]
         log.log("raw", "dispatch to : {0}".format(sendto))
         if settings.get("scenario", "dest_all") in sendto:
             log.log("raw", "dispatch to all dest")
@@ -112,7 +114,7 @@ class ThreadPatcher(threading.Thread):
             if signal is None:
                 continue
             log.log('raw', '{0}'.format(signal))
-            if "dest" in signal.args.keys():
+            if "dest" in signal.args.keys() and signal.args["dest"] is not None:        # TODO !!! TEST bug if no dest
                 self._dispatch(signal)
             elif signal.uid in self._patchs.keys():
                 ThreadPatcher._patch(signal, self._patchs[signal.uid])

@@ -20,6 +20,7 @@ def device_control(flag, **kwargs):
 @link({None: "DEVICE_CONTROL"})
 def device_update_timeline(flag, **kwargs):
     # TODO GET THE TAR // UPDATE ACTIVE SCENARIO // RELOAD SCENARIO
+    log.debug('Should Update the last SCenario..')
     pass
 
 @link({None: "DEVICE_CONTROL"})
