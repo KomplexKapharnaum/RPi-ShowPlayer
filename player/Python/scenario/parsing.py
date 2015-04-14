@@ -181,7 +181,7 @@ def parse_customtimeline(name):
     Sceno = dict()
     parsepool = get_timeline(name)
     for device in parsepool:
-        for block in device["blocks"]: 
+        for block in device["blocks"]:
             SC = {
                     "carte": device['name'],
                     "scenarios": block['scenarios'],
@@ -192,9 +192,10 @@ def parse_customtimeline(name):
             #FIND START ETAPE FOR EACH ACTIVATED SCENARIO IN THE SCENE
             for scenario in block['scenarios']:
                 scenard = get_scenario(scenario)
-                for box in scenard['origins']:
-                    boxname = (scenario+'_'+box).upper()
-                    SC['etapes'].append(boxname)
+                if 'origins' in scenard:
+                    for box in scenard['origins']:
+                        boxname = (scenario+'_'+box).upper()
+                        SC['etapes'].append(boxname)
             # ADD SCENE
             scene_name = block['scene']['name']
             if scene_name not in Sceno.keys():
@@ -284,7 +285,7 @@ def parse_customscenario(name):
     for con in jobject['connections']:
         #Signal
         importSignal = {
-            "ID" : con['connectionId'],
+            "ID" : con['connectionLabel'],
             "JTL" : 1,
             "TTL" : 1,
             "IGNORE" : {},
@@ -297,7 +298,7 @@ def parse_customscenario(name):
         toBox = (name+'_'+con['TargetId']).upper()
         if fromBox in importEtapes.keys():
             if toBox in importEtapes.keys():
-                importEtapes[fromBox].transitions[con['connectionId']] = importEtapes[toBox]
+                importEtapes[fromBox].transitions[con['connectionLabel']] = importEtapes[toBox]
 
     for etape in importEtapes.values():
         pool.Etapes_and_Functions[etape.uid] = etape

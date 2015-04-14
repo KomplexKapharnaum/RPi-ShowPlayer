@@ -35,17 +35,17 @@ void Teleco::start(){
 }
 
 
-void Teleco::sendString(char Str1[], int line){
-  fprintf(stderr, "send %s\n",Str1);
-  unsigned char buff[18];
+void Teleco::sendString(char Str1[], char Str2[]){
+  fprintf(stderr, "send %s / %s\n",Str1,Str2);
+  unsigned char buff[34];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
-  if (line==2)buff[1]='2';
-  if (line==1)buff[1]='1';
-  if (line==0)buff[1]='c';
   for(int i=0;i<16;i++){
-    buff[i+2]= *(Str1+i);
+    buff[i+1]= *(Str1+i);
   }
-  SPIcarte.send(0,buff,18);
+  for(int i=0;i<16;i++){
+    buff[i+17]= *(Str2+i);
+  }
+  SPIcarte.send(0,buff,34);
 }
 
 int Teleco::readInterrupt(){

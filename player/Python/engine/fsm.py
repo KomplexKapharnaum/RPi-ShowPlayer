@@ -38,7 +38,8 @@ class Flag:
         self.uid = flag_uid
         self.args = dict(args)
         self.JTL = JTL
-        self.TTL = TTL
+        self._TTL = TTL
+        self.TTL = None
         self.ignore_cb = ignore_cb
         self.ignore_cb_args = tuple(ignore_cb_args)
         self._time_created = None  # This object haven't been get
@@ -60,15 +61,16 @@ class Flag:
         :return: Flag object, but initialized to be a real signal
         """
         flag = copy.deepcopy(self)
+        #flag = Flag(self.uid, args=copy.deepcopy(self.args), JTL=self.JTL, TTL=self.TTL, ignore_cb=copy.deepcopy(self.ignore_cb), ignore_cb_args=copy.deepcopy(self.ignore_cb_args), public_name=None)
         if args is not None:
             flag.args = args
         for key, item in kwargs.items():
             flag.__dict__[key] = item
         flag._time_created = rtplib.get_time()
         log.log("raw", "Create flag to : {0}s {1}ns".format(*flag._time_created))
-        if flag.TTL is not None:  # Initialize time TTL
-            log.log("raw", "Add TTL : {0}".format(flag.TTL))
-            flag.TTL = rtplib.add_time(flag._time_created[0], flag._time_created[1], flag.TTL)
+        if flag._TTL is not None:  # Initialize time TTL
+            log.log("raw", "Add TTL : {0}".format(flag._TTL))
+            flag.TTL = rtplib.add_time(flag._time_created[0], flag._time_created[1], flag._TTL)
             log.log("raw", "TTL init to : {0}s {1}ns".format(*flag.TTL))
         return flag
 

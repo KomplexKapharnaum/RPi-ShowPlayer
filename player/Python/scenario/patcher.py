@@ -77,7 +77,7 @@ class ThreadPatcher(threading.Thread):
                 ThreadPatcher.serve(signal)
 
     def _dispatch(self, signal):
-        # envoyer au destinataire via OSC
+        # envoyer au destinataire via 
         # sendto = copy(signal.args["dest"])
         # del signal.args["dest"]
         sendto = copy(signal.args["dest"])
