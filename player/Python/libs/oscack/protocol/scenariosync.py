@@ -134,6 +134,8 @@ def get_scenario(flag):
     to_get = flag.args["to_get"]
     log.log("debug", "Try to get wia scp : {0}".format(to_get))
     to_get.get_from_distant(flag.args["src"].get_hostname())
+    log.log("debug", "Check is distant group : {0} is same as us {1}".format(to_get.group, flag.args["local_newer"].group))
+    log.log("debig", "Flag args keys : {0}".format(flag.args.keys()))
     if "reload" not in flag.args.keys() and flag.args["local_newer"].group == to_get.group:
         log.log("debug", "{0} is same group as us".format(to_get))
         if to_get.dateobj > flag.args["local_newer"].dateobj:
