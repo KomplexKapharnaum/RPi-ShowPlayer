@@ -92,7 +92,7 @@ class ThreadPatcher(threading.Thread):
             if settings.get("scenario", "dest_group") in sendto:
                 log.log("raw", "add group in dispatch list")
                 sendto.remove(settings.get("scenario", "dest_group"))
-                sendto += [x.uid for x in pool.CURRENT_SCENE.cartes if x.uid not in sendto]
+                sendto += [x for x in pool.CURRENT_SCENE.cartes if x not in sendto]
             for dest in sendto:
                 if dest in DNCserver.networkmap.keys():
                     if dest != settings["uName"] or settings.get(
