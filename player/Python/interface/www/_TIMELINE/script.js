@@ -262,11 +262,6 @@
           thisblock.name = infos.name;
           $(block).css({left:infos.start});
           $(block).width(infos.end-infos.start);
-          if (block.prev().hasClass("block")) {
-            var prev = block.prev();
-            var prevwidth = prev.width();
-            $(block).css({left:infos.start-prevwidth});
-          }
           thisblock.keyframePosition();
           thisblock.scenarios = infos.scenarios;
           thisblock.scene = infos.scene;
@@ -700,7 +695,7 @@
           .done(function(reponse) {
               if (reponse.status == 'success')
               {
-                  //$('#serverDisplay').html('Loaded: <br>' + reponse.contents );
+                  $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
                   poolExport = JSON.parse(reponse.contents);
                   loadPool();
               }
@@ -729,7 +724,7 @@
           {
               if (reponse.status == 'success')
               {
-                //$('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(poolExport) );
+                $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(poolExport) );
               }
               else if (reponse.status == 'error')
               { $('#serverDisplay').html( 'Erreur serveur: '+reponse.message ); }

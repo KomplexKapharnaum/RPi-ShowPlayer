@@ -535,11 +535,12 @@
         this.recheckDispos();
       }
 
+
       this.sourceAndtarget = function (){
     		jsPlumb.makeTarget(thisState.box, {
     		  anchor: 'Continuous',
           //connector:"Straight",
-                        endpoint:[ "Rectangle", { width:10, height:10 } ],
+                        endpoint:[ "Rectangle", { width:10, height:10 }],
                         paintStyle:{ fillStyle:"dimgray", outlineColor:"dimgray", outlineWidth:2 },
                         hoverPaintStyle:{ fillStyle:"white" },
                         ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]]
@@ -779,7 +780,7 @@
 		var selected;
     /////////////////  DELETE  /////////////////
      $(document).keyup(function(e){
-			console.log(e.keyCode);
+
         if((e.keyCode == 8)&&(listening == true)&&(connectionSelected != null)&&(selected=='connection') ){ ////del : 8 , - : 189
           e.preventDefault();
           jsPlumb.detach(connectionSelected);

@@ -87,8 +87,8 @@
       padding:0px;
       background-color:#B5B5B5;
       display:inline-block;
-      /*position: absolute;*/
-      position:inherit;
+      position: absolute;
+      /*position:inherit;*/
       opacity: 0.5;
       transition: 0.1s background-color;
 
@@ -99,6 +99,7 @@
       height:40px;
       background-color:#EEEEEE;
       display:block;
+      position: relative;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -khtml-user-select: none;
