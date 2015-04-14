@@ -135,6 +135,22 @@ body
 .btn2:focus{
   outline: none;
 }
+.btnText
+{
+  color: #EEEEEE;
+  background: #444444;
+  padding: 4px 8px 4px 8px ;
+  border: 0px;
+  margin-right: 0px;
+  display:block;
+  float: right;
+  width: 26px;
+  height: 20px;
+  text-align: center;
+}
+.btnText:focus{
+  outline: none;
+}
 .dropdown{
   width:122px;
   height: 22px;
