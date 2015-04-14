@@ -11,7 +11,7 @@ from copy import deepcopy
 
 from libs.oscack import message
 from libs.oscack import BroadcastAddress
-from libs.oscack import DNCserver
+import libs.oscack
 # import libs.oscack.message
 # import libs.oscack.DNCserver
 from engine.setting import settings
@@ -96,10 +96,10 @@ class ThreadPatcher(threading.Thread):
                 sendto.remove(settings.get("scenario", "dest_group"))
                 sendto += [x for x in pool.CURRENT_SCENE.cartes if x not in sendto]
             for dest in sendto:
-                if dest in DNCserver.networkmap.keys():
+                if dest in libs.oscack.DNCserver.networkmap.keys():
                     if dest != settings["uName"] or settings.get(
                             "scenario", "dest_self") not in sendto:     # Avoid multiple self send
-                        message.send(DNCserver.networkmap[dest].target,
+                        message.send(libs.oscack.DNCserver.networkmap[dest].target,
                                      message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True))
                 elif dest != settings.get("scenario", "dest_self"):
                     log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
