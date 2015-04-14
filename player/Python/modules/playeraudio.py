@@ -7,7 +7,7 @@
 import os
 from modules import ExternalProcess
 from engine.setting import settings
-from scenario import link
+from scenario import link, module
 from engine.log import init_log
 log = init_log("audio")
 
@@ -69,6 +69,7 @@ class Mpg123(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
+@module()
 @link({"/audio/play [media] [repeat]": "audio_play",
         "/audio/pause": "audio_pause",
         "/audio/stop": "audio_stop"})

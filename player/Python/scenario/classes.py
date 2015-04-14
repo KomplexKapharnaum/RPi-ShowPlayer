@@ -217,9 +217,10 @@ class Device:
         self.modules = modules
         self.patchs = patchs
         self.managers = managers
-        for manager_uid in scenario.DECLARED_MANAGER:
-            if manager_uid in pool.Etapes_and_Functions.keys():
-                self.managers[manager_uid] = pool.Etapes_and_Functions[manager_uid]
+        for uid, man in scenario.DECLARED_MANAGERS.items():
+            if man['autoload'] and uid in pool.Etapes_and_Functions.keys():
+                self.managers[uid] = pool.Etapes_and_Functions[uid]
+                log.debug("LOAD MANAGER :: "+uid+" (Auto)")
 
     def launch_manager(self):
         """

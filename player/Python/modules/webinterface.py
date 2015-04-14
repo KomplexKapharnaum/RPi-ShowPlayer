@@ -1,6 +1,6 @@
 
 # from modules import ExternalProcess
-from scenario import globaletape
+from scenario import globaletape, module
 # from engine.setting import settings
 from engine.log import init_log
 
@@ -28,7 +28,8 @@ class Webserver():
 
 
 # ETAPE AND SIGNALS
-@globaletape("INTERFACE_START", autoload=True)
+@module(autoload=True)
+@globaletape("INTERFACE_START")
 def interface_start(flag, **kwargs):
     if "interface" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["interface"] = Webserver()

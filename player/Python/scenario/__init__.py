@@ -13,7 +13,7 @@ DECLARED_SIGNALS = dict()
 DECLARED_PATCHER = dict()
 DECLARED_OSCROUTES = dict()
 DECLARED_TRANSITION = dict()
-DECLARED_MANAGER = []
+DECLARED_MANAGERS = dict()
 DECLARED_PUBLICSIGNALS = []
 
 
@@ -133,25 +133,29 @@ class globaletape(object):
     """
     This is a decorator which declare function as etape in scenario scope
     """
-    def __init__(self, uid=None, transitions=dict(), options=dict(), autoload=False):
+    def __init__(self, uid=None, transitions=dict(), options=dict()):
         """
         :param public_name: Name of the function in the scenario scope
         """
         self.uid = uid
         self.options = options
         self.transitions = transitions
+
+    def __call__(self, f):
+        global DECLARED_ETAPES, DECLARED_TRANSITION, DECLARED_MANAGERS
+        DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
+        DECLARED_TRANSITION[self.uid] = self.transitions
+        return f
+
+
+class module(object):
+    def __init__(self, autoload=False):
         self.autoload = autoload
 
     def __call__(self, f):
-        global DECLARED_ETAPES, DECLARED_TRANSITION, DECLARED_MANAGER
-        DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
-        DECLARED_TRANSITION[self.uid] = self.transitions
-        # log.debug("DECLARE ETAPE: "+self.uid+" -> "+f.__name__)
-        # for transfrom, transto in DECLARED_TRANSITION[self.uid].items():
-            # log.debug("DECLARE TRANS: {0} -> {1}".format(transfrom,transto))
-        if self.autoload and self.uid not in DECLARED_MANAGER:
-            DECLARED_MANAGER.append(self.uid)
-            log.debug("START ETAPE :: "+self.uid+" (Auto)")
+        uid = f.__name__.upper()
+        global DECLARED_MANAGERS
+        DECLARED_MANAGERS[uid] = {'autoload':self.autoload}
         return f
 
 
@@ -162,8 +166,8 @@ class link(globaletape):
     If an osc path is supplied, it is converted into signal, 
     and the corresponding patch is added
     """
-    def __init__(self, routes=dict(), autoload=False):
-        globaletape.__init__(self, None, dict(), dict(), autoload)
+    def __init__(self, routes=dict()):
+        globaletape.__init__(self, None, dict(), dict())
         self.oscroutes = routes
 
     def __call__(self, f):
@@ -190,6 +194,7 @@ class link(globaletape):
             # Add transition
             self.transitions[signal_osc] = self.oscroutes[osccmd].upper()
         super(link, self).__call__(f)
+        return f
 
 
 def exposesignals(sigs=dict()):
