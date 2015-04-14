@@ -40,9 +40,12 @@ def load_scenario_from_fs(group, date_timestamp=None):
     This function load a scenario from tar and extract on fs
     :param group: Group of the scenario
     :param date_timestamp: Date of the scenario, if None, the newest is taken
-    :return:
+    :return: True if succed, False if not
     """
     groups = get_scenario_by_group_in_fs()
+    if group not in groups.keys():
+        log.warning("There is no group {0} on file system => aborting load scenario".format(group))
+        return False
     if date_timestamp is None:
         newer = get_newer_scenario(groups[group])
     else:
@@ -55,15 +58,17 @@ def load_scenario_from_fs(group, date_timestamp=None):
         if newer is None:          # Can't find scenario in fs
             log.error("Can't find scenario ({0}@{1}) in fs".format(group, edit_date))
             return False
-    # RM current scenario active directory ! #
-    try:
-        shutil.rmtree(os.path.join(settings.get("path", "scenario"), settings.get("path", "activescenario")))
-    except Exception as e:
-        log.exception(log.show_exception(e))
-    ##
     path = os.path.join(settings.get("path", "scenario"), group)
-    tar = tarfile.open(os.path.join(path, group + "@" + newer.date + ".tar"), "r")
-    tar.extractall(path=settings.get("path", "scenario"))        # path=settings.get("path", "scenario"))
+    with tarfile.open(os.path.join(path, group + "@" + newer.date + ".tar"), "r") as tar:
+        # RM current scenario active directory ! #
+        if os.path.exists(settings.get("path", "activescenario")):
+            shutil.rmtree(settings.get("path", "activescenario"))
+        ##
+        tar.extractall(path=settings.get("path", "scenario"))        # path=settings.get("path", "scenario"))
+        return True
+    # if here it's because we ca not open tar file
+    log.warning("Error when opening scnario at {0}".format(os.path.join(path, group + "@" + newer.date + ".tar")))
+    return False
 
 
 class ScenarioFile:
