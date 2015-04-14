@@ -7,7 +7,7 @@
 import threading
 import Queue
 import cPickle
-from copy import copy
+from copy import deepcopy
 
 from libs.oscack import message
 from libs.oscack import BroadcastAddress
@@ -80,7 +80,7 @@ class ThreadPatcher(threading.Thread):
         # envoyer au destinataire via 
         # sendto = copy(signal.args["dest"])
         # del signal.args["dest"]
-        sendto = copy(signal.args["dest"])
+        sendto = deepcopy(signal.args["dest"])
         signal.args["dest"] = None
         del signal.args["dest"]
         log.log("raw", "dispatch to : {0}".format(sendto))
