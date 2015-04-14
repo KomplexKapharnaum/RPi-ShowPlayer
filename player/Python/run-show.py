@@ -35,7 +35,6 @@ log = log.init_log("main")
 
 try:
     threads.init()
-    oscack.start_protocol()
     parsing.clear_scenario()
 
     webfsm = classes.ScenarioFSM("WebInterface")
@@ -60,6 +59,15 @@ try:
     else:
         managefsm = None
         log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
+
+
+    oscack.start_protocol()
+
+    flag_group = fsm.Flag("TEST_GROUP").get()
+    flag_group.args["dest"] = [settings.get("scenario", "dest_group"), ]
+
+    flag_all = fsm.Flag("TEST_ALL").get()
+    flag_all.args["dest"] = [settings.get("scenario", "dest_all"), ]
 
     while True:
         try:
@@ -94,13 +102,9 @@ try:
         if cmd[0] == "signal":
             if len(cmd) > 1:
                 if cmd[1] == "testall":
-                    flag_all = fsm.Flag("TEST_ALL").get()
-                    flag_all.args["dest"] = settings.get("scenario", "dest_all")
-                    threads.patcher.patch(flag_all)
+                    threads.patcher.patch(flag_all.get())
                 if cmd[1] == "testgroup":
-                    flag_group = fsm.Flag("TEST_GROUP").get()
-                    flag_group.args["dest"] = settings.get("scenario", "dest_group")
-                    threads.patcher.patch(flag_group)
+                    threads.patcher.patch(flag_group.get())
 
 except Exception as e:
     log.exception(log.show_exception(e))
