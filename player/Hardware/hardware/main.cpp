@@ -59,7 +59,7 @@ void myInterruptTELECO(void) {
     char mess2[17];
     delay(10);
     sprintf(mess1,"%s",carte_name.c_str());
-    sprintf(mess2,"%s - %.1fV",carte_ip.c_str(),v);
+    sprintf(mess2,"%s %.1fV",carte_ip.c_str(),v);
     myteleco.sendString(mess1,mess2);
   }
 
