@@ -64,6 +64,8 @@ try:
         if c == "":
             continue
         cmd = c.split()
+        if cmd[0] == "settings":
+            log.info(settings)
         if cmd[0] == "info":
             if managefsm is not None:
                 log.info(managefsm.current_state)
