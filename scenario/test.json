@@ -1,0 +1,41 @@
+{  
+   "pool":[  
+      {  
+         "name":"raspi2mgr",
+         "modules":["VIDEO_PLAYER", "AUDIO_PLAYER", "KXKM_CARD"],
+         "blocks":[  
+            {  
+               "name":"block1",
+               "scene":{  
+                  "name":"scene1",
+                  "color":"218C8D"
+               },
+               "scenarios":[  
+                  "scenario"
+               ],
+               "start":0,
+               "end":100
+            }
+         ]
+      },
+      {  
+         "name":"imageA",
+         "modules":["KXKM_CARD"],
+         "blocks":[  
+            {  
+               "name":"block1",
+               "scene":{   
+                  "name":"default",
+                  "color":"B5B5B5"
+               },
+               "scenarios":[  
+                  "ONE",
+                  "TWO"
+               ],
+               "start":100,
+               "end":250
+            }
+         ]
+      }
+   ]
+}

@@ -69,9 +69,9 @@ class Mpg123(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@link({"/audio/play [media] [dispo] [repeat]": "audio_play",
-        "/audio/pause [dispo]": "audio_pause",
-        "/audio/stop [dispo]": "audio_stop"})
+@link({"/audio/play [media] [repeat]": "audio_play",
+        "/audio/pause": "audio_pause",
+        "/audio/stop": "audio_stop"})
 def audio_player(flag, **kwargs):
     if "audio" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["audio"] = Mpg123()
@@ -80,8 +80,10 @@ def audio_player(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_play(flag, **kwargs):
-    media = flag.args["args"][0] if len(flag.args["args"]) >= 1 else None
-    repeat = flag.args["args"][1] if len(flag.args["args"]) >= 2 else None
+    # media = flag.args["oscargs"][0] if len(flag.args["oscargs"]) >= 1 else None
+    # repeat = flag.args["oscargs"][1] if len(flag.args["oscargs"]) >= 2 else None
+    media = flag.args["media"] if 'media' in flag.args else None
+    repeat = flag.args["repeat"] if 'repeat' in flag.args else None
     kwargs["_fsm"].vars["audio"].play(media, repeat)
     kwargs["_etape"].preemptible.set()
 

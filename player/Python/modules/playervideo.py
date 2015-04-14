@@ -55,9 +55,9 @@ class VlcPlayer(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@link({"/video/play [media] [dispo] [repeat]": "video_play",
-        "/video/pause [dispo]": "video_pause",
-        "/video/stop [dispo]": "video_stop"})
+@link({"/video/play [media] [repeat]": "video_play",
+        "/video/pause": "video_pause",
+        "/video/stop": "video_stop"})
 def video_player(flag, **kwargs):
     if "video" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["video"] = VlcPlayer()
@@ -65,8 +65,11 @@ def video_player(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
-    media = flag.args["args"][0] if len(flag.args["args"]) >= 1 else None
-    repeat = flag.args["args"][1] if len(flag.args["args"]) >= 2 else None
+    # flag.args['media']
+    # flag.args["args"][0]
+
+    media = flag.args["media"] if 'media' in flag.args else None
+    repeat = flag.args["repeat"] if 'repeat' in flag.args else None
     kwargs["_fsm"].vars["video"].play(media, repeat)
     kwargs["_etape"].preemptible.set()
 

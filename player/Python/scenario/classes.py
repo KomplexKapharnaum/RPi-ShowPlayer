@@ -8,6 +8,7 @@ import threading
 import sys
 import os
 import traceback
+from collections import deque
 
 from engine import fsm
 # from engine import media
@@ -22,7 +23,7 @@ class Etape(fsm.State):
     """
         This class overide the State class and represent an Etape in the scenario system
     """
-    def __init__(self, uid, actions=(), out_actions=(), transitions={}):
+    def __init__(self, uid, actions=[], out_actions=[], transitions={}):
         """
         Etape init function
         :param uid: Unique ID
@@ -32,13 +33,20 @@ class Etape(fsm.State):
         :return:
         """
         fsm.State.__init__(self, uid, None)
-        self.actions = tuple(actions)
-        self.out_actions = tuple(out_actions)
+        self.actions = list(actions)
+        self.out_actions = list(out_actions)
         self.transitions = dict(transitions)
+        self._localvars = dict()
+        self.parent = None
         self._current_running_function = None
 
     def get(self):
         return Etape(self.uid, self.actions, self.out_actions, self.transitions)
+
+    def is_blocking(self):
+        if None in self.transitions.keys(): return False
+        if True in self.transitions.keys(): return False
+        return True
 
     def _run_fnct(self, _fsm, fnct, flag, kwargs):
         """
@@ -116,6 +124,7 @@ class ScenarioFSM(fsm.FiniteStateMachine):
         :return:
         """
         fsm.FiniteStateMachine.__init__(self, name, flag_stack_len)
+        self.history = deque(maxlen=32)
 
     def _change_state(self, flag, state):
         """
@@ -125,6 +134,8 @@ class ScenarioFSM(fsm.FiniteStateMachine):
         :return:
         """
         if self.current_state is not None:
+            self.history.append(self.current_state)
+            # state.parent = self.current_state
             self.current_state.run_out(self, flag)  # blocking
         self.current_state = state
         log.log("raw", "- Start etape functions")

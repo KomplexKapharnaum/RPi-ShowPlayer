@@ -17,7 +17,7 @@ nano /boot/config.txt #add overclocking options
 
 pacman -S --noconfirm wget nfs-utils htop openssh autofs alsa-utils alsa-firmware alsa-lib alsa-plugins 
 pacman -S --noconfirm git zsh base-devel libtool diffutils libnewt polkit
-pacman -S --noconfirm mesa-libgl  ttf-freefont
+pacman -S --noconfirm mesa-libgl  ttf-freefont wpasupplicant
 
 timedatectl set-timezone Europe/Paris
 timedatectl ste-ntp true
@@ -87,11 +87,19 @@ sudo make install
 
 
 ####DNC Dependencies
-sudo pacman -S --noconfirm python2-setuptools
+git clone https://github.com/KomplexKapharnaum/RPi-ShowPlayer.git /dnc
+pacman -S --noconfirm python2-setuptools python2-simplejson cython liblo
 yaourt python2-pyliblo
-yaourt python2-simplejson
 yaourt omxplayer 
-sudo /dnc/player/Libs/recompile.sh /dnc/player/Libs
+/dnc/player/Libs/recompile.sh /dnc/player/Libs
+
+####NETCTL
+pacman -S --noconfirm wpa_actiond
+systemctl enable netctl-auto@wlan0.service
+- (Disable old profiles : netctl disable *** )
+- Create profiles for wlan0 iterface and set Priority=XXX to ordonate profiles. Higher priority win.
+- ( You can manage auto profiles with netctl-auto command )
+
 
 
 

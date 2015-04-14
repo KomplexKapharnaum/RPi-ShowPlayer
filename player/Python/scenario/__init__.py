@@ -19,8 +19,6 @@ DECLARED_PUBLICSIGNALS = []
 
 def init_declared_objects():
     import functions
-    import etapes
-    import signals
     import modules
     global DECLARED_ETAPES, DECLARED_FUNCTIONS, DECLARED_SIGNALS, DECLARED_PATCHER, DECLARED_TRANSITION, DECLARED_OSCROUTES
     #dumpclean(DECLARED_TRANSITION)
@@ -35,13 +33,18 @@ def init_declared_objects():
         fn_sgn_patcher = pool.Etapes_and_Functions["MSG_SIGNAL_PATCHER"]
         oscroutes_patch = dict()
         for path, route in DECLARED_OSCROUTES.items():
-            oscroutes_patch[path] = route['signal']
+            oscroutes_patch[path] = route
         DECLARED_PATCHER["DECLARED_OSCROUTES"] = Patch("DECLARED_OSCROUTES", "RECV_MSG", (fn_sgn_patcher, oscroutes_patch))
         #..
         # Create Etape Senders for OSCROUTES
         fn_sgn_sender = pool.Etapes_and_Functions["ADD_SIGNAL"]
+        fn_auto_transit = pool.Etapes_and_Functions["TRANSIT_AUTO"]
+        fn_auto_transit_clean = pool.Etapes_and_Functions["TRANSIT_CLEAN"]
         for path, route in DECLARED_OSCROUTES.items():
-            etape_sender = Etape('SEND_'+route['signal'], actions=((fn_sgn_sender, {'signal':route['signal']}),))
+            etape_sender = Etape('SEND_'+route['signal'], actions=((fn_sgn_sender, {'signal':route['signal']}),
+                                                                   (fn_auto_transit, {})),
+                                                          out_actions= ((fn_auto_transit_clean, {}),)
+                                                        )
             DECLARED_ETAPES[etape_sender.uid] = etape_sender
 
     #..
@@ -72,7 +75,7 @@ def init_declared_objects():
                         log.warning("Etape {0}: No destination {1} for declared transition".format(etape_uid, goto_uid))
             else:
                 log.warning("Can't find Etape {0} to attach a declared transition".format(etape_uid))
-    
+
 
     # ..
     # Import declared elements to Poll
@@ -181,9 +184,6 @@ class link(globaletape):
                     signal_osc = oscpath.replace('/','_')[1:].upper()
                     DECLARED_OSCROUTES[oscpath] = {'signal': signal_osc,
                                                     'args': [arg[1:-1] for arg in oscargs]}
-
-                    
-                
                 # Internal transition
                 else:
                     signal_osc = oscpath.upper()

@@ -131,7 +131,8 @@ class ExternalProcess(object):
     def emmit(self, args=dict()):
         signal_name = args[0].upper()
         log.log("raw", signal_name+' '+' '.join(args[1:]))
-        patcher.patch(Flag(signal_name).get(args={"args": args[1:]}))
+        flag = Flag(signal_name).get(args={"args": args[1:]})
+        patcher.patch(flag)
 
     def __del__(self):
         log.log("raw", "Module thread destroyed")
