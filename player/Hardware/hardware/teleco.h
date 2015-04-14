@@ -63,7 +63,7 @@ class Teleco : public Carte {
 
 public:
   void initCarte();
-  void sendString(char Str1[]);
+  void sendString(char Str1[], int line);
   int fisrtView();
   void start();
   int readInterrupt();
