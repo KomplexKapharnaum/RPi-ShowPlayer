@@ -81,8 +81,8 @@ class ThreadPatcher(threading.Thread):
         # sendto = copy(signal.args["dest"])
         # del signal.args["dest"]
         sendto = deepcopy(signal.args["dest"])
-        signal.args["dest"] = None
-        del signal.args["dest"]
+        # signal.args["dest"] = None
+        # del signal.args["dest"]
         log.log("raw", "dispatch to : {0}".format(sendto))
         if settings.get("scenario", "dest_all") in sendto:
             log.log("raw", "dispatch to all dest")
