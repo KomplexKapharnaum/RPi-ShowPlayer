@@ -45,11 +45,16 @@ def init_scenprotocol(flag):
     log.log("debug", "Start scenario sync protocol machine")
     groups = media.get_scenario_by_group_in_fs()
     log.log("debug", "Parsed fs groups {0}".format(groups))
-    current_newer_timeline = media.get_newer_scenario(groups[settings.get("current_timeline")])
-    log.log("debug", "Current timeline : {0}".format(current_newer_timeline))
-    message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_ASK,
+    if settings.get("current_timeline") in groups.keys():
+        current_newer_timeline = media.get_newer_scenario(groups[settings.get("current_timeline")])
+        log.log("debug", "Current timeline : {0}".format(current_newer_timeline))
+        message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_ASK,
                                                                         ('s', current_newer_timeline.group),
                                                                         ('s', current_newer_timeline.date)))
+    else:
+        log.log("warning",
+                "Searching for {0} timeline but not found on filesystem".format(settings.get("current_timeline")))
+        current_newer_timeline = None
     add_timeout_flag()
 
 
@@ -109,8 +114,11 @@ def trans_must_i_get_scenario(flag):
         log.log("raw", "First iter on loop get_scenario")
         flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"])
         flag.args["local_scenario"] = media.get_scenario_by_group_in_fs()
-        flag.args["local_newer"] = media.get_newer_scenario(
-            flag.args["local_scenario"][settings.get("current_timeline")])
+        if settings.get("current_timeline") in flag.args["local_scenario"].keys():
+            flag.args["local_newer"] = media.get_newer_scenario(
+                flag.args["local_scenario"][settings.get("current_timeline")])
+        else:
+            flag.args["local_newer"] = None
     for groupname, group in flag.args["scenario"].items():
         log.log("raw", "For loop groupname {0} , group {1} ".format(groupname, group))
         while len(group) > 0:
@@ -136,11 +144,12 @@ def get_scenario(flag):
     to_get.get_from_distant(flag.args["src"].get_hostname())
     log.log("raw", "Check is distant group : {0} is same as us {1}".format(to_get.group, flag.args["local_newer"].group))
     log.log("raw", "Flag args keys : {0}".format(flag.args.keys()))
-    if "reload" not in flag.args.keys() and flag.args["local_newer"].group == to_get.group:
-        log.log("raw", "{0} is same group as us".format(to_get))
-        if to_get.dateobj > flag.args["local_newer"].dateobj:
-            log.log("debug", "{0} is a newer version of our group, we should update".format(to_get))
-            flag.args["reload"] = True
+    if flag.args["local_newer"] is not None:
+        if "reload" not in flag.args.keys() and flag.args["local_newer"].group == to_get.group:
+            log.log("raw", "{0} is same group as us".format(to_get))
+            if to_get.dateobj > flag.args["local_newer"].dateobj:
+                log.log("debug", "{0} is a newer version of our group, we should update".format(to_get))
+                flag.args["reload"] = True
 
 step_init = fsm.State("SYNC_SCENARIO_INIT", function=init_scenprotocol)
 step_main_wait = fsm.State("SYNC_SCENARIO_MAIN_WAIT", function=_pass)
