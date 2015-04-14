@@ -5,6 +5,7 @@ from os import listdir
 from os.path import isfile, join
 from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_MANAGERS
 from engine.log import init_log, dumpclean
+from engine.media import save_scenario_on_fs
 log = init_log("webserver")
 
 # SET PYTHON PATH IN PARENT DIR
@@ -157,6 +158,7 @@ def save():
         return json.dumps(answer)
 
     answer['status'] = 'success'
+    save_scenario_on_fs(settings["current_timeline"], date_timestamp=timestamp)
     return json.dumps(answer)
 
 @app.route('/_TIMELINE/data/load.php', method='POST')
