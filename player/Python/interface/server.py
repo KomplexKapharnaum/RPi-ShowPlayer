@@ -8,6 +8,7 @@ from engine.log import init_log
 from engine.media import save_scenario_on_fs
 from engine.threads import patcher
 from engine import fsm
+from libs import oscack
 log = init_log("webserver")
 
 # SET PYTHON PATH IN PARENT DIR
@@ -162,6 +163,7 @@ def save():
     answer['status'] = 'success'
     save_scenario_on_fs(settings["current_timeline"], date_timestamp=float(timestamp)/1000.0)
     patcher.patch(fsm.Flag("SCENARIO_RESTART").get())
+    oscack.protocol.scenariosync.machine.add_signal(oscack.protocol.scenariosync.flag_timeout.get())    # Force sync
     return json.dumps(answer)
 
 @app.route('/_TIMELINE/data/load.php', method='POST')
