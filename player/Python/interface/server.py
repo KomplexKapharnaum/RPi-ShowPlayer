@@ -163,7 +163,7 @@ def save():
     answer['status'] = 'success'
     save_scenario_on_fs(settings["current_timeline"], date_timestamp=float(timestamp)/1000.0)
     patcher.patch(fsm.Flag("SCENARIO_RESTART").get())
-    oscack.protocol.scenariosync.machine.add_signal(oscack.protocol.scenariosync.flag_timeout.get())    # Force sync
+    oscack.protocol.scenariosync.machine.append_flag(oscack.protocol.scenariosync.flag_timeout.get())    # Force sync
     return json.dumps(answer)
 
 @app.route('/_TIMELINE/data/load.php', method='POST')
