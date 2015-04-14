@@ -22,8 +22,8 @@ def device_control(flag, **kwargs):
 @link({None: "DEVICE_CONTROL"})
 def device_update_timeline(flag, **kwargs):
     # TODO GET THE TAR // UPDATE ACTIVE SCENARIO // RELOAD SCENARIO
-    log.debug('Should Update the last SCenario..')
     load_scenario_from_fs(settings["current_timeline"])
+    log.debug('Reload new scenario')
     # TODO restart scenario !!
 
 @link({None: "DEVICE_CONTROL"})

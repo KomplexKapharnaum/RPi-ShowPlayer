@@ -82,7 +82,7 @@ class Etape(fsm.State):
         :param flag: flag wich cause the change
         :return:
         """
-        log.log("debug", "START ETAPE :: {0}".format(self.uid))
+        log.log("debug", "START ETAPE :: {0} on {1}".format(self.uid,flag))
         if len(self.actions) > 0:
             return self._run(_fsm, flag, self.actions)
 
@@ -109,7 +109,10 @@ class Etape(fsm.State):
             self.preemptible.wait()
 
     def __str__(self):
-        return "Etape : {0}".format(self.uid)
+        return "Etape & Transitions: {0}".format(self.uid)
+
+    def strtrans(self):
+        return "Etape & Transitions: {0} {1}".format(self.uid, self.transitions)
 
     def __repr__(self):
         return self.__str__()

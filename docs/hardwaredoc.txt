@@ -22,4 +22,4 @@ from teleco : "#TELECO_PUSH_A " "#TELECO_PUSH_B "
 "#TELECO_PUSH_OK " "#TELECO_REED " "#TELECO_FLOAT "
 
 "#TELECO_MESSAGE XXX" 
-XXX = "startscene","restartscene","nextscene","blinkgroup","poweroff","testroutine"
+XXX = "previousscene","restartscene","nextscene","blinkgroup","poweroff","testroutine", "reboot"

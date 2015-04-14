@@ -1,0 +1,36 @@
+{
+    "pool": [
+        {
+            "blocks": [
+                {
+                    "end": 100, 
+                    "name": "block1", 
+                    "scenarios": [
+                        "video_btn"
+                    ], 
+                    "scene": {
+                        "color": "218C8D", 
+                        "name": "scene1"
+                    }, 
+                    "start": 0
+                }, 
+                {
+                    "end": 250, 
+                    "name": "block2", 
+                    "scenarios": [], 
+                    "scene": {
+                        "color": "D83E3E", 
+                        "name": "scene2"
+                    }, 
+                    "start": 100
+                }
+            ], 
+            "modules": [
+                "KXKM_CARD", 
+                "AUDIO_PLAYER", 
+                "VIDEO_PLAYER"
+            ], 
+            "name": "raspi2mgr"
+        }
+    ]
+}

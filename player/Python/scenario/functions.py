@@ -38,11 +38,13 @@ def auto_transit(*args, **kwargs):
     If an Etape has no out transition, it adds an auto transition to parent Etape
     :return:
     """
+    log.log('debug', kwargs['_etape'].strtrans())
     if len(kwargs['_etape'].transitions) == 0:
         parent = None
         for parent in reversed(kwargs['_fsm'].history):
             if parent.is_blocking():
                 kwargs['_etape'].transitions[None] = parent
+                kwargs['_etape']._localvars['emptytransit'] = True
                 return
         
         log.warning('NO BLOCKING PARENT FOUND')
@@ -55,7 +57,10 @@ def remove_transitions(*args, **kwargs):
     If an Etape use auto_transit, we must clean transitions before leaving
     :return:
     """
-    kwargs['_etape'].transitions = dict()
+    if 'emptytransit' in kwargs['_etape']._localvars.keys():
+        if kwargs['_etape']._localvars['emptytransit']:
+            kwargs['_etape'].transitions = dict()
+            kwargs['_etape']._localvars['emptytransit'] = False
 
 
 @globalfunction("ADD_SIGNAL")

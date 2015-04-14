@@ -35,7 +35,9 @@ log = log.init_log("main")
 
 try:
     threads.init()
-    parsing.clear_scenario()
+    pool.init()
+    scenario.init_declared_objects()
+    parsing.load()
 
     webfsm = classes.ScenarioFSM("WebInterface")
     patcher.FSM_GLOBAL.append(webfsm)
@@ -45,23 +47,10 @@ try:
     devicefsm.start(scenario.DECLARED_ETAPES["DEVICE_CONTROL"])
     patcher.FSM_GLOBAL.append(devicefsm)
 
-    parsing.parse_customdevices("timeline1")
-    parsing.parse_customlibrary("library")
-    parsing.parse_customscenario("video_btn")
-    parsing.parse_customtimeline("timeline1")
-
-    if settings["uName"] in pool.Cartes.keys():
-        pool.Cartes[settings["uName"]].device.launch_manager()
-        managefsm = fsm.FiniteStateMachine("Manager")
-        managefsm.start(manager.step_init)
-        pool.MANAGER = managefsm
-        managefsm.append_flag(manager.start_flag.get())
-    else:
-        managefsm = None
-        log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
-
-
     oscack.start_protocol()
+
+    pool.start(manager)
+
 
     flag_group = fsm.Flag("TEST_GROUP").get()
     flag_group.args["dest"] = [settings.get("scenario", "dest_group"), ]
@@ -83,8 +72,8 @@ try:
         if cmd[0] == "settings":
             log.info(settings)
         if cmd[0] == "info":
-            if managefsm is not None:
-                log.info(managefsm.current_state)
+            if pool.MANAGER is not None:
+                log.info(pool.MANAGER.current_state)
             log.info(oscack.protocol.discover.machine.current_state)
             log.info(oscack.protocol.scenariosync.machine.current_state)
             for f in pool.FSM:
@@ -111,21 +100,19 @@ except Exception as e:
     log.error(e)
 
 
-log.info("Ending Manager")
-if managefsm is not None:
-    managefsm.stop()
-    managefsm.join()
-for sfsm in pool.FSM:
-    sfsm.stop()
-    sfsm.join()
-for sfsm in pool.DEVICE_FSM:
-    sfsm.stop()
-    sfsm.join()
-    
+log.info("Ending Pool Managers")
+pool.stop()
+
 log.info("Ending OscAck Servers")
 oscack.stop_protocol()
+
 log.info("Ending WebInterface")
 webfsm.stop()
 webfsm.join()
+
+log.info("Ending Device Control")
+devicefsm.stop()
+devicefsm.join()
+
 threads.stop()
 os._exit(0)

@@ -1,0 +1,14 @@
+[
+    {
+        "arguments": [
+            "", 
+            "", 
+            ""
+        ], 
+        "category": "GENERAL", 
+        "code": "print 'OK'", 
+        "dispos": false, 
+        "medias": false, 
+        "name": "WAIT"
+    }
+]
