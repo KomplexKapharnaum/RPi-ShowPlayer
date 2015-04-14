@@ -28,6 +28,7 @@
     $("#signalEdit").hide();
     $('#newBox').hide();
     $('#editBox').hide();
+		$('#editText').hide();
 
     //////////////////////// CODE MIRROR ////////////////////////////////
       var codeAdd = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -131,6 +132,7 @@
 
     $('#openAdder').on('click',function(){
       $('#informations').hide();
+			$('#editText').hide();
       $('#editBox').hide();
       $('#newBox').fadeIn(200);
       $('#addName').val("NAME");
@@ -170,6 +172,7 @@
       $( ".btn2").unbind( "click" );
       $('.lib').on('click', function(){
         $('#newBox').hide();
+				$('#editText').hide();
         $('#informations').hide();
         $('#editBox').fadeIn(200);
         var nameEdited = $(this).attr('id');
@@ -241,9 +244,9 @@
       .done(function(reponse)
       {
           if (reponse.status == 'success')
-          {  $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(allBoxes) );  }
-          else if (reponse.status == 'error')
-          { $('#serverDisplay').html( 'Erreur côté serveur: '+reponse.message ); }
+          {
+						//$('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(allBoxes) );
+					}
       });
     }
     /////////////////////////// LOAD LIB ///////////////////////////////
@@ -462,7 +465,7 @@
         var files = new Array();
         if(category == 'AUDIO') {files=audioFiles;}
         if(category == 'VIDEO') {files=videoFiles;}
-				if(category == 'TITRAGE') {files=txtFiles;}
+				if(category == 'TITREUR') {files=txtFiles;}
         $.each(files, function(index,file){
          $(thisState.mediasList).append(('<option value="'+file+'">'+file+'</option>'));
         });
@@ -558,30 +561,59 @@
 
       this.sourceAndtarget();
 
-
-
   		this.box.click(function(e) {
+				$('#editText').hide();
 
         $.each(allStates, function(index, state){
           state.active = false;
         });
         thisState. active = true;
-
 				selected='box';
         connectionSelected = null;
         listening = true;
         unselectConnections();
-        //$(".box").css('background-color','darkblue');
         $.each(allStates, function(index, state){
           this.resetColor();
         });
         thisState.box.css('background-color','lawngreen');
-        // thisState.box.css({"border-color": "#"+thisState.color,
-        //              "border-width":"1px",
-        //              "border-style":"solid"});
-
         $("#signalEdit").hide();
+
+				if (thisState.category == 'TITREUR' && mediaBOO == true){
+					$('#editText').fadeIn(200);
+					console.log ('titreur Edit');}
+					thisState.loadText();
+
   		});
+
+			this.loadText = function(){
+        $.ajax({
+            url: "data/loadText.php",
+            dataType: "json",
+            type: "POST",
+            data: { filename: thisState.media, type: 'text'}
+        })
+        .done(function(reponse) {
+            if (reponse.status == 'success') { $('#txted').text(reponse.contents); }
+        });
+			}
+			$('#okTxtedit').click(function(){
+				thisState.saveText();
+			})
+			this.saveText = function (){
+				var contenu = $('#txted').val();
+				$.ajax({
+            url: "data/saveText.php",
+            dataType: "json",
+            type: "POST",
+            data: { filename: thisState.media, type: 'text', contents: contenu }
+        })
+        .done(function(reponse) {
+            console.log('done');
+        });
+
+			}
+
+
 
       this.resetColor = function(){
         this.box.css('background-color','#'+this.color);
@@ -594,6 +626,7 @@
         $(thisState.mediasList).change(function(){
           var that = $(this);
           thisState.media = $(this).find('option:selected').text();
+					if (thisState.category == 'TITREUR'){ thisState.loadText();}
         });
       }
 
@@ -871,10 +904,8 @@
         })
         .done(function(reponse)
         {
-            if (reponse.status == 'success')
-            {  $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(Graphique) );  }
-            else if (reponse.status == 'error')
-            { $('#serverDisplay').html( 'Erreur côté serveur: '+reponse.message ); }
+            // if (reponse.status == 'success')
+            // {  $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(Graphique) );  }
         })
         .fail(function()
           { $('#serverDisplay').html( 'Impossible de joindre le serveur...' ); }
@@ -902,7 +933,7 @@
         .done(function(reponse) {
             if (reponse.status == 'success')
             {
-                $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
+                //$('#serverDisplay').html('Loaded: <br>' + reponse.contents );
                 Graphique = JSON.parse(reponse.contents);
 								if (loadGraphAfter == true) { loadGraphique(); }
             }
