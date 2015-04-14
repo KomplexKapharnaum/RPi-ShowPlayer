@@ -95,18 +95,18 @@ def dumpclean(obj):
     if type(obj) == dict:
         for k, v in obj.items():
             if hasattr(v, '__iter__'):
-                print k
+                print(k)
                 dumpclean(v)
             else:
-                print '%s : %s' % (k, v)
+                print('%s : %s' % (k, v))
     elif type(obj) == list:
         for v in obj:
             if hasattr(v, '__iter__'):
                 dumpclean(v)
             else:
-                print v
+                print(v)
     else:
-        print obj
+        print(obj)
 
 class BaseLog:
     """
@@ -405,6 +405,18 @@ def set_log_type(set_type, path=None):
             return
         global LOG_PATH
         LOG_PATH = path
+
+
+def set_default_log_by_settings(settings):
+    """
+    This function init default log levels with custom settings
+    It must be called only one time and as soon as possible
+    :param settings: Setting object
+    """
+    global DEFAULT_LEVEL
+    global DEFAULT_LOG_TYPE
+    DEFAULT_LEVEL = settings.get("log", "level")
+    DEFAULT_LOG_TYPE = settings.get("log", "output")
 
 
 def init_log(log_name, log_lvl=None, log_type=None, format=DEFAULT_FORMAT, format_file=ALL_FORMAT):

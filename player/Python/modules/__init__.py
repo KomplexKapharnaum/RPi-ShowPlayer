@@ -42,7 +42,11 @@ class ExternalProcess(object):
         self.stop()# Stop current process
         self._watchdog = threading.Thread(target=self._watch)
         logfile = settings.get("path", "logs")+'/'+self.name+'.log'
-        self.stderr = open(logfile, 'w')
+        try:
+            self.stderr = open(logfile, 'w')
+        except IOError:
+            log.warning("There is no where ({0}) to put log of {1}".format(logfile, self.name))
+            self.stderr = None
         self._running.set()
         self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
                                          preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None,
@@ -95,7 +99,8 @@ class ExternalProcess(object):
         if self.onClose:
             patcher.patch(Flag(self.onClose).get())
         self._running.clear()
-        self.stderr.close()
+        if self.stderr is not None:
+            self.stderr.close()
 
     def join(self, timeout=None):
         """
