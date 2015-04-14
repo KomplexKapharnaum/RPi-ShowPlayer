@@ -46,7 +46,7 @@ class ScenarioFile:
         scp = ExternalProcess("scp")
         scp.command += " -p -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {ip}:{path} {path}".format(
             ip=ip, path=self.path)
-        log.debug("SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
+        log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
         scp.start()
         scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
 
@@ -89,7 +89,9 @@ def get_scenario_by_group_in_fs():
     """
     scenario_by_group = dict()
     for path, dirs, files in os.walk(settings.get("path", "scenario")):
-        if os.path.split(path)[1][:len(settings.get("sync", "escape_scenario_dir"))] == settings.get("sync", "escape_scenario_dir"):
+        if os.path.split(path)[1][:len(settings.get("sync",
+                                                    "escape_scenario_dir"))] == settings.get("sync",
+                                                                                             "escape_scenario_dir"):
             continue            # Ignore this directory
         for file in files:
             scenario = ScenarioFile.create_by_path(os.path.join(path, file))
@@ -105,19 +107,19 @@ def get_scenario_by_group_in_osc(osc_args):
     :param osc_args: OSC args
     :return: dictionary with groups in keys and foreach a list of version
     """
-    log.debug("Recv osc_args : {0}".format(osc_args))
+    log.log("raw", "Recv osc_args : {0}".format(osc_args))
     scenario_by_group = dict()
     if len(osc_args) % 2 != 0:
         log.critical("We must have n*2 arguments (one for group the other for date)")
         return []
     for i in range(len(osc_args)/2):
         scenario = ScenarioFile.create_by_OSC(osc_args[2*i], osc_args[2*i+1])
-        log.debug("[i={0}]Create scenario : {1}".format(i, scenario))
+        log.log("raw", "[i={0}]Create scenario : {1}".format(i, scenario))
         if scenario.group not in scenario_by_group.keys():
-            log.debug("New group : {0}".format(scenario.group))
+            log.log("raw", "New group : {0}".format(scenario.group))
             scenario_by_group[scenario.group] = list()
         scenario_by_group[scenario.group].append(scenario)
-    log.debug("Return : {0}".format(scenario_by_group))
+    log.log("raw", "Return : {0}".format(scenario_by_group))
     return scenario_by_group
 
 

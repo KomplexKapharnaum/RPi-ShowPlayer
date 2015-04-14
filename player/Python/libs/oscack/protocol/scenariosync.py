@@ -44,7 +44,7 @@ def init_scenprotocol(flag):
     DNCserver = _ds
     log.log("debug", "Start scenario sync protocol machine")
     groups = media.get_scenario_by_group_in_fs()
-    log.log("info", "Parsed fs groups {0}".format(groups))
+    log.log("debug", "Parsed fs groups {0}".format(groups))
     current_newer_timeline = media.get_newer_scenario(groups[settings.get("current_timeline")])
     log.log("debug", "Current timeline : {0}".format(current_newer_timeline))
     message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_ASK,
@@ -75,6 +75,7 @@ def send_version(flag):
         for scenario in group[:settings.get("sync", "max_scenario_sync")]:   # In order to avoid 100000 sync files
             args.append(('s', groupname))
             args.append(('s', scenario.date))
+    log.log("raw", "Send timeline versions : {0}".format(args))
     message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_VERSION, *args, ACK=False))
 
 
@@ -84,38 +85,38 @@ def trans_must_i_get_scenario(flag):
     :param flag: Flag
     :return:
     """
-    log.log("debug", "Transition..")
+    log.log("raw", "Transition..")
     if flag.args["path"] != OSC_PATH_SCENARIO_VERSION or \
                     flag.args["src"].get_hostname() == DNCserver.net_elem._ip:
-        log.log("debug", "Not a scenario/version msg")
+        log.log("raw", "Not a scenario/version msg")
         if flag.args["path"] == OSC_PATH_SCENARIO_ASK:  # We ask if someone is newer than me
-            log.log("debug", "It's a newer asking {0}@{1}".format(flag.args["args"][0], flag.args["args"][1]))
+            log.log("raw", "It's a newer asking {0}@{1}".format(flag.args["args"][0], flag.args["args"][1]))
             local_scenario = media.get_scenario_by_group_in_fs()
             newer = media.get_newer_scenario(local_scenario[flag.args["args"][0]])
             if flag.args["args"][0] in local_scenario.keys():  # If we have this scenario group
                 if media.ScenarioFile.create_by_OSC(flag.args["args"][0],
                                                     flag.args["args"][1]).dateobj < newer.dateobj:  # He is old
-                    log.log("debug", "He is older than us")
-                    log.log("debug", "His : {0}, us {1}".format(
+                    log.log("raw", "He is older than us")
+                    log.log("raw", "His : {0}, us {1}".format(
                         media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag.args["args"][1]), newer))
                     message.send(flag.args["src"], message.Message(OSC_PATH_SCENARIO_VERSION,
                                                                                  ('s', flag.args["args"][0]),
                                                                                  ('s', newer.date)))
                     # We send our newer version of scenario
         return None  # Not a distant OSC version message
-    log.log("debug", ".. It's a OSC_PATH_SCENARIO_VERSION ")
+    log.log("raw", ".. It's a OSC_PATH_SCENARIO_VERSION ")
     if "scenario" not in flag.args.keys():  # We just recv the OSC msg
-        log.log("debug", "First iter on loop get_scenario")
+        log.log("raw", "First iter on loop get_scenario")
         flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"])
         flag.args["local_scenario"] = media.get_scenario_by_group_in_fs()
         flag.args["local_newer"] = media.get_newer_scenario(
             flag.args["local_scenario"][settings.get("current_timeline")])
     for groupname, group in flag.args["scenario"].items():
-        log.log("debug", "For loop groupname {0} , group {1} ".format(groupname, group))
+        log.log("raw", "For loop groupname {0} , group {1} ".format(groupname, group))
         while len(group) > 0:
             scenario = group.pop()
             if scenario not in flag.args["local_scenario"][groupname]:  # It's newer
-                log.log("debug", "It's newer : {0} ".format(scenario))
+                log.log("raw", "It's newer : {0} ".format(scenario))
                 flag.args["to_get"] = scenario
                 return step_get_scenario
     if "reload" in flag.args.keys():
@@ -133,10 +134,10 @@ def get_scenario(flag):
     to_get = flag.args["to_get"]
     log.log("debug", "Try to get wia scp : {0}".format(to_get))
     to_get.get_from_distant(flag.args["src"].get_hostname())
-    log.log("debug", "Check is distant group : {0} is same as us {1}".format(to_get.group, flag.args["local_newer"].group))
-    log.log("debig", "Flag args keys : {0}".format(flag.args.keys()))
+    log.log("raw", "Check is distant group : {0} is same as us {1}".format(to_get.group, flag.args["local_newer"].group))
+    log.log("raw", "Flag args keys : {0}".format(flag.args.keys()))
     if "reload" not in flag.args.keys() and flag.args["local_newer"].group == to_get.group:
-        log.log("debug", "{0} is same group as us".format(to_get))
+        log.log("raw", "{0} is same group as us".format(to_get))
         if to_get.dateobj > flag.args["local_newer"].dateobj:
             log.log("debug", "{0} is a newer version of our group, we should update".format(to_get))
             flag.args["reload"] = True
