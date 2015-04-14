@@ -53,6 +53,7 @@ try:
         pool.MANAGER = managefsm
         managefsm.append_flag(manager.start_flag.get())
     else:
+        managefsm = None
         log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
 
     while True:
@@ -66,8 +67,11 @@ try:
         if c == "":
             continue
         cmd = c.split()
+        if cmd[0] == "settings":
+            log.info(settings)
         if cmd[0] == "info":
-            log.info(managefsm.current_state)
+            if managefsm is not None:
+                log.info(managefsm.current_state)
             log.info(oscack.protocol.discover.machine.current_state)
             log.info(oscack.protocol.scenariosync.machine.current_state)
             for f in pool.FSM:
@@ -85,18 +89,19 @@ try:
 except Exception as e:
     log.exception(log.show_exception(e))
     log.error(e)
-try:
-    log.info("Ending Manager")
+
+
+log.info("Ending Manager")
+if managefsm is not None:
     managefsm.stop()
     managefsm.join()
-    for sfsm in pool.FSM:
-        sfsm.stop()
-        sfsm.join()
-    for sfsm in pool.DEVICE_FSM:
-        sfsm.stop()
-        sfsm.join()
-except:
-    pass
+for sfsm in pool.FSM:
+    sfsm.stop()
+    sfsm.join()
+for sfsm in pool.DEVICE_FSM:
+    sfsm.stop()
+    sfsm.join()
+    
 log.info("Ending OscAck Servers")
 oscack.stop_protocol()
 log.info("Ending WebInterface")
