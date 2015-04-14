@@ -71,7 +71,7 @@ def send_version(flag):
     args = list()
     groups = media.get_scenario_by_group_in_fs()
     for groupname, group in groups.items():
-        group.sort(key=lambda r: r.dateobj, reversed=True)
+        group.sort(key=lambda r: r.dateobj, reverse=True)
         for scenario in group[:settings.get("sync", "max_scenario_sync")]:   # In order to avoid 100000 sync files
             args.append(('s', groupname))
             args.append(('s', scenario.date))
