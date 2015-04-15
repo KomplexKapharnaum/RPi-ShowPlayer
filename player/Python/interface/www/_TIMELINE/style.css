@@ -1,12 +1,10 @@
 
-
     body
     {
       font-family: Helvetica, Sans-Serif;
       color: #222222;
       font-size: 10pt;
       background-color: white;
-
 
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -34,25 +32,34 @@
       display:block;
     }
 
-    #allKeys
+    #allscenes
     {
       float: left;
       width:900px;
       height:28px;
       padding:0px;
-      background-color:#444444;
+      background-color:#EEEEEE;
       display:block;
       margin-left:100px;
+      /*overflow:auto;*/
 
     }
-    .key
+    .scene
     {
-      width:2px;
+      width:50px;
       height:28px;
-      padding:0px;
-      background-color:#B4B4B4;
+      background-color:#444444;
       display:inline-block;
-      position: absolute;
+      position:relative;
+      /*border-left: 1px solid #EEEEEE;
+      border-right: 1px solid #EEEEEE;*/
+      color: #EEEEEE;
+      opacity: 1;
+      /*box-shadow: inset 1px 0 0 black;*/
+      text-align: center;
+      line-height: 32px;
+
+
     }
 
     #allpinames
@@ -88,7 +95,6 @@
       background-color:#B5B5B5;
       display:inline-block;
       position: absolute;
-      /*position:inherit;*/
       opacity: 0.5;
       transition: 0.1s background-color;
 
@@ -98,7 +104,7 @@
     {
       height:40px;
       background-color:#EEEEEE;
-      display:block;
+      /*display:block;*/
       position: relative;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -120,11 +126,6 @@
 
     .title
     {
-      /*height: 20px;
-      width: 150px;
-      color:white;
-      padding:10px;
-      background-color:#797979;*/
       height: 8px;
       width: 150px;
       /*width: 125px;*/
@@ -260,7 +261,7 @@
       display: block;
     }
 
-    #scenarioseditor,#sceneseditor{
+    #scenarioseditor,#groupseditor{
       margin-top: 295px;
     }
 
