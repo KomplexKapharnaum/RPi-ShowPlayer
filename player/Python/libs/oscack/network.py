@@ -170,7 +170,7 @@ class UnifiedMessageInterpretation:
     """
 
     def __init__(self, path, get=None, values=(), ACK=False, recv=None, JTL=settings.get("OSC", "JTL"), TTL=settings.get("OSC", "TTL"), ignore_cb=None,
-                 ignore_cb_args=(), auto_add=True, connected=None):
+                 ignore_cb_args=(), auto_add=True, connected=None, flag_name=None):
         self.path = path
         if get is not None:
             def _get(*args, **kwargs):
@@ -183,6 +183,7 @@ class UnifiedMessageInterpretation:
             connected = (add_signal_to_protocol, )
         self.connected = connected
         self.values = values
+        self.flag_name = flag_name
         self.ACK = ACK
         self.JTL = JTL
         self.TTL = TTL
@@ -214,6 +215,8 @@ class UnifiedMessageInterpretation:
             "src": src
         }, JTL=self.JTL, TTL=self.TTL, ignore_cb=self.ignore_cb,
            ignore_cb_args=self.ignore_cb_args)
+        if self.flag_name is not None:
+            flag.uid = self.flag_name
         for fnct in self.connected:
             fnct(flag)
             log.log("raw", "Add flag with the function : {0}".format(fnct))
