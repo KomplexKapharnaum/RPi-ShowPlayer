@@ -35,7 +35,7 @@ string carte_name;
 string carte_ip;
 string version_py="-";
 string version_c="0.2";
-string status="0.2";
+string status="-";
 int init=0;
 
 Carte mycarte;
@@ -65,7 +65,7 @@ void myInterruptTELECO(void) {
     
     delay(10);
     sprintf(mess1,"stat=%s",status.c_str());
-    sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_py.c_str());
+    sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_c.c_str());
     sprintf(mess3,"%s",carte_name.c_str());
     sprintf(mess4,"%s %.1fV",carte_ip.c_str(),v);
     myteleco.sendString(mess1,mess2,mess3,mess4);
