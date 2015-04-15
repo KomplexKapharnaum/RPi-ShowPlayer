@@ -76,7 +76,7 @@ int Teleco::readInterrupt(){
     case T_PUSHROTARY:
       switch (valeur){
         case 250:
-          std::cout << "#GET_INFO" << std::endl;
+          std::cout << "#TELECO_GET_INFO" << std::endl;
           break;
         case 1:
           std::cout << "#TELECO_MESSAGE_PREVIOUSSCENE" << std::endl;

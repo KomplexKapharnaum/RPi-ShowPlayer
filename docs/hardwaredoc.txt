@@ -16,6 +16,9 @@ setgyro [-speed (int)] [-strob (int)] -mode (string)
 
 setrelais [-on] [-off]
 
+testroutine [-nbr (int)]
+//nbr nombre de boucle de routine
+
 
 
 
@@ -45,3 +48,5 @@ from teleco :
 "#TELECO_MESSAGE_POWEROFF" 
 "#TELECO_MESSAGE_REBOOT" 
 "#TELECO_MESSAGE_TESTROUTINE"
+
+"#TELECO_GET_INFO"
