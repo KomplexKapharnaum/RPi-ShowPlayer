@@ -165,7 +165,7 @@ int parseInput(){
         }
         if ("-version"==parsedInput){
           ss>>parsedInput;
-          carte_ip=parsedInput;
+          version_py=parsedInput;
         }
         if ("-status"==parsedInput){
           ss>>parsedInput;
@@ -199,7 +199,7 @@ int parseInput(){
       while (ss>>parsedInput){
         if ("-version"==parsedInput){
           ss>>parsedInput;
-          carte_ip=parsedInput;
+          version_py=parsedInput;
         }
         if ("-status"==parsedInput){
           ss>>parsedInput;
