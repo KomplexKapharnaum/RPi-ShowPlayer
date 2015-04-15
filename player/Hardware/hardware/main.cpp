@@ -50,28 +50,39 @@ void myInterruptCARTE (void) {
 
 }
 
+void sendStatusTeleco(){
+  int tension = mycarte.checkTension();
+  float v = tension;
+  v=v/10;
+  char mess1[17];
+  char mess2[17];
+  char mess3[17];
+  char mess4[17];
+  delay(10);
+  sprintf(mess1,"stat=%s",status.c_str());
+  sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_c.c_str());
+  sprintf(mess3,"%s",carte_name.c_str());
+  sprintf(mess4,"%s %.1fV",carte_ip.c_str(),v);
+  myteleco.sendString(mess1,mess2,mess3,mess4);
+}
+
 void myInterruptTELECO(void) {
+  if (myteleco.fisrtView()){
+    delay(200);
+    if (digitalRead(21)==LOW) {
+      return;
+    }
+  }
   fprintf(stderr, "interteleco\n");
   myteleco.readInterrupt();
   if (myteleco.fisrtView()) {
     myteleco.start();
-    int tension = mycarte.checkTension();
-    float v = tension;
-    v=v/10;
-    char mess1[17];
-    char mess2[17];
-    char mess3[17];
-    char mess4[17];
-    
-    delay(10);
-    sprintf(mess1,"stat=%s",status.c_str());
-    sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_c.c_str());
-    sprintf(mess3,"%s",carte_name.c_str());
-    sprintf(mess4,"%s %.1fV",carte_ip.c_str(),v);
-    myteleco.sendString(mess1,mess2,mess3,mess4);
+    sendStatusTeleco();
   }
 
 }
+
+
 
 void testRoutine(int n){
   string msg;
@@ -163,6 +174,21 @@ int parseInput(){
     }
     
   }else{
+    
+    if ("info"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-version"==parsedInput){
+          ss>>parsedInput;
+          carte_ip=parsedInput;
+        }
+        if ("-status"==parsedInput){
+          ss>>parsedInput;
+          status=parsedInput;
+        }
+      }
+      sendStatusTeleco();
+    }
+
     if ("initconfig"==parsedInput) {
       fprintf(stderr, "error already init\n");
     }
@@ -247,6 +273,18 @@ int parseInput(){
       }
     }// end setgyro
     
+    if ("setrelais"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-on"==parsedInput){
+          mycarte.setRelais(1);
+        }
+        if ("-off"==parsedInput){
+          mycarte.setRelais(0);
+        }
+        
+      }
+    }// end setgyro
+    
     
     if ("DR"==parsedInput) {
       int reg = 0;
@@ -290,15 +328,16 @@ int parseInput(){
 int main (int argc, char * argv[]){
   
   
- 
 cout << "#INITHARDWARE" << endl;
   
   myteleco.initCarte();
   while(!init){
     parseInput();
   }
-  
+  wiringPiSetupGpio();
+  pinMode (21, INPUT);
 
+  
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
 

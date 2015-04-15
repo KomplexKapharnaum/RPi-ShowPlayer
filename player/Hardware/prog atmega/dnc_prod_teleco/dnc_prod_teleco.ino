@@ -290,7 +290,7 @@ void checkInput() {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
       if(T_DECINPIN+i==T_PUSHROTARY){
-        if( 1-digitalRead(inpin[i])==1 && positionLeft%(T_NBMENU+2)!=0 && positionLeft%(T_NBMENU+2)!=1 ) {newValue[T_DECINPIN + i] = positionLeft%(T_NBMENU+2)-1;} else {newValue[T_DECINPIN + i] =0;}
+        if( 1-digitalRead(inpin[i])==1 && abs(positionLeft)%(T_NBMENU+2)!=0 && abs(positionLeft)%(T_NBMENU+2)!=1 ) {newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+2)-1;} else {newValue[T_DECINPIN + i] =0;}
       }else{
         newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
       //Serial.print("b");
@@ -303,19 +303,19 @@ void checkInput() {
     newLeft = (long)rotary.read()*1.0/2;
     if (newLeft != positionLeft) {
         lcd.clear();     
-        if(newLeft%(T_NBMENU+2)==0){
+        if(abs(newLeft)%(T_NBMENU+2)==0){
           lcd.setCursor(0, 0);
           lcd.print(line1);
           lcd.setCursor(0, 1);
           lcd.print(line2);
-        }else if(newLeft%(T_NBMENU+2)==1){
+        }else if(abs(newLeft)%(T_NBMENU+2)==1){
           lcd.setCursor(0, 0);
           lcd.print(line3);
           lcd.setCursor(0, 1);
           lcd.print(line4);
         }else{
           lcd.setCursor(0, 0);
-          lcd.print(menu[newLeft%(T_NBMENU+2)-2]);
+          lcd.print(menu[abs(newLeft)%(T_NBMENU+2)-2]);
         }
         positionLeft = newLeft;
       }

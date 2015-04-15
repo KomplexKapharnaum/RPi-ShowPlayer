@@ -1,8 +1,10 @@
 hardware doc
 
-===== cin format 
+===== cin format =====
 
-initconfig -titreurNbr (int) -carteVolt (int) -name (string) -ip (string)
+initconfig -titreurNbr (int) -carteVolt (int) -name (string) -ip (string) -version (string) -status (string)
+
+info -status (string)
 
 texttitreur [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-scroll]
 
@@ -12,14 +14,34 @@ setlight [-fade (int)] [-strob (int)] [-rgb (int) (int) (int)] [-10w1 (int)] [-1
 setgyro [-speed (int)] [-strob (int)] -mode (string)
 // speed en ms // strob en ms // mode peut être égale à "alloff" "allon" "turnR" ou "turnL"
 
+setrelais [-on] [-off]
 
 
-===== cout format
 
-from carte : "#CARTE_PUSH_1 " "#CARTE_PUSH_2 " "#CARTE_PUSH_3 " "#CARTE_FLOAT "
 
-from teleco : "#TELECO_PUSH_A " "#TELECO_PUSH_B "  
-"#TELECO_PUSH_OK " "#TELECO_REED " "#TELECO_FLOAT "
+===== cout format =====
 
-"#TELECO_MESSAGE_PREVIOUSSCENE" "#TELECO_MESSAGE_RESTARTSCENE" "#TELECO_MESSAGE_NEXTSCENE" "#TELECO_MESSAGE_BLINKGROUP" "#TELECO_MESSAGE_POWEROFF" "#TELECO_MESSAGE_REBOOT" 
+form program :
+"#INITHARDWARE"  --> doit être suivi d'un cin initconfig
+"#GET_INFO"  --> doit être suivi d'un cin info
+
+from carte : 
+"#CARTE_PUSH_1 " 
+"#CARTE_PUSH_2 " 
+"#CARTE_PUSH_3 " 
+"#CARTE_FLOAT "
+
+from teleco : 
+"#TELECO_PUSH_A " 
+"#TELECO_PUSH_B "  
+"#TELECO_PUSH_OK " 
+"#TELECO_REED " 
+"#TELECO_FLOAT "
+
+"#TELECO_MESSAGE_PREVIOUSSCENE" 
+"#TELECO_MESSAGE_RESTARTSCENE" 
+"#TELECO_MESSAGE_NEXTSCENE" 
+"#TELECO_MESSAGE_BLINKGROUP" 
+"#TELECO_MESSAGE_POWEROFF" 
+"#TELECO_MESSAGE_REBOOT" 
 "#TELECO_MESSAGE_TESTROUTINE"
