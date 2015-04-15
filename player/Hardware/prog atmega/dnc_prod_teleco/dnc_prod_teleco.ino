@@ -290,7 +290,15 @@ void checkInput() {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
       if(T_DECINPIN+i==T_PUSHROTARY){
-        if( 1-digitalRead(inpin[i])==1 && abs(positionLeft)%(T_NBMENU+2)!=0 && abs(positionLeft)%(T_NBMENU+2)!=1 ) {newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+2)-1;} else {newValue[T_DECINPIN + i] =0;}
+        if( 1-digitalRead(inpin[i])==1) {
+          if (abs(positionLeft)%(T_NBMENU+2)!=0 && abs(positionLeft)%(T_NBMENU+2)!=1){
+            newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+2)-1;
+          }else {
+            newValue[T_DECINPIN + i] =250;
+          }
+        }else {
+            newValue[T_DECINPIN + i] =0;
+          }
       }else{
         newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
       //Serial.print("b");
