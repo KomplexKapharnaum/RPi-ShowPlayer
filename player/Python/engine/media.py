@@ -9,14 +9,104 @@ import shutil
 import shutil
 import datetime
 import tarfile
+import threading
+
+import pyudev
 
 from modules import ExternalProcess
 from libs import pyhashxx
 from engine.setting import settings
+from engine import tools
 
 from engine.log import init_log
 
 log = init_log("media")
+
+
+def mount_partition(block_path, mount_path):
+    """
+    This function mount a partition in usb directory
+    :param block_path: Path to the block device to mount
+    :param mount_path: Path to the mount point
+    :return:
+    """
+    log.debug("Mount {0} on {1} ".format(block_path, mount_path))
+    mount_cmd = ExternalProcess(name="mount")
+    if not os.path.exists(mount_path):
+        os.mkdir(mount_path)
+    mount_cmd.command += " {0} {1}".format(block_path, mount_path)
+    mount_cmd.start()
+    try:
+        mount_cmd.join(timeout=settings.get("sync", "usb_mount_timeout"))
+    except RuntimeError as e:
+        log.exception(log.show_exception(e))
+        log.warning("Unable to mount  {0} on {1} ".format(block_path, mount_path))
+        mount_cmd.stop()
+        return False
+
+
+def umount_partitions():
+    """
+    This function unmount all partition in usb directory
+    :return:
+    """
+    sucess = True
+    for f in os.listdir(settings.get("path", "usb")):
+        if os.path.isdir(f):
+            path = os.path.join(settings.get("path", "usb"), f)
+            umount_cmd = ExternalProcess(name="umount")
+            umount_cmd.command += " "+path
+            umount_cmd.start()
+            try:
+                umount_cmd.join(timeout=settings.get("sync", "usb_mount_timeout"))
+            except RuntimeError as e:
+                log.exception(log.show_exception(e))
+                log.warning("Unable to umount {0}".format(path))
+                umount_cmd.stop()
+                sucess = False
+                continue
+
+
+class UdevThreadMonitor(threading.Thread):
+    """
+    This class is a thread wich wait on new block plug event and try to mount it
+    """
+
+    def __init__(self, monitor, machine, flag):
+        """
+        :param monitor: pyudev.Monitor object to watch
+        :param machine: FSM to prevent on mounted partition
+        :param flag: Flag to trig on mount
+        """
+        self.monitor = monitor
+        self.machine = machine
+        self.flag = flag
+        self._stop = threading.Event()
+        tools.register_thread(self)
+
+    def run(self):
+        self.monitor.start()
+        while not self._stop.is_set():
+            device = self.monitor.poll(timeout=1)
+            if device is None:  # Timeout
+                continue
+            log.log("raw", "Block device : {0}".format(device.__dict__))
+            if device.action != "add":
+                log.log("raw", "Block device event {1} (not add) : {0}".format(device.device_node, device.action))
+                continue
+            devdir = os.path.dirname(device.device_node)
+            devname = os.path.basename(device.device_node)
+            mounted = 0
+            for block in os.listdir(devdir):
+                if devname in block and devname != block:  # Found a partition
+                    mounted += mount_partition(os.path.join(devdir, block), os.path.join(settings.get("path", "usb"),
+                                                                                         "usb{0}".format(devname[:-1])))
+            if mounted > 0:                                    # A partition has been mounted
+                log.debug("Correctly mount {0} usb device".format(mounted))
+                self.machine.append_flag(self.flag.get())
+
+    def stop(self):
+        self._stop.set()
 
 
 def save_scenario_on_fs(group, date_timestamp):
@@ -31,7 +121,8 @@ def save_scenario_on_fs(group, date_timestamp):
     if not os.path.exists(path):
         os.mkdir(path)
     with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
-        tar.add(settings.get("path", "activescenario"), arcname=os.path.basename(settings.get("path", "activescenario")))
+        tar.add(settings.get("path", "activescenario"),
+                arcname=os.path.basename(settings.get("path", "activescenario")))
     tar.close()
 
 
@@ -52,13 +143,14 @@ def load_scenario_from_fs(group, date_timestamp=None):
     if date_timestamp is None:
         newer = get_newer_scenario(groups[group])
     else:
-        edit_date = datetime.datetime.fromtimestamp(float(date_timestamp)).strftime(settings.get("scenario", "date_format"))
+        edit_date = datetime.datetime.fromtimestamp(float(date_timestamp)).strftime(
+            settings.get("scenario", "date_format"))
         newer = None
         for scenario in groups[group]:
             if scenario.date == edit_date:
                 newer = scenario
                 break
-        if newer is None:          # Can't find scenario in fs
+        if newer is None:  # Can't find scenario in fs
             log.error("Can't find scenario ({0}@{1}) in fs".format(group, edit_date))
             return False
     path = os.path.join(settings.get("path", "scenario"), group)
@@ -67,7 +159,7 @@ def load_scenario_from_fs(group, date_timestamp=None):
         if os.path.exists(settings.get("path", "activescenario")):
             shutil.rmtree(settings.get("path", "activescenario"))
         ##
-        tar.extractall(path=settings.get("path", "scenario"))        # path=settings.get("path", "scenario"))
+        tar.extractall(path=settings.get("path", "scenario"))  # path=settings.get("path", "scenario"))
         return True
     # if here it's because we ca not open tar file
     log.warning("Error when opening scnario at {0}".format(os.path.join(path, group + "@" + newer.date + ".tar")))
@@ -116,7 +208,7 @@ class ScenarioFile:
         """
         filename = os.path.basename(path)
         group = filename[:-settings.get("scenario", "date_len")]
-        edit_date = filename[-settings.get("scenario", "date_len") +1:-4]
+        edit_date = filename[-settings.get("scenario", "date_len") + 1:-4]
         dateobj = datetime.datetime.strptime(edit_date, settings.get("scenario", "date_format"))
         return ScenarioFile(path, group, edit_date, dateobj)
 
@@ -149,7 +241,7 @@ def get_scenario_by_group_in_fs():
         if os.path.split(path)[1][:len(settings.get("sync",
                                                     "escape_scenario_dir"))] == settings.get("sync",
                                                                                              "escape_scenario_dir"):
-            continue            # Ignore this directory
+            continue  # Ignore this directory
         group = os.path.basename(path)
         if group not in scenario_by_group.keys():
             scenario_by_group[group] = list()
@@ -174,8 +266,8 @@ def get_scenario_by_group_in_osc(osc_args):
     if len(osc_args) % 2 != 0:
         log.critical("We must have n*2 arguments (one for group the other for date)")
         return []
-    for i in range(len(osc_args)/2):
-        scenario = ScenarioFile.create_by_OSC(osc_args[2*i], osc_args[2*i+1])
+    for i in range(len(osc_args) / 2):
+        scenario = ScenarioFile.create_by_OSC(osc_args[2 * i], osc_args[2 * i + 1])
         log.log("raw", "[i={0}]Create scenario : {1}".format(i, scenario))
         if scenario.group not in scenario_by_group.keys():
             log.log("raw", "New group : {0}".format(scenario.group))
