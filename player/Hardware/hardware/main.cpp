@@ -73,8 +73,6 @@ void sendStatusTeleco(){
 
 void beforekill(int signum)
 {
-  fprintf(stderr, "catch signal %u\n",signum);
-  if(signum==SIGTERM || signum==SIGINT){
     
   mycarte.setGyro(0, 200);
   mycarte.led10WValue(0);
@@ -84,7 +82,6 @@ void beforekill(int signum)
   status="noC";
   sendStatusTeleco();
     fprintf(stderr, "bye bye\n");
-  }
   exit(signum);
 }
 
@@ -349,6 +346,7 @@ int parseInput(){
 
 int main (int argc, char * argv[]){
   
+signal(SIGTERM, beforekill);
 signal(SIGINT, beforekill);
   
 cout << "#INITHARDWARE" << endl;
