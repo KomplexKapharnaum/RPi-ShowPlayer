@@ -45,7 +45,7 @@ void Teleco::sendString(std::string messages){
   replace( messages.begin(), messages.end(), ' ', '_');
   replace( messages.begin(), messages.end(), '$', ' ');
   std::stringstream ss(messages);
-  string parsedInput;
+  std::string parsedInput;
   char buffline[17];
   int count =0;
   while (ss>>parsedInput){
