@@ -145,4 +145,7 @@ void Carte::setGyro(int mode, int speed, int strob){
 
 
 Carte::~Carte(){
+  setGyro(0, 200);
+  led10WValue(0);
+  rgbValue(0,0,0);
 }

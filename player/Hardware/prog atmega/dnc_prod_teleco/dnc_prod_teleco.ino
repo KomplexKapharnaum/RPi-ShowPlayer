@@ -50,7 +50,7 @@ volatile byte adress = 0;
 //size of table
 #define T_REGISTERSIZE 18
 //size of menu
-#define T_NBMENU 6
+#define T_NBMENU 7
 
 #define READCOMMAND 0x40
 #define WRITECOMMANDVALUE 0xc0
@@ -63,7 +63,7 @@ volatile byte adress = 0;
 #define T_MODEBASE 1
 
 
-char menu[T_NBMENU][16] = {"start scene","restart scene","next scene","blink group","poweroff","test routine"};
+char menu[T_NBMENU][16] = {"start scene","restart scene","next scene","blink group","poweroff","reboot","test routine"};
 
 byte Value[T_REGISTERSIZE];
 byte newValue[T_REGISTERSIZE];

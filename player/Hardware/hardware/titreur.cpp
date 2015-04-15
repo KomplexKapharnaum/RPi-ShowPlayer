@@ -211,6 +211,7 @@ int Titreur::charbyline(){
 
 
 Titreur::~Titreur(){
+  allLedOff();
   free(matrix);
   free(output);
 }

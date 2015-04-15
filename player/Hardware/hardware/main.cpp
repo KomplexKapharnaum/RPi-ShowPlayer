@@ -33,6 +33,8 @@ using namespace std;
 
 string carte_name;
 string carte_ip;
+string version_py="-";
+string version_c="0.2";
 int init=0;
 
 Carte mycarte;
@@ -58,6 +60,10 @@ void myInterruptTELECO(void) {
     char mess1[17];
     char mess2[17];
     delay(10);
+    sprintf(mess1,"kxkm");
+    sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_py.c_str());
+    myteleco.sendString(mess1,mess2);
+    delay(1000);
     sprintf(mess1,"%s",carte_name.c_str());
     sprintf(mess2,"%s %.1fV",carte_ip.c_str(),v);
     myteleco.sendString(mess1,mess2);
@@ -124,6 +130,10 @@ int parseInput(){
           ss>>parsedInput;
           carte_ip=parsedInput;
         }
+        if ("-version"==parsedInput){
+          ss>>parsedInput;
+          carte_ip=parsedInput;
+        }
       }
       init=1;
       
@@ -167,6 +177,12 @@ int parseInput(){
           strncpy(buff, parsedInput.c_str(), sizeof(buff));
           mytitreur.text(0,8,buff);
         }
+        if ("-allon"==parsedInput){
+          mytitreur.allLedOn();
+        }
+        if ("-alloff"==parsedInput){
+          mytitreur.allLedOff();
+        }
         if ("-scroll"==parsedInput){
           // todo mytitreur.scroll();
         }
@@ -197,7 +213,6 @@ int parseInput(){
         if ("-strob"==parsedInput){
           ss>>strob;
         }
-        
       }
     }// end setlight
     

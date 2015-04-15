@@ -69,24 +69,26 @@ int Teleco::readInterrupt(){
       break;
     case T_PUSHROTARY:
       switch (valeur){
-          //char menu[T_NBMENU][16] = {"startscene","restartscene","nextscene","blinkgroup","poweroff","testroutine"};
         case 1:
-          std::cout << "#TELECO_MESSAGE startscene" << std::endl;
+          std::cout << "#TELECO_MESSAGE_PREVIOUSSCENE" << std::endl;
           break;
         case 2:
-          std::cout << "#TELECO_MESSAGE restartscene" << std::endl;
+          std::cout << "#TELECO_MESSAGE_RESTARTSCENE" << std::endl;
           break;
         case 3:
-          std::cout << "#TELECO_MESSAGE nextscene" << std::endl;
+          std::cout << "#TELECO_MESSAGE_NEXTSCENE" << std::endl;
           break;
         case 4:
-          std::cout << "#TELECO_MESSAGE blinkgroup" << std::endl;
+          std::cout << "#TELECO_MESSAGE_BLINKGROUP" << std::endl;
           break;
         case 5:
-          std::cout << "#TELECO_MESSAGE poweroff" << std::endl;
+          std::cout << "#TELECO_MESSAGE_POWEROFF" << std::endl;
           break;
         case 6:
-          std::cout << "#TELECO_MESSAGE testroutine" << std::endl;
+          std::cout << "#TELECO_MESSAGE_REBOOT" << std::endl;
+          break;
+        case 7:
+          std::cout << "#TELECO_MESSAGE_TESTROUTINE" << std::endl;
           break;
       }
       break;
