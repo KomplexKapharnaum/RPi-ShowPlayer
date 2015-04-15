@@ -6,9 +6,9 @@
 
 import os
 
-from modules import ExternalProcess
+from _classes import ExternalProcess, module
 from engine.setting import settings
-from scenario import link, module
+from scenario import link
 from engine.log import init_log
 log = init_log("video")
 
@@ -34,7 +34,7 @@ class VlcPlayer(ExternalProcess):
     #     subprocess.call(cmd, shell=True)
 
     def play(self, filename=None, repeat=None):
-        media = os.path.join(settings.get("path", "media"),filename) if filename is not None else self.media
+        media = os.path.join(settings.get("path", "video"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             self.say("clear")
@@ -55,7 +55,7 @@ class VlcPlayer(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@module()
+@module('VideoPlayer')
 @link({"/video/play [media] [repeat]": "video_play",
         "/video/pause": "video_pause",
         "/video/stop": "video_stop"})

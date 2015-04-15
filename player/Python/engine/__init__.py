@@ -1,1 +1,2 @@
-__author__ = 'olivier'
+
+MODULES_FSM = dict()

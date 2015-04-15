@@ -19,7 +19,7 @@ DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
 DEFAULT_SETTING["current_timeline"] = "DEFAULT_TIMELINE"
-
+DEFAULT_SETTING["version"] = '0.1'
 
 DEFAULT_SETTING["localport"] = dict()
 DEFAULT_SETTING["localport"]["inhplayer"] = 9000
@@ -29,7 +29,12 @@ DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
 DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
 DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
+
 DEFAULT_SETTING["path"]["media"] = "/dnc/media"
+DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
+DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
+DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
+
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
 DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
@@ -50,6 +55,8 @@ DEFAULT_SETTING["sync"]["enable"] = True                # Put False to disable s
 DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the same group to be sync
 DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 30   # 30 seconds
 DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
+
+DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl']
 
 DEFAULT_SETTING["scenario"] = dict()
 DEFAULT_SETTING["scenario"]["date_format"] = "%Y-%m-%d_%H:%M:%S"

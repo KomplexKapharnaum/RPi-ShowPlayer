@@ -23,7 +23,11 @@ TIMELINE = dict()
 LIBRARY = dict()
 
 
-def load():
+def load(use_archived_scenario=False):
+    # UNPACK LAST ARCHIVE OF SCENARIO
+    if use_archived_scenario:
+        engine.media.load_scenario_from_fs(settings["current_timeline"])   # Reload newer tar file of group into active dir
+    # LOAD ACTIVE FILES
     load_files()
     for name, timeline in TIMELINE.items():
         parse_devices(timeline)
@@ -46,14 +50,17 @@ def load_files():
             if f.startswith('scenario_'):
                 name = f.replace('scenario_', '').replace('.json', '')
                 SCENARIO[name] = parse_file(join(path, f))
+                log.log('raw', "Load {0}".format(join(path, f)))
             elif f.startswith('library_'):
                 name = f.replace('library_', '').replace('.json', '')
                 LIBRARY[name] = parse_file(join(path, f))
+                log.log('raw', "Load {0}".format(join(path, f)))
             elif f.startswith('timeline_'):
                 name = f.replace('timeline_', '').replace('.json', '')
                 TIMELINE[name] = parse_file(join(path, f))['pool']
+                log.log('raw', "Load {0}".format(join(path, f)))
     except Exception as e:
-        log.exception("On load files : ")
+        log.exception("Error while loading scenario file : ")
         log.exception(log.show_exception(e))
         return
 
@@ -77,17 +84,21 @@ def parse_function(jobj):
 
 
 def parse_devices(parsepool):
+    import modules
     for device in parsepool:
         # DEVICES // CARTES
         managers = dict()
         patchs = list()
-        for etape in device['modules']:
-            managers[etape] = pool.Etapes_and_Functions[etape]
+        for module in device['modules']:
+            if module in modules.MODULES.keys():
+                etape = modules.MODULES[module]['init_etape']
+                managers[etape] = pool.Etapes_and_Functions[etape]
         # for patch in importDevice["OTHER_PATCH"]:
         #     patchs.append(pool.Patchs[patch])
         d = classes.Device(device['name'], [], patchs, managers)  # TODO : End correct parsing !
         pool.Devices[device['name']] = d
         pool.Cartes[device['name']] = classes.Carte(device['name'], d)
+        log.log('raw', "ADD CARTE {0}".format(pool.Cartes[device['name']]))
 
 
 def parse_timeline(parsepool):

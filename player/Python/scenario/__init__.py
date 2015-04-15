@@ -2,9 +2,10 @@
 
 
 import pool
+import parsing
 from scenario.classes import Patch, Etape
 from engine.fsm import Flag
-from engine.log import init_log, dumpclean
+from engine.log import init_log
 log = init_log("scenario")
 
 DECLARED_FUNCTIONS = dict()
@@ -13,7 +14,6 @@ DECLARED_SIGNALS = dict()
 DECLARED_PATCHER = dict()
 DECLARED_OSCROUTES = dict()
 DECLARED_TRANSITION = dict()
-DECLARED_MANAGERS = dict()
 DECLARED_PUBLICSIGNALS = []
 
 
@@ -140,21 +140,10 @@ class globaletape(object):
         self.transitions = transitions
 
     def __call__(self, f):
-        global DECLARED_ETAPES, DECLARED_TRANSITION, DECLARED_MANAGERS
+        global DECLARED_ETAPES, DECLARED_TRANSITION
         DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
         DECLARED_TRANSITION[self.uid] = self.transitions
-        return f
-
-
-class module(object):
-    def __init__(self, autoload=False):
-        self.autoload = autoload
-
-    def __call__(self, f):
-        uid = f.__name__.upper()
-        global DECLARED_MANAGERS
-        DECLARED_MANAGERS[uid] = {'autoload':self.autoload}
-        return f
+        return self.uid
 
 
 class link(globaletape):
@@ -193,8 +182,7 @@ class link(globaletape):
                     signal_osc = oscpath.upper()
             # Add transition
             self.transitions[signal_osc] = self.oscroutes[osccmd].upper()
-        super(link, self).__call__(f)
-        return f
+        return super(link, self).__call__(f)
 
 
 def exposesignals(sigs=dict()):
