@@ -40,17 +40,22 @@ def load_files():
     if not os.path.exists(path):
         log.warning("There is no {0} path for load scenario.. aborting".format(path))
         return False
-    files = [ f for f in listdir(path) if isfile(join(path,f)) ]
-    for f in files:
-        if f.startswith('scenario_'):
-            name = f.replace('scenario_', '').replace('.json', '')
-            SCENARIO[name] = parse_file(join(path, f))
-        elif f.startswith('library_'):
-            name = f.replace('library_', '').replace('.json', '')
-            LIBRARY[name] = parse_file(join(path, f))
-        elif f.startswith('timeline_'):
-            name = f.replace('timeline_', '').replace('.json', '')
-            TIMELINE[name] = parse_file(join(path, f))['pool']
+    try:
+        files = [ f for f in listdir(path) if isfile(join(path,f)) ]
+        for f in files:
+            if f.startswith('scenario_'):
+                name = f.replace('scenario_', '').replace('.json', '')
+                SCENARIO[name] = parse_file(join(path, f))
+            elif f.startswith('library_'):
+                name = f.replace('library_', '').replace('.json', '')
+                LIBRARY[name] = parse_file(join(path, f))
+            elif f.startswith('timeline_'):
+                name = f.replace('timeline_', '').replace('.json', '')
+                TIMELINE[name] = parse_file(join(path, f))['pool']
+    except Exception as e:
+        log.exception("On load files : ")
+        log.exception(log.show_exception(e))
+        return
 
 
 def parse_file(path):
