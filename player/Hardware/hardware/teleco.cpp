@@ -46,10 +46,10 @@ void Teleco::sendString(char Str1[], char Str2[],char Str3[], char Str4[]){
     buff[i+17]= *(Str2+i);
   }
   for(int i=0;i<16;i++){
-    buff[i+17]= *(Str3+i);
+    buff[i+33]= *(Str3+i);
   }
   for(int i=0;i<16;i++){
-    buff[i+17]= *(Str4+i);
+    buff[i+49]= *(Str4+i);
   }
   SPIcarte.send(0,buff,68);
 }

@@ -60,8 +60,8 @@ void myInterruptTELECO(void) {
     v=v/10;
     char mess1[17];
     char mess2[17];
-        char mess3[17];
-        char mess4[17];
+    char mess3[17];
+    char mess4[17];
     
     delay(10);
     sprintf(mess1,"stat=%s",status.c_str());

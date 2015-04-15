@@ -315,7 +315,7 @@ void checkInput() {
           lcd.print(line4);
         }else{
           lcd.setCursor(0, 0);
-          lcd.print(menu[newLeft%(T_NBMENU+2)-1]);
+          lcd.print(menu[newLeft%(T_NBMENU+2)-2]);
         }
         positionLeft = newLeft;
       }
