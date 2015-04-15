@@ -57,16 +57,10 @@ void myInterruptTELECO(void) {
     int tension = mycarte.checkTension();
     float v = tension;
     v=v/10;
-    char mess1[17];
-    char mess2[17];
+    char mess[68];
     delay(10);
-    sprintf(mess1,"kxkm");
-    sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_py.c_str());
-    myteleco.sendString(mess1,mess2);
-    delay(5000);
-    sprintf(mess1,"%s",carte_name.c_str());
-    sprintf(mess2,"%s %.1fV",carte_ip.c_str(),v);
-    myteleco.sendString(mess1,mess2);
+    sprintf(mess,"kxkm$pyt%s C%s$%s$%s %.1fV",version_py.c_str(),version_py.c_str(),carte_name.c_str(),carte_ip.c_str(),v);
+    myteleco.sendString(mess);
   }
 
 }

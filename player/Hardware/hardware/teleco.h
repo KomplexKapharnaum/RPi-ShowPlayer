@@ -63,7 +63,7 @@ class Teleco : public Carte {
 
 public:
   void initCarte();
-  void sendString(char Str1[], char Str2[]);
+  void sendString(std::string messages);
   int fisrtView();
   void start();
   int readInterrupt();

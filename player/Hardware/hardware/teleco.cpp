@@ -18,6 +18,10 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
+#include <cstring>
+#include <sstream>
+#include <string>
+
 void Teleco::initCarte(){
   fprintf(stderr, "add teleco dnc\n");
   SPIcarte.initSPI();
@@ -35,17 +39,24 @@ void Teleco::start(){
 }
 
 
-void Teleco::sendString(char Str1[], char Str2[]){
-  fprintf(stderr, "send %s / %s\n",Str1,Str2);
-  unsigned char buff[34];
+void Teleco::sendString(std::string messages){
+  unsigned char buff[68];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
-  for(int i=0;i<16;i++){
-    buff[i+1]= *(Str1+i);
+  replace( messages.begin(), messages.end(), ' ', '_');
+  replace( messages.begin(), messages.end(), '$', ' ');
+  std::stringstream ss(messages);
+  string parsedInput;
+  char buffline[17];
+  int count =0;
+  while (ss>>parsedInput){
+    replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
+    strncpy(buffline, parsedInput.c_str(), sizeof(buff));
+    for(int i=0;i<16;i++){
+      buff[i+count*16+1]= *(buffline+i);
+    }
+    count++;
   }
-  for(int i=0;i<16;i++){
-    buff[i+17]= *(Str2+i);
-  }
-  SPIcarte.send(0,buff,34);
+  SPIcarte.send(0,buff,68);
 }
 
 int Teleco::readInterrupt(){

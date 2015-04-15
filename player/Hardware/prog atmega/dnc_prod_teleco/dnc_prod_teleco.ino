@@ -3,9 +3,11 @@
 #include <LiquidCrystal595.h>
 #include <Encoder.h>
 
-char buf [34];
+char buf [68];
 char line1 [17];
 char line2 [17];
+char line3 [17];
+char line4 [17];
 
 
 Encoder rotary(2, 3);
@@ -247,12 +249,9 @@ void checkStringReceive() {
     Serial.println (buf);
       lcd.clear();
       memcpy( line1, &buf[0], 16 );
-      lcd.setCursor(0, 0);
-      lcd.print(line1);
       memcpy( line2, &buf[16], 16 );
-      lcd.setCursor(0, 1);
-      lcd.print(line2);
-
+      memcpy( line3, &buf[32], 16 );
+      memcpy( line4, &buf[48], 16 );
     pos = 0;
     adress = 0;
   }
@@ -291,7 +290,7 @@ void checkInput() {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
       if(T_DECINPIN+i==T_PUSHROTARY){
-        if( 1-digitalRead(inpin[i])==1 && positionLeft%(T_NBMENU+1)!=0 ) {newValue[T_DECINPIN + i] = positionLeft%(T_NBMENU+1);} else {newValue[T_DECINPIN + i] =0;}
+        if( 1-digitalRead(inpin[i])==1 && positionLeft%(T_NBMENU+2)!=0 && positionLeft%(T_NBMENU+2)!=1 ) {newValue[T_DECINPIN + i] = positionLeft%(T_NBMENU+2)-1;} else {newValue[T_DECINPIN + i] =0;}
       }else{
         newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
       //Serial.print("b");
@@ -304,14 +303,19 @@ void checkInput() {
     newLeft = (long)rotary.read()*1.0/2;
     if (newLeft != positionLeft) {
         lcd.clear();     
-        if(newLeft%(T_NBMENU+1)==0){
+        if(newLeft%(T_NBMENU+2)==0){
           lcd.setCursor(0, 0);
           lcd.print(line1);
           lcd.setCursor(0, 1);
           lcd.print(line2);
+        }else if(newLeft%(T_NBMENU+2)==1){
+          lcd.setCursor(0, 0);
+          lcd.print(line3);
+          lcd.setCursor(0, 1);
+          lcd.print(line4);
         }else{
           lcd.setCursor(0, 0);
-          lcd.print(menu[newLeft%(T_NBMENU+1)-1]);
+          lcd.print(menu[newLeft%(T_NBMENU+2)-1]);
         }
         positionLeft = newLeft;
       }
