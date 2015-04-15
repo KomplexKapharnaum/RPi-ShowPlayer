@@ -28,6 +28,11 @@
 #include <string>
 #include <algorithm>
 
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+
 
 using namespace std;
 
@@ -64,6 +69,21 @@ void sendStatusTeleco(){
   sprintf(mess3,"%s",carte_name.c_str());
   sprintf(mess4,"%s %.1fV",carte_ip.c_str(),v);
   myteleco.sendString(mess1,mess2,mess3,mess4);
+}
+
+void beforekill(int signum)
+{
+  printf("Caught signal %d\n",signum);
+  if(signum==SIGTERM){
+  mycarte.setGyro(0, 200);
+  mycarte.led10WValue(0);
+  mycarte.rgbValue(0,0,0);
+  mycarte.setRelais(0);
+  mytitreur.allLedOff();
+  status="noC";
+  sendStatusTeleco();
+  }
+  exit(signum);
 }
 
 void myInterruptTELECO(void) {
@@ -327,6 +347,7 @@ int parseInput(){
 
 int main (int argc, char * argv[]){
   
+signal(SIGINT, beforekill);
   
 cout << "#INITHARDWARE" << endl;
   
