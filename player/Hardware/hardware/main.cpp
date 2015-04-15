@@ -63,7 +63,7 @@ void myInterruptTELECO(void) {
     sprintf(mess1,"kxkm");
     sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_py.c_str());
     myteleco.sendString(mess1,mess2);
-    delay(1000);
+    delay(5000);
     sprintf(mess1,"%s",carte_name.c_str());
     sprintf(mess2,"%s %.1fV",carte_ip.c_str(),v);
     myteleco.sendString(mess1,mess2);
@@ -291,7 +291,6 @@ cout << "#INITHARDWARE" << endl;
   while(!init){
     parseInput();
   }
-  
 
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
