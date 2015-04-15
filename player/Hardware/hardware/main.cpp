@@ -73,8 +73,9 @@ void sendStatusTeleco(){
 
 void beforekill(int signum)
 {
-  printf("Caught signal %d\n",signum);
+  fprintf(stderr, "catch signal %u\n",signum);
   if(signum==SIGTERM || signum==SIGINT){
+    
   mycarte.setGyro(0, 200);
   mycarte.led10WValue(0);
   mycarte.rgbValue(0,0,0);
@@ -82,6 +83,7 @@ void beforekill(int signum)
   mytitreur.allLedOff();
   status="noC";
   sendStatusTeleco();
+    fprintf(stderr, "bye bye\n");
   }
   exit(signum);
 }
