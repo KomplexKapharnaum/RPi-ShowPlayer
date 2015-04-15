@@ -10,6 +10,7 @@ import shutil
 import datetime
 import tarfile
 import threading
+import time
 
 import pyudev
 
@@ -21,6 +22,100 @@ from engine import tools
 from engine.log import init_log
 
 log = init_log("media")
+
+
+class Media:
+    """
+    This class represent a media in order to have a common representation between osc, scenario and usb
+    """
+
+    def __init__(self, rel_path, mtime, source, source_path, filesize=None):
+        """
+        :param rel_path: reltive path in media directory
+        :param mtime: mtime of the file
+        :param source: Source of the file (scenario, usb or osc) if osc it's a target
+        :param source_path: Real source path of the file
+        :param filesize: File size
+        """
+        self.rel_path = rel_path
+        self.mtime = mtime
+        self.source = source
+        self.source_path = source_path
+        self.filesize = filesize
+
+    @staticmethod
+    def from_scenario(rel_path):
+        """
+        Create a Media from a rel path in scenario
+        :param rel_path: rel_path of the media
+        """
+        path = os.path.join(settings.get("path", "media"), rel_path)
+        if not os.path.exists(path):
+            log.error("Scenario media {0} not present in fs {1}".format(rel_path, path))
+            return False
+        mtime = time.ctime(os.path.getmtime(path))
+        return Media(rel_path=rel_path, mtime=mtime, source="scenario", source_path=path)
+
+    @staticmethod
+    def from_usb(rel_path, abs_path):
+        """
+        Createa Media from a usb media
+        :param rel_path: relative path of the media
+        :param abs_path: absolute path of the media
+        """
+        if not os.path.exists(abs_path):
+            log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
+            return False
+        mtime = time.ctime(os.path.getmtime(abs_path))
+        filesize = int(os.path.getsize(abs_path)/1000)  # In Ko
+        return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
+
+    @staticmethod
+    def from_osc(rel_path, mtime, filesize, user_ip, src_path):
+        """
+        Create Media from a osc message
+        :param rel_path: rel_path of the media
+        :param mtime: mtime of the media get by osc
+        :param filesize: File size (in Ko) recv by osc
+        :param user_ip: user@ip of the source owner
+        :param src_path: source path of the owner
+        """
+        scp_path = user_ip+":"+os.path.join(src_path, rel_path)
+        return Media(rel_path=rel_path, mtime=mtime, source="osc", source_path=scp_path, filesize=filesize)
+
+    def put_on_fs(self): # , error_fnct=None
+        """
+            This methof put the Media to the file system with the correct way to preserve mtime
+            ASUME THERE IS ENOUGHT SPACE ON FILESYSTEM
+            # :param error_fnct: If the copy fail for one reason or another, the function is called
+            #                     This function must take at least 2 param, the Media object and the Exception object
+        """
+        if self.source == "scenario":
+            log.warning("Ask to get a file from the scenario... do nothing")
+            return False
+        if self.source == "usb":
+            dest_path = os.path.join(settings.get("path", "media"), self.rel_path)
+            dir_path = os.path.dirname(dest_path)
+            if not os.path.exists(dir_path):
+                log.log("raw", "Create directory to get file {0}".format(dest_path))
+                os.makedirs(dir_path)
+            cp = ExternalProcess("cp")
+            cp.command += " --preserver=timestamp {0} {1}".format(self.source_path, dest_path)
+            cp.start()
+            try:
+                cp.join(timeout=self.filesize/settings.get("sync", "usb_speed_min"))
+            except RuntimeError as e:
+                log.exception(log.show_exception(e))
+                # if error_fnct is not None:
+                #     error_fnct(self, e)
+                cp.stop()
+                return self, e
+            cp.stop()
+            return True
+        elif self.source == "scp":
+            log.warning("!! NOT IMPLEMENTED !! ")
+        else:
+            log.warning("What the ..? ")
 
 
 def mount_partition(block_path, mount_path):
@@ -43,6 +138,7 @@ def mount_partition(block_path, mount_path):
         log.warning("Unable to mount  {0} on {1} ".format(block_path, mount_path))
         mount_cmd.stop()
         return False
+    mount_cmd.stop()
 
 
 def umount_partitions():
@@ -65,6 +161,7 @@ def umount_partitions():
                 umount_cmd.stop()
                 sucess = False
                 continue
+            umount_cmd.stop()
 
 
 class UdevThreadMonitor(threading.Thread):
