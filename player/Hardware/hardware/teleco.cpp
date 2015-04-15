@@ -18,13 +18,6 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
-#include <iostream>
-#include <fstream>
-#include <cstring>
-#include <sstream>
-#include <string>
-#include <algorithm>
-
 void Teleco::initCarte(){
   fprintf(stderr, "add teleco dnc\n");
   SPIcarte.initSPI();
@@ -42,22 +35,21 @@ void Teleco::start(){
 }
 
 
-void Teleco::sendString(std::string messages){
+void Teleco::sendString(char Str1[], char Str2[],char Str3[], char Str4[]){
+  fprintf(stderr, "send %s / %s\n",Str1,Str2);
   unsigned char buff[68];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
-  replace( messages.begin(), messages.end(), ' ', '_');
-  replace( messages.begin(), messages.end(), '$', ' ');
-  std::stringstream ss(messages);
-  std::string parsedInput;
-  char buffline[17];
-  int count =0;
-  while (ss>>parsedInput){
-    replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-    strncpy(buffline, parsedInput.c_str(), sizeof(buff));
-    for(int i=0;i<16;i++){
-      buff[i+count*16+1]= *(buffline+i);
-    }
-    count++;
+  for(int i=0;i<16;i++){
+    buff[i+1]= *(Str1+i);
+  }
+  for(int i=0;i<16;i++){
+    buff[i+17]= *(Str2+i);
+  }
+  for(int i=0;i<16;i++){
+    buff[i+17]= *(Str3+i);
+  }
+  for(int i=0;i<16;i++){
+    buff[i+17]= *(Str4+i);
   }
   SPIcarte.send(0,buff,68);
 }

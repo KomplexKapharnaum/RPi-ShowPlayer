@@ -35,6 +35,7 @@ string carte_name;
 string carte_ip;
 string version_py="-";
 string version_c="0.2";
+string status="0.2";
 int init=0;
 
 Carte mycarte;
@@ -57,10 +58,17 @@ void myInterruptTELECO(void) {
     int tension = mycarte.checkTension();
     float v = tension;
     v=v/10;
-    char mess[68];
+    char mess1[17];
+    char mess2[17];
+        char mess3[17];
+        char mess4[17];
+    
     delay(10);
-    sprintf(mess,"kxkm$pyt%s C%s$%s$%s %.1fV",version_py.c_str(),version_py.c_str(),carte_name.c_str(),carte_ip.c_str(),v);
-    myteleco.sendString(mess);
+    sprintf(mess1,"stat=%s",status.c_str());
+    sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_py.c_str());
+    sprintf(mess3,"%s",carte_name.c_str());
+    sprintf(mess4,"%s %.1fV",carte_ip.c_str(),v);
+    myteleco.sendString(mess1,mess2,mess3,mess4);
   }
 
 }
@@ -127,6 +135,10 @@ int parseInput(){
         if ("-version"==parsedInput){
           ss>>parsedInput;
           carte_ip=parsedInput;
+        }
+        if ("-status"==parsedInput){
+          ss>>parsedInput;
+          status=parsedInput;
         }
       }
       init=1;
@@ -285,6 +297,7 @@ cout << "#INITHARDWARE" << endl;
   while(!init){
     parseInput();
   }
+  
 
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
