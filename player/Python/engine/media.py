@@ -24,11 +24,39 @@ from engine.log import init_log
 log = init_log("media")
 
 
-class NeededMediaList(list):
+def get_unwanted_media_list(needed_media_list):
     """
-    This class is the list of media wanted
+    This function return the list of media present on the filesystem but which are not required by scenario
+    :param needed_media_list: NeededMediaList obj, which contains all of the needed media
+    :return:
     """
-    def __contains__(self, media_obj):
+    unwanted_media_list = MediaList()
+    media_path = settings.get("path", "media")
+    for path, dirs, files in os.walk(media_path):  # Retreived file list to check
+        for f in files:
+            abs_path = os.path.join(path, f)
+            rel_path = os.path.realpath(abs_path, media_path)
+            if rel_path in needed_media_list:
+                continue
+            unwanted_media_list.append(Media.from_fs(rel_path, abs_path))
+    return unwanted_media_list
+
+
+class MediaList(list):
+    """
+    This class is a list of media
+    """
+
+    def __contains__(self, rel_path):
+        """
+        This function test if the media rel_path given is in the wanted list
+        """
+        for elem in self:
+            if elem.rel_path == rel_path:
+                return True
+        return False
+
+    def need(self, media_obj):
         """
         This function test if media_obj is wanted (present and newer) based on the NeededMediaList
         """
@@ -36,6 +64,25 @@ class NeededMediaList(list):
             if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime:
                 return True
         return False
+
+    def find_smaller_media(self):    #, ignore=()):
+        """
+        This function return the smaller media to delete in the MediaList
+        # :param ignore: list of elem to ignore
+        """
+        smaller = self[0]
+        for elem in self:
+            if elem.filesize < smaller.filesize: # and elem not in ignore:
+                smaller = elem
+        return smaller
+
+    # def get_media_to_delete(self, needspace):
+    #     """
+    #     This function return a list of smaller media
+    #     """
+    #     freespace = 0
+    #     while freespace < needspace:
+
 
 
 class Media:
@@ -56,6 +103,7 @@ class Media:
         self.source = source
         self.source_path = source_path
         self.filesize = filesize
+        log.log("raw", "Init {0}".format(self))
 
     @staticmethod
     def from_scenario(rel_path):
@@ -81,7 +129,7 @@ class Media:
             log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
             return False
         mtime = time.ctime(os.path.getmtime(abs_path))
-        filesize = int(os.path.getsize(abs_path)/1000)  # In Ko
+        filesize = int(os.path.getsize(abs_path) / 1000)  # In Ko
         return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
 
     @staticmethod
@@ -94,10 +142,21 @@ class Media:
         :param user_ip: user@ip of the source owner
         :param src_path: source path of the owner
         """
-        scp_path = user_ip+":"+os.path.join(src_path, rel_path)
+        scp_path = user_ip + ":" + os.path.join(src_path, rel_path)
         return Media(rel_path=rel_path, mtime=mtime, source="osc", source_path=scp_path, filesize=filesize)
 
-    def put_on_fs(self): # , error_fnct=None
+    @staticmethod
+    def from_fs(rel_path, abs_path, filesize):
+        """
+        Create Media from fs (seem to be used to delte them after)
+        :param rel_path: rel_path of the media
+        :param abs_path: absolute path of the file on fs
+        :param filesize: filesize in Ko of the media
+        :return:
+        """
+        return Media(rel_path=rel_path, mtime=None, source="fs", source_path=abs_path, filesize=filesize)
+
+    def put_on_fs(self):  # , error_fnct=None
         """
             This methof put the Media to the file system with the correct way to preserve mtime
             ASUME THERE IS ENOUGHT SPACE ON FILESYSTEM
@@ -117,11 +176,11 @@ class Media:
             cp.command += " --preserver=timestamp {0} {1}".format(self.source_path, dest_path)
             cp.start()
             try:
-                cp.join(timeout=self.filesize/settings.get("sync", "usb_speed_min"))
+                cp.join(timeout=self.filesize / settings.get("sync", "usb_speed_min"))
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 # if error_fnct is not None:
-                #     error_fnct(self, e)
+                # error_fnct(self, e)
                 cp.stop()
                 return self, e
             cp.stop()
@@ -130,6 +189,25 @@ class Media:
             log.warning("!! NOT IMPLEMENTED !! ")
         else:
             log.warning("What the ..? ")
+
+    def remove_from_fs(self):
+        """
+        This function remove the media from the file system, only if the source is scenario or fs
+        """
+        if self.source not in ("scenario", "fs"):
+            log.warning("Ask to delete a {0} but it isn't on our filesystem".format(self))
+            return False
+        try:
+            os.remove(self.source_path)
+        except OSError as e:
+            log.exception(log.show_exception(e))
+            log.error("Need to delete {0} but OSError".format(self.source_path))
+            return False
+        return True
+
+    def __repr__(self):
+        return "Media {0}:{4}, {1}Ko, from {2} at {3}".format(self.rel_path, self.filesize, self.source,
+                                                              self.source_path, self.mtime)
 
 
 def mount_partition(block_path, mount_path):
@@ -165,7 +243,7 @@ def umount_partitions():
         if os.path.isdir(f):
             path = os.path.join(settings.get("path", "usb"), f)
             umount_cmd = ExternalProcess(name="umount")
-            umount_cmd.command += " "+path
+            umount_cmd.command += " " + path
             umount_cmd.start()
             try:
                 umount_cmd.join(timeout=settings.get("sync", "usb_mount_timeout"))
@@ -212,7 +290,7 @@ class UdevThreadMonitor(threading.Thread):
                 if devname in block and devname != block:  # Found a partition
                     mounted += mount_partition(os.path.join(devdir, block), os.path.join(settings.get("path", "usb"),
                                                                                          "usb{0}".format(devname[:-1])))
-            if mounted > 0:                                    # A partition has been mounted
+            if mounted > 0:  # A partition has been mounted
                 log.debug("Correctly mount {0} usb device".format(mounted))
                 self.machine.append_flag(self.flag.get())
 
