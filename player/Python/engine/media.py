@@ -46,6 +46,9 @@ def load_scenario_from_fs(group, date_timestamp=None):
     if group not in groups.keys():
         log.warning("There is no group {0} on file system => aborting load scenario".format(group))
         return False
+    if len(groups[group]) < 1:
+        log.warning("There is no file in group {0} on file system => aborting load scenario".format(group))
+        return False
     if date_timestamp is None:
         newer = get_newer_scenario(groups[group])
     else:
