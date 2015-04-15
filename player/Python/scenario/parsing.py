@@ -39,6 +39,7 @@ def load_files():
     path = settings.get("path", "activescenario")
     if not os.path.exists(path):
         log.warning("There is no {0} path for load scenario.. aborting".format(path))
+        return False
     files = [ f for f in listdir(path) if isfile(join(path,f)) ]
     for f in files:
         if f.startswith('scenario_'):
