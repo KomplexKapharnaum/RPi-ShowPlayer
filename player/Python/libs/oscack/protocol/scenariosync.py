@@ -25,8 +25,10 @@ log = init_log("ssync")
 OSC_PATH_SCENARIO_VERSION = "/sync/scenario/version"
 OSC_PATH_SCENARIO_ASK = "/sync/scenario/amiuptodate"
 
-msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None)
-msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None)
+msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None,
+                                                                 flag_name="RECV_SCENARIO_VERSION")
+msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None,
+                                                             flag_name="RECV_SCENARIO_ASK")
 
 machine = fsm.FiniteStateMachine(name="syncscenario")
 
@@ -170,7 +172,7 @@ step_init.transitions = {
 }
 
 step_main_wait.transitions = {
-    "RECV_MSG": trans_must_i_get_scenario,
+    "RECV_SCENARIO_VERSION": trans_must_i_get_scenario,
     flag_timeout.uid: step_send_version
 }
 
