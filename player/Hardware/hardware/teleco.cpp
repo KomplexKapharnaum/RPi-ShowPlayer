@@ -18,9 +18,12 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
+#include <iostream>
+#include <fstream>
 #include <cstring>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 void Teleco::initCarte(){
   fprintf(stderr, "add teleco dnc\n");
