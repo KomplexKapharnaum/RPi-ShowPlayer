@@ -24,6 +24,20 @@ from engine.log import init_log
 log = init_log("media")
 
 
+class NeededMediaList(list):
+    """
+    This class is the list of media wanted
+    """
+    def __contains__(self, media_obj):
+        """
+        This function test if media_obj is wanted (present and newer) based on the NeededMediaList
+        """
+        for elem in self:
+            if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime:
+                return True
+        return False
+
+
 class Media:
     """
     This class represent a media in order to have a common representation between osc, scenario and usb
