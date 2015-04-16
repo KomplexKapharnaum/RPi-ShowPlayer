@@ -23,5 +23,5 @@ clean:
 
 mrproper: clean
 	rm -rf $(EXEC)
-
-$(warning arch $(PROCESSOR_ARCHITECTURE))
+all:
+  $(warning arch $(PROCESSOR_ARCHITECTURE))
