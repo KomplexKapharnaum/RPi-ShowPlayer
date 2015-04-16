@@ -352,7 +352,7 @@ step_error = fsm.State("STEP_ERROR", function=error_function, transitions={
     flag_timeout.uid: step_main_wait
 })
 
-step_update_media_list = fsm.State("STEP_UPDATE_MEDIA_LIST", function=update_needed_list())
+# step_update_media_list = fsm.State("STEP_UPDATE_MEDIA_LIST", function=update_needed_list())
 
 
 
