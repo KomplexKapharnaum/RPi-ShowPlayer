@@ -87,9 +87,9 @@ class ThreadPatcher(threading.Thread):
 
         sendto = deepcopy(signal.args["dest"])
         signal.args["dest"] = list()
-        
-        s, ns = rtplib.get_time()
-        signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
+        if "abs_time_sync" not in signal.args.keys():
+            s, ns = rtplib.get_time()
+            signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
         msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
         if settings.get("scenario", "dest_all") in sendto:
             log.log("raw", "dispatch to all dest")
