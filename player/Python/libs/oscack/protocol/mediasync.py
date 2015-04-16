@@ -68,7 +68,7 @@ def init(flag):
     async_monitor_udev = media.UdevThreadMonitor(monitor_udev, machine, flag_usb_plugged)
     async_monitor_udev.start()
     # TODO get the needed media list from scenario
-    needed_media_list = media.MediaList()  # here come the media list
+    needed_media_list = media.MediaList(["text/blabla.txt", ])  # here come the media list
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
     flag = flag_init_end.get()
     flag.args["timeout"] = settings.get("sync", "timeout_wait_syncflag")
