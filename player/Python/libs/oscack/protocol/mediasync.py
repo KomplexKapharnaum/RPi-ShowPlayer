@@ -66,6 +66,7 @@ def init(flag):
     monitor_udev.filter_by('block')  # get only block information
     monitor_udev.start()
     async_monitor_udev = media.UdevThreadMonitor(monitor_udev, machine, flag_usb_plugged)
+    async_monitor_udev.start()
     # TODO get the needed media list from scenario
     needed_media_list = media.MediaList()  # here come the media list
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
