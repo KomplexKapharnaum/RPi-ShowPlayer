@@ -232,10 +232,10 @@ class FiniteStateMachine:
         state.preemptible.wait()
         # Now watch if there is some direct transition to perform
         if True in state.transitions.keys():
-            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to TRUE in transition".format(state.transitions[True]))
+            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to TRUE in transition".format(self, state, state.transitions[True]))
             self._catch_flag(flag, state.transitions[True])
         elif None in state.transitions.keys():
-            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to NONE in transition".format(state.transitions[None]))
+            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to NONE in transition".format(self, state, state.transitions[None]))
             self._catch_flag(None, state.transitions[None])
         self._event_flag_stack_new.set()  # An old signal can now be interesting !
         log.log("raw", "[{0}] - End change state".format(self))
