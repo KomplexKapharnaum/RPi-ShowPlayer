@@ -3,8 +3,8 @@
 
 
 // copied from http://heim.ifi.uio.no/haakoh/avr/a
-const int font_count = 158;
-const unsigned char myfont[158][6] = {
+const int font_count = 159;
+const unsigned char myfont[159][6] = {
   {0, 0, 0, 0, 0, 0}, // space! 32
   {0x0, 0x0, 0x79, 0x0, 0x0, 0x0},  // !
 {0x0, 0x70, 0x0, 0x70, 0x0, 0x0},  // "
