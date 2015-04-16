@@ -294,7 +294,7 @@ class UdevThreadMonitor(threading.Thread):
                 log.log("debug", "Remove block device {0}".format(device.device_node))
                 umount_partitions()
                 continue
-            elif device.action != "add":
+            elif device.action not in ("add", "change"):
                 log.log("raw", "Block device event {1} (not add) : {0}".format(device.device_node, device.action))
                 continue
             devdir = os.path.dirname(device.device_node)
