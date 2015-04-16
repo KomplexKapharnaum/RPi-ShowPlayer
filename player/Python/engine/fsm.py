@@ -9,7 +9,7 @@ from libs import rtplib
 from engine.log import init_log
 # import scenario
 
-log = init_log("fsm", log_lvl="debug")
+log = init_log("fsm")
 
 class FSMException(Exception):
     pass
