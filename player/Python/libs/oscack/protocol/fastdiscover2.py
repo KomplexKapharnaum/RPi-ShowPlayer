@@ -27,8 +27,8 @@ machine = fsm.FiniteStateMachine()
 msg_iamhere = network.UnifiedMessageInterpretation("/iamhere", values=(
     ('s', "uName"),
     ('i', "timetag")
-))
-msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True)
+), flag_name="RECV_IAM_HERE")
+msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME")
 msg_ping = network.UnifiedMessageInterpretation("/rtp/ping", ACK=True, values=(
     ("i", "ping_1"),
     ("i", "ping_2"),
@@ -332,11 +332,13 @@ step_init.transitions = {
 
 step_main_wait.transitions = {
     flag_timeout_send_iamhere.uid: step_send_iamhere,
-    fsm.Flag("RECV_MSG").uid: network.UnifiedMessageInterpretation.conditional_transition({
-        "/iamhere": trans_recv_iamhere,
-        "/rtp/asktime": step_sync_start,
-        "/rtp/sync": step_sync_time,  # TODO : It's for secure purpose, check if it's really needed
-    })
+    # fsm.Flag("RECV_MSG").uid: network.UnifiedMessageInterpretation.conditional_transition({
+    #     "/iamhere": trans_recv_iamhere,
+    #     "/rtp/asktime": step_sync_start,
+    #     "/rtp/sync": step_sync_time,  # TODO : It's for secure purpose, check if it's really needed
+    # })
+    msg_asktime.flag_name: step_sync_start,
+    msg_iamhere.flag_name: trans_recv_iamhere
 }
 step_send_iamhere.transitions = {
     None: step_main_wait
