@@ -18,6 +18,7 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 #include <stdlib.h>
+#include <string>
 
 std::string debug="teleco - ";
 

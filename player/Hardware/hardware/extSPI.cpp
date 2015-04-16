@@ -21,7 +21,7 @@
 // for instal and build, follow the link
 //https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install/
 
-#include <string.h>
+#include <string>
 
 std::string debug="extspi - ";
 

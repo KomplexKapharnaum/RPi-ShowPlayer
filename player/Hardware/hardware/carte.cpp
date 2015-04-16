@@ -17,7 +17,7 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 #include <iostream>
-#include <string.h>
+#include <string>
 
 std::string debug="carte - ";
 

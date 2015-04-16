@@ -21,7 +21,7 @@
 #include "ht1632.h"
 #include "font2.h"
 
-#include <string.h>
+#include <string>
 
 std::string debug="titreur - ";
 
