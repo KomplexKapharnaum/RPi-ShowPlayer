@@ -68,7 +68,10 @@ def init(flag):
     async_monitor_udev = media.UdevThreadMonitor(monitor_udev, machine, flag_usb_plugged)
     async_monitor_udev.start()
     # TODO get the needed media list from scenario
-    needed_media_list = media.MediaList(["text/blabla.txt", ])  # here come the media list
+    from_scenario_wanted = ["text/blabla.txt", ]
+    needed_media_list = media.MediaList()  # here come the media list
+    for f in from_scenario_wanted:
+        needed_media_list.append(media.Media.from_scenario(f))
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
     flag = flag_init_end.get()
     flag.args["timeout"] = settings.get("sync", "timeout_wait_syncflag")
@@ -168,6 +171,7 @@ def does_want_media(media, needed_list):
     :param needed_list: List of media needed in scenario
     :return: True if need, False instead
     """
+    pass        # UNUSED ?
 
 
 def trans_need_media_in(flag):
@@ -177,6 +181,7 @@ def trans_need_media_in(flag):
     :return:
     """
     global needed_media_list
+    log.log("Needed media list : {0}".format(needed_media_list))
     while len(flag.args["files_to_test"]) > 0:
         f = flag.args["files_to_test"].pop()
         log.log("raw", "Do I need {0} file ?".format(f))
