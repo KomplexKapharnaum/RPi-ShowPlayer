@@ -19,7 +19,7 @@ from libs.oscack import message, network
 from libs import rtplib
 from engine.setting import settings
 from engine.log import init_log
-import scenario
+from scenario import manager
 
 log = init_log("discov")
 
