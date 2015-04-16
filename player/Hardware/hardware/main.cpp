@@ -376,12 +376,7 @@ signal(SIGINT, beforekill);
  
   wiringPiSetupGpio();
   pinMode (21, INPUT);
-  delay(2);
-if (myteleco.fisrtView() && digitalRead(21)==HIGH) {
-  fprintf(stderr, "teleco add at boot\n");
-    myteleco.readInterrupt();
-    myteleco.start();
-  }
+
 
   
 cout << "#INITHARDWARE" << endl;
@@ -391,6 +386,11 @@ cout << "#INITHARDWARE" << endl;
     parseInput();
   }
   if(version_py=="-")myteleco.initCarte(1);else myteleco.initCarte(1);
+  if (myteleco.fisrtView() && digitalRead(21)==HIGH) {
+    fprintf(stderr, "teleco add at boot\n");
+    myteleco.readInterrupt();
+    myteleco.start();
+  }
 
   
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
