@@ -204,7 +204,9 @@ def client_sync(flag):
                             flag_timeout_wait_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))
     machine.current_state.preemptible.set()
+    log.log("error", "Just before sending asktime")
     message.send(target, msg_asktime.get())
+    log.log("error", "Just after sending asktime")
 
 
 def client_get_sync(path, args, types, src):
