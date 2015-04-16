@@ -179,7 +179,9 @@ def trans_need_media_in(flag):
     global needed_media_list
     while len(flag.args["files_to_test"]) > 0:
         f = flag.args["files_to_test"].pop()
+        log.log("raw", "Do I need {0} file ?".format(f))
         if needed_media_list.need(f):
+            log.log("raw", "Need {0}, go to copy it !".format(f))
             flag.args["get_media"] = f
             return flag.args["trans_enough_place"]
     return flag.args["trans_end"]
@@ -202,9 +204,12 @@ def trans_enought_place(flag):
     :return:
     """
     flag.args["free_space"] = get_fs_media_free_space() - settings.get("sync", "protected_space")
+    log.log("raw", "Does have enought place is fs ? (free : {0} Ko}".format(flag.args["free_space"]))
     if flag.args["get_media"].filesize > flag.args["free_space"]:
+        log.log("raw", "Enought place, continue copy..")
         return flag.args["trans_free"]
     else:
+        log.log("raw", "NOT Enought place, go to delete some files..")
         return flag.args["trans_full"]
 
 
