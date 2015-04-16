@@ -220,6 +220,8 @@ def mount_partition(block_path, mount_path):
     mount_cmd = ExternalProcess(name="mount")
     if not os.path.exists(mount_path):
         os.mkdir(mount_path)
+    else:
+        log.warning("Warning, we mount a device {0} on an existing mount point {1}".format(block_path, mount_path))
     mount_cmd.command += " {0} {1}".format(block_path, mount_path)
     mount_cmd.start()
     try:
@@ -247,6 +249,7 @@ def umount_partitions():
             umount_cmd.start()
             try:
                 umount_cmd.join(timeout=settings.get("sync", "usb_mount_timeout"))
+                os.rmdir(path)
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 log.warning("Unable to umount {0}".format(path))
