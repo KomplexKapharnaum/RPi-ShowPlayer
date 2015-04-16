@@ -7,7 +7,6 @@ OBJ= $(SRC:.cpp=.o)
 H= $(SRC:.cpp=.h)
 
 all: $(EXEC)
-  @echo $(PROCESSOR_ARCHITECTURE)
 
 hardware: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -24,3 +23,5 @@ clean:
 
 mrproper: clean
 	rm -rf $(EXEC)
+
+$(warning arch $(PROCESSOR_ARCHITECTURE))
