@@ -7,10 +7,10 @@ EXEC=hardware
 
 ifeq (,$(findstring arm7,$(UNAME_P)))
 $(warning rpiB2 -> build hardware7)
-EXEC+=7
+EXEC += 7
 else
 $(warning rpiA+/B+ -> build hardware6)
-EXEC+=6
+EXEC += 6
 endif
 
 SRC= $(wildcard *.cpp)
