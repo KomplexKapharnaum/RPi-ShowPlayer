@@ -6,11 +6,10 @@
 
 import os
 import shutil
-import shutil
 import datetime
 import tarfile
 
-from modules import ExternalProcess
+from modules._classes import ExternalProcess
 from libs import pyhashxx
 from engine.setting import settings
 

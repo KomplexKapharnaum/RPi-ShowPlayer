@@ -5,12 +5,14 @@
 #
 
 import os
+import string
 from os import listdir
 from os.path import isfile, join
 
 import engine
 from engine import fsm
 from scenario import classes, pool
+from scenario.publicfunctions import *
 from engine.setting import settings
 from operator import itemgetter
 import libs.simplejson as json
@@ -23,7 +25,11 @@ TIMELINE = dict()
 LIBRARY = dict()
 
 
-def load():
+def load(use_archived_scenario=False):
+    # UNPACK LAST ARCHIVE OF SCENARIO
+    if use_archived_scenario:
+        engine.media.load_scenario_from_fs(settings["current_timeline"])   # Reload newer tar file of group into active dir
+    # LOAD ACTIVE FILES
     load_files()
     for name, timeline in TIMELINE.items():
         parse_devices(timeline)
@@ -46,14 +52,17 @@ def load_files():
             if f.startswith('scenario_'):
                 name = f.replace('scenario_', '').replace('.json', '')
                 SCENARIO[name] = parse_file(join(path, f))
+                log.log('raw', "Load {0}".format(join(path, f)))
             elif f.startswith('library_'):
                 name = f.replace('library_', '').replace('.json', '')
                 LIBRARY[name] = parse_file(join(path, f))
+                log.log('raw', "Load {0}".format(join(path, f)))
             elif f.startswith('timeline_'):
                 name = f.replace('timeline_', '').replace('.json', '')
                 TIMELINE[name] = parse_file(join(path, f))['pool']
+                log.log('raw', "Load {0}".format(join(path, f)))
     except Exception as e:
-        log.exception("On load files : ")
+        log.exception("Error while loading scenario file : ")
         log.exception(log.show_exception(e))
         return
 
@@ -71,23 +80,27 @@ def parse_arg_function(jfunction):
 
 def parse_function(jobj):
     fnct = None
-    exec "\n".join(jobj["CODE"])
+    exec jobj["CODE"]
     pool.Etapes_and_Functions[jobj["ID"]] = fnct  # fnct define in the exec CODE
     return fnct
 
 
 def parse_devices(parsepool):
+    import modules
     for device in parsepool:
         # DEVICES // CARTES
         managers = dict()
         patchs = list()
-        for etape in device['modules']:
-            managers[etape] = pool.Etapes_and_Functions[etape]
+        for module in device['modules']:
+            if module in modules.MODULES.keys():
+                etape = modules.MODULES[module]['init_etape']
+                managers[etape] = pool.Etapes_and_Functions[etape]
         # for patch in importDevice["OTHER_PATCH"]:
         #     patchs.append(pool.Patchs[patch])
         d = classes.Device(device['name'], [], patchs, managers)  # TODO : End correct parsing !
         pool.Devices[device['name']] = d
         pool.Cartes[device['name']] = classes.Carte(device['name'], d)
+        log.log('raw', "ADD CARTE {0}".format(pool.Cartes[device['name']]))
 
 
 def parse_timeline(parsepool):
@@ -110,7 +123,10 @@ def parse_timeline(parsepool):
                         boxname = (scenario+'_'+box).upper()
                         SC['etapes'].append(boxname)
             # ADD SCENE
-            scene_name = block['scene']['name']
+            if 'scene' in block:
+                scene_name = block['scene']['name']
+            else:
+                scene_name = 'default'
             if scene_name not in Sceno.keys():
                 Sceno[scene_name] = []
             Sceno[scene_name].append(SC)
@@ -133,9 +149,13 @@ def parse_timeline(parsepool):
     importTimeline = []
     for device in parsepool:
         if device['name'] == settings["uName"]:
-            for block in device["blocks"]: 
+            for block in device["blocks"]:
+                if 'scene' in block:
+                    scene_name = block['scene']['name']
+                else:
+                    scene_name = 'default'
                 importTimeline.append({
-                    "scene" : block['scene']['name'],
+                    "scene" : scene_name,
                     "start": block['start'],
                     "end": block['end']
                 })
@@ -158,10 +178,14 @@ def parse_library(libs):
     for fn in libs:
         importFn = {
             "ID" : fn['category']+'_'+fn['name']+'_USERFUNC',
-            "CODE" : [
-                "def fnct(flag, **kwargs):",
-                    "    log.info('WAITING')"]   # TODO !!!
+            "CODE" : "def fnct(flag, **kwargs):\n  log.debug('CUSTOM CODE EXECUTED')\n"
         }
+        code = string.split(fn['code'], '\n')
+        code = [(2 * ' ') + line for line in code]
+        code = string.join(code, '\n')
+        code = code.replace('\t', '  ')
+        importFn["CODE"] += code
+        log.debug(importFn["CODE"])
         parse_function(importFn)
 
 
@@ -187,10 +211,18 @@ def parse_scenario(parsepool, name):
 
         # CUSTOM FUNCTION (Declared in Library)
         elif etapename+'_USERFUNC' in pool.Etapes_and_Functions.keys():
-            fn = pool.Etapes_and_Functions[box['category']+'_'+box['name']+'_USERFUNC']
+            fn = pool.Etapes_and_Functions[etapename+'_USERFUNC']
             etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
             importEtapes[etape.uid] = etape
             log.log('raw', 'ADD USER FUNC '+etape.uid)
+
+
+        # PUBLIC FUNCTION (Declared in Library)
+        elif box['name']+'_PUBLICFUNC' in pool.Etapes_and_Functions.keys():
+            fn = pool.Etapes_and_Functions[box['name']+'_PUBLICFUNC']
+            etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
+            importEtapes[etape.uid] = etape
+            log.log('raw', 'ADD PUBLIC FUNC '+etape.uid)
 
         # NO MATCHING ETAPE..
         else:

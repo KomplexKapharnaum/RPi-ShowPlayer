@@ -28,45 +28,16 @@ DEVICE_FSM = list()
 GLOBALS = dict()
 MANAGERMODULE = None
 
-def init(managermodule):
+def init():
     """
     This function init pool variable before parsing a new scenario file
     :return:
     """
-    global MANAGERMODULE
-    MANAGERMODULE = managermodule
+    # STOP ALREADY RUNNING POOL MACHINES
     stop()
-
-
-def start():
-    global MANAGER
-    if settings["uName"] in Cartes.keys():
-        Cartes[settings["uName"]].device.launch_manager()
-        MANAGER = fsm.FiniteStateMachine("Manager")
-        MANAGER.start(MANAGERMODULE.step_init)
-        MANAGER.append_flag(MANAGERMODULE.start_flag.get())
-    else:
-        MANAGER = None
-        log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
-
-
-def restart():
-    stop()
-    start()
-
-
-def stop():
+    # CLEAR POOL
     global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, Patchs, Medias, cross_ref
-    global MANAGER, CURRENT_FRAME, CURRENT_SCENE, FSM, DEVICE_FSM, GLOBALS, MANAGERMODULE
-    if MANAGER is not None:
-        MANAGER.stop()
-        MANAGER.join()
-    for sfsm in FSM:
-        sfsm.stop()
-        sfsm.join()
-    for sfsm in DEVICE_FSM:
-        sfsm.stop()
-        sfsm.join()
+    global MANAGER, CURRENT_FRAME, CURRENT_SCENE, FSM, DEVICE_FSM, GLOBALS
     Etapes_and_Functions = dict()
     Signals = dict()
     Scenes = dict()
@@ -82,6 +53,39 @@ def stop():
     FSM = list()
     DEVICE_FSM = list()
     GLOBALS = dict()
+
+
+def start():
+    global MANAGER
+    log.debug('{0}'.format(Cartes))
+    if settings["uName"] in Cartes.keys():
+        import manager
+        Cartes[settings["uName"]].device.launch_manager()
+        MANAGER = fsm.FiniteStateMachine("Manager")
+        MANAGER.start(manager.step_init)
+        MANAGER.append_flag(manager.start_flag.get())
+    else:
+        MANAGER = None
+        log.info("== NO SCENARIO FOR: {0}".format(settings["uName"]))
+
+
+def stop():
+    global MANAGER
+    if MANAGER is not None:
+        MANAGER.stop()
+        MANAGER.join()
+    for sfsm in FSM:
+        sfsm.stop()
+        sfsm.join()
+    for sfsm in DEVICE_FSM:
+        sfsm.stop()
+        sfsm.join()
+
+
+def restart():
+    stop()
+    init()
+    start()
 
 
 def do_cross_ref():
