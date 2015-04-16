@@ -212,10 +212,12 @@ int parseInput(){
     if ("popup"==parsedInput) {
       while (ss>>parsedInput){
         if ("-line1"==parsedInput){
-          ss>>popup1;
+          ss>>parsedInput;
+          popup1=parsedInput;
         }
         if ("-line2"==parsedInput){
-          ss>>popup2;
+          ss>>parsedInput;
+          popup2=parsedInput;
         }
       }
       char mess1[17];
