@@ -260,8 +260,11 @@ def get_media(flag):
     :param flag: need : get_media
     :return:
     """
+    log.log("raw", "Go to definitve copy {0} on filesystem".format(flag.args["get_media"]))
     if not flag.args["get_media"].put_on_fs():
         log.error("Unabled to put {0} on fs".format(flag.args["get_media"]))
+    else:
+        log.log("raw", "Copy worked !")
 
 
 def monitor_usb_end_copy(flag):
