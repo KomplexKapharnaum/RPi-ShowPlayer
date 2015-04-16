@@ -38,8 +38,8 @@ void Teleco::start(){
 }
 
 
-void Teleco::sendString(char Str1[], char Str2[],char Str3[], char Str4[]){
-  fprintf(stderr, "send %s / %s\n",Str1,Str2);
+void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
+  fprintf(stderr, "teleco send infos : %s / %s / %s / %s\n",Str1,Str2, Str3, Str4);
   unsigned char buff[68];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
   for(int i=0;i<16;i++){
@@ -56,6 +56,20 @@ void Teleco::sendString(char Str1[], char Str2[],char Str3[], char Str4[]){
   }
   SPIcarte.send(0,buff,68);
 }
+
+void Teleco::sendPopUp(char Str1[], char Str2[]){
+  fprintf(stderr, "teleco send popup %s / %s\n",Str1,Str2);
+  unsigned char buff[34];
+  buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
+  for(int i=0;i<16;i++){
+    buff[i+1]= *(Str1+i);
+  }
+  for(int i=0;i<16;i++){
+    buff[i+17]= *(Str2+i);
+  }
+  SPIcarte.send(0,buff,34);
+}
+
 
 int Teleco::readInterrupt(){
   unsigned char buff[2];

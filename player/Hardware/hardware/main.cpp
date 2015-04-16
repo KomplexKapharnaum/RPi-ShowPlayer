@@ -41,6 +41,7 @@ string carte_ip;
 string version_py="-";
 string version_c="0.2";
 string status="-";
+string popup1,popup2;
 int init=0;
 
 Carte mycarte;
@@ -68,7 +69,7 @@ void sendStatusTeleco(){
   sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_c.c_str());
   sprintf(mess3,"%s",carte_name.c_str());
   sprintf(mess4,"%s %.1fV",carte_ip.c_str(),v);
-  myteleco.sendString(mess1,mess2,mess3,mess4);
+  myteleco.sendInfo(mess1,mess2,mess3,mess4);
 }
 
 void beforekill(int signum)
@@ -207,6 +208,19 @@ int parseInput(){
       }
       sendStatusTeleco();
     }
+    
+    if ("popup"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-line1"==parsedInput){
+          ss>>popup1;
+        }
+        if ("-line2"==parsedInput){
+          ss>>popup2;
+        }
+      }
+      myteleco.sendPopUp(popup1.c_str(),popup2.c_str());
+    }
+
 
     if ("initconfig"==parsedInput) {
       fprintf(stderr, "error already init\n");
