@@ -75,6 +75,14 @@ class MediaList(list):
                 smaller = elem
         return smaller
 
+    def __repr__(self):
+        r = "Media list : \n"
+        for elem in self:
+            r += elem + "\n"
+
+    def __str__(self):
+        return self.__repr__(self)
+
     # def get_media_to_delete(self, needspace):
     #     """
     #     This function return a list of smaller media
