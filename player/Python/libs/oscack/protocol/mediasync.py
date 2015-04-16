@@ -181,7 +181,7 @@ def trans_need_media_in(flag):
     :return:
     """
     global needed_media_list
-    log.log("Needed media list : {0}".format(needed_media_list))
+    log.log("raw", "Needed media list : {0}".format(needed_media_list))
     while len(flag.args["files_to_test"]) > 0:
         f = flag.args["files_to_test"].pop()
         log.log("raw", "Do I need {0} file ?".format(f))
