@@ -120,7 +120,13 @@ void Titreur::putChar(int x, int y, char c){
     cc=0;
   }
   fprintf(stderr, "putchar %c code=%u tab=%u",c,c,cc);
-  
+  if(c==169)c=132;
+  if(c==168)c=131;
+  if(c==180)c=143;
+  if(c==171)c=134;
+  if(c==188)c=151;
+  if(c==160)c=123;
+  if(c==170)c=133;
   for (char col=0; col< 6; col++) {
     int dots = myfont[cc][col];
     for (char row=0; row < 8; row++) { // only 8 rows.
