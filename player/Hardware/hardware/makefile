@@ -1,13 +1,13 @@
 CC=g++
 CFLAGS=
 LDFLAGS=-lwiringPi
-  @echo $(PROCESSOR_ARCHITECTURE)
 EXEC=hardware
 SRC= $(wildcard *.cpp)
 OBJ= $(SRC:.cpp=.o)
 H= $(SRC:.cpp=.h)
 
 all: $(EXEC)
+  @echo PROCESSOR_ARCHITECTURE
 
 hardware: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
