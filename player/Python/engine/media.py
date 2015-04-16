@@ -81,7 +81,7 @@ class MediaList(list):
             r += elem + "\n"
 
     def __str__(self):
-        return self.__repr__(self)
+        return self.__repr__()
 
     # def get_media_to_delete(self, needspace):
     #     """
