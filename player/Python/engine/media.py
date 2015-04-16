@@ -175,6 +175,7 @@ class Media:
                 os.makedirs(dir_path)
             cp = ExternalProcess("cp")
             cp.command += " --preserver=timestamp {0} {1}".format(self.source_path, dest_path)
+            log.log("raw", "Start CP copy with {0}".format(cp.command))
             cp.start()
             try:
                 cp.join(timeout=self.filesize / settings.get("sync", "usb_speed_min") + 5)  # Minimum 5 seconds
