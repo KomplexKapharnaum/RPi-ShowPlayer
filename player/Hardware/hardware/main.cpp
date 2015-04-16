@@ -386,7 +386,7 @@ cout << "#INITHARDWARE" << endl;
     parseInput();
   }
   if(version_py=="-")myteleco.initCarte(1);else myteleco.initCarte(1);
-  if (myteleco.fisrtView() && digitalRead(21)==HIGH) {
+  if (digitalRead(21)==HIGH) {
     fprintf(stderr, "teleco add at boot\n");
     myteleco.readInterrupt();
     myteleco.start();

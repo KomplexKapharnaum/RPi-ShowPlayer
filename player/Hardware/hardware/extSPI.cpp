@@ -21,7 +21,9 @@
 // for instal and build, follow the link
 //https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install/
 
+#include <string.h>
 
+std::string debug="extspi - ";
 
 
 extSPI::extSPI(){
@@ -31,7 +33,7 @@ extSPI::extSPI(){
 
 int extSPI::check(){
   if (!init) {
-    fprintf(stderr, " you must init extSPI");
+    fprintf(stderr, "%s you must init extSPI",debug);
     return 1;
   }
   return 0;
@@ -41,7 +43,7 @@ int extSPI::check(){
 void extSPI::initSPI(int speed){
   commonInit(speed);
   nbmodule=1;
-  fprintf(stderr, "init ok \n");
+  fprintf(stderr, "%sinit ok \n",debug);
 }
 
 void extSPI::commonInit(int _spiSpeed){
@@ -67,7 +69,7 @@ void extSPI::addChipSelect(int GPIO,int speed){
   pinMode (chipSelect[csmax].GPIO, OUTPUT) ;
   digitalWrite (chipSelect[csmax].GPIO, HIGH);
   csmax++;
-  fprintf(stderr, "add direct gpio cs \n");
+  fprintf(stderr, "%sadd direct gpio cs \n",debug);
   releaseSelect();
 }
 
@@ -78,7 +80,7 @@ void extSPI::addChipSelectWithHC595Buffer(int RCK, int HC595,int speed){
   pinMode (chipSelect[csmax].GPIO, OUTPUT) ;
   digitalWrite (chipSelect[csmax].GPIO, LOW);
   csmax++;
-  fprintf(stderr, "add hc595 cs \n");
+  fprintf(stderr, "%sadd hc595 cs \n",debug);
   releaseSelect();
 }
 /*
