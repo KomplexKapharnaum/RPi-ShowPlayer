@@ -87,7 +87,7 @@ def send_sync_flag(flag):
     if "timeout" in flag.args.keys():
         network_scheduler.enter(flag.args["timeout"], flag_timeout.get)
     if "target" not in flag.args.keys():
-        target = BroadcastAddress
+        target = message.Address("255.255.255.255")
     else:
         target = flag.args["target"]
     message.send(target, msg_sync_flag.get(timestamp=settings.get("sync", "flag_timestamp"),
