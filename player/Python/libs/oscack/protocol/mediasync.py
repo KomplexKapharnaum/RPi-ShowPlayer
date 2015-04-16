@@ -18,7 +18,7 @@ from libs.oscack import network
 from engine.setting import settings
 from engine.log import init_log
 
-log = init_log("msync")
+log = init_log("msync", log_lvl="raw")
 
 machine = fsm.FiniteStateMachine("MediaSyncProtocol")
 
