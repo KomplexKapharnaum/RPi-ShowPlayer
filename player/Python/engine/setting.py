@@ -110,6 +110,10 @@ DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
 
 
+DEFAULT_SETTING["temp"] = dict()            # TEMP SETTINGS FOR TEST
+DEFAULT_SETTING["temp"]["wanted_media"] = ["text/blabla.txt", "drums.wav", "sintel.mp4", "drums.mp3", "mistake.mp3"]
+
+
 class Settings(dict):
     """
     This class old settings
