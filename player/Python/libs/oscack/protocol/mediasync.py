@@ -137,8 +137,10 @@ def trans_usb_have_dnc_media(flag):
     flag.args["trans_end"] = step_usb_end_copy
     flag.args["trans_free"] = step_put_media_on_fs
     flag.args["trans_full"] = trans_can_free
+    log.log("raw", "Does usb have dnc media ? usb path root : {0}".format(path))
     for f in path:
         usb_path = os.path.join(path, f, "dnc", "media")
+        log.log("raw", "Check for {0}".format(usb_path))
         if os.path.ismount(path):
             log.log("raw", "Found partition path {0}".format(usb_path))
             if os.path.exists(os.path.join(usb_path, "dnc", "media")):
