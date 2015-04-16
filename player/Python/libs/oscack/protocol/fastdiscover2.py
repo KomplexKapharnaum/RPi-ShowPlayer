@@ -74,10 +74,10 @@ def add_method_before_patcher(path, types, fnct):
     :param fnct: callback function
     :return: None
     """
-    libs.oscack.DNCserver.ackServer.del_method(None, None)          # Remove wildcard
+    libs.oscack.DNCserver.del_method(None, None)          # Remove wildcard
     libs.oscack.DNCserver.ackServer.del_method(path, types)         # Remove before add
     libs.oscack.DNCserver.ackServer.add_method(path, types, fnct)   # Add callback
-    # libs.oscack.DNCserver.ackServer.add_method(None, None, scenario.manager.patch_msg)  # Replug patcher
+    libs.oscack.DNCserver.add_method(None, None, scenario.manager.patch_msg)  # Replug patcher
 
 
 
