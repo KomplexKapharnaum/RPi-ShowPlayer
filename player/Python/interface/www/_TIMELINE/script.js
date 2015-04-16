@@ -581,6 +581,7 @@
       thisblock.blockbox.draggable({
         grid: [ 50,50 ],
         axis: "x",
+        distance: 50,
         containment: "parent",
         drag: function(){
           thisblock.actuPosition();
@@ -629,9 +630,8 @@
   		});
 
 
-  //////////////////// groupS ///////////////////
-    var colors = new Array ('B5B5B5','218C8D','D83E3E','F9E559','EF7126','8EDC9D','A05C7B',
-    'E1CE9A','3F7CAC','E21D1D','82A647','9B6236','75C1FF','C4E00F','F4FF52','6E0014');
+  //////////////////// groupS ///////////////////EF7126
+    var colors = new Array ('B5B5B5','218C8D','D83E3E','F9E559','3F7CAC','8EDC9D','A05C7B','E1CE9A','75C1FF','82A647', 'EF7126','9B6236','C4E00F','F4FF52','6E0014');
     var group0 = {name:'default', color:colors[0]};
     var group1 = {name:'group1', color:colors[1]};
     var group2 = {name:'group2', color:colors[2]};
@@ -640,6 +640,9 @@
     var group5 = {name:'group5', color:colors[5]};
     var group6 = {name:'group6', color:colors[6]};
     var group7 = {name:'group7', color:colors[7]};
+    var group8 = {name:'group8', color:colors[8]};
+    var group9 = {name:'group9', color:colors[9]};
+    var group10 = {name:'group10', color:colors[10]};
     var allgroups = new Array();
     allgroups.push(group0);
     allgroups.push(group1);
@@ -649,7 +652,9 @@
     allgroups.push(group5);
     allgroups.push(group6);
     allgroups.push(group7);
-
+    allgroups.push(group8);
+    allgroups.push(group9);
+    allgroups.push(group10);
 
     //////////////////// SCENARIOS ///////////////////
     var allScenarios = new Array();
