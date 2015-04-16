@@ -17,8 +17,11 @@
 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
+#include <stdlib.h>
 
-void Teleco::initCarte(){
+
+void Teleco::initCarte(char pow){
+  localpoweroff=pow;
   fprintf(stderr, "add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
@@ -35,9 +38,9 @@ void Teleco::start(){
 }
 
 
-void Teleco::sendString(char Str1[], char Str2[]){
-  fprintf(stderr, "send %s / %s\n",Str1,Str2);
-  unsigned char buff[34];
+void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
+  //fprintf(stderr, "teleco send infos : %s / %s / %s / %s\n",Str1,Str2, Str3, Str4);
+  unsigned char buff[68];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
   for(int i=0;i<16;i++){
     buff[i+1]= *(Str1+i);
@@ -45,8 +48,30 @@ void Teleco::sendString(char Str1[], char Str2[]){
   for(int i=0;i<16;i++){
     buff[i+17]= *(Str2+i);
   }
-  SPIcarte.send(0,buff,34);
+  for(int i=0;i<16;i++){
+    buff[i+33]= *(Str3+i);
+  }
+  for(int i=0;i<16;i++){
+    buff[i+49]= *(Str4+i);
+  }
+  fprintf(stderr, "teleco send infos : %s\n",buff);
+  SPIcarte.send(0,buff,68);
 }
+
+void Teleco::sendPopUp(char Str1[], char Str2[]){
+  unsigned char buff[35];
+  buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
+  for(int i=0;i<16;i++){
+    buff[i+1]= *(Str1+i);
+  }
+  for(int i=0;i<16;i++){
+    buff[i+17]= *(Str2+i);
+  }
+  fprintf(stderr, "teleco send popup : %s\n",buff);
+  SPIcarte.send(0,buff,34);
+  
+}
+
 
 int Teleco::readInterrupt(){
   unsigned char buff[2];
@@ -69,6 +94,9 @@ int Teleco::readInterrupt(){
       break;
     case T_PUSHROTARY:
       switch (valeur){
+        case 250:
+          std::cout << "#TELECO_GET_INFO" << std::endl;
+          break;
         case 1:
           std::cout << "#TELECO_MESSAGE_PREVIOUSSCENE" << std::endl;
           break;
@@ -83,6 +111,9 @@ int Teleco::readInterrupt(){
           break;
         case 5:
           std::cout << "#TELECO_MESSAGE_POWEROFF" << std::endl;
+          if(localpoweroff==1){
+            system ("sudo shutdown -h now");
+          }
           break;
         case 6:
           std::cout << "#TELECO_MESSAGE_REBOOT" << std::endl;

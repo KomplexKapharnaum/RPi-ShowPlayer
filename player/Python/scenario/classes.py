@@ -15,8 +15,7 @@ from engine import fsm
 # from engine import media
 from engine.setting import settings
 from scenario import pool
-import scenario
-from engine.log import init_log, dumpclean
+from engine.log import init_log
 log = init_log("classes")
 
 
@@ -222,10 +221,6 @@ class Device:
         self.modules = modules
         self.patchs = patchs
         self.managers = managers
-        for uid, man in scenario.DECLARED_MANAGERS.items():
-            if man['autoload'] and uid in pool.Etapes_and_Functions.keys():
-                self.managers[uid] = pool.Etapes_and_Functions[uid]
-                log.debug("LOAD MANAGER :: "+uid+" (Auto)")
 
     def launch_manager(self):
         """

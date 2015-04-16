@@ -29,8 +29,11 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   wiringPiSetupGpio();
   GPIO_READ_BATT=25;
   GPIO_RESET=27;
+  GPIO_RELAIS=26;
   pinMode (GPIO_READ_BATT, OUTPUT);
   pinMode (GPIO_RESET, OUTPUT);
+  pinMode (GPIO_RELAIS, OUTPUT);
+  digitalWrite (GPIO_RELAIS, LOW);
   digitalWrite (GPIO_RESET, HIGH);
   delay(1);
   digitalWrite (GPIO_RESET, LOW);
@@ -103,9 +106,9 @@ int Carte::readInterrupt(){
 int Carte::checkTension(){
   //fprintf(stderr, "checktension ");
   digitalWrite (GPIO_READ_BATT, HIGH);
-  delay(2);
+  delay(5);
   writeValue(UBATT,0);
-  delay(3);
+  delay(5);
   value[VOLTAGEMODE] = readValue(VOLTAGEMODE);
   value[UBATT] = readValue(UBATT)+50;
   digitalWrite (GPIO_READ_BATT, LOW);
@@ -143,9 +146,11 @@ void Carte::setGyro(int mode, int speed, int strob){
   }
 }
 
+void Carte::setRelais(int val){
+  fprintf(stderr, "set relais %u",val);
+  digitalWrite (GPIO_RELAIS, val);
+}
+
 
 Carte::~Carte(){
-  setGyro(0, 200);
-  led10WValue(0);
-  rgbValue(0,0,0);
 }

@@ -1,0 +1,25 @@
+{
+    "pool": [
+        {
+            "blocks": [
+                {
+                    "end": 50, 
+                    "group": {
+                        "color": "218C8D", 
+                        "name": "group1"
+                    }, 
+                    "name": "block1", 
+                    "scenarios": [
+                        "test_sync"
+                    ], 
+                    "start": 0
+                }
+            ], 
+            "modules": [
+                "AudioPlayer", 
+                "VideoPlayer"
+            ], 
+            "name": "raspi2mgr"
+        }
+    ]
+}

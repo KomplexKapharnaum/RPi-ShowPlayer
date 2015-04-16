@@ -1,0 +1,44 @@
+{
+    "boxes": [
+        {
+            "allArgs": {
+                "signal": "AHAH"
+            }, 
+            "arguments": {
+                "signal": "AHAH"
+            }, 
+            "boxname": "box3", 
+            "category": "GENERAL", 
+            "dispoBOO": false, 
+            "name": "SENDSIGNAL", 
+            "positionX": 465, 
+            "positionY": 344
+        }, 
+        {
+            "allArgs": {
+                "": null
+            }, 
+            "arguments": {
+                "": null
+            }, 
+            "boxname": "box4", 
+            "category": "GENERAL", 
+            "dispoBOO": false, 
+            "name": "WAIT", 
+            "positionX": 444, 
+            "positionY": 166
+        }
+    ], 
+    "connections": [
+        {
+            "From": "WAIT", 
+            "SourceId": "Connector_box4", 
+            "TargetId": "box3", 
+            "To": "SENDSIGNAL", 
+            "connectionLabel": "TELECO_PUSH_A"
+        }
+    ], 
+    "origins": [
+        "box4"
+    ]
+}

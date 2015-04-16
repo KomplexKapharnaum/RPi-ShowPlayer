@@ -2,13 +2,14 @@
 import sys
 import os
 from os import listdir
-from os.path import isfile, join
-from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_MANAGERS
+from os.path import isfile, join, isdir
+from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_PUBLICBOXES
 from engine.log import init_log
 from engine.media import save_scenario_on_fs
 from engine.threads import patcher
 from engine import fsm
 from libs import oscack
+import modules
 log = init_log("webserver")
 
 # SET PYTHON PATH IN PARENT DIR
@@ -46,21 +47,27 @@ def sendjson(data):
 
 @app.route('/medialist')
 def medialist():
-    path = settings.get('path', 'media')
     answer = dict()
     answer['all'] = []
     answer['audio'] = []
     answer['video'] = []
     answer['txt'] = []
-    for f in listdir(path):
-        if isfile(join(path,f)):
-            answer['all'].append(f)
-            if f.endswith('.mp3') or f.endswith('.wav') or f.endswith('.aac'):
-                answer['audio'].append(f)
-            elif f.endswith('.mp4') or f.endswith('.mov') or f.endswith('.avi'):
-                answer['video'].append(f)
-            elif f.endswith('.txt'):
-                answer['txt'].append(f)
+
+    path = settings.get('path', 'video')
+    if isdir(path):
+        for f in listdir(path):
+            answer['video'].append(f)
+
+    path = settings.get('path', 'audio')
+    if isdir(path):
+        for f in listdir(path):
+            answer['audio'].append(f)
+
+    path = settings.get('path', 'text')
+    if isdir(path):
+        for f in listdir(path):
+            answer['txt'].append(f)
+
     return sendjson(answer)
 
 
@@ -69,7 +76,7 @@ def librarylist():
     answer = dict()
     answer['functions'] = []
     answer['signals'] = []
-    # BOXES FOR DECLARED OSC ROUTES
+    # SENDSIGNAL BOXES FOR DECLARED OSC ROUTES
     for oscpath, route in DECLARED_OSCROUTES.items():
         box = {
             'name': oscpath.split('/')[-1].upper(),
@@ -81,15 +88,28 @@ def librarylist():
             'hard': True
         }
         answer['functions'].append(box)
+    # PUBLIC BOXES
+    for name, box in DECLARED_PUBLICBOXES.items():
+        box = {
+            'name': name.replace('_PUBLICFUNC', ''),
+            'category': 'GENERAL',
+            'dispos': ('dispo' in box['args']),
+            'medias': ('media' in box['args']),
+            'arguments': [arg for arg in box['args'] if arg != 'dispo' and arg != 'media'],
+            'code': '',
+            'hard': True
+        }
+        answer['functions'].append(box)
     # CABLES FOR DECLARED MODULE RCV SIGNALS
     for signal in DECLARED_PUBLICSIGNALS:
         answer['signals'].append(signal)
+    answer['signals'] = sorted(answer['signals'])
     return sendjson(answer)
 
 
 @app.route('/moduleslist')
 def moduleslist():
-    return sendjson(DECLARED_MANAGERS.keys())
+    return sendjson([module for module in modules.MODULES.keys() if module not in settings.get('managers')])
 
 
 
@@ -168,7 +188,7 @@ def save():
 
     answer['status'] = 'success'
     save_scenario_on_fs(settings["current_timeline"], date_timestamp=float(timestamp)/1000.0)
-    patcher.patch(fsm.Flag("SCENARIO_RESTART").get())
+    patcher.patch(fsm.Flag("DEVICE_RELOAD").get())
     oscack.protocol.scenariosync.machine.append_flag(oscack.protocol.scenariosync.flag_timeout.get())    # Force sync
     return json.dumps(answer)
 
@@ -182,7 +202,7 @@ def load():
     try:
         answer = dict()
         answer['status'] = 'success'
-        with open(path, 'r') as file:   # Use file to refer to the file object     
+        with open(path, 'r') as file:   # Use file to refer to the file object
             answer['contents'] = file.read()
         return json.dumps(answer)
     except:
@@ -205,7 +225,7 @@ def delete():
     except:
         answer['status'] = 'error'
         answer['message'] = 'File not found'
-    return json.dumps(answer)   
+    return json.dumps(answer)
 
 
 @app.route('/_TIMELINE/data/fileRename.php', method='POST')
@@ -228,14 +248,14 @@ def rename():
 
 @app.route('/_TIMELINE/data/fileList.php', method='POST')
 @app.route('/_SCENARIO/data/fileList.php', method='POST')
-def list():
+def filelist():
     filetype = request.forms.get('type')
     path = scenariopath+"/"
-    onlyfiles = []
+    onlyfiles = list()
     #onlyfiles.append(filetype+"_"+filetype+".json")
     if os.path.exists(path):
         onlyfiles = [ f.replace(filetype+"_",'') for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(filetype+"_") ]
-        log.info(onlyfiles)
+        log.debug(onlyfiles)
     return json.dumps(onlyfiles)
 
 

@@ -12,8 +12,16 @@ while (( running )); do
 	sudo fuser -k 1781/udp
 	sudo pkill vlc && sudo pkill hardware
 	echo "ShowPlayer Start"
-    ./player/Python/run-show.py
-    echo "ShowPlayer exited $?."
+    ./player/Python/main.py
+    exitcode=$?
+    if [ $exitcode -eq 2 ]; then
+        quit
+        poweroff
+    elif [ $exitcode -eq 3 ]; then
+        quit
+        reboot
+    fi
+    echo "ShowPlayer exited $exitcode"
     if (( running ))
     	then
     		echo "Respawning.."

@@ -36,10 +36,11 @@
 #define T_STROBLOKSPEED 15
 
 #define T_STRING 16
-#define T_INIT 17
+#define T_POPUP 17
+#define T_INIT 18
 
 //size of table
-#define T_REGISTERSIZE 18
+#define T_REGISTERSIZE 19
 
 #define READCOMMAND 0x40
 #define WRITECOMMANDVALUE 0xc0
@@ -60,10 +61,12 @@
 
 class Teleco : public Carte {
   int uninit;
+  char localpoweroff;
 
 public:
-  void initCarte();
-  void sendString(char Str1[], char Str2[]);
+  void initCarte(char pow);
+  void sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]);
+  void sendPopUp(char Str1[], char Str2[]);
   int fisrtView();
   void start();
   int readInterrupt();

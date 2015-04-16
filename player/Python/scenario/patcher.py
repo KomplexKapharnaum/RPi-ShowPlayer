@@ -14,13 +14,12 @@ from libs.oscack import BroadcastAddress
 import libs.oscack
 # import libs.oscack.message
 # import libs.oscack.DNCserver
+import engine
 from engine.setting import settings
 from engine.tools import register_thread, unregister_thread
 from scenario import pool
-from engine.log import init_log, dumpclean
+from engine.log import init_log
 log = init_log("patcher")
-
-FSM_GLOBAL = list()
 
 class ThreadPatcher(threading.Thread):
     """
@@ -56,7 +55,7 @@ class ThreadPatcher(threading.Thread):
             fsm.append_flag(signal)
         for fsm in pool.DEVICE_FSM:
             fsm.append_flag(signal)
-        for fsm in FSM_GLOBAL:
+        for fsm in engine.MODULES_FSM.values():
             fsm.append_flag(signal)
 
     def patch(self, signal):

@@ -19,7 +19,7 @@ DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
 DEFAULT_SETTING["current_timeline"] = "DEFAULT_TIMELINE"
-
+DEFAULT_SETTING["version"] = '0.1'
 
 DEFAULT_SETTING["localport"] = dict()
 DEFAULT_SETTING["localport"]["inhplayer"] = 9000
@@ -29,7 +29,12 @@ DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
 DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
 DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
+
 DEFAULT_SETTING["path"]["media"] = "/dnc/media"
+DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
+DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
+DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
+
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["cp"] = "/usr/bin/cp"
 DEFAULT_SETTING["path"]["umount"] = "/usr/bin/umount"
@@ -42,8 +47,8 @@ DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
 DEFAULT_SETTING["path"]["kxkmcard"] = "/dnc/player/Hardware/hardware/hardware"
 DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
-DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-autoscale --zoom=0.35 --no-osd"
-DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc  --no-autoscale --zoom=0.35 --no-osd"
+DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7 --play-and-exit"
+DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd --zoom=0.7" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
@@ -61,6 +66,8 @@ DEFAULT_SETTING["sync"]["usb_speed_min"] = 5000         # (Ko/s) Behind 5 Mo/s i
 DEFAULT_SETTING["sync"]["protected_space"] = 20000      # (Ko) Space protected to keep the rest of the project safe
 DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3    # Wait 3 sec, if no newer flag, we are update
 
+
+DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']
 
 DEFAULT_SETTING["scenario"] = dict()
 DEFAULT_SETTING["scenario"]["date_format"] = "%Y-%m-%d_%H:%M:%S"

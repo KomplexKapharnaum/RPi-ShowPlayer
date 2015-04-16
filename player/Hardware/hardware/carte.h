@@ -72,6 +72,7 @@ private:
   int GPIO_READ_BATT;
   int GPIO_RESET;
   int value[];
+  int GPIO_RELAIS;
   
 protected:
   extSPI SPIcarte;
@@ -85,6 +86,7 @@ public :
   void rgbValue(int r, int v, int b, int fadetime=0, int strob=0);
   void led10WValue(int v, int fadetime = 0, int strob=0);
   void setGyro(int mode, int speed, int strob=0);
+  void setRelais(int val);
   
   ~Carte();
   
