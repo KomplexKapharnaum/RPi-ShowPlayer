@@ -69,9 +69,11 @@ def init(flag):
     async_monitor_udev.start()
     # TODO get the needed media list from scenario
     from_scenario_wanted = ["text/blabla.txt", ]
-    needed_media_list = media.MediaList()  # here come the media list
+    needed_media_list = media.MediaList()         # here come the media list
     for f in from_scenario_wanted:
-        needed_media_list.append(media.Media.from_scenario(f))
+        fmedia = media.Media.from_scenario(f)
+        if isinstance(fmedia, media.Media):       # Check if the file exist ?
+            needed_media_list.append(fmedia)
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
     flag = flag_init_end.get()
     flag.args["timeout"] = settings.get("sync", "timeout_wait_syncflag")

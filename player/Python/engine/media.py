@@ -112,9 +112,11 @@ class Media:
         """
         path = os.path.join(settings.get("path", "media"), rel_path)
         if not os.path.exists(path):
-            log.error("Scenario media {0} not present in fs {1}".format(rel_path, path))
-            return False
-        mtime = time.ctime(os.path.getmtime(path))
+            log.log("raw", "Scenario media {0} not present in fs {1}".format(rel_path, path))
+            # return False
+            mtime = 0
+        else:
+            mtime = time.ctime(os.path.getmtime(path))
         return Media(rel_path=rel_path, mtime=mtime, source="scenario", source_path=path)
 
     @staticmethod
