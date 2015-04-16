@@ -93,15 +93,15 @@ class keyboardThread(threading.Thread):
             if cmd[0] == "pw":
                 log.info(str(POWEROFF))
             if cmd[0] == "info":
-                if scenario.pool.MANAGER is not None:
-                    log.info(scenario.pool.MANAGER.current_state)
+                if scenario.SCENARIO_FSM is not None:
+                    log.info(scenario.SCENARIO_FSM.current_state)
                 log.info(oscack.protocol.discover.machine.current_state)
                 log.info(oscack.protocol.scenariosync.machine.current_state)
                 log.info(oscack.protocol.mediasync.machine.current_state)
-                for f in scenario.pool.FSM:
+                for f in scenario.FSM:
                     log.info(f.current_state)
                     log.info(f._flag_stack)
-                for f in scenario.pool.DEVICE_FSM:
+                for f in scenario.DEVICE_FSM:
                     log.info(f.current_state)
                     log.info(f._flag_stack)
                 log.info(" = oscack.DNCServer.networkmap : ")
