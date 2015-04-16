@@ -81,8 +81,8 @@ void beforekill(int signum)
   mycarte.setRelais(0);
   mytitreur.allLedOff();
   status="noC";
-  sendStatusTeleco();
-    fprintf(stderr, "bye bye\n");
+  myteleco.reset();
+  fprintf(stderr, "bye bye\n");
   exit(signum);
 }
 
@@ -390,6 +390,7 @@ cout << "#INITHARDWARE" << endl;
     fprintf(stderr, "teleco add at boot\n");
     myteleco.readInterrupt();
     myteleco.start();
+    sendStatusTeleco();
   }
 
   

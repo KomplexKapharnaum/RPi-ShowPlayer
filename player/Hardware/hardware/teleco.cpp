@@ -39,6 +39,11 @@ void Teleco::start(){
   writeValue(T_LEDRVALUE,1);
 }
 
+void Teleco::reset(){
+  fprintf(stderr, "teleco - teleco reset\n");
+  writeValue(T_INIT,0);
+}
+
 
 void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
   //fprintf(stderr, "teleco send infos : %s / %s / %s / %s\n",Str1,Str2, Str3, Str4);

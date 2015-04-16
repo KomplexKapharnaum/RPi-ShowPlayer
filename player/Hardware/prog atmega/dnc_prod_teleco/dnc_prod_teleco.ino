@@ -49,9 +49,11 @@ volatile byte adress = 0;
 #define T_STROBLVSPEED 14
 #define T_STROBLOKSPEED 15
 
-#define T_STRING 16
-#define T_POPUP 17
-#define T_INIT 18
+#define T_INIT 16
+
+#define T_STRING 17
+#define T_POPUP 18
+
 
 //size of table
 #define T_REGISTERSIZE 19
@@ -89,6 +91,8 @@ byte strobLOKStep;
 
 long unsigned lastCheckInput;
 int checkInputPeriod;
+
+void(* resetFunc) (void) = 0;
 
 void setup (void) {
   Serial.begin(19200);
@@ -214,6 +218,7 @@ void loop (void) {
   if (command == 0 && adress < T_STRING) {
     for (byte i = 0; i < T_REGISTERSIZE; i++) {
       if (Value[i] != newValue[i]) {
+        if(newValue[T_INIT]==0) resetFunc(); 
         if (outputRange(i)) updateValue(i); //cas led output
         if (inputRange(i)) updateInput(i);
         else {
