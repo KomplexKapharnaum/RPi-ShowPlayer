@@ -265,6 +265,7 @@ def umount_partitions():
             try:
                 umount_cmd.join(timeout=settings.get("sync", "usb_mount_timeout"))
                 log.log("debug", "Correctly umount {0}".format(path))
+                time.sleep(settings.get("sync", "timeout_rm_mountpoint"))
                 os.rmdir(path)
                 log.log("raw", "Correctly remove after umount {0}".format(path))
             except RuntimeError as e:
