@@ -59,7 +59,7 @@ class MediaList(list):
         """
         This function test if media_obj is wanted (present and newer) based on the NeededMediaList
         """
-        log.log("Do this list need {0}".format(media_obj))
+        log.log("raw", "Do this list need {0}".format(media_obj))
         for elem in self:
             log.log("raw", "Test with : {0}".format(elem))
             if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime or elem.mtime:
