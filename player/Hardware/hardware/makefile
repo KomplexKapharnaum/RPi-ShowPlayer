@@ -30,9 +30,8 @@ main.o: $(H)
 
 clean:
 	rm -rf *.o
+clean:
   rm -rf $(EXEC)
 
 mrproper: clean
 	rm -rf $(EXEC)
-all:
-  $(warning arch -$(UNAME_P))
