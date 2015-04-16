@@ -28,7 +28,7 @@ mrproper: clean
 all:
   $(warning arch -$(UNAME_P))
 
-ifneq (,$(findstring arm7,$(UNAME_P)))
+ifeq (,$(findstring arm7,$(UNAME_P)))
   $(warning arm7)
 else
   $(warning arm6)
