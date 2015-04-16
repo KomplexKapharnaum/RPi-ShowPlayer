@@ -93,6 +93,29 @@ def _pass(flag):
     pass
 
 
+def update_needed_list(flag):
+    """
+    This function update the needed media list
+    :param flag:
+    :return:
+    """
+    global needed_media_list
+    global unwanted_media_list
+    from_scenario_wanted = None
+    while from_scenario_wanted is None:
+        from_scenario_wanted = functions.get_wanted_media()
+        if from_scenario_wanted is not None:
+            break
+        else:
+            time.sleep(1)
+    needed_media_list = media.MediaList()         # here come the media list
+    for f in from_scenario_wanted:
+        fmedia = media.Media.from_scenario(f)
+        if isinstance(fmedia, media.Media):       # Check if the file exist ?
+            needed_media_list.append(fmedia)
+    unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
+
+
 def append_timeout_flag():
     """
     This function just add the timeout flag in the machine
@@ -328,6 +351,8 @@ step_remove_media = fsm.State("STEP_REMOVE_MEDIA", function=remove_media, transi
 step_error = fsm.State("STEP_ERROR", function=error_function, transitions={
     flag_timeout.uid: step_main_wait
 })
+
+step_update_media_list = fsm.State("STEP_UPDATE_MEDIA_LIST", function=update_needed_list())
 
 
 
