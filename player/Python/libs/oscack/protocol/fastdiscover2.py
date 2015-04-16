@@ -19,6 +19,7 @@ from libs.oscack import message, network
 from libs import rtplib
 from engine.setting import settings
 from engine.log import init_log
+import scenario
 
 log = init_log("discov")
 
@@ -63,6 +64,21 @@ def init_protocol(flag):
 
 def _pass(*args, **kwargs):
     pass
+
+
+def add_method_before_patcher(path, types, fnct):
+    """
+    This function del the scenario wild card before add themself and replug it after
+    :param path: OSC path
+    :param types: OSC types (None as wildcard)
+    :param fnct: callback function
+    :return: None
+    """
+    libs.oscack.DNCserver.ackServer.del_method(None, None)          # Remove wildcard
+    libs.oscack.DNCserver.ackServer.del_method(path, types)         # Remove before add
+    libs.oscack.DNCserver.ackServer.add_method(path, types, fnct)   # Add callback
+    libs.oscack.DNCserver.ackServer.add_method(None, None, scenario.manager.patch_msg)  # Replug patcher
+
 
 
 def send_iamhere(flag):
@@ -143,8 +159,9 @@ def server_sync(flag):
     def catch_pong(path, args, types, src):
         pong_queue.put(args)
         message.send(target, msg_ping.get(**kwargs_ping))
-    libs.oscack.DNCserver.ackServer.del_method("/rtp/pong", None)
-    libs.oscack.DNCserver.ackServer.add_method("/rtp/pong", None, catch_pong)
+    # libs.oscack.DNCserver.ackServer.del_method("/rtp/pong", None)
+    # libs.oscack.DNCserver.ackServer.add_method("/rtp/pong", None, catch_pong)
+    add_method_before_patcher("/rtp/pong", None)
     network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
                             flag_timeout_task_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))   # TODO check if work
@@ -196,10 +213,12 @@ def client_sync(flag):
         # BEGIN # TIME CRITICAL
         message.send(target, msg_pong.get(**kwargs_pong))
         # END # TIME CRITICAL
-    libs.oscack.DNCserver.ackServer.del_method("/rtp/ping", None)
-    libs.oscack.DNCserver.ackServer.add_method("/rtp/ping", None, catch_ping)
-    libs.oscack.DNCserver.ackServer.del_method("/rtp/sync", None)
-    libs.oscack.DNCserver.ackServer.add_method("/rtp/sync", None, client_get_sync)
+    # libs.oscack.DNCserver.ackServer.del_method("/rtp/ping", None)
+    # libs.oscack.DNCserver.ackServer.add_method("/rtp/ping", None, catch_ping)
+    # libs.oscack.DNCserver.ackServer.del_method("/rtp/sync", None)
+    # libs.oscack.DNCserver.ackServer.add_method("/rtp/sync", None, client_get_sync)
+    add_method_before_patcher("/rtp/ping", None, catch_ping)
+    add_method_before_patcher("/rtp/sync", None, client_get_sync)
     network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
                             flag_timeout_wait_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))

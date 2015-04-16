@@ -34,7 +34,7 @@ def init(flag):
         patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
         # patcher.add_patch(patch)
 
-    libs.oscack.DNCserver.add_method(None, None, patch_msg)       # TODO WE DO NOT NEED OSC FOR SCENARIO SYSTEM, deplace !
+    libs.oscack.DNCserver.add_method(None, None, patch_msg)
 
 
 def start_scene(flag):
