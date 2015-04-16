@@ -5,7 +5,7 @@
     setTimeout(function(){
       loadTimeline();
       $('#colonne2').fadeIn(200);
-    },100);
+    },200);
 
 
     function pool() {
@@ -97,15 +97,6 @@
         });
       }
 
-      // this.getActiveScene = function(){
-      //   var activeScene = new Array();
-      //     $.each(allScenes,function(key,scene){
-      //       if (scene.active == true){ activeScene.push(scene); }
-      //     })
-      //   return activeScene;
-      //}
-
-
     }
     /////////////////////// SCENE OBJECT ////////////////////////
     /////////////////////////////////////////////////////////////
@@ -133,7 +124,6 @@
       cursor: "move",
       tolerance: "pointer",
       start: function (event, ui) {
-          //console.log($(ui.item).data("startindex", ui.item.index()));
           pool.getScenes();
       },
       sort: function(){
@@ -141,7 +131,6 @@
         pool.followScenes();
       },
       stop: function (event, ui) {
-        //console.log(ui.item.offset().left);
         $.each(allScenes,function(index,scene){ scene.actuPosition();})
         pool.followScenes();
 
@@ -229,7 +218,6 @@
     /////////////////////////////////////////////////////////////
 
     $('#delSceneButton').click(function(){
-      //console.log('scene');
       var indextoremove;
       pool.getScenes();
 
@@ -307,11 +295,12 @@
     var gridwidth;
     var gridtop = $('#allpi').offset().top;
     var gridleft =  $('#allpi').offset().left;
+
+    var sorting = false;
+
     $('#allpinames').sortable({
       axis: "y",
-      start: function (event, ui) {
-          //console.log(ui.item.text());
-      },
+      start: function(){ sorting = true; $('.tip').hide(); },
       sort: function(){
         $.each(allPi,function(index,pi){
           var linenamePos = pi.linename.offset().top-(gridheight*index)-gridtop;
@@ -336,6 +325,7 @@
         // $.each(allPi,function(index,pi){
         //   console.log(index + ' '+pi.lineheight + ' '+ pi.raspiname);
         // });
+        sorting = false;
 
       }
     });
@@ -360,7 +350,7 @@
       this.active = false;
       var thispi = this;
       this.lineheight = this.linename.offset().top;
-      this.description = 'what can i do';
+      this.infos = '...';
 
 
       this.line.dblclick( function()
@@ -393,9 +383,19 @@
         $("#disposms").multipleSelect("setSelects", toCheck);
       }
 
-      this.recoverPiInfos = function(mod){
+      this.recoverPiModules = function(mod){
         thispi.modules = mod;
       }
+
+      this.recoverPiInfos = function(){
+        $.each(disposList,function(index,dispo){
+          if (dispo.hostname == thispi.raspiname){
+            thispi.infos = dispo.infos;
+          }
+        });
+      }
+
+
 
       ///////////////////NAME EDITOR /////////////////
       var piName = $('<input>').attr('type', 'text').addClass("textareaSmall");
@@ -441,6 +441,19 @@
         this.linename.remove();
       }
 
+      ///////////////////SCENE TIPS///////////////////////
+      this.linename.mouseenter(function(e){
+        $('.tip').html('');
+        $('.tip').append(thispi.infos+'<br>');
+      });
+      this.linename.mousemove(function(e){
+        if ( (tooltips == true)&&(sorting == false)){ $('.tip').show();}
+        $('.tip').css({ 'top': e.pageY-14,'left': e.pageX+18 });
+      });
+      this.linename.mouseout(function(){
+        $('.tip').hide();
+      });
+
     }
 
 
@@ -453,10 +466,8 @@
       var thisblock = this;
       this.blockbox = $('<div>').addClass('block');
       thispi.line.append(this.blockbox);
-      //---------------------------
       gridheight = this.blockbox.height();
       gridwidth = this.blockbox.width();
-
       this.blockName = "block" +thispi.blockCount;
       this.blockbox.attr('id', this.blockName);
       this.group = allgroups[0];
@@ -464,7 +475,7 @@
       this.scenarios = [];
       pool.unselectBlocks();
       this.active = false;
-      //$('#blocknameVisu').text(thisblock.blockbox.attr('id'));
+
 
       this.blockbox.on('click', function () {
         pool.unselectBlocks();
@@ -480,7 +491,7 @@
           $('#groupselector option').filter(function(){ return $(this).html() == groupname; }).val()
         );
 
-        $('#scenarioname').val(thisblock.scene+'_scenario');
+        $('#scenarioname').val(thisblock.scene+'_temp');
         ///////////// SORTING SCENARIOS
         $("#scenariosms").empty();
         $('#scenariosdropdown').empty();
@@ -491,10 +502,12 @@
         $.each(allScenarios,function(index,scenario){
           var sceno = scenario.name.split('_')[0];
           if (sceno == thisblock.scene){
+            console.log(scenario.name);
             $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
             $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
           }
           if($.inArray(sceno, scenesList)==-1) {
+            console.log(scenario.name);
             $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
             $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
           }
@@ -584,17 +597,14 @@
       this.blockbox.mouseenter(function(e){
         $('.tip').html('');
         $('.tip').append(thisblock.scene+'<br>');
-        // $.each(thisblock.scenarios,function(index,scenar){
-        //   $('.tip').append(scenar+'<br>');
-        // });
+        $.each(thisblock.scenarios,function(index,scenar){
+          $('.tip').append(scenar+'<br>');
+        });
       });
       this.blockbox.mousemove(function(e){
-        if ( tooltips == true){
-          $('.tip').show();
-        }
-        $('.tip').css({ 'top': e.pageY+25,'left': e.pageX-30 });
+        if (tooltips == true){ $('.tip').show();}
+        $('.tip').css({ 'top': e.pageY-14,'left': e.pageX+18 });
       });
-
       this.blockbox.mouseout(function(){
         $('.tip').hide();
       });
@@ -690,7 +700,6 @@
       $('#disposms').multipleSelect('refresh');
     }
     function refreshscenariosList(){
-      console.log('refreshing scenarios');
       $('#scenariosms').empty();
       $('#scenariosdropdown').empty();
       $.each(allScenarios, function(index,scenario){
@@ -1002,6 +1011,7 @@
         exportPool.push({
           name: pi.raspiname,
           modules: pi.modules,
+        //infos: pi.infos,
           blocks: []
         });
         $.each(pi.allBlocks, function(indexblock, block) {
@@ -1040,7 +1050,7 @@
       });
 
       $.each(allPi, function( indexpi, pi ) {
-        pi.recoverPiInfos(newPool[indexpi].modules);
+        pi.recoverPiModules(newPool[indexpi].modules );
 
         $.each(newPool[indexpi].blocks, function( indexblk, blk ) {
           pi.allBlocks.push( new block(pi) );
@@ -1061,6 +1071,7 @@
       })
 
       pool.getScenes();
+      getDisposList();
 
     }
 
@@ -1104,11 +1115,11 @@
     //////////////////////// CHOOSE  DISPO   ////////////////////////////
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
-    var dispotemp = {hostname:'Select...', description: 'when', active: 'yes'};
-    var dispo1 = {hostname:'dispo1', description: 'when', active: 'yes'};
-    var dispo2 = {hostname:'dispo2', description: 'where', active: 'yes'};
-    var dispo3 = {hostname:'dispo3', description: 'what', active: 'yes'};
-    var dispo4 = {hostname:'dispo4', description: 'who', active: 'yes'};
+    var dispotemp = {hostname:'Select...', infos: 'when', active: 'yes'};
+    var dispo1 = {hostname:'dispo1', infos: 'when', active: 'yes'};
+    var dispo2 = {hostname:'dispo2', infos: 'where', active: 'yes'};
+    var dispo3 = {hostname:'dispo3', infos: 'what', active: 'yes'};
+    var dispo4 = {hostname:'dispo4', infos: 'who', active: 'yes'};
 
     var disposList = new Array();
     disposList.push(dispotemp);
@@ -1117,16 +1128,22 @@
     disposList.push(dispo3);
     disposList.push(dispo4);
 
-		$.ajax({
-			type: 'GET',
-			timeout: 1000,
-		  url: "http://2.0.1.89:8080/disposList",
-			dataType: "jsonp",
-		}).done(function(data) {
-			disposList = data.devices;
-			disposList.unshift(dispotemp);
-      updateDispos();
-		});
+    // DO after loadTimeline(), --> recoverPiInfos finds raspiname
+    function getDisposList(){
+  		$.ajax({
+  			type: 'GET',
+  			timeout: 1000,
+  		  url: "http://2.0.1.89:8080/disposList",
+  			dataType: "jsonp",
+  		}).done(function(data) {
+  			disposList = data.devices;
+  			disposList.unshift(dispotemp);
+        updateDispos();
+        $.each(allPi, function( indexpi, pi ) {
+          pi.recoverPiInfos();
+        });
+  		});
+    }
 
 		function updateDispos(){
 			$('#disposelector').empty();
@@ -1149,10 +1166,11 @@
         editedPi.linename.text(newval);
         $('#piname').text(newval);
         $.each(disposList,function(index,dispo){
-          if (dispo.name == newval){
-            editedPi.description = dispo.description;
+          if (dispo.hostname == newval){
+            editedPi.infos = dispo.infos;
           }
-        })
+        });
+
       }
     });
 
