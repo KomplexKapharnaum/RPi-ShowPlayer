@@ -79,6 +79,7 @@ DEFAULT_SETTING["scenario"]["date_len"] = 24            # extension + date lengt
 DEFAULT_SETTING["scenario"]["dest_all"] = "All"         # string for all dest in a signal
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"     # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"       # string for self dest in a signal
+DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.500  # time delta before run sync between cards
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
@@ -134,8 +135,9 @@ class Settings(dict):
                 try:
                     self.update(json.load(fp))
                     log.info("Settings loaded from {0}".format(path))
-                except:
-                    log.error("Could not load settings")
+                except Exception as e:
+                    log.error("Could not load settings at {0}".format(path))
+                    log.exception(log.show_exception(e))
         except IOError:
             log.info("No settings found at path {0}, create one".format(path))
             with open(path, 'wr') as fp:
