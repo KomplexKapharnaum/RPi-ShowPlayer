@@ -68,7 +68,7 @@
 }
 
 .ms-drop {
-    width: 100%;
+    /*width: 100%;*/
     overflow: hidden;
     display: none;
     margin-top: -1px;

@@ -75,7 +75,7 @@
       height:30px;
       background-color:#EEEEEE;
       display:block;
-      line-height:36px;
+      line-height:30px;
       color:#444444;
       text-align: center;
       font-size: 12px;
@@ -235,11 +235,20 @@
 
     .textarea
     {
-    width:90px;
+    width:115px;
+    }
+    .textarea:focus
+    {
+    outline:none;
     }
     .textareaSmall
     {
     width:70px;
+    margin-top:5px;
+    }
+    .textareaSmall:focus
+    {
+    outline:none;
     }
 
 

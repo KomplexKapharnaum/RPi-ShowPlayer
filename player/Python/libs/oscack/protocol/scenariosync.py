@@ -25,8 +25,10 @@ log = init_log("ssync")
 OSC_PATH_SCENARIO_VERSION = "/sync/scenario/version"
 OSC_PATH_SCENARIO_ASK = "/sync/scenario/amiuptodate"
 
-msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None)
-msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None)
+msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None,
+                                                                 flag_name="RECV_SCENARIO_VERSION")
+msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None,
+                                                             flag_name="RECV_SCENARIO_ASK")
 
 machine = fsm.FiniteStateMachine(name="syncscenario")
 
@@ -126,8 +128,10 @@ def trans_must_i_get_scenario(flag):
         new_group = False
         if groupname not in flag.args["local_scenario"]:
             new_group = True
+            group_path = os.path.join(settings.get("path", "scenario"), groupname)
             try:
-                os.mkdir(os.path.join(settings.get("path", "scenario"), groupname))
+                if not os.path.exists(group_path):
+                    os.mkdir()
             except OSError as e:
                 log.exception(log.show_exception(e))
         while len(group) > 0:
@@ -170,7 +174,7 @@ step_init.transitions = {
 }
 
 step_main_wait.transitions = {
-    "RECV_MSG": trans_must_i_get_scenario,
+    "RECV_SCENARIO_VERSION": trans_must_i_get_scenario,
     flag_timeout.uid: step_send_version
 }
 
