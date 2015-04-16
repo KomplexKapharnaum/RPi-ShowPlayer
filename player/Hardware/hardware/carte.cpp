@@ -19,10 +19,11 @@
 #include <iostream>
 #include <string>
 
-std::string debug="carte - ";
+
 
 
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
+  debug="carte - ";
   fprintf(stderr, "%sadd extension card dnc\n",debug.c_str());
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(13,500000);

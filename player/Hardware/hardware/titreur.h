@@ -24,6 +24,7 @@ private:
   int typeModule;
   int cleanCharArray(char Str1[]);
   int messageLength;
+  std::string debug;
   
 protected:
   int nb_module;

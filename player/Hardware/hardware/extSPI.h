@@ -72,7 +72,7 @@ private:
   
   int keepSelect;
   
-  
+  std::string debug;
   
 
 public:

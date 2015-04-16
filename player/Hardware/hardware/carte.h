@@ -73,6 +73,7 @@ private:
   int GPIO_RESET;
   int value[];
   int GPIO_RELAIS;
+  std::string debug;
   
 protected:
   extSPI SPIcarte;

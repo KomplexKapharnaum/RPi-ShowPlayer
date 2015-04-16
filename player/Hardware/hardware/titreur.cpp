@@ -24,10 +24,11 @@
 #include <string>
 #include <string.h>
 
-std::string debug="titreur - ";
+
 
 
 void Titreur::initTitreur(int _nb_module, int _typeModule){
+  debug="titreur - ";
   nb_module=_nb_module;
   typeModule=_typeModule;
   SPIspeed=1000000;

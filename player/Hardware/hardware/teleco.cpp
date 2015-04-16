@@ -20,10 +20,10 @@
 #include <stdlib.h>
 #include <string>
 
-std::string debug="teleco - ";
 
 
 void Teleco::initCarte(char pow){
+  debug="teleco - ";
   localpoweroff=pow;
   fprintf(stderr, "%sadd teleco dnc\n",debug.c_str());
   SPIcarte.initSPI();

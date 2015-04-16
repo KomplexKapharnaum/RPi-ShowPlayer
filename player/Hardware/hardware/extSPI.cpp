@@ -23,10 +23,10 @@
 
 #include <string>
 
-std::string debug="extspi - ";
 
 
 extSPI::extSPI(){
+  debug="extspi - ";
   init=0;
 }
 
