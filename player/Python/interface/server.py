@@ -71,6 +71,12 @@ def medialist():
     return sendjson(answer)
 
 
+@app.route('/disposlist')
+def dispoList():
+    answer = dict()
+    return sendjson(answer)
+
+
 @app.route('/library')
 def librarylist():
     answer = dict()

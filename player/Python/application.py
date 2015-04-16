@@ -24,31 +24,26 @@ def init(autoload=True):
     k.start()
     # INIT THREAD
     engine.threads.init()
-    # LOAD POOL AND PARSE SCENARIO
-    if autoload:
-        load(True)
-
-
-def load(use_archived_scenario=False):
-    # CLEAR THE POOL
-    scenario.pool.init()
-    # RETRIEVE HARD CODED MODULES COMPONENTS
-    scenario.init()
-    # INIT MODULES FSM
+    # LOAD SUPER-MODULES
     for manager in settings.get('managers'):
         if manager in MODULES.keys():
             modulefsm = scenario.classes.ScenarioFSM(manager)
             engine.MODULES_FSM[manager] = modulefsm
             log.debug("LOAD MANAGER :: "+manager+" (Auto)")
-    # PARSE ACTIVE SCENARIO
-    parsing.load(use_archived_scenario)
+    # INITIALIZE POOL
+    scenario.pool.init()
+    # LOAD POOL AND PARSE SCENARIO
+    if autoload:
+        parsing.load(True)
 
 
 def reload():
     # STOP RUNNING POOL
     scenario.pool.stop()
-    # LOAD
-    load()
+    # RE-INIT
+    scenario.pool.init()
+    # RE-PARSE
+    parsing.load()
     # RESTART POOL
     scenario.pool.start()
 
