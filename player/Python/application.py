@@ -116,6 +116,7 @@ class keyboardThread(threading.Thread):
                     log.info(scenario.pool.MANAGER.current_state)
                 log.info(oscack.protocol.discover.machine.current_state)
                 log.info(oscack.protocol.scenariosync.machine.current_state)
+                log.info(oscack.protocol.mediasync.machine.current_state)
                 for f in scenario.pool.FSM:
                     log.info(f.current_state)
                     log.info(f._flag_stack)
