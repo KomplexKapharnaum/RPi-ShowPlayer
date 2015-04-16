@@ -138,9 +138,12 @@ def trans_usb_have_dnc_media(flag):
     flag.args["trans_free"] = step_put_media_on_fs
     flag.args["trans_full"] = trans_can_free
     for f in path:
-        if os.path.isdir(f):
-            if os.path.exists(os.path.join(path, f, "dnc", "media")):
-                flag.args["usb_path"] = os.path.join(path, f, "dnc", "media")
+        usb_path = os.path.join(path, f, "dnc", "media")
+        if os.path.ismount(path):
+            log.log("raw", "Found partition path {0}".format(usb_path))
+            if os.path.exists(os.path.join(usb_path, "dnc", "media")):
+                log.log("raw", "There is a dnc/media directory, continue..")
+                flag.args["usb_path"] = usb_path
                 flag.args["files_to_test"] = list()
                 for usb_path, dirs, files in os.walk(flag.args["usb_path"]):  # Retreived file list to check
                     for usb_f in files:
