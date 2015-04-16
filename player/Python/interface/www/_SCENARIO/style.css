@@ -66,7 +66,7 @@ body
   display: block;
   border: 1px solid gray;
   width: 800px;
-  height: 760px;
+  height: 2000px;
 
 }
 .inspector {
@@ -207,18 +207,19 @@ body
 }
 
 #colonne2{
-  margin-left: 10px;
+  margin-left: 810px;
   float: left;
   width: 150px;
   display: block;
-      //position: relative;
+  position: fixed;
 
 }
 #colonne3{
-  margin-left: 10px;
+  margin-left: 968px;
   float: left;
   width: 300px;
   display: block;
+  position: fixed;
 }
 
 .lib
