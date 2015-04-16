@@ -21,7 +21,7 @@ H= $(SRC:.cpp=.h)
 
 all: $(EXEC)
 
-ifneq (,$(filter arm7%,$(UNAME_P)))
+ifneq (,$(filter armv7%,$(UNAME_P)))
 hardware7: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 else
