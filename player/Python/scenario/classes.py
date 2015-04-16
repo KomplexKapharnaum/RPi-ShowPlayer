@@ -192,7 +192,7 @@ class Carte:
     """
     This class define a Carte which is only a unique name and a device type
     """
-    def __init__(self, uid, device):
+    def __init__(self, uid, device, media=list()):
         """
         :param uid: Unique ID
         :param device: Device type of the card
@@ -200,6 +200,7 @@ class Carte:
         """
         self.uid = uid
         self.device = device
+        self.media = list(media)
 
     def __str__(self):
         return "Carte : {0}".format(self.uid)
