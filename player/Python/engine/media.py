@@ -65,7 +65,7 @@ class MediaList(list):
                 return True
         return False
 
-    def find_smaller_media(self):    #, ignore=()):
+    def get_smaller_media(self):    #, ignore=()):
         """
         This function return the smaller media to delete in the MediaList
         # :param ignore: list of elem to ignore
