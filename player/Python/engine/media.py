@@ -34,7 +34,7 @@ def get_unwanted_media_list(needed_media_list):
     for path, dirs, files in os.walk(media_path):  # Retreived file list to check
         for f in files:
             abs_path = os.path.join(path, f)
-            rel_path = os.path.relpath(abs_path, media_path)
+            rel_path = os.path.relpath(abs_path, media_path, os.path.getsize(abs_path))
             if rel_path in needed_media_list:
                 continue
             unwanted_media_list.append(Media.from_fs(rel_path, abs_path))
