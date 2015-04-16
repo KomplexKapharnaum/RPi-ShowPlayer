@@ -243,6 +243,7 @@ def umount_partitions():
     log.log("raw", "Start to umount partitions")
     sucess = True
     for f in os.listdir(settings.get("path", "usb")):
+        log.log("raw", "found on usb dir : {0}".format(f))
         if os.path.isdir(f):
             log.log("raw", "Found directory to umount {0}".format(f))
             path = os.path.join(settings.get("path", "usb"), f)
