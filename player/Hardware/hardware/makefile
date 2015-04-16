@@ -1,3 +1,4 @@
+UNAME := $(shell uname)
 CC=g++
 CFLAGS=
 LDFLAGS=-lwiringPi
@@ -24,4 +25,4 @@ clean:
 mrproper: clean
 	rm -rf $(EXEC)
 all:
-  $(warning arch -$(OS) -$(PROCESSOR_ARCHITECTURE) -$(UNAME_S) -$(UNAME_P))
+  $(warning arch -$(OS) -$(PROCESSOR_ARCHITECTURE) -$(UNAME_S) -$(UNAME_P) -$(UNAME))
