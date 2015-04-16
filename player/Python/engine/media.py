@@ -280,7 +280,11 @@ class UdevThreadMonitor(threading.Thread):
             if device is None:  # Timeout
                 continue
             log.log("raw", "Block device : {0}".format(device.__dict__))
-            if device.action != "add":
+            if device.action == "remove":
+                log.log("debug", "Remove block device {0}".format(device.device_node))
+                umount_partitions()
+                continue
+            elif device.action != "add":
                 log.log("raw", "Block device event {1} (not add) : {0}".format(device.device_node, device.action))
                 continue
             devdir = os.path.dirname(device.device_node)
