@@ -198,7 +198,7 @@ class FiniteStateMachine:
         :param state: The state which is in the transition
         :return: False = do not consume flag, None = do consume flag, True = new state + consume flag
         """
-        log.log("raw", "Catch flag {0} to state {1}".format(flag, state))
+        log.log("raw", "[{2}] Catch flag {0} to state {1}".format(flag, state, self))
         if not isinstance(state, State):  # This is not directly a State
             if state in (True, None):
                 return state  # Do not perform transition
@@ -214,7 +214,7 @@ class FiniteStateMachine:
         :param state: The new state to run
         :return:
         """
-        log.log("raw", "- Start change state")
+        log.log("raw", "[{0}] - Start change state to {1} because of {2}".format(self, state, flag))
         if self.current_state is not None:
             self.current_state.stop.set()
         self.current_state = state
@@ -223,11 +223,13 @@ class FiniteStateMachine:
         state.preemptible.wait()
         # Now watch if there is some direct transition to perform
         if True in state.transitions.keys():
+            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to TRUE in transition".format(self, state, state.transitions[True]))
             self._catch_flag(flag, state.transitions[True])
         elif None in state.transitions.keys():
+            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to NONE in transition".format(self, state, state.transitions[None]))
             self._catch_flag(None, state.transitions[None])
         self._event_flag_stack_new.set()  # An old signal can now be interesting !
-        log.log("raw", "- End change state")
+        log.log("raw", "[{0}] - End change state".format(self))
         return True
 
     def _clean_flag_stack(self, jump=False):
@@ -254,7 +256,7 @@ class FiniteStateMachine:
                         log.log("raw", "TTL Expiration: {0}".format(flag.uid))
             for flag in expired_flags:
                 try:
-                    log.log("raw", "Remove flag {0}".format(flag.uid))
+                    log.log("raw", "[{1}] Remove flag {0}".format(flag.uid, self))
                     self._flag_stack.remove(flag)
                 except ValueError:
                     log.log("debug", "[{1}] ERROR Removing flag {0}".format(flag.uid,self.name))

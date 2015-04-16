@@ -308,7 +308,6 @@ def parse_timeline(parsepool):
 #     pool.Etapes_and_Functions[jobj["ID"]] = e
 #     return e
 
-
 # def parse_signal(jobj):
 #     s = fsm.Flag(jobj["ID"], jobj["ARGS"], jobj["JTL"], jobj["TTL"])
 #     if len(jobj["IGNORE"]) > 0:
@@ -318,12 +317,10 @@ def parse_timeline(parsepool):
 #     pool.Signals[jobj["ID"]] = s
 #     return s
 
-
 # def parse_patch(jobj):
 #     p = classes.Patch(jobj["ID"], jobj["SIGNAL"], parse_arg_function(jobj["TREATMENT"]))
 #     pool.Patchs[jobj["ID"]] = p
 #     return p
-
 
 # def parse_device(jobj):
 #     managers = dict()
@@ -336,12 +333,10 @@ def parse_timeline(parsepool):
 #     pool.Devices[jobj["ID"]] = d
 #     return d
 
-
 # def parse_carte(jobj):
 #     c = classes.Carte(jobj["ID"], pool.Devices[jobj["DEVICE"]])
 #     pool.Cartes[jobj["ID"]] = c
 #     return c
-
 
 # def parse_scene(jobj):
 #     cartes = dict()
@@ -353,7 +348,6 @@ def parse_timeline(parsepool):
 #     pool.Scenes[jobj["ID"]] = dict()
 #     pool.Scenes[jobj["ID"]]["obj"] = s
 #     return s
-
 
 # def parse_timeline(jobj):
 #     before = None
@@ -371,7 +365,6 @@ def parse_timeline(parsepool):
 #                 before = scene["scene"]
 #             else: log.debug('"{0}" not in cards'.format(settings["uName"]))
 #     return True
-
 
 # def parse_media(jobj):
 #     m = classes.Media(jobj["ID"], os.path.join(settings.get("path", "media"), jobj["PATH"]), jobj["CHECKSUM"])
