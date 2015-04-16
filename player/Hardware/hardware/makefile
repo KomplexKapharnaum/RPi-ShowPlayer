@@ -7,7 +7,7 @@ CFLAGS=
 LDFLAGS=-lwiringPi
 EXEC=hardware
 
-ifeq (,$(findstring arm7%,$(UNAME_P)))
+ifneq (,$(filter arm7%,$(UNAME_P)))
 $(warning rpiB2 -> build hardware7)
 EXEC=hardware7
 else
@@ -21,7 +21,7 @@ H= $(SRC:.cpp=.h)
 
 all: $(EXEC)
 
-ifeq (,$(findstring arm7,$(UNAME_P)))
+ifneq (,$(filter arm7%,$(UNAME_P)))
 hardware7: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 else
