@@ -29,6 +29,7 @@ flag_timeout_send_list = fsm.Flag("TIMEOUT_SEND_MEDIA_LIST", TTL=1, JTL=None)
 flag_timeout = fsm.Flag("TIMEOUT", TTL=None, JTL=None)
 flag_scp_copy_error = fsm.Flag("SCP_COPY_MEDIA_ERROR", TTL=None, JTL=None)
 flag_update_sync_flag = fsm.Flag("UPDATE_SYNC_FLAG", TTL=None, JTL=None)
+flag_init_end = fsm.Flag("INIT_END", TTL=None, JTL=None)
 
 msg_media_version = network.UnifiedMessageInterpretation("/sync/media/version", values=None, ACK=False,
                                                          JTL=3, TTL=1, flag_name="RECV_MEDIA_LIST")
@@ -68,7 +69,9 @@ def init(flag):
     # TODO get the needed media list from scenario
     needed_media_list = media.MediaList()  # here come the media list
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
+    flag = flag_init_end.get()
     flag.args["timeout"] = settings.get("sync", "timeout_wait_syncflag")
+    machine.append_flag(flag)
 
 
 def _pass(flag):
@@ -262,12 +265,12 @@ step_main_wait = fsm.State("STEP_MAIN_WAIT", function=_pass, transitions={
 })
 
 step_send_sync_flag = fsm.State("STEP_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
-    'TIMEOUT': step_main_wait,              # TODO : Go to first sync instead of main wait
+    flag_timeout.uid: step_main_wait,              # TODO : Go to first sync instead of main wait
     msg_sync_flag.flag_name: "ERROR"        # TODO : Implement newer sync flag ?
 })
 
 step_init = fsm.State("INIT_SYNC_MEDIA", function=init, transitions={
-    True: step_send_sync_flag
+    flag_init_end.uid: step_send_sync_flag
 })
 
 step_put_media_on_fs = fsm.State("STEP_PUT_MEDIA_ON_FS", function=get_media, transitions={
@@ -283,7 +286,7 @@ step_remove_media = fsm.State("STEP_REMOVE_MEDIA", function=remove_media, transi
 })
 
 step_error = fsm.State("STEP_ERROR", function=error_function, transitions={
-    "TIMEOUT": step_main_wait
+    flag_timeout.uid: step_main_wait
 })
 
 
