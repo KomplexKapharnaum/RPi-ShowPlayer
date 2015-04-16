@@ -192,7 +192,7 @@ def client_sync(flag):
     target = message.Address(flag.args["src"].get_hostname())
     # msg = msg_pong.get(**kwargs_pong)
     def catch_ping(path, args, types, src):
-        log.log("raw", "catch ping from {0}".format(target))
+        log.log("error", "catch ping from {0}".format(target))
         # BEGIN # TIME CRITICAL
         message.send(target, msg_pong.get(**kwargs_pong))
         # END # TIME CRITICAL
