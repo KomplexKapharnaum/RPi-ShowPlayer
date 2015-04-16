@@ -240,16 +240,20 @@ def umount_partitions():
     This function unmount all partition in usb directory
     :return:
     """
+    log.log("raw", "Start to umount partitions")
     sucess = True
     for f in os.listdir(settings.get("path", "usb")):
         if os.path.isdir(f):
+            log.log("raw", "Found directory to umount {0}".format(f))
             path = os.path.join(settings.get("path", "usb"), f)
             umount_cmd = ExternalProcess(name="umount")
             umount_cmd.command += " " + path
             umount_cmd.start()
             try:
                 umount_cmd.join(timeout=settings.get("sync", "usb_mount_timeout"))
+                log.log("debug", "Correctly umount {0}".format(path))
                 os.rmdir(path)
+                log.log("raw", "Correctly remove after umount {0}".format(path))
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 log.warning("Unable to umount {0}".format(path))
@@ -257,6 +261,7 @@ def umount_partitions():
                 sucess = False
                 continue
             umount_cmd.stop()
+    return sucess
 
 
 class UdevThreadMonitor(threading.Thread):
