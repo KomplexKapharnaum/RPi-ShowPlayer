@@ -19,8 +19,13 @@ H= $(SRC:.cpp=.h)
 
 all: $(EXEC)
 
-hardware: $(OBJ)
+ifeq (,$(findstring arm7,$(UNAME_P)))
+hardware7: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
+else
+hardware6: $(OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+endif
 
 main.o: $(H)
 
