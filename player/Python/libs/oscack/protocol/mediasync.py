@@ -78,6 +78,14 @@ def _pass(flag):
     pass
 
 
+def append_timeout_flag():
+    """
+    This function just add the timeout flag in the machine
+    :return:
+    """
+    machine.append_flag(flag_timeout.get())
+
+
 def send_sync_flag(flag):
     """
     Send our sync flag to target content in flag (fsm flag)
@@ -85,7 +93,7 @@ def send_sync_flag(flag):
     :return:
     """
     if "timeout" in flag.args.keys():
-        network_scheduler.enter(flag.args["timeout"], flag_timeout.get)
+        network_scheduler.enter(flag.args["timeout"], append_timeout_flag)
     if "target" not in flag.args.keys():
         target = message.Address("255.255.255.255")
     else:
@@ -93,6 +101,7 @@ def send_sync_flag(flag):
     message.send(target, msg_sync_flag.get(timestamp=settings.get("sync", "flag_timestamp"),
                                            syncglobal=settings.get("sync", "enable"),
                                            video=settings.get("sync", "video")))
+    log.log("raw", "Finish to send sync flag")
 
 
 def trans_does_flag_newer(flag):
