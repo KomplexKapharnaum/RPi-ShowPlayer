@@ -13,7 +13,8 @@ def forward_signal(*args, **kwargs):
     :return:
     """
     if args[0].args["path"] == '/signal':
-        log.debug('Forwarded signal received {0}'.format(args[0].args["args"][0]))
-        patcher.serve(cPickle.loads(str(bytearray(args[0].args["args"][1]))))
+        flag = cPickle.loads(str(bytearray(args[0].args["args"][1])))
+        log.debug('Forwarded signal received {0}'.format(flag))
+        patcher.serve(flag)
     else:
         return False

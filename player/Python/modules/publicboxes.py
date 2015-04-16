@@ -34,3 +34,11 @@ def start(flag, **kwargs):
             concerned = True
     if not concerned:
         kwargs['_fsm'].stop()
+
+
+@publicbox('[duration]')
+def wait(flag, **kwargs):
+    '''
+    START Box: for concerned DEST only
+    '''
+    pass
