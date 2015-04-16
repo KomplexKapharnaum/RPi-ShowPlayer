@@ -342,7 +342,9 @@ def load_scenario_from_fs(group, date_timestamp=None):
             log.error("Can't find scenario ({0}@{1}) in fs".format(group, edit_date))
             return False
     path = os.path.join(settings.get("path", "scenario"), group)
-    with tarfile.open(os.path.join(path, group + "@" + newer.date + ".tar"), "r") as tar:
+    tar_path = os.path.join(path, group + "@" + newer.date + ".tar")
+    log.log("raw", "Ask to load {0} from fs to update scenario ".format(tar_path))
+    with tarfile.open(tar_path, "r") as tar:
         # RM current scenario active directory ! #
         if os.path.exists(settings.get("path", "activescenario")):
             shutil.rmtree(settings.get("path", "activescenario"))
