@@ -7,7 +7,7 @@ CFLAGS=
 LDFLAGS=-lwiringPi
 EXEC=hardware
 
-ifneq (,$(filter arm7%,$(UNAME_P)))
+ifneq (,$(filter armv7%,$(UNAME_P)))
 $(warning rpiB2 -> build hardware7)
 EXEC=hardware7
 else
