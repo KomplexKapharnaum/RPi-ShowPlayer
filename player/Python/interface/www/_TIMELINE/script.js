@@ -575,7 +575,7 @@
             }
         });
       }
-      //this.getScene();
+      this.getScene();
 
       //////////////////DRAGGABLE////////////////////////
       thisblock.blockbox.draggable({
