@@ -175,7 +175,7 @@ class Media:
             cp.command += " --preserver=timestamp {0} {1}".format(self.source_path, dest_path)
             cp.start()
             try:
-                cp.join(timeout=self.filesize / settings.get("sync", "usb_speed_min"))
+                cp.join(timeout=self.filesize / settings.get("sync", "usb_speed_min") + 5)  # Minimum 5 seconds
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 # if error_fnct is not None:
