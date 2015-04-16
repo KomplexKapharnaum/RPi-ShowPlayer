@@ -128,8 +128,10 @@ def trans_must_i_get_scenario(flag):
         new_group = False
         if groupname not in flag.args["local_scenario"]:
             new_group = True
+            group_path = os.path.join(settings.get("path", "scenario"), groupname)
             try:
-                os.mkdir(os.path.join(settings.get("path", "scenario"), groupname))
+                if not os.path.exists(group_path):
+                    os.mkdir()
             except OSError as e:
                 log.exception(log.show_exception(e))
         while len(group) > 0:
