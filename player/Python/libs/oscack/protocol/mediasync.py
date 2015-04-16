@@ -155,7 +155,7 @@ def trans_usb_have_dnc_media(flag):
                 flag.args["files_to_test"] = list()
                 for usb_path, dirs, files in os.walk(flag.args["usb_path"]):  # Retreived file list to check
                     for usb_f in files:
-                        abs_path = os.path.join(usb_path, usb_f)
+                        abs_path = os.path.join("/", usb_f)
                         rel_path = os.path.relpath(abs_path, dnc_usb_path)
                         log.log("raw", "Add to test list {0} with path : {1}".format(rel_path, abs_path))
                         flag.args["files_to_test"].append(media.Media.from_usb(rel_path, abs_path))
