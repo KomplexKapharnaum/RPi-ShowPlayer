@@ -24,4 +24,4 @@ clean:
 mrproper: clean
 	rm -rf $(EXEC)
 all:
-  $(warning arch $(PROCESSOR_ARCHITECTURE))
+  $(warning arch -$(OS) -$(PROCESSOR_ARCHITECTURE) -$(UNAME_S) -$(UNAME_P))
