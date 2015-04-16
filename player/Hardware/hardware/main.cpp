@@ -138,7 +138,7 @@ void testRoutine(int n){
 int parseInput(){
   string input;
   getline(cin, input);
-  
+  fprintf(stderr, "\n\nGETCOMMAND : %s",input);
   stringstream ss(input);
   string parsedInput;
   ss>>parsedInput;
