@@ -213,11 +213,17 @@ int parseInput(){
       while (ss>>parsedInput){
         if ("-line1"==parsedInput){
           ss>>parsedInput;
+          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
           popup1=parsedInput;
         }
         if ("-line2"==parsedInput){
           ss>>parsedInput;
+          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
           popup2=parsedInput;
+        }
+        if ("-clear"==parsedInput){
+          popup1=" ";
+          popup2=" ";
         }
       }
       char mess1[17];
