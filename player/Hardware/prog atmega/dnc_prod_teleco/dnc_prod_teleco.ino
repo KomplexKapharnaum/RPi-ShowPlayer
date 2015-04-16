@@ -251,7 +251,6 @@ void checkStringReceive() {
   if (command == 0 && adress == T_STRING) {
     buf [pos] = 0;
     Serial.println (buf);
-      lcd.clear();
       memcpy( line1, &buf[0], 16 );
       memcpy( line2, &buf[16], 16 );
       memcpy( line3, &buf[32], 16 );
@@ -309,7 +308,7 @@ void checkInput() {
       if(T_DECINPIN+i==T_PUSHROTARY){
         if( 1-digitalRead(inpin[i])==1) {
           if (abs(positionLeft)%(T_NBMENU+nbmenuinfo)<T_NBMENU){
-            newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+nbmenuinfo)+1;
+            newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+nbmenuinfo);
           }else {
             newValue[T_DECINPIN + i] =250;
           }
@@ -326,7 +325,7 @@ void checkInput() {
     
     long newLeft;
     newLeft = (long)rotary.read()*1.0/2;
-    if (newLeft==T_NBMENU+nbmenuinfo || newLeft<0) {
+    if (newLeft>T_NBMENU+nbmenuinfo-1 || newLeft<0) {
       newLeft=positionLeft;
       rotary.write(positionLeft*2);
     }

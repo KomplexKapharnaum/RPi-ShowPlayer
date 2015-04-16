@@ -54,12 +54,12 @@ void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
   for(int i=0;i<16;i++){
     buff[i+49]= *(Str4+i);
   }
+  fprintf(stderr, "teleco send infos : %s\n",buff);
   SPIcarte.send(0,buff,68);
 }
 
 void Teleco::sendPopUp(char Str1[], char Str2[]){
-  fprintf(stderr, "teleco send popup %s / %s\n",Str1,Str2);
-  unsigned char buff[34];
+  unsigned char buff[35];
   buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
   for(int i=0;i<16;i++){
     buff[i+1]= *(Str1+i);
@@ -67,7 +67,9 @@ void Teleco::sendPopUp(char Str1[], char Str2[]){
   for(int i=0;i<16;i++){
     buff[i+17]= *(Str2+i);
   }
+  fprintf(stderr, "teleco send popup : %s\n",buff);
   SPIcarte.send(0,buff,34);
+  
 }
 
 
