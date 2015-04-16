@@ -2,43 +2,108 @@
     "boxes": [
         {
             "allArgs": {
-                "signal": "AHAH"
+                "dest": [
+                    "Pi1"
+                ]
             }, 
-            "arguments": {
-                "signal": "AHAH"
-            }, 
-            "boxname": "box3", 
+            "arguments": {}, 
+            "boxname": "box9", 
             "category": "GENERAL", 
-            "dispoBOO": false, 
-            "name": "SENDSIGNAL", 
-            "positionX": 465, 
-            "positionY": 344
+            "dispoBOO": true, 
+            "dispositifs": [
+                "Pi1"
+            ], 
+            "name": "START", 
+            "positionX": 445, 
+            "positionY": 111
         }, 
         {
             "allArgs": {
-                "": null
+                "dest": [
+                    "Self"
+                ]
+            }, 
+            "arguments": {}, 
+            "boxname": "box10", 
+            "category": "GENERAL", 
+            "dispoBOO": true, 
+            "dispositifs": [
+                "Self"
+            ], 
+            "name": "START", 
+            "positionX": 121, 
+            "positionY": 112
+        }, 
+        {
+            "allArgs": {
+                "dest": [
+                    "Self"
+                ], 
+                "signal": "OHOH"
             }, 
             "arguments": {
-                "": null
+                "signal": "OHOH"
             }, 
-            "boxname": "box4", 
+            "boxname": "box11", 
             "category": "GENERAL", 
-            "dispoBOO": false, 
-            "name": "WAIT", 
-            "positionX": 444, 
-            "positionY": 166
+            "dispoBOO": true, 
+            "dispositifs": [
+                "Self"
+            ], 
+            "name": "SENDSIGNAL", 
+            "positionX": 331, 
+            "positionY": 318
+        }, 
+        {
+            "allArgs": {
+                "dest": [
+                    "Self"
+                ], 
+                "signal": "AHAH"
+            }, 
+            "arguments": {
+                "signal": "AHAH"
+            }, 
+            "boxname": "box12", 
+            "category": "GENERAL", 
+            "dispoBOO": true, 
+            "dispositifs": [
+                "Self"
+            ], 
+            "name": "SENDSIGNAL", 
+            "positionX": 34, 
+            "positionY": 286
         }
     ], 
     "connections": [
         {
-            "From": "WAIT", 
-            "SourceId": "Connector_box4", 
-            "TargetId": "box3", 
+            "From": "START", 
+            "SourceId": "Connector_box10", 
+            "TargetId": "box12", 
             "To": "SENDSIGNAL", 
-            "connectionLabel": "TELECO_PUSH_A"
+            "connectionLabel": "TELECO_PUSH_OK"
+        }, 
+        {
+            "From": "START", 
+            "SourceId": "Connector_box9", 
+            "TargetId": "box11", 
+            "To": "SENDSIGNAL", 
+            "connectionLabel": "AHAH"
+        }, 
+        {
+            "From": "SENDSIGNAL", 
+            "SourceId": "Connector_box12", 
+            "TargetId": "box10", 
+            "To": "START", 
+            "connectionLabel": ""
+        }, 
+        {
+            "From": "SENDSIGNAL", 
+            "SourceId": "Connector_box11", 
+            "TargetId": "box9", 
+            "To": "START", 
+            "connectionLabel": ""
         }
     ], 
-    "origins": [
-        "box4"
-    ]
+    "origins": []
 }

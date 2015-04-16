@@ -3,7 +3,7 @@
         {
             "allArgs": {
                 "dest": [
-                    "Group"
+                    "All"
                 ], 
                 "media": "drums.mp3", 
                 "repeat": null
@@ -15,7 +15,7 @@
             "category": "AUDIO", 
             "dispoBOO": true, 
             "dispositifs": [
-                "Group"
+                "All"
             ], 
             "media": "drums.mp3", 
             "name": "PLAY", 
@@ -74,17 +74,20 @@
         }, 
         {
             "allArgs": {
-                "": null
+                "dest": [
+                    "Self"
+                ]
             }, 
-            "arguments": {
-                "": null
-            }, 
-            "boxname": "box6", 
+            "arguments": {}, 
+            "boxname": "box2", 
             "category": "GENERAL", 
-            "dispoBOO": false, 
-            "name": "WAIT", 
-            "positionX": 43, 
-            "positionY": 28
+            "dispoBOO": true, 
+            "dispositifs": [
+                "Self"
+            ], 
+            "name": "START", 
+            "positionX": 64, 
+            "positionY": 57
         }
     ], 
     "connections": [
@@ -107,7 +110,7 @@
             "SourceId": "Connector_box3", 
             "TargetId": "box5", 
             "To": "PLAY", 
-            "connectionLabel": "TELECO_PUSH_OK"
+            "connectionLabel": "TELECO_PUSH_A"
         }, 
         {
             "From": "PLAY", 
@@ -117,14 +120,14 @@
             "connectionLabel": ""
         }, 
         {
-            "From": "WAIT", 
-            "SourceId": "Connector_box6", 
+            "From": "START", 
+            "SourceId": "Connector_box2", 
             "TargetId": "box1", 
             "To": "WAIT", 
             "connectionLabel": ""
         }
     ], 
     "origins": [
-        "box6"
+        "box2"
     ]
 }

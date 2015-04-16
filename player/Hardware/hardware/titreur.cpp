@@ -107,6 +107,7 @@ void Titreur::plot(int x,int y,int val){
 
 
 void Titreur::putChar(int x, int y, char c){
+  fprintf(stderr, "%c(%u)",c,c);
   unsigned char cc ;
   unsigned char dots=0;
   if (c<' ' && c>=0){cc=0;}
@@ -115,12 +116,18 @@ void Titreur::putChar(int x, int y, char c){
   } else if (c < 0) {
     cc = (unsigned char)c;
     //Serial.print(cc,DEC);
-    cc =cc+64-101;
+    cc = cc+64-101;
   } else {
-    cc=0;
+    if(c==169)cc=132;
+    if(c==168)cc=131;
+    if(c==180)cc=143;
+    if(c==171)cc=134;
+    if(c==188)cc=151;
+    if(c==160)cc=123;
+    if(c==170)cc=133;
   }
-  fprintf(stderr, "putchar %c code=%u tab=%u",c,c,cc);
-  
+  //fprintf(stderr, "putchar %c code=%u tab=%u",c,c,cc);
+
   for (char col=0; col< 6; col++) {
     int dots = myfont[cc][col];
     for (char row=0; row < 8; row++) { // only 8 rows.

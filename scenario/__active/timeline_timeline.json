@@ -10,7 +10,8 @@
                     }, 
                     "name": "block1", 
                     "scenarios": [
-                        "test_sync"
+                        "test_sync", 
+                        "video_btn"
                     ], 
                     "start": 0
                 }
@@ -20,6 +21,12 @@
                 "VideoPlayer"
             ], 
             "name": "raspi2mgr"
+        }, 
+        {
+            "blocks": [], 
+            "modules": [], 
+            "name": "Pi1"
         }
-    ]
+    ], 
+    "scenes": []
 }
