@@ -6,12 +6,14 @@
 #
 
 import os
+import time
 
 import pyudev
 
 from libs.oscack import message, network, DNCserver, BroadcastAddress
 from engine.threads import network_scheduler, patcher
 
+from scenario import functions
 from engine import media
 from engine import fsm
 from libs.oscack import network
@@ -68,7 +70,14 @@ def init(flag):
     async_monitor_udev = media.UdevThreadMonitor(monitor_udev, machine, flag_usb_plugged)
     async_monitor_udev.start()
     # TODO get the needed media list from scenario
-    from_scenario_wanted = settings.get("temp", "wanted_media")
+    # from_scenario_wanted = settings.get("temp", "wanted_media")
+    from_scenario_wanted = None
+    while from_scenario_wanted is None:
+        from_scenario_wanted = functions.get_wanted_media()
+        if from_scenario_wanted is not None:
+            break
+        else:
+            time.sleep(1)
     needed_media_list = media.MediaList()         # here come the media list
     for f in from_scenario_wanted:
         fmedia = media.Media.from_scenario(f)
