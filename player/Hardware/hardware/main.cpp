@@ -89,7 +89,7 @@ void beforekill(int signum)
 void myInterruptTELECO(void) {
   if (myteleco.fisrtView()){
     delay(200);
-    if (digitalRead(21)==LOW) {
+    if (digitalRead(21)==HIGH) {
       return;
     }
   }
@@ -374,6 +374,15 @@ int main (int argc, char * argv[]){
   
 signal(SIGTERM, beforekill);
 signal(SIGINT, beforekill);
+ 
+  wiringPiSetupGpio();
+  pinMode (21, INPUT);
+  
+if (myteleco.fisrtView() && digitalRead(21)==HIGH) {
+    myteleco.readInterrupt();
+    myteleco.start();
+  }
+
   
 cout << "#INITHARDWARE" << endl;
   
@@ -382,8 +391,7 @@ cout << "#INITHARDWARE" << endl;
     parseInput();
   }
   if(version_py=="-")myteleco.initCarte(1);else myteleco.initCarte(1);
-  wiringPiSetupGpio();
-  pinMode (21, INPUT);
+
   
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
