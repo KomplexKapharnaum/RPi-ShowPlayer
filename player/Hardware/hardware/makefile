@@ -1,11 +1,12 @@
 UNAME := $(shell uname)
+$(warning $(UNAME))
 UNAME_P := $(shell gcc -dumpmachine)
 CC=g++
 CFLAGS=
 LDFLAGS=-lwiringPi
 EXEC=hardware
 
-ifeq (,$(findstring arm7,$(UNAME_P)))
+ifeq (,$(findstring arm7%,$(UNAME_P)))
 $(warning rpiB2 -> build hardware7)
 EXEC=hardware7
 else
