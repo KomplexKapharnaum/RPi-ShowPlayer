@@ -90,7 +90,6 @@ public:
   void setkeepSelect();
   void releaseSelect();
   int sendWithPause(int _selectedChip, unsigned char *_tab,int _len);
-    std::string debug;
   
   
 };

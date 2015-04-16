@@ -48,7 +48,7 @@ protected:
   void allLedOff();
   int charbyline();
   ~Titreur();
-    std::string debug;
+
   
 };
 

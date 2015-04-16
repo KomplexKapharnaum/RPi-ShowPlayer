@@ -23,9 +23,8 @@
 
 
 void Teleco::initCarte(char pow){
-  debug="teleco - ";
   localpoweroff=pow;
-  fprintf(stderr, "%sadd teleco dnc\n",debug.c_str());
+  fprintf(stderr, "teleco - add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
 }
@@ -35,7 +34,7 @@ int Teleco::fisrtView(){
 }
 
 void Teleco::start(){
-  fprintf(stderr, "%steleco start\n",debug.c_str());
+  fprintf(stderr, "teleco - teleco start\n");
   uninit=0;
   writeValue(T_LEDRVALUE,1);
 }
@@ -57,7 +56,7 @@ void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
   for(int i=0;i<16;i++){
     buff[i+49]= *(Str4+i);
   }
-  fprintf(stderr, "%steleco send infos : %s\n",debug.c_str(),buff);
+  fprintf(stderr, "teleco - teleco send infos : %s\n",buff);
   SPIcarte.send(0,buff,68);
 }
 
@@ -70,7 +69,7 @@ void Teleco::sendPopUp(char Str1[], char Str2[]){
   for(int i=0;i<16;i++){
     buff[i+17]= *(Str2+i);
   }
-  fprintf(stderr, "%steleco send popup : %s\n",debug.c_str(),buff);
+  fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
   SPIcarte.send(0,buff,34);
   
 }
@@ -81,12 +80,12 @@ int Teleco::readInterrupt(){
   buff[0]= (char)(READCOMMAND+T_INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "%sread i %u\n",debug.c_str(),buff[1]);
+  fprintf(stderr, "teleco - read i %u\n",buff[1]);
   int address = buff[1];
   buff[0]= (char)(READCOMMAND+address);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "%sread v %u\n",debug.c_str(),buff[1]);
+  fprintf(stderr, "teleco - read v %u\n",buff[1]);
   int valeur = buff[1];
   switch (address) {
     case T_PUSHA:

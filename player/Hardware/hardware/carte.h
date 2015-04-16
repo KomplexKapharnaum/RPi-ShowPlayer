@@ -89,7 +89,7 @@ public :
   void led10WValue(int v, int fadetime = 0, int strob=0);
   void setGyro(int mode, int speed, int strob=0);
   void setRelais(int val);
-    std::string debug;
+
   
   ~Carte();
   

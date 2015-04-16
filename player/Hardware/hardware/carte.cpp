@@ -23,8 +23,7 @@
 
 
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
-  debug="carte - ";
-  fprintf(stderr, "%sadd extension card dnc\n",debug.c_str());
+  fprintf(stderr, "carte - add extension card dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(13,500000);
   gamme_tension=_gamme_tension;
@@ -44,7 +43,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   digitalWrite (GPIO_RESET, HIGH);
   delay(50);
   checkTension();
-  fprintf(stderr, "%stension initiale : %f mode : %uV\n",debug.c_str(), (float)value[UBATT]/10, value[VOLTAGEMODE]);
+  fprintf(stderr, "carte - tension initiale : %f mode : %uV\n", (float)value[UBATT]/10, value[VOLTAGEMODE]);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
   writeValue(INTERRUPT,0);
@@ -52,7 +51,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
 
 
 void Carte::writeValue(int valueType,int value, int fadetime){
-  fprintf(stderr, "%swriteValue %u : %u (f:%u) ",debug.c_str(), valueType,value,fadetime);
+  fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
   int size;
   if(fadetime==0){size=2; }else {size=4;}
   unsigned char buff[5];
@@ -79,12 +78,12 @@ int Carte::readInterrupt(){
   buff[0]= (char)(READCOMMAND+INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "%sread i %u\n",debug.c_str(),buff[1]);
+  fprintf(stderr, "carte - read i %u\n",buff[1]);
   int address = buff[1];
   buff[0]= (char)(READCOMMAND+buff[1]);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "%sread v %u\n",debug.c_str(),buff[1]);
+  fprintf(stderr, "carte - read v %u\n",buff[1]);
   int valeur =buff[1];
   switch (address) {
       //@todo : faire un tableau et l'envoyer
@@ -150,7 +149,7 @@ void Carte::setGyro(int mode, int speed, int strob){
 }
 
 void Carte::setRelais(int val){
-  fprintf(stderr, "%sset relais %u",debug.c_str(),val);
+  fprintf(stderr, "carte - set relais %u",val);
   digitalWrite (GPIO_RELAIS, val);
 }
 

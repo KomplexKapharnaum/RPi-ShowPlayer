@@ -26,14 +26,13 @@
 
 
 extSPI::extSPI(){
-  debug="extspi - ";
   init=0;
 }
 
 
 int extSPI::check(){
   if (!init) {
-    fprintf(stderr, "%s you must init extSPI",debug.c_str());
+    fprintf(stderr, "extspi -  you must init extSPI");
     return 1;
   }
   return 0;
@@ -43,7 +42,7 @@ int extSPI::check(){
 void extSPI::initSPI(int speed){
   commonInit(speed);
   nbmodule=1;
-  fprintf(stderr, "%sinit ok \n",debug.c_str());
+  fprintf(stderr, "extspi - init ok \n");
 }
 
 void extSPI::commonInit(int _spiSpeed){
@@ -69,7 +68,7 @@ void extSPI::addChipSelect(int GPIO,int speed){
   pinMode (chipSelect[csmax].GPIO, OUTPUT) ;
   digitalWrite (chipSelect[csmax].GPIO, HIGH);
   csmax++;
-  fprintf(stderr, "%sadd direct gpio cs \n",debug.c_str());
+  fprintf(stderr, "extspi - add direct gpio cs \n");
   releaseSelect();
 }
 
@@ -80,7 +79,7 @@ void extSPI::addChipSelectWithHC595Buffer(int RCK, int HC595,int speed){
   pinMode (chipSelect[csmax].GPIO, OUTPUT) ;
   digitalWrite (chipSelect[csmax].GPIO, LOW);
   csmax++;
-  fprintf(stderr, "%sadd hc595 cs \n",debug.c_str());
+  fprintf(stderr, "extspi - add hc595 cs \n");
   releaseSelect();
 }
 /*
