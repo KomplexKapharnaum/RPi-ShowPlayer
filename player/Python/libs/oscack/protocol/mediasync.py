@@ -60,6 +60,7 @@ def init(flag):
     global async_monitor_udev
     monitor_udev = pyudev.Monitor.from_netlink(context_udev)
     monitor_udev.filter_by('block')  # get only block information
+    monitor_udev.start()
     async_monitor_udev = media.UdevThreadMonitor(monitor_udev, machine, flag_usb_plugged)
     # TODO get the needed media list from scenario
     flag.args["_fsm"].vars["needed_media_list"] = media.MediaList()  # here come the media list
