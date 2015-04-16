@@ -3,7 +3,7 @@ import sys
 import os
 from os import listdir
 from os.path import isfile, join, isdir
-from scenario import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_PUBLICBOXES
+from modules import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_PUBLICBOXES
 from engine.log import init_log
 from engine.media import save_scenario_on_fs
 from engine.threads import patcher
@@ -71,6 +71,23 @@ def medialist():
     return sendjson(answer)
 
 
+@app.route('/disposList')
+def dispoList():
+    response.content_type = 'application/json'
+    path = settings.get('path', 'deviceslist')
+    try:
+        answer = dict()
+        with open(path, 'r') as file:   # Use file to refer to the file object
+            answer = json.loads( file.read() )
+        answer['status'] = 'success'
+        return sendjson(answer)
+    except:
+        answer = dict()
+        answer['status'] = 'error'
+        answer['message'] = 'File not found'
+        return sendjson(answer)
+
+
 @app.route('/library')
 def librarylist():
     answer = dict()
@@ -84,19 +101,19 @@ def librarylist():
             'dispos': ('dispo' in route['args']),
             'medias': ('media' in route['args']),
             'arguments': [arg for arg in route['args'] if arg != 'dispo' and arg != 'media'],
-            'code': 'sendSignal("'+route['signal']+'")',
+            'code': '#HARDCODED scenario.functions.add_signal()',
             'hard': True
         }
         answer['functions'].append(box)
     # PUBLIC BOXES
     for name, box in DECLARED_PUBLICBOXES.items():
         box = {
-            'name': name.replace('_PUBLICFUNC', ''),
+            'name': name.replace('_PUBLICBOX', ''),
             'category': 'GENERAL',
             'dispos': ('dispo' in box['args']),
             'medias': ('media' in box['args']),
             'arguments': [arg for arg in box['args'] if arg != 'dispo' and arg != 'media'],
-            'code': '',
+            'code': '#HARDCODED modules.publicboxes.'+box['function'].__name__,
             'hard': True
         }
         answer['functions'].append(box)
@@ -129,12 +146,12 @@ def loadText():
         answer['status'] = 'success'
         with open(path, 'r') as file:   # Use file to refer to the file object     
             answer['contents'] = file.read()
-        return json.dumps(answer)
+        return sendjson(answer)
     except:
         answer = dict()
         answer['status'] = 'error'
         answer['message'] = 'File not found'
-        return json.dumps(answer)
+        return sendjson(answer)
 
 
 @app.route('/_SCENARIO/data/saveText.php', method='POST')
@@ -152,10 +169,10 @@ def saveText():
     except:
         answer['status'] = 'error'
         answer['message'] = 'Write Error'
-        return json.dumps(answer)
+        return sendjson(answer)
 
     answer['status'] = 'success'
-    return json.dumps(answer)
+    return sendjson(answer)
 
 
 @app.route('/_TIMELINE/data/save.php', method='POST')
@@ -174,7 +191,7 @@ def save():
         log.exception(log.show_exception(e))
         answer['status'] = 'error'
         answer['message'] = 'JSON not valid'
-        return json.dumps(answer)
+        return sendjson(answer)
 
     try:
         path = scenariopath
@@ -184,13 +201,13 @@ def save():
     except:
         answer['status'] = 'error'
         answer['message'] = 'Write Error'
-        return json.dumps(answer)
+        return sendjson(answer)
 
     answer['status'] = 'success'
     save_scenario_on_fs(settings["current_timeline"], date_timestamp=float(timestamp)/1000.0)
     patcher.patch(fsm.Flag("DEVICE_RELOAD").get())
     oscack.protocol.scenariosync.machine.append_flag(oscack.protocol.scenariosync.flag_timeout.get())    # Force sync
-    return json.dumps(answer)
+    return sendjson(answer)
 
 @app.route('/_TIMELINE/data/load.php', method='POST')
 @app.route('/_SCENARIO/data/load.php', method='POST')
@@ -204,12 +221,12 @@ def load():
         answer['status'] = 'success'
         with open(path, 'r') as file:   # Use file to refer to the file object
             answer['contents'] = file.read()
-        return json.dumps(answer)
+        return sendjson(answer)
     except:
         answer = dict()
         answer['status'] = 'error'
         answer['message'] = 'File not found'
-        return json.dumps(answer)
+        return sendjson(answer)
 
 @app.route('/_TIMELINE/data/fileDelete.php', method='POST')
 @app.route('/_SCENARIO/data/fileDelete.php', method='POST')
@@ -225,7 +242,7 @@ def delete():
     except:
         answer['status'] = 'error'
         answer['message'] = 'File not found'
-    return json.dumps(answer)
+    return sendjson(answer)
 
 
 @app.route('/_TIMELINE/data/fileRename.php', method='POST')
@@ -243,7 +260,7 @@ def rename():
     except:
         answer['status'] = 'error'
         answer['message'] = 'File not found'
-    return json.dumps(answer)
+    return sendjson(answer)
 
 
 @app.route('/_TIMELINE/data/fileList.php', method='POST')
@@ -256,7 +273,7 @@ def filelist():
     if os.path.exists(path):
         onlyfiles = [ f.replace(filetype+"_",'') for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(filetype+"_") ]
         log.debug(onlyfiles)
-    return json.dumps(onlyfiles)
+    return sendjson(onlyfiles)
 
 
 # Static index

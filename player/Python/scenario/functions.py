@@ -9,15 +9,19 @@ CREATE_NEW_PROCESS_GROUP = 512
 
 import libs.oscack
 from libs.oscack import message
-from scenario import globalfunction
+from modules import globalfunction
 from engine.setting import settings
 from engine.threads import scenario_scheduler, patcher
 from scenario import pool
 from engine.fsm import Flag
-from engine.log import init_log, dumpclean
+from engine.log import init_log
 
 log = init_log("tools")
 
+def get_wanted_media():
+    if settings.get('uName') in pool.Cartes.keys():
+        return pool.Cartes[ settings.get('uName') ].media
+    return None
 
 @globalfunction("ADD_TIMER")
 def add_timer(*args, **kwargs):

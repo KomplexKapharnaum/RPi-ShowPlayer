@@ -1,7 +1,7 @@
 
 # from modules import ExternalProcess
 from _classes import module
-from scenario import link
+from modules import link
 # from engine.setting import settings
 from engine.log import init_log
 

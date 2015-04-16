@@ -12,7 +12,8 @@ from os.path import isfile, join
 import engine
 from engine import fsm
 from scenario import classes, pool
-from scenario.publicfunctions import *
+from modules import DECLARED_PUBLICBOXES
+from scenario.userscope import *
 from engine.setting import settings
 from operator import itemgetter
 import libs.simplejson as json
@@ -84,7 +85,13 @@ def parse_function(jobj):
     pool.Etapes_and_Functions[jobj["ID"]] = fnct  # fnct define in the exec CODE
     return fnct
 
+def etapename(box):
+    return box['category']+'_'+box['name']
 
+def boxname(scenarioname, box):
+    return (scenarioname+'_'+box['boxname']).upper()
+
+# 1: DEVICES
 def parse_devices(parsepool):
     import modules
     for device in parsepool:
@@ -103,6 +110,101 @@ def parse_devices(parsepool):
         log.log('raw', "ADD CARTE {0}".format(pool.Cartes[device['name']]))
 
 
+# 2: LIBRARY
+# PROCESS LIBRARY OF USERS FUNCTION
+def parse_library(libs):
+    for fn in libs:
+        importFn = {
+            "ID" : fn['category']+'_'+fn['name']+'_USERFUNC',
+            "CODE" : "def fnct(flag, **kwargs):\n  log.debug('CUSTOM CODE EXECUTED')\n"
+        }
+        code = string.split(fn['code'], '\n')
+        code = [(2 * ' ') + line for line in code]
+        code = string.join(code, '\n')
+        code = code.replace('\t', '  ')
+        importFn["CODE"] += code
+        log.log('raw', importFn["CODE"])
+        parse_function(importFn)
+
+
+# 3: SCENARIOS
+def parse_scenario(parsepool, name):
+    # GET PARSED SCENARIO FILE
+    importEtapes = {}
+    if 'boxes' not in parsepool:
+        return
+
+    # PROCESS BOXES
+    for box in parsepool['boxes']:
+        # USE PREBUILD ETAPE "SEND SIGNAL"
+        # TODO :: SENDERS ARE PUBLICBOX !!! MERGE WITH PUBLIC BOX
+        if 'SEND_'+etapename(box) in pool.Etapes_and_Functions.keys():
+            etape = pool.Etapes_and_Functions['SEND_'+etapename(box)].get()
+            etape.uid = boxname(name, box)
+            if 'allArgs' in box:
+                etape.actions[0][1]["args"] = box['allArgs']
+            importEtapes[etape.uid] = etape
+            log.log('raw', 'ADD PREBUILD SENDER '+etape.uid)
+
+        # CUSTOM FUNCTION (Declared in Library)
+        elif etapename(box)+'_USERFUNC' in pool.Etapes_and_Functions.keys():
+            fn = pool.Etapes_and_Functions[etapename(box)+'_USERFUNC']
+            etape = classes.Etape(boxname(name, box), actions=((fn, {'args': box['allArgs']}),))
+            importEtapes[etape.uid] = etape
+            log.log('raw', 'ADD USER FUNC '+etape.uid)
+
+
+        # PUBLIC FUNCTION (Declared in Library)
+        elif box['name']+'_PUBLICBOX' in pool.Etapes_and_Functions.keys():
+            etape = pool.Etapes_and_Functions[box['name']+'_PUBLICBOX'].get()
+            etape.uid = boxname(name, box)
+            if 'allArgs' in box:
+                etape.actions[0][1]["args"] = box['allArgs']
+            importEtapes[etape.uid] = etape
+            log.log('raw', 'ADD PREBUILD BOX '+etape.uid)
+
+        # NO MATCHING ETAPE..
+        else:
+            log.log('warning', 'Can\'t create '+etapename(box))
+
+    for etape in importEtapes.values():
+        log.log('raw', 'WITH ARGS {0}'.format(etape.actions[0][1]["args"]))
+
+    # PROCESS CABLES
+    for con in parsepool['connections']:
+        # SIGNAL
+        if len(con['connectionLabel']) > 0:
+            importSignal = {
+                "ID" : con['connectionLabel'],
+                "JTL" : 1,
+                "TTL" : 1,
+                "IGNORE" : {},
+                "ARGS" : {}
+            }
+            s = fsm.Flag(con['connectionLabel'], importSignal["ARGS"], importSignal["JTL"], importSignal["TTL"])
+            if len(importSignal["IGNORE"]) > 0:
+                ignore = parse_arg_function(importSignal["IGNORE"])
+                s.ignore_cb = ignore[0]
+                s.ignore_cb_args = ignore[1]
+            pool.Signals[importSignal["ID"]] = s
+        else:
+            con['connectionLabel'] = None
+
+        # TRANSITIONS
+        fromBox = (name+'_'+con['SourceId'].split('_')[1]).upper()
+        toBox = (name+'_'+con['TargetId']).upper()
+        if fromBox in importEtapes.keys():
+            if toBox in importEtapes.keys():
+                importEtapes[fromBox].transitions[con['connectionLabel']] = importEtapes[toBox]
+
+    # ETAPES
+    for etape in importEtapes.values():
+        pool.Etapes_and_Functions[etape.uid] = etape
+        log.log('raw', etape.strtrans())
+
+
+
+# 4: TIMELINE
 def parse_timeline(parsepool):
     Sceno = dict()
     # PROCESS SCENES
@@ -117,11 +219,23 @@ def parse_timeline(parsepool):
                 }
             #FIND START ETAPE FOR EACH ACTIVATED SCENARIO IN THE SCENE
             for scenario in block['scenarios']:
-                scenard = SCENARIO[scenario]
-                if 'origins' in scenard:
-                    for box in scenard['origins']:
-                        boxname = (scenario+'_'+box).upper()
-                        SC['etapes'].append(boxname)
+                # DETECT START box
+                for box in SCENARIO[scenario]['boxes']:
+                    if box['name']+'_PUBLICBOX' in DECLARED_PUBLICBOXES:
+                        if DECLARED_PUBLICBOXES[box['name']+'_PUBLICBOX']['start']:
+                            SC['etapes'].append(boxname(scenario, box))
+
+                # GET TOP TREE BOXES IN SCENARIO
+                # if 'origins' in scenard:
+                #     for box in scenard['origins']:
+                #         boxname = (scenario+'_'+box).upper()
+                #         SC['etapes'].append(boxname)
+
+                # DETECT WANTED MEDIA
+                for box in SCENARIO[scenario]['boxes']:
+                    if 'media' in box.keys():
+                        pool.Cartes[device['name']].media.append( box['media'] )
+
             # ADD SCENE
             if 'scene' in block:
                 scene_name = block['scene']['name']
@@ -172,96 +286,6 @@ def parse_timeline(parsepool):
                 pool.Frames[-1] = pool.Scenes[scene["scene"]]["obj"]
                 before = scene["scene"]
 
-
-# PROCESS LIBRARY OF USERS FUNCTION
-def parse_library(libs):
-    for fn in libs:
-        importFn = {
-            "ID" : fn['category']+'_'+fn['name']+'_USERFUNC',
-            "CODE" : "def fnct(flag, **kwargs):\n  log.debug('CUSTOM CODE EXECUTED')\n"
-        }
-        code = string.split(fn['code'], '\n')
-        code = [(2 * ' ') + line for line in code]
-        code = string.join(code, '\n')
-        code = code.replace('\t', '  ')
-        importFn["CODE"] += code
-        log.debug(importFn["CODE"])
-        parse_function(importFn)
-
-
-def parse_scenario(parsepool, name):
-    # GET PARSED SCENARIO FILE
-    importEtapes = {}
-    if 'boxes' not in parsepool:
-        return
-
-    # PROCESS BOXES
-    for box in parsepool['boxes']:
-        etapename = box['category']+'_'+box['name']
-        boxname = (name+'_'+box['boxname']).upper()
-
-        # USE PREBUILD ETAPE "SEND SIGNAL"
-        if 'SEND_'+etapename in pool.Etapes_and_Functions.keys():
-            etape = pool.Etapes_and_Functions['SEND_'+etapename].get()
-            etape.uid = boxname
-            if 'allArgs' in box:
-                etape.actions[0][1]["args"] = box['allArgs']
-            importEtapes[etape.uid] = etape
-            log.log('raw', 'ADD PREBUILD ETAPE '+etape.uid)
-
-        # CUSTOM FUNCTION (Declared in Library)
-        elif etapename+'_USERFUNC' in pool.Etapes_and_Functions.keys():
-            fn = pool.Etapes_and_Functions[etapename+'_USERFUNC']
-            etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
-            importEtapes[etape.uid] = etape
-            log.log('raw', 'ADD USER FUNC '+etape.uid)
-
-
-        # PUBLIC FUNCTION (Declared in Library)
-        elif box['name']+'_PUBLICFUNC' in pool.Etapes_and_Functions.keys():
-            fn = pool.Etapes_and_Functions[box['name']+'_PUBLICFUNC']
-            etape = classes.Etape(boxname, actions=((fn, {'args': box['allArgs']}),))
-            importEtapes[etape.uid] = etape
-            log.log('raw', 'ADD PUBLIC FUNC '+etape.uid)
-
-        # NO MATCHING ETAPE..
-        else:
-            log.log('warning', 'Can\'t create '+etapename)
-
-    for etape in importEtapes.values():
-        log.log('raw', 'WITH ARGS {0}'.format(etape.actions[0][1]["args"]))
-
-    # PROCESS CABLES
-    for con in parsepool['connections']:
-        # SIGNAL
-        if len(con['connectionLabel']) > 0:
-            importSignal = {
-                "ID" : con['connectionLabel'],
-                "JTL" : 1,
-                "TTL" : 1,
-                "IGNORE" : {},
-                "ARGS" : {}
-            }
-            s = fsm.Flag(con['connectionLabel'], importSignal["ARGS"], importSignal["JTL"], importSignal["TTL"])
-            if len(importSignal["IGNORE"]) > 0:
-                ignore = parse_arg_function(importSignal["IGNORE"])
-                s.ignore_cb = ignore[0]
-                s.ignore_cb_args = ignore[1]
-            pool.Signals[importSignal["ID"]] = s
-        else:
-            con['connectionLabel'] = None
-
-        # TRANSITIONS
-        fromBox = (name+'_'+con['SourceId'].split('_')[1]).upper()
-        toBox = (name+'_'+con['TargetId']).upper()
-        if fromBox in importEtapes.keys():
-            if toBox in importEtapes.keys():
-                importEtapes[fromBox].transitions[con['connectionLabel']] = importEtapes[toBox]
-
-    # ETAPES
-    for etape in importEtapes.values():
-        pool.Etapes_and_Functions[etape.uid] = etape
-        log.log('raw', etape.strtrans())
 
 
 # def parse_etape(jobj):

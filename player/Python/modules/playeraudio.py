@@ -6,8 +6,8 @@
 #
 import os
 from _classes import ExternalProcess, module
+from modules import link
 from engine.setting import settings
-from scenario import link
 from engine.log import init_log
 log = init_log("audio")
 

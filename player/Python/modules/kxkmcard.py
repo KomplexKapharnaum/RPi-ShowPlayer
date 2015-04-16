@@ -5,10 +5,10 @@
 #
 import re
 from _classes import ExternalProcess, module
-from scenario import link, exposesignals
+from modules import link, exposesignals
 from engine.log import init_log
 from engine.setting import settings
-from libs.oscack.utils import get_ip
+from libs.oscack.utils import get_ip, get_platform
 log = init_log("kxkmcard")
 
 FILTERS = dict()
@@ -20,7 +20,7 @@ class KxkmCard(ExternalProcess):
     KXKM Ext card module
     """
     def __init__(self):
-        ExternalProcess.__init__(self, 'kxkmcard')
+        ExternalProcess.__init__(self, 'kxkmcard-'+get_platform())
         self.onClose = "CARD_EVENT_CLOSE"
         self.start()
 
@@ -58,7 +58,7 @@ class KxkmCard(ExternalProcess):
         if led10B is not None:
             cmd += ' -10w2 {0}'.format(int(led10B))
         if strob is not None:
-            cmd += ' -strob {0}'.format(int(strobe))
+            cmd += ' -strob {0}'.format(int(strob))
         if fade is not None:
             cmd += ' -fade {0}'.format(int(fade))
         self.say(cmd)

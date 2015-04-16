@@ -53,7 +53,10 @@ def start_protocol():
 
 
 def stop_protocol():
-    DNCserver.stop()
+    import server
+    global DNCserver
+    if isinstance(DNCserver, server.DNCServer):
+        DNCserver.stop()
     protocol.discover.machine.stop()
 
 

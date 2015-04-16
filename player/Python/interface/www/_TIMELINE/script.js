@@ -89,7 +89,7 @@
             $.each(allScenes,function(index,scene){
               if (block.scene == scene.name){
             		block.blockbox.css({
-            		  'left': scene.start-108
+            		  'left': scene.start-gridleft
             		});
               }
             });
@@ -206,7 +206,7 @@
         //thisScene.scenebox.css({left:position});
         //BUG SORTABLE SI CA ??? :
         // var scenepos = thisScene.scenebox.offset();
-        // scenepos.left = position+108;
+        // scenepos.left = position+gridleft;
         // this.scenebox.offset(scenepos);
         // thisScene.actuPosition();
       }
@@ -224,7 +224,9 @@
 
 
     }
-
+    ////////////////////// SCENE DELETE /////////////////////////
+    /////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     $('#delSceneButton').click(function(){
       //console.log('scene');
@@ -256,6 +258,43 @@
       pool.getScenes();
 
     });
+    //////////////////////  SCENE NAME  /////////////////////////
+    /////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
+    $('#scenename').click(function(e){
+
+      var sceneName = $('<input>').attr('type', 'text').addClass("textareaSmall");
+
+      var editedScene;
+      $.each(allScenes, function(key, scene) {
+        if (scene.active) { editedScene = scene; }
+      });
+
+      $(this).text("");
+      $('#scenename').append(sceneName);
+      sceneName.val(editedScene.name);
+      sceneName.focus();
+      listenToEnter();
+      e.stopPropagation();
+
+
+      function listenToEnter(){
+      sceneName.focusout(function() {
+  			$(this).parent().text(this.value);
+        editedScene.name = this.value;
+        editedScene.scenebox.text(this.value);
+        $("#scenename").text(editedScene.name);
+  		});
+      }
+      listenToEnter();
+  		sceneName.focus();
+
+      pool.getScenes();
+
+
+    });
+
+
 
 
 
@@ -264,8 +303,10 @@
     /////////////////////////////////////////////////////////////
 
 
-    var blockheight;
-    var topo = $('#allpi').offset().top;
+    var gridheight;
+    var gridwidth;
+    var gridtop = $('#allpi').offset().top;
+    var gridleft =  $('#allpi').offset().left;
     $('#allpinames').sortable({
       axis: "y",
       start: function (event, ui) {
@@ -273,7 +314,7 @@
       },
       sort: function(){
         $.each(allPi,function(index,pi){
-          var linenamePos = pi.linename.offset().top-(blockheight*index)-topo;
+          var linenamePos = pi.linename.offset().top-(gridheight*index)-gridtop;
           pi.line.css({top:linenamePos});
         });
 
@@ -281,11 +322,10 @@
       stop: function (event, ui) {
         //console.log(ui.item.offset().top);
         $.each(allPi,function(index,pi){
-          var linenamePos = pi.linename.offset().top-(blockheight*index)-topo;
+          var linenamePos = pi.linename.offset().top-(gridheight*index)-gridtop;
           pi.line.css({top:linenamePos});
-
           pi.lineheight = pi.linename.offset().top;
-          console.log(index + ' '+pi.lineheight);
+          //console.log(index + ' '+pi.lineheight);
         });
 
         // si on trie maintenant ca fout le bordel ??
@@ -412,7 +452,9 @@
       this.blockbox = $('<div>').addClass('block');
       thispi.line.append(this.blockbox);
       //---------------------------
-      blockheight = this.blockbox.height();
+      gridheight = this.blockbox.height();
+      gridwidth = this.blockbox.width();
+
       this.blockName = "block" +thispi.blockCount;
       this.blockbox.attr('id', this.blockName);
       this.group = allgroups[0];
@@ -921,6 +963,7 @@
 
     function savePool(){
       var exportPool = [];
+      console.log(gridwidth);
 
       //sort Order en fonction de la position --> pour la reconstruction
       // (si on fa ca a chaque sorting, on perd le fil des indexs ??)
@@ -939,8 +982,9 @@
             name: block.blockName,
             group: block.group,
             scenarios: block.scenarios,
-            start: block.start-108,
-            end: block.end-108
+            start: block.start-gridleft,
+            end: block.end-gridleft,
+            position: (block.start-gridleft)/gridwidth
           })
         });
       });
@@ -949,7 +993,7 @@
       $.each(allScenes, function(index,scene){
         exportScenes.push({
           name: scene.name,
-          position: scene.start-108
+          position: scene.start-gridleft
         })
 
       });

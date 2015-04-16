@@ -14,7 +14,7 @@ from copy import deepcopy
 from engine import fsm
 # from engine import media
 from engine.setting import settings
-from scenario import pool
+import scenario
 from engine.log import init_log
 log = init_log("classes")
 
@@ -108,10 +108,13 @@ class Etape(fsm.State):
             self.preemptible.wait()
 
     def __str__(self):
-        return "Etape & Transitions: {0}".format(self.uid)
+        return "Etape : {0}".format(self.uid)
 
     def strtrans(self):
         return "Etape & Transitions: {0} {1}".format(self.uid, self.transitions)
+
+    def strfunc(self):
+        return "Etape & Transitions: {0} {1}".format(self.uid, self.actions)
 
     def __repr__(self):
         return self.__str__()
@@ -176,7 +179,7 @@ class Scene:
         for etape in self.cartes[settings["uName"]]:
             fsm = ScenarioFSM(etape.uid)
             fsm.start(etape)
-            pool.FSM.append(fsm)
+            scenario.FSM.append(fsm)
 
     def __str__(self):
         return "Scene : {0}".format(self.uid)
@@ -189,7 +192,7 @@ class Carte:
     """
     This class define a Carte which is only a unique name and a device type
     """
-    def __init__(self, uid, device):
+    def __init__(self, uid, device, media=list()):
         """
         :param uid: Unique ID
         :param device: Device type of the card
@@ -197,6 +200,7 @@ class Carte:
         """
         self.uid = uid
         self.device = device
+        self.media = list(media)
 
     def __str__(self):
         return "Carte : {0}".format(self.uid)
@@ -229,8 +233,8 @@ class Device:
         log.log("raw", "Launching manager devices")
         for manager in self.managers.values():
             log.log("raw", "--  manager devices {0} launch..".format(manager.uid))
-            pool.DEVICE_FSM.append(ScenarioFSM(manager.uid))
-            pool.DEVICE_FSM[-1].start(manager)
+            scenario.DEVICE_FSM.append(ScenarioFSM(manager.uid))
+            scenario.DEVICE_FSM[-1].start(manager)
 
     def __str__(self):
         return "Device : {0}".format(self.uid)
