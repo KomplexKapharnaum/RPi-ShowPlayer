@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=
 LDFLAGS=-lwiringPi
-@echo PROCESSOR_ARCHITECTURE
+  @echo $(PROCESSOR_ARCHITECTURE)
 EXEC=hardware
 SRC= $(wildcard *.cpp)
 OBJ= $(SRC:.cpp=.o)
