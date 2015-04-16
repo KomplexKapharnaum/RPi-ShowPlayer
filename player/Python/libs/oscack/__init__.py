@@ -50,6 +50,10 @@ def start_protocol():
     if settings.get("sync", "enable"):
         sync_machine.start(protocol.scenariosync.step_init)
         machine_waiting_osc.append(sync_machine)
+    media_sync_machine = protocol.mediasync.machine
+    if settings.get("sync", "media"):
+        media_sync_machine.start(protocol.mediasync.step_init)
+        machine_waiting_osc.append(media_sync_machine)
 
 
 def stop_protocol():
