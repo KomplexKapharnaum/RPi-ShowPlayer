@@ -56,6 +56,7 @@ def init(flag):
     :param flag:
     :return:
     """
+    flag = fsm.Flag("INIT")
     global monitor_udev
     global async_monitor_udev
     monitor_udev = pyudev.Monitor.from_netlink(context_udev)
