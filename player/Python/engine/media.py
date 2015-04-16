@@ -266,6 +266,7 @@ class UdevThreadMonitor(threading.Thread):
         :param machine: FSM to prevent on mounted partition
         :param flag: Flag to trig on mount
         """
+        threading.Thread.__init__(self)
         self.monitor = monitor
         self.machine = machine
         self.flag = flag
