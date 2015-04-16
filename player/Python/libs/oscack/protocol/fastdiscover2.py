@@ -190,8 +190,9 @@ def server_sync(flag):
 
 def client_sync(flag):
     target = message.Address(flag.args["src"].get_hostname())
-    msg = msg_pong.get(**kwargs_pong)
+    # msg = msg_pong.get(**kwargs_pong)
     def catch_ping(path, args, types, src):
+        log.log("raw", "catch ping from {0}".format(target))
         # BEGIN # TIME CRITICAL
         message.send(target, msg_pong.get(**kwargs_pong))
         # END # TIME CRITICAL
@@ -213,6 +214,7 @@ def client_get_sync(path, args, types, src):
                                          float(args[2] / 1000000000)))
     # END # TIME CRITICAL
     libs.oscack.DNCserver.ackServer.del_method("/rtp/ping", None)
+    libs.oscack.DNCserver.ackServer.del_method("/rtp/sync", None)
     machine.append_flag(flag_get_sync.get())
     if r != 0:
         log.error("Can't set time system, error code {err}".format(err=r))
