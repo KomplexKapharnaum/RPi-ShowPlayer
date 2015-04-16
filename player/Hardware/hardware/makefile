@@ -1,6 +1,7 @@
 UNAME := $(shell uname)
 $(warning $(UNAME))
 UNAME_P := $(shell gcc -dumpmachine)
+$(warning $(UNAME_P))
 CC=g++
 CFLAGS=
 LDFLAGS=-lwiringPi
