@@ -72,7 +72,7 @@
 
     .linename
     {
-      height:40px;
+      height:30px;
       background-color:#EEEEEE;
       display:block;
       line-height:36px;
@@ -91,7 +91,7 @@
     .block
     {
       width:50px;
-      height:40px;
+      height:30px;
       padding:0px;
       background-color:#B5B5B5;
       display:inline-block;
@@ -103,7 +103,7 @@
 
     .line
     {
-      height:40px;
+      height:30px;
       background-color:#EEEEEE;
       /*display:block;*/
       position: relative;
