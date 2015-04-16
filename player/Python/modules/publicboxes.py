@@ -2,7 +2,7 @@ from engine.threads import patcher
 from engine.fsm import Flag
 from engine.log import init_log
 from engine.setting import settings
-from scenario import publicbox
+from modules import publicbox
 log = init_log("publicbox")
 
 #

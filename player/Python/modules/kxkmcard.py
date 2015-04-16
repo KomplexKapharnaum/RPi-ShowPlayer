@@ -5,7 +5,7 @@
 #
 import re
 from _classes import ExternalProcess, module
-from scenario import link, exposesignals
+from modules import link, exposesignals
 from engine.log import init_log
 from engine.setting import settings
 from libs.oscack.utils import get_ip, get_platform

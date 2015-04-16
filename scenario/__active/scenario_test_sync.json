@@ -3,7 +3,7 @@
         {
             "allArgs": {
                 "dest": [
-                    "All"
+                    "Pi1"
                 ]
             }, 
             "arguments": {}, 
@@ -11,10 +11,10 @@
             "category": "GENERAL", 
             "dispoBOO": true, 
             "dispositifs": [
-                "All"
+                "Pi1"
             ], 
             "name": "START", 
-            "positionX": 444, 
+            "positionX": 445, 
             "positionY": 111
         }, 
         {
