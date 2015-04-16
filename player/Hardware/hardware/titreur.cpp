@@ -182,7 +182,7 @@ void Titreur::testScreen(){
 }
 
 void Titreur::printScreen(){
-  fprintf(stderr, "%sprint  %u",debug.c_str(),m);
+  fprintf(stderr, "%sprint : ",debug.c_str());
   for (int m=0; m<nb_module; m++) {
   *output = 160;
   fprintf(stderr, "module %u",m);
