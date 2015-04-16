@@ -6,15 +6,15 @@ LDFLAGS=-lwiringPi
 EXEC=
 
 ifeq (,$(findstring arm7,$(UNAME_P)))
-  $(warning rpiB2 -> build hardware7)
+	$(warning rpiB2 -> build hardware7)
 else
-  $(warning rpiA+/B+ -> build hardware6)
+	$(warning rpiA+/B+ -> build hardware6)
 endif
 
 ifeq (,$(findstring arm7,$(UNAME_P)))
-  EXEC+=hardware7
+	EXEC+=hardware7
 else
-  EXEC+=hardware6
+	EXEC+=hardware6
 endif
 
 SRC= $(wildcard *.cpp)
@@ -36,7 +36,7 @@ main.o: $(H)
 clean:
 	rm -rf *.o
 clean:
-  rm -rf $(EXEC)
+	rm -rf $(EXEC)
 
 mrproper: clean
 	rm -rf $(EXEC)
