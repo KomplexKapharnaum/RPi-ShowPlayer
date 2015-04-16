@@ -141,7 +141,7 @@ def trans_usb_have_dnc_media(flag):
     for f in os.listdir(path):
         usb_path = os.path.join(path, f, "dnc", "media")
         log.log("raw", "Check for {0}".format(usb_path))
-        if os.path.ismount(path):
+        if os.path.exists(path):
             log.log("raw", "Found partition path {0}".format(usb_path))
             if os.path.exists(os.path.join(usb_path, "dnc", "media")):
                 log.log("raw", "There is a dnc/media directory, continue..")
