@@ -69,7 +69,7 @@ volatile byte adress = 0;
 #define T_MODEBASE 1
 
 
-char menu[T_NBMENU][16] = {"start scene","restart scene","next scene","blink group","poweroff","reboot","test routine"};
+char menu[T_NBMENU][16] = {"previous scene","restart scene","next scene","blink group","poweroff","reboot","test routine"};
 
 byte Value[T_REGISTERSIZE];
 byte newValue[T_REGISTERSIZE];
@@ -308,7 +308,7 @@ void checkInput() {
       if(T_DECINPIN+i==T_PUSHROTARY){
         if( 1-digitalRead(inpin[i])==1) {
           if (abs(positionLeft)%(T_NBMENU+nbmenuinfo)<T_NBMENU){
-            newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+nbmenuinfo);
+            newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+nbmenuinfo)+1;
           }else {
             newValue[T_DECINPIN + i] =250;
           }

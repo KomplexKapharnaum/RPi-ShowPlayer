@@ -39,7 +39,7 @@ void Teleco::start(){
 
 
 void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
-  fprintf(stderr, "teleco send infos : %s / %s / %s / %s\n",Str1,Str2, Str3, Str4);
+  //fprintf(stderr, "teleco send infos : %s / %s / %s / %s\n",Str1,Str2, Str3, Str4);
   unsigned char buff[68];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
   for(int i=0;i<16;i++){
