@@ -222,9 +222,8 @@ int parseInput(){
       }
       char mess1[17];
       char mess2[17];
-      sprintf(mess1,"%s",popup1);
-      sprintf(mess2,"%s",popup2);
-
+      sprintf(mess1,"%s",popup1.c_str());
+      sprintf(mess2,"%s",popup2.c_str());
       myteleco.sendPopUp(mess1,mess2);
     }
 
