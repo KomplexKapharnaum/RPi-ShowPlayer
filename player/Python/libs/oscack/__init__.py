@@ -47,7 +47,7 @@ def start_protocol():
         protocol.discover.add_flag_send_iamhere()
         machine_waiting_osc.append(discover_machine)
     sync_machine = protocol.scenariosync.machine
-    if settings.get("sync", "enable"):
+    if settings.get("sync", "scenario"):
         sync_machine.start(protocol.scenariosync.step_init)
         machine_waiting_osc.append(sync_machine)
     media_sync_machine = protocol.mediasync.machine
