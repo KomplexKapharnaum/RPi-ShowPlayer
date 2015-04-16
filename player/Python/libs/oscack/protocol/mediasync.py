@@ -46,8 +46,8 @@ context_udev = pyudev.Context()
 monitor_udev = None  # future Udev monitor
 async_monitor_udev = None  # future observer for udev monitor
 
-
-
+needed_media_list = None
+unwanted_media_list = None
 
 
 def init(flag):
@@ -59,14 +59,15 @@ def init(flag):
     flag = fsm.Flag("INIT")
     global monitor_udev
     global async_monitor_udev
+    global needed_media_list
+    global unwanted_media_list
     monitor_udev = pyudev.Monitor.from_netlink(context_udev)
     monitor_udev.filter_by('block')  # get only block information
     monitor_udev.start()
     async_monitor_udev = media.UdevThreadMonitor(monitor_udev, machine, flag_usb_plugged)
     # TODO get the needed media list from scenario
-    flag.args["_fsm"].vars["needed_media_list"] = media.MediaList()  # here come the media list
-    flag.args["_fsm"].vars["unwanted_media_list"] = media.get_unwanted_media_list(
-        flag.args["_fsm"].vars["needed_media_list"])
+    needed_media_list = media.MediaList()  # here come the media list
+    unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
     flag.args["timeout"] = settings.get("sync", "timeout_wait_syncflag")
 
 
@@ -156,9 +157,10 @@ def trans_need_media_in(flag):
     :param flag: need args : files_to_test, trans_need, trans_end
     :return:
     """
+    global needed_media_list
     while len(flag.args["files_to_test"]) > 0:
         f = flag.args["files_to_test"].pop()
-        if flag.args["_fsm"].vars["needed_media_list"].need(f):
+        if needed_media_list.need(f):
             flag.args["get_media"] = f
             return flag.args["trans_enough_place"]
     return flag.args["trans_end"]
@@ -193,12 +195,13 @@ def trans_can_free(flag):
     :param flag: args need : get_media,
     :return:
     """
-    if len(flag.args["_fsm"].vars["unwanted_media_list"]) < 1:
+    global unwanted_media_list
+    if len(unwanted_media_list) < 1:
         flag.args["error"] = "Not enough space, there no left media to remove, need {0}, only have {1}".format(
             flag.args["get_media"].filesize,
             flag.args["free_space"])
         return step_error
-    elif flag.args["_fsm"].vars["unwanted_media_list"].total_space() + flag.args["free_space"] < flag.args["get_media"].filesize:
+    elif unwanted_media_list.total_space() + flag.args["free_space"] < flag.args["get_media"].filesize:
         flag.args["error"] = "Not enough space, need {0}, only have {1}".format(flag.args["get_media"].filesize,
                                                                                 flag.args["free_space"])
         return step_error
@@ -212,11 +215,12 @@ def remove_media(flag):
     :param flag:
     :return:
     """
-    if len(flag.args["_fsm"].vars["unwanted_media_list"]) < 1:
+    global unwanted_media_list
+    if len(unwanted_media_list) < 1:
         log.error("There is no left media to remove")
         return None
-    media_to_remove = flag.args["_fsm"].vars["unwanted_media_list"].get_smaller_media()
-    flag.args["_fsm"].vars["unwanted_media_list"].remove(media_to_remove)   # Assume delete or undeletable
+    media_to_remove = unwanted_media_list.get_smaller_media()
+    unwanted_media_list.remove(media_to_remove)   # Assume delete or undeletable
     if not media_to_remove.remove_from_fs():
         log.error("Unable to remove {0}".format(media_to_remove))
 
