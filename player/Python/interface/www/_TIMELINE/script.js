@@ -664,7 +664,10 @@
           }
       })
       .done(function(filelist) {
-        var scenariosList = JSON.parse(filelist);
+        var scenariosList = filelist;
+        if( Object.prototype.toString.call( scenariosList ) !== '[object Array]' ) {
+          scenariosList = JSON.parse(scenariosList);
+        }
         $.each(scenariosList,function(index,name){
           if (name !== 'library.json'){
             var newname = name.replace('.json','');
@@ -1090,7 +1093,10 @@
           }
       })
       .done(function(filelist) {
-        var alltime = JSON.parse(filelist);
+        var alltime = filelist;
+        if( Object.prototype.toString.call( alltime ) !== '[object Array]' ) {
+          alltime = JSON.parse(alltime);
+        }
         $.each(alltime,function(index,name){
             var newname = name.replace('.json','');
             allTimelines.push(newname);

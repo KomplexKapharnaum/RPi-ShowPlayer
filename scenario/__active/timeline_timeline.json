@@ -11,8 +11,7 @@
                     "name": "block1", 
                     "position": 0, 
                     "scenarios": [
-                        "play_video", 
-                        "play_audio"
+                        "SC1_playvideo"
                     ], 
                     "start": 0
                 }
@@ -34,7 +33,7 @@
                     "name": "block1", 
                     "position": 0, 
                     "scenarios": [
-                        "play_video"
+                        "SC1_playvideo"
                     ], 
                     "start": 0
                 }

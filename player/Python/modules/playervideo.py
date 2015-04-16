@@ -95,6 +95,7 @@ def video_player(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
+    log.debug('+++ {0}'.format(flag))
     # flag.args['media']
     # flag.args["args"][0]
     if "video" in kwargs["_fsm"].vars.keys():
