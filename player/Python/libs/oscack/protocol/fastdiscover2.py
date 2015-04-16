@@ -161,7 +161,7 @@ def server_sync(flag):
         message.send(target, msg_ping.get(**kwargs_ping))
     # libs.oscack.DNCserver.ackServer.del_method("/rtp/pong", None)
     # libs.oscack.DNCserver.ackServer.add_method("/rtp/pong", None, catch_pong)
-    add_method_before_patcher("/rtp/pong", None)
+    add_method_before_patcher("/rtp/pong", None, catch_pong)
     network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
                             flag_timeout_task_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))   # TODO check if work
