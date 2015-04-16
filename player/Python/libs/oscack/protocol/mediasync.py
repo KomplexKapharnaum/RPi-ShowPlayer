@@ -275,7 +275,7 @@ step_main_wait = fsm.State("STEP_MAIN_WAIT", function=_pass, transitions={
 
 step_send_sync_flag = fsm.State("STEP_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
     flag_timeout.uid: step_main_wait,              # TODO : Go to first sync instead of main wait
-    msg_sync_flag.flag_name: "ERROR"        # TODO : Implement newer sync flag ?
+    # msg_sync_flag.flag_name: "ERROR"        # TODO : Implement newer sync flag ?
 })
 
 step_init = fsm.State("INIT_SYNC_MEDIA", function=init, transitions={
