@@ -26,4 +26,10 @@ clean:
 mrproper: clean
 	rm -rf $(EXEC)
 all:
-  $(warning arch -$(OS) -$(PROCESSOR_ARCHITECTURE) -$(UNAME_S) -$(UNAME_P) -$(UNAME))
+  $(warning arch -$(UNAME_P))
+
+ifneq ($(filter arm7%,$(UNAME_P)),)
+  $(warning arm7)
+else
+  $(warning arm6)
+endif
