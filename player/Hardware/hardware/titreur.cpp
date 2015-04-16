@@ -123,7 +123,7 @@ void Titreur::putChar(int x, int y, char c){
 
 void Titreur::text(int x, int y,char Str1[]){
   messageLength = cleanCharArray(Str1);
-  fprintf(stderr,"titreur - drawtext %u\n\r",messageLength);
+  fprintf(stderr,"titreur - drawtext %u -",messageLength);
   for (int i =0; i<messageLength ; i++){
     putChar(x+(i)*6, y,Str1[i]);
   }
