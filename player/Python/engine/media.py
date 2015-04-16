@@ -230,6 +230,7 @@ def mount_partition(block_path, mount_path):
         mount_cmd.stop()
         return False
     mount_cmd.stop()
+    return True
 
 
 def umount_partitions():
