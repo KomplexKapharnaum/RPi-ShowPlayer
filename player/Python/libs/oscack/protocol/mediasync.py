@@ -68,7 +68,7 @@ def init(flag):
     async_monitor_udev = media.UdevThreadMonitor(monitor_udev, machine, flag_usb_plugged)
     async_monitor_udev.start()
     # TODO get the needed media list from scenario
-    from_scenario_wanted = ["text/blabla.txt", ]
+    from_scenario_wanted = ["text/blabla.txt", "drums.wav", "sintel.mp4"]
     needed_media_list = media.MediaList()         # here come the media list
     for f in from_scenario_wanted:
         fmedia = media.Media.from_scenario(f)
