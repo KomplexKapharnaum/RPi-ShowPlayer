@@ -5,9 +5,9 @@
 #
 #
 import os
-from modules import ExternalProcess
+from _classes import ExternalProcess, module
+from modules import link
 from engine.setting import settings
-from scenario import link, module
 from engine.log import init_log
 log = init_log("audio")
 
@@ -22,7 +22,7 @@ class VlcAudio(ExternalProcess):
         self.start()
 
     def play(self, filename=None, repeat=None):
-        media = os.path.join(settings.get("path", "media"),filename) if filename is not None else self.media
+        media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             self.say("clear")
@@ -52,7 +52,7 @@ class Mpg123(ExternalProcess):
         self.onClose = "AUDIO_EVENT_STOP"
 
     def play(self, filename=None, repeat=None):
-        media = os.path.join(settings.get("path", "media"), filename) if filename is not None else self.media
+        media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             self.repeat = repeat
@@ -69,7 +69,7 @@ class Mpg123(ExternalProcess):
 
 
 # ETAPE AND SIGNALS
-@module()
+@module('AudioPlayer')
 @link({"/audio/play [media] [repeat]": "audio_play",
         "/audio/pause": "audio_pause",
         "/audio/stop": "audio_stop"})

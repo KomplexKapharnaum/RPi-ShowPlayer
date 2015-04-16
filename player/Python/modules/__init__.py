@@ -1,142 +1,137 @@
 # -*- coding: utf-8 -*-
 import os
+from scenario.classes import Patch, Etape
+from engine.log import init_log
+log = init_log("modules")
 
-import shlex
-import threading
+MODULES = dict()
+DECLARED_FUNCTIONS = dict()
+DECLARED_ETAPES = dict()
+DECLARED_SIGNALS = dict()
+DECLARED_PATCHER = dict()
+DECLARED_OSCROUTES = dict()
+DECLARED_TRANSITION = dict()
+DECLARED_PUBLICSIGNALS = []
+DECLARED_PUBLICBOXES = dict()
 
-from libs.subprocess32 import Popen, PIPE
-from engine.threads import patcher
-from engine.tools import register_thread, unregister_thread
-from engine.fsm import Flag
-from engine.setting import settings
-from engine.log import init_log, dumpclean
-log = init_log("modules", log_lvl="raw")
-
-
-# GENERIC THREAD TO HANDLE EXTERNAL PROCESS
-class ExternalProcess(object):
+class globalfunction(object):
     """
-    Watchdog thread to control external processes
+    This is a decorator which declare function in scenario scope
     """
-    def __init__(self, name=None):
+    def __init__(self, public_name=None):
         """
-        :return:
+        :param public_name: Name of the function in the scenario scope
         """
-        self.name = name
-        self._watchdog = None
-        self._running = threading.Event()
-        self._popen = None
-        self.command = ''
-        self.stderr = None
-        self.onOpen = None
-        self.onClose = None
-        if name:
-            self.executable = settings.get("path", name)
-            self.command = self.executable
+        self.public_name = public_name
 
-    def start(self):
+    def __call__(self, f):
+        if self.public_name is None:
+            self.public_name = f.__name__
+        global DECALRED_FUNCTIONS
+        DECLARED_FUNCTIONS[self.public_name] = f
+        return f
+
+
+class globalpatcher(object):
+    """
+    This is a decorator which declare function as patcher in scenario scope
+    """
+    def __init__(self, public_name=None, trigger_signal=None, options=dict()):
         """
-        Start the external process
-        :return:
+        :param public_name: Name of the function in the scenario scope
         """
-        self.stop()# Stop current process
-        self._watchdog = threading.Thread(target=self._watch)
-        logfile = settings.get("path", "logs")+'/'+self.name+'.log'
-        try:
-            self.stderr = open(logfile, 'w')
-        except IOError:
-            log.warning("There is no where ({0}) to put log of {1}".format(logfile, self.name))
-            self.stderr = None
-        self._running.set()
-        self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
-                                         preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None,
-                                         universal_newlines=False, startupinfo=None, creationflags=0)
-        self._watchdog.start()
-        register_thread(self)
-        if self.onOpen:
-            patcher.patch(Flag(self.onOpen).get())
+        self.public_name = public_name
+        self.trigger_signal = trigger_signal
+        self.options = options
 
-    def stop(self):
+    def __call__(self, f):
+        if self.public_name is None:
+            self.public_name = f.__name__
+        global DECLARED_PATCHER
+        DECLARED_PATCHER[self.public_name] = Patch(self.public_name, self.trigger_signal, (f, self.options))
+        return f
+
+
+class oscpatcher(globalpatcher):
+    def __init__(self, public_name=None, trigger_signal="RECV_MSG", options=dict()):
+        globalpatcher.__init__(self, public_name, trigger_signal, options)
+
+
+class globaletape(object):
+    """
+    This is a decorator which declare function as etape in scenario scope
+    """
+    def __init__(self, uid=None, transitions=dict(), options=dict()):
         """
-        Ask to stop the external process
-        :return:
+        :param public_name: Name of the function in the scenario scope
         """
-        if self.is_running():
-            if self._popen.poll():
-                self._popen.terminate()  # Send SIGTERM to the player, asking to stop
-            self._watchdog.join(timeout=0.1)  # Waiting maximum of 250 ms before killing brutaly the processus
-            if self._watchdog.is_alive():
-                #os.system("sudo kill %d"%(self._popen.pid))
-                self._popen.kill()  # Send SIGNKILL to brutaly kill the process
-            unregister_thread(self)
-        self.join()# Wait for watchdog thread to terminate
+        self.uid = uid
+        self.options = options
+        self.transitions = transitions
 
-    def is_running(self):
-        return self._running.is_set()
+    def __call__(self, f):
+        global DECLARED_ETAPES, DECLARED_TRANSITION
+        DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
+        DECLARED_TRANSITION[self.uid] = self.transitions
+        return self.uid
 
-    def say(self, message):
-        if self.is_running():
-            self._popen.stdin.write(message+"\n")
-            log.log("raw"," "+message)
-        else:
-            # log.log("debug", "Message aborted, Thread not active ")
-            pass
 
-    def _watch(self):
-        """
-        This function wait the process to end and add a signal when it appends
-        :return:
-        """
-        #self._popen.wait()
-        lines_iterator = iter(self._popen.stdout.readline, b"")
-        for line in lines_iterator:
-            line = line.strip()
-            # log.log("raw",self.name.upper()+" SAYS: "+line)
-            # cmd = line.split(' ')[0]
-            # args = line.split(' ')[1:]
-            if line[0] == '#':
-                self.onEvent(line.split(' '))
-        if self.onClose:
-            patcher.patch(Flag(self.onClose).get())
-        self._running.clear()
-        if self.stderr is not None:
-            self.stderr.close()
+class publicbox(object):
+    def __init__(self, args='', start=False):
+        self.start = start
+        self.args = [arg.strip('[').strip(']') for arg in args.split(' ')]
 
-    def join(self, timeout=None):
-        """
-        Join the video player to end
-        :return:
-        """
-        if not self._watchdog:
-            return True
-        return self._watchdog.join(timeout=timeout)
+    def __call__(self, f):
+        global DECLARED_PUBLICBOXES
+        DECLARED_PUBLICBOXES[f.__name__.upper()+'_PUBLICBOX'] = {'function': f,
+                                                                    'args': self.args,
+                                                                    'start': self.start}
 
-    @staticmethod
-    def setFilters():
-        return {}
 
-    def onEvent(self, args=dict()):
-        args[0] = args[0][1:]
-        doEmmit = True
-        filters = self.setFilters()
-        if args[0] in filters.keys():
-            filz = filters[ args[0] ][0]
-            if not isinstance(filz, list):
-                filz = [filz]
-            for fn in filz:
-                doEmmit = fn(self, args) and doEmmit
-        if doEmmit:
-            self.emmit(args)
+class link(globaletape):
+    """
+    This is a decorator which declare function as etape
+    The signal is added
+    If an osc path is supplied, it is converted into signal, 
+    and the corresponding patch is added
+    """
+    def __init__(self, routes=dict()):
+        globaletape.__init__(self, None, dict(), dict())
+        self.oscroutes = routes
 
-    def emmit(self, args=dict()):
-        signal_name = args[0].upper()
-        log.log("raw", signal_name+' '+' '.join(args[1:]))
-        flag = Flag(signal_name).get(args={"args": args[1:]})
-        patcher.patch(flag)
+    def __call__(self, f):
+        self.uid = f.__name__.upper()
+        global DECLARED_OSCROUTES
+        for osccmd in self.oscroutes.keys():
+            if osccmd is None or osccmd == '':
+                # None transition
+                signal_osc = None
+                oscpath = None
+            else:
+                oscpath = osccmd.split(' ')[0]
+                oscargs = osccmd.split(' ')[1:]
+                
+                # OSC Transition => create patch + etape sender
+                if oscpath[0] == '/':
+                    # log.debug("DECLARE ROUTE: "+oscpath+" -> "+signal_osc) 
+                    signal_osc = oscpath.replace('/','_')[1:].upper()
+                    args = [arg[1:-1] for arg in oscargs]
+                    args.append('dispo')
+                    DECLARED_OSCROUTES[oscpath] = {'signal': signal_osc,
+                                                    'args': args}
+                # Internal transition
+                else:
+                    signal_osc = oscpath.upper()
+            # Add transition
+            self.transitions[signal_osc] = self.oscroutes[osccmd].upper()
+        return super(link, self).__call__(f)
 
-    def __del__(self):
-        log.log("raw", "Module thread destroyed")
-        pass
+
+def exposesignals(sigs=dict()):
+    global DECLARED_PUBLICSIGNALS
+    for key, filter in sigs.items():
+        if len(filter) > 0 and filter[-1] is True:
+            DECLARED_PUBLICSIGNALS.append(key)
 
 
 

@@ -107,22 +107,11 @@ void Titreur::plot(int x,int y,int val){
 
 
 void Titreur::putChar(int x, int y, char c){
-  unsigned char cc ;
-  unsigned char dots=0;
-  if (c<' ' && c>=0){cc=0;}
-  else if (c <= 'z' && c >= ' ') {
-    cc =c-32;   // A-Z maps to 1-26
-  } else if (c < 0) {
-    cc = (unsigned char)c;
-    //Serial.print(cc,DEC);
-    cc =cc+64-101;
-  } else {
-    cc=0;
-  }
-  fprintf(stderr, "putchar %c code=%u tab=%u",c,c,cc);
-  
+  fprintf(stderr, "%c(%u)",c,c);
+  c-=32;
+
   for (char col=0; col< 6; col++) {
-    int dots = myfont[cc][col];
+    int dots = myfont[c][col];
     for (char row=0; row < 8; row++) { // only 8 rows.
       if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
     }

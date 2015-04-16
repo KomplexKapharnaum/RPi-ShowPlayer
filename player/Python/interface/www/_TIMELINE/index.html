@@ -25,7 +25,7 @@
 
 
       <div id = "colonne1">
-        <div id="allKeys"></div>
+        <div id="allscenes"></div>
         <div id="allpi"></div>
       </div>
 
@@ -38,8 +38,8 @@
           </select>
           <input type="button" id="clearBtn" class="btn" value="CLEAR" />
           <input type="button" id="saveBtn" class="btn" value="SAVE" />
-          <input type="button" id="loadBtn" class="btn" value="LOAD" />
-          <input type="button" id="openInfos" class="btn" value="?" /><br><br>
+          <input type="button" id="loadBtn" class="btn" value="LOAD" /><br><br>
+          <!-- <input type="button" id="openInfos" class="btn" value="?" /><br><br> -->
 					<input type="checkbox" class="check" id="tooltipsOnoff"/>
 					<label for="tooltipsOnoff" name="openInfos" class="css-label">SHOW INFOS</label>
 
@@ -47,12 +47,21 @@
         </div>
 
 
+          <div class="title">SCENE</div>
+          <div class="properties">
+            <div id="scenename" class="name">Select...</div>
+            <input  type="button" id="delSceneButton" class="btn2" value="-">
+            <br>
+          </div>
+
+
 
         <div class="title">DISPO</div>
         <div class="properties">
             <div id="piname" class="name">Select...</div>
             <input  type="button" id="delPiButton" class="btn2" value="-">
-            <br><br>
+            <br>
+            <select name="disposelector" id="disposelector" class="dropdown"></select><br><br>
             <div class="form-group">
                 <select id="disposms" multiple="multiple">
                 </select>
@@ -66,10 +75,10 @@
           <div id="blocknameVisu" class="name">Select...</div>
           <input  type="button" id="delBlockButton" class="btn2" value="-">
           <br><br>
-          <div>Scene<br><br>
-            <select name="sceneselector" id="sceneselector" class="dropdown">
+          <div>group<br><br>
+            <select name="groupselector" id="groupselector" class="dropdown">
             </select>
-            <input  type="button" id="opensceneeditor" class="btn2" value="..."><br><br>
+            <input  type="button" id="opengroupeditor" class="btn2" value="..."><br><br>
           </div>
           <div>Scenarios<br><br>
               <div class="form-group">
@@ -89,7 +98,7 @@
 
       <div id = "colonne3">
 
-        <div id = "dispoeditor" style='display:none' class='inspector'>
+        <!-- <div id = "dispoeditor" style='display:none' class='inspector'>
           <div class="title">Dispositifs
             <input  type="button" id="closedispoeditor" class="closebtn" value="x">
           </div>
@@ -100,15 +109,15 @@
             <input  type="button" id="modifdispobtn" class="btn" value="Edit">
             <input  type="button" id="deldispobtn" class="btn" value="-">
           </div>
-        </div>
+        </div> -->
 
-        <div id = "sceneseditor" style='display:none' class='inspector'>
-          <div class="title">Scenes
-            <input  type="button" id="closesceneditor" class="closebtn" value="x">
+        <div id = "groupseditor" style='display:none' class='inspector'>
+          <div class="title">groups
+            <input  type="button" id="closegroupditor" class="closebtn" value="x">
           </div>
           <div class="properties">
             <br>
-            <input id="scenename" class="textarea" value="Default"><br><br>
+            <input id="groupname" class="textarea" value="Default"><br><br>
             <input  type="button" id="addbtn" class="btn" value="+">
             <input  type="button" id="modifbtn" class="btn" value="Edit">
             <input  type="button" id="delbtn" class="btn" value="-">

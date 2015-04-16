@@ -9,15 +9,19 @@ CREATE_NEW_PROCESS_GROUP = 512
 
 import libs.oscack
 from libs.oscack import message
-from scenario import globalfunction
+from modules import globalfunction
 from engine.setting import settings
 from engine.threads import scenario_scheduler, patcher
 from scenario import pool
 from engine.fsm import Flag
-from engine.log import init_log, dumpclean
+from engine.log import init_log
 
 log = init_log("tools")
 
+def get_wanted_media():
+    if settings.get('uName') in pool.Cartes.keys():
+        return pool.Cartes[ settings.get('uName') ].media
+    return None
 
 @globalfunction("ADD_TIMER")
 def add_timer(*args, **kwargs):
@@ -38,11 +42,13 @@ def auto_transit(*args, **kwargs):
     If an Etape has no out transition, it adds an auto transition to parent Etape
     :return:
     """
+    log.log('debug', kwargs['_etape'].strtrans())
     if len(kwargs['_etape'].transitions) == 0:
         parent = None
         for parent in reversed(kwargs['_fsm'].history):
             if parent.is_blocking():
                 kwargs['_etape'].transitions[None] = parent
+                kwargs['_etape']._localvars['emptytransit'] = True
                 return
         
         log.warning('NO BLOCKING PARENT FOUND')
@@ -55,7 +61,10 @@ def remove_transitions(*args, **kwargs):
     If an Etape use auto_transit, we must clean transitions before leaving
     :return:
     """
-    kwargs['_etape'].transitions = dict()
+    if 'emptytransit' in kwargs['_etape']._localvars.keys():
+        if kwargs['_etape']._localvars['emptytransit']:
+            kwargs['_etape'].transitions = dict()
+            kwargs['_etape']._localvars['emptytransit'] = False
 
 
 @globalfunction("ADD_SIGNAL")
@@ -202,3 +211,4 @@ def reboot_manager(*args, **kwargs):
     #                    bufsize=0, executable=None, stdin=None, stdout=None, stderr=None, preexec_fn=os.setsid,
     #                    close_fds=False, shell=False, cwd=None, env=None, universal_newlines=False, startupinfo=None,
     #                    creationflags=0)
+

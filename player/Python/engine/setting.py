@@ -19,7 +19,7 @@ DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
 DEFAULT_SETTING["current_timeline"] = "DEFAULT_TIMELINE"
-
+DEFAULT_SETTING["version"] = '0.1'
 
 DEFAULT_SETTING["localport"] = dict()
 DEFAULT_SETTING["localport"]["inhplayer"] = 9000
@@ -29,27 +29,49 @@ DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
 DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
 DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
+
 DEFAULT_SETTING["path"]["media"] = "/dnc/media"
+DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
+DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
+DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
+
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
+DEFAULT_SETTING["path"]["cp"] = "/usr/bin/cp"
+DEFAULT_SETTING["path"]["umount"] = "/usr/bin/umount"
+DEFAULT_SETTING["path"]["mount"] = "/usr/bin/mount"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
+DEFAULT_SETTING["path"]["usb"] = "/dnc/usb"
 DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
 DEFAULT_SETTING["path"]["activescenario"] = "/dnc/scenario/__active"
 DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
-DEFAULT_SETTING["path"]["kxkmcard"] = "/dnc/player/Hardware/hardware/hardware"
+DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hardware6"
+DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
 DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
-DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-autoscale --zoom=0.35 --no-osd"
-DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc  --no-autoscale --zoom=0.35 --no-osd"
+DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7 --play-and-exit"
+DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd --zoom=0.7 --play-and-exit" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
+DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
 
 DEFAULT_SETTING["sync"] = dict()
-DEFAULT_SETTING["sync"]["video"] = True                 # Explain if the scyn protocol must sync video or not
-DEFAULT_SETTING["sync"]["enable"] = True                # Put False to disable sync
+DEFAULT_SETTING["sync"]["video"] = False                # Explain if the scyn protocol must sync video or not
+DEFAULT_SETTING["sync"]["media"] = True                 # GLOBAL Put False to disable only media sync
+DEFAULT_SETTING["sync"]["scenario"] = True              # GLOABL Put False to disable only scenario sync
+DEFAULT_SETTING["sync"]["enable"] = True                # GLOBAL Put False to disable sync
+DEFAULT_SETTING["sync"]["flag_timestamp"] = 0           # flag_timestamp
 DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the same group to be sync
 DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 30   # 30 seconds
 DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
+DEFAULT_SETTING["sync"]["usb_mount_timeout"] = 5        # 5 seconds max for mounting/unmounting usb device
+DEFAULT_SETTING["sync"]["usb_speed_min"] = 5000         # (Ko/s) Behind 5 Mo/s it's not intresting to usb usb sync
+DEFAULT_SETTING["sync"]["protected_space"] = 20000      # (Ko) Space protected to keep the rest of the project safe
+DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3    # Wait 3 sec, if no newer flag, we are update
+DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2    # 2 sec before remove mount point
+
+
+DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']
 
 DEFAULT_SETTING["scenario"] = dict()
 DEFAULT_SETTING["scenario"]["date_format"] = "%Y-%m-%d_%H:%M:%S"
@@ -61,6 +83,7 @@ DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.500  # time delta before run 
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
+DEFAULT_SETTING["media"]["usb_mount_timeout"] = 3       # 3 sec max for mount before killing it
 
 DEFAULT_SETTING["OSC"] = dict()
 DEFAULT_SETTING["OSC"]["iamhere_interval"] = 5
@@ -89,6 +112,10 @@ DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
+
+
+DEFAULT_SETTING["temp"] = dict()            # TEMP SETTINGS FOR TEST
+DEFAULT_SETTING["temp"]["wanted_media"] = ["text/blabla.txt", "drums.wav", "sintel.mp4", "drums.mp3", "mistake.mp3"]
 
 
 class Settings(dict):
@@ -162,6 +189,7 @@ class Settings(dict):
 
 
 settings = Settings(os.path.expanduser(DEFAULT_SETTING_PATH))
+# status = Settings(settings.get("path", "status"))
 if not os.path.exists(settings.get("path", "tmp")):
     os.makedirs(settings.get("path", "tmp"))
 # log.info("uName set to : {0}".format(settings["uName"]))

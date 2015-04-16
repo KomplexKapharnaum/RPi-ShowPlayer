@@ -13,15 +13,14 @@ from libs.oscack import message
 from libs.oscack import BroadcastAddress
 import libs.oscack
 # import libs.oscack.message
-# import libs.oscack.DNCserver
+# import libs.oscack.
 from libs import rtplib
+import engine
 from engine.setting import settings
 from engine.tools import register_thread, unregister_thread
-from scenario import pool
-from engine.log import init_log, dumpclean
+import scenario
+from engine.log import init_log
 log = init_log("patcher")
-
-FSM_GLOBAL = list()
 
 class ThreadPatcher(threading.Thread):
     """
@@ -53,11 +52,11 @@ class ThreadPatcher(threading.Thread):
         :param signal: signal to serve
         :return:
         """
-        for fsm in pool.FSM:
+        for fsm in scenario.FSM:
             fsm.append_flag(signal)
-        for fsm in pool.DEVICE_FSM:
+        for fsm in scenario.DEVICE_FSM:
             fsm.append_flag(signal)
-        for fsm in FSM_GLOBAL:
+        for fsm in engine.MODULES_FSM.values():
             fsm.append_flag(signal)
 
     def patch(self, signal):
@@ -97,7 +96,7 @@ class ThreadPatcher(threading.Thread):
             if settings.get("scenario", "dest_group") in sendto:
                 log.log("raw", "add group in dispatch list")
                 sendto.remove(settings.get("scenario", "dest_group"))
-                sendto += [x for x in pool.CURRENT_SCENE.cartes if x not in sendto]
+                sendto += [x for x in scenario.CURRENT_SCENE.cartes if x not in sendto]
             for dest in sendto:
                 if dest in libs.oscack.DNCserver.networkmap.keys():
                     if dest != settings["uName"] or settings.get(

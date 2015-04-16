@@ -1,13 +1,14 @@
 
 # from modules import ExternalProcess
-from scenario import globaletape, module
+from _classes import module
+from modules import link
 # from engine.setting import settings
 from engine.log import init_log
 
 import threading
 from interface import server
 
-log = init_log("INTERFACE")
+log = init_log("interface")
 
 
 # Server Thread module
@@ -28,8 +29,8 @@ class Webserver():
 
 
 # ETAPE AND SIGNALS
-@module()
-@globaletape("INTERFACE_START")
+@module('WebInterface')
+@link({})
 def interface_start(flag, **kwargs):
     if "interface" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["interface"] = Webserver()

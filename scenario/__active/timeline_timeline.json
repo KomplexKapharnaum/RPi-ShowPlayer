@@ -1,0 +1,55 @@
+{
+    "pool": [
+        {
+            "blocks": [
+                {
+                    "end": 50, 
+                    "group": {
+                        "color": "218C8D", 
+                        "name": "group1"
+                    }, 
+                    "name": "block1", 
+                    "position": 0, 
+                    "scenarios": [
+                        "play_video", 
+                        "play_audio"
+                    ], 
+                    "start": 0
+                }
+            ], 
+            "modules": [
+                "AudioPlayer", 
+                "VideoPlayer"
+            ], 
+            "name": "raspi2mgr"
+        }, 
+        {
+            "blocks": [
+                {
+                    "end": 50, 
+                    "group": {
+                        "color": "D83E3E", 
+                        "name": "group2"
+                    }, 
+                    "name": "block1", 
+                    "position": 0, 
+                    "scenarios": [
+                        "play_video"
+                    ], 
+                    "start": 0
+                }
+            ], 
+            "modules": [
+                "AudioPlayer", 
+                "VideoPlayer"
+            ], 
+            "name": "Pi1"
+        }
+    ], 
+    "scenes": [
+        {
+            "name": "SC1", 
+            "position": 0
+        }
+    ]
+}

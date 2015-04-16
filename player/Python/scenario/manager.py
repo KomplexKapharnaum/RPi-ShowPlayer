@@ -8,7 +8,9 @@ import libs.oscack
 from engine.threads import patcher
 from engine import fsm
 from engine.setting import settings
-from scenario import pool, DECLARED_PATCHER
+import scenario
+#from scenario import pool, CURRENT_FRAME, CURRENT_SCENE, FSM
+from modules import DECLARED_PATCHER
 
 from engine.log import init_log
 log = init_log("manager")
@@ -20,11 +22,11 @@ def patch_msg(path, args, types, src,):
 
 def init(flag):
     log.debug("Init manager")
-    pool.CURRENT_FRAME = 0
+    scenario.CURRENT_FRAME = 0
 
     # Register Device Patchs
     # pool.Cartes[settings["uName"]].device.register_patchs()
-    for patch in pool.Cartes[settings["uName"]].device.patchs:
+    for patch in scenario.pool.Cartes[settings["uName"]].device.patchs:
         patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
 
     # Register Global Patchs
@@ -36,12 +38,12 @@ def init(flag):
 
 
 def start_scene(flag):
-    log.log("raw", "Start scene. Current Frame : {0}".format(pool.CURRENT_FRAME))
-    for sfsm in pool.FSM:
+    log.log("raw", "Start scene. Current Frame : {0}".format(scenario.CURRENT_FRAME))
+    for sfsm in scenario.FSM:
         sfsm.stop()
-        pool.FSM.remove(sfsm)
-    pool.CURRENT_SCENE = pool.Frames[pool.CURRENT_FRAME]
-    pool.CURRENT_SCENE.start()
+        scenario.FSM.remove(sfsm)
+    scenario.CURRENT_SCENE = scenario.pool.Frames[scenario.CURRENT_FRAME]
+    scenario.CURRENT_SCENE.start()
 
 
 def _pass(flag):
@@ -49,7 +51,7 @@ def _pass(flag):
 
 
 def next_scene(flag):
-    pool.CURRENT_FRAME = pool.Scenes[pool.CURRENT_SCENE.uid]["until"]
+    scenario.CURRENT_FRAME = scenario.pool.Scenes[scenario.CURRENT_SCENE.uid]["until"]
 
 
 def change_frame(flag):

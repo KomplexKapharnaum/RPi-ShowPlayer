@@ -5,6 +5,8 @@
 # It's sync only scenario
 #
 
+import os
+
 from libs.oscack import message, network, DNCserver #, BroadcastAddress
 from engine.threads import network_scheduler, patcher
 
@@ -23,8 +25,10 @@ log = init_log("ssync")
 OSC_PATH_SCENARIO_VERSION = "/sync/scenario/version"
 OSC_PATH_SCENARIO_ASK = "/sync/scenario/amiuptodate"
 
-msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None)
-msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None)
+msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None,
+                                                                 flag_name="RECV_SCENARIO_VERSION")
+msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None,
+                                                             flag_name="RECV_SCENARIO_ASK")
 
 machine = fsm.FiniteStateMachine(name="syncscenario")
 
@@ -121,9 +125,18 @@ def trans_must_i_get_scenario(flag):
             flag.args["local_newer"] = None
     for groupname, group in flag.args["scenario"].items():
         log.log("raw", "For loop groupname {0} , group {1} ".format(groupname, group))
+        new_group = False
+        if groupname not in flag.args["local_scenario"]:
+            new_group = True
+            group_path = os.path.join(settings.get("path", "scenario"), groupname)
+            try:
+                if not os.path.exists(group_path):
+                    os.mkdir()
+            except OSError as e:
+                log.exception(log.show_exception(e))
         while len(group) > 0:
             scenario = group.pop()
-            if scenario not in flag.args["local_scenario"][groupname]:  # It's newer
+            if new_group or scenario not in flag.args["local_scenario"][groupname]:  # It's newer # TODO waring
                 log.log("raw", "It's newer : {0} ".format(scenario))
                 flag.args["to_get"] = scenario
                 return step_get_scenario
@@ -161,7 +174,7 @@ step_init.transitions = {
 }
 
 step_main_wait.transitions = {
-    "RECV_MSG": trans_must_i_get_scenario,
+    "RECV_SCENARIO_VERSION": trans_must_i_get_scenario,
     flag_timeout.uid: step_send_version
 }
 
