@@ -322,10 +322,7 @@ def error_function(flag):
     # TODO implement prompt on monitor
 
 
-step_main_wait = fsm.State("STEP_MAIN_WAIT", function=_pass, transitions={
-    flag_usb_plugged.uid: trans_usb_have_dnc_media
-    # TODO implement the other transitions
-})
+step_main_wait = fsm.State("STEP_MAIN_WAIT", function=_pass, transitions={})
 
 step_send_sync_flag = fsm.State("STEP_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
     flag_timeout.uid: step_main_wait,              # TODO : Go to first sync instead of main wait
@@ -352,7 +349,15 @@ step_error = fsm.State("STEP_ERROR", function=error_function, transitions={
     flag_timeout.uid: step_main_wait
 })
 
-# step_update_media_list = fsm.State("STEP_UPDATE_MEDIA_LIST", function=update_needed_list())
+step_update_media_list = fsm.State("STEP_UPDATE_MEDIA_LIST", function=update_needed_list, transitions={
+    None: step_main_wait
+})
+
+step_main_wait.transitions = {
+    flag_usb_plugged.uid: trans_usb_have_dnc_media,
+    flag_update_media_list.uid: step_update_media_list
+    # TODO implement the other transitions
+}
 
 
 
