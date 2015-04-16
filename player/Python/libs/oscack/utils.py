@@ -47,3 +47,7 @@ def get_ip():
 def get_hostname():
     host = subprocess32.check_output(['hostname'])
     return host.strip()
+
+def get_platform():
+    arm = subprocess32.check_output(['uname', '-a'])
+    return arm.split(' ')[12].strip()

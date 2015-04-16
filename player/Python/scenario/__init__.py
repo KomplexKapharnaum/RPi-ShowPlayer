@@ -2,7 +2,6 @@
 
 
 import pool
-import parsing
 from scenario.classes import Patch, Etape
 from engine.fsm import Flag
 from engine.log import init_log
@@ -42,11 +41,17 @@ def init():
         fn_auto_transit = pool.Etapes_and_Functions["TRANSIT_AUTO"]
         fn_auto_transit_clean = pool.Etapes_and_Functions["TRANSIT_CLEAN"]
         for path, route in DECLARED_OSCROUTES.items():
-            etape_sender = Etape('SEND_'+route['signal'], actions=((fn_sgn_sender, {'signal':route['signal']}),
-                                                                   (fn_auto_transit, {})),
+            etape_sender = Etape('SEND_'+route['signal'], actions=[(fn_sgn_sender, {'signal':route['signal']}),
+                                                                   (fn_auto_transit, {})],
                                                           out_actions= ((fn_auto_transit_clean, {}),)
                                                         )
             DECLARED_ETAPES[etape_sender.uid] = etape_sender
+
+    # ..
+    # Import Public Boxes as Etapes
+    for name, box in DECLARED_PUBLICBOXES.items():
+        etape_public = Etape(name, actions=[ (box['function'], {}) ] )
+        DECLARED_ETAPES[etape_public.uid] = etape_public
 
     #..
     # Import declared Patches
@@ -79,10 +84,10 @@ def init():
 
 
     # ..
-    # Import declared elements to Poll
+    # Import declared Etapes to Poll
     pool.Etapes_and_Functions.update(DECLARED_ETAPES)
-    for name, box in DECLARED_PUBLICBOXES.items():
-        pool.Etapes_and_Functions.update({name: box['function']})
+    #
+    # Import declared Signals
     pool.Signals.update(DECLARED_SIGNALS)
 
 
@@ -149,13 +154,15 @@ class globaletape(object):
 
 
 class publicbox(object):
-    def __init__(self, args=''):
-        self.args = [arg[1:-1] for arg in args.split(' ')]
+    def __init__(self, args='', start=False):
+        self.start = start
+        self.args = [arg.strip('[').strip(']') for arg in args.split(' ')]
 
     def __call__(self, f):
         global DECLARED_PUBLICBOXES
-        DECLARED_PUBLICBOXES[f.__name__.upper()+'_PUBLICFUNC'] = {'function': f,
-                                                                    'args': self.args}
+        DECLARED_PUBLICBOXES[f.__name__.upper()+'_PUBLICBOX'] = {'function': f,
+                                                                    'args': self.args,
+                                                                    'start': self.start}
 
 
 class link(globaletape):

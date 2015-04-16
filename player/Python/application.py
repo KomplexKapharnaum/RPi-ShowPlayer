@@ -7,6 +7,7 @@ set_default_log_by_settings(settings)                   # Set default log level 
 
 import engine
 import scenario
+from scenario import parsing
 from modules import MODULES
 from libs import oscack
 log = engine.log.init_log("application")
@@ -40,7 +41,7 @@ def load(use_archived_scenario=False):
             engine.MODULES_FSM[manager] = modulefsm
             log.debug("LOAD MANAGER :: "+manager+" (Auto)")
     # PARSE ACTIVE SCENARIO
-    scenario.parsing.load(use_archived_scenario)
+    parsing.load(use_archived_scenario)
 
 
 def reload():

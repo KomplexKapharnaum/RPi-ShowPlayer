@@ -84,19 +84,19 @@ def librarylist():
             'dispos': ('dispo' in route['args']),
             'medias': ('media' in route['args']),
             'arguments': [arg for arg in route['args'] if arg != 'dispo' and arg != 'media'],
-            'code': 'sendSignal("'+route['signal']+'")',
+            'code': '#HARDCODED scenario.functions.add_signal()',
             'hard': True
         }
         answer['functions'].append(box)
     # PUBLIC BOXES
     for name, box in DECLARED_PUBLICBOXES.items():
         box = {
-            'name': name.replace('_PUBLICFUNC', ''),
+            'name': name.replace('_PUBLICBOX', ''),
             'category': 'GENERAL',
             'dispos': ('dispo' in box['args']),
             'medias': ('media' in box['args']),
             'arguments': [arg for arg in box['args'] if arg != 'dispo' and arg != 'media'],
-            'code': '',
+            'code': '#HARDCODED modules.publicboxes.'+box['function'].__name__,
             'hard': True
         }
         answer['functions'].append(box)
