@@ -3,13 +3,13 @@ UNAME_P := $(shell gcc -dumpmachine)
 CC=g++
 CFLAGS=
 LDFLAGS=-lwiringPi
-
+ EXEC=
 ifeq (,$(findstring arm7,$(UNAME_P)))
   $(warning rpiB2 -> build hardware7)
-  EXEC=hardware7
+  EXEC+=hardware7
 else
   $(warning rpiA+/B+ -> build hardware6)
-  EXEC=hardware6
+  EXEC+=hardware6
 endif
 
 SRC= $(wildcard *.cpp)
