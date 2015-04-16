@@ -78,7 +78,7 @@ class MediaList(list):
     def __repr__(self):
         r = "Media list : \n"
         for elem in self:
-            r += elem + "\n"
+            r += str(elem) + "\n"
         return r
 
     def __str__(self):
