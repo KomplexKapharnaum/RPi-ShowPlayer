@@ -15,7 +15,8 @@
 {"hostname":"caddie_14","ip":"2.0.2.14","description":"sac tati video n°14","pi":"b2.","sd":"16go","tension":"lipo24","titreur":"no","video":"yes","sound":"yes","ext":"yes","active":"yes"},
 {"hostname":"caddie_15","ip":"2.0.2.15","description":"sac tati video n°15","pi":"b2.","sd":"16go","tension":"lipo24","titreur":"no","video":"yes","sound":"yes","ext":"yes","active":"no"},
 {"hostname":"charsncf_16","ip":"2.0.2.16","description":"chariot sncf video et matieres n°16","pi":"b2.8","sd":"32go","tension":"pb12","titreur":"no","video":"yes","sound":"yes","ext":"yes","active":"yes"},
-{"hostname":"pico_17","ip":"2.0.2.17","description":"chariot sncf video et matieres n°17","pi":"-","sd":"-","tension":"-","titreur":"no","video":"yes","sound":"yes","ext":"no","active":"yes"},
-{"hostname":"pico_18","ip":"2.0.2.18","description":"chariot sncf video et matieres n°18","pi":"-","sd":"-","tension":"-","titreur":"no","video":"yes","sound":"yes","ext":"no","active":"yes"},
-{"hostname":"pico_18","ip":"2.0.2.18","description":"chariot sncf video et matieres n°18","pi":"-","sd":"-","tension":"-","titreur":"no","video":"yes","sound":"yes","ext":"no","active":"yes"},
+{"hostname":"pico_17","ip":"2.0.2.17","description":"pico balais n°17","pi":"-","sd":"-","tension":"-","titreur":"no","video":"yes","sound":"yes","ext":"no","active":"no"},
+{"hostname":"pico_18","ip":"2.0.2.18","description":"pico balais n°18","pi":"-","sd":"-","tension":"-","titreur":"no","video":"yes","sound":"yes","ext":"no","active":"no"},
+{"hostname":"cartontv_19","ip":"2.0.2.19","description":"caddie carton tv n°19","pi":"-","sd":"-","tension":"lipo12","titreur":"no","video":"yes","sound":"yes","ext":"yes","active":"no"},
+{"hostname":"cartonpico_20","ip":"2.0.2.20","description":"caddie carton pico n°20","pi":"-","sd":"-","tension":"lipo12","titreur":"no","video":"yes","sound":"yes","ext":"no","active":"no"}
 ]}
