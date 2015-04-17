@@ -211,10 +211,10 @@ class Media:
     def get_osc_repr(self):
         """
         This function return an OSC reprentation of the Media
-        :return: path, pickle(mtime, filesize)
+        :return: path, mtime, filesize
         """
         log.log("raw", "get_osc_rep for : {0}".format(self))
-        return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize/1000))
+        return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
         # return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
 
     def put_on_fs(self):  # , error_fnct=None
