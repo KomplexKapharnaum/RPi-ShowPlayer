@@ -357,7 +357,7 @@ def trans_does_network_sync_enabled(flag):
     :param flag:
     :return:
     """
-    if settings.get("sync", "enabled") and settings.get("sync", "media"):
+    if settings.get("sync", "enable") and settings.get("sync", "media"):
         if flag.args["path"] == msg_media_version.path:
             flag.args["files_to_test"] = media.MediaList()
             try:
