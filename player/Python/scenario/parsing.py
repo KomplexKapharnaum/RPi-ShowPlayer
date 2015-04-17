@@ -70,7 +70,7 @@ def load_files():
 
 def parse_file(path):
     with open(path, 'r') as fp:
-        return json.load(fp)
+        return json.load(fp, encoding="utf-8")
 
 
 def parse_arg_function(jfunction):
