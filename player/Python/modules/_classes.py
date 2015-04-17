@@ -105,7 +105,7 @@ class ExternalProcess(object):
 
     def say(self, message):
         if self.is_running():
-            self._popen.stdin.write(message.decode("utf-8").encode("utf-8")+"\n")
+            self._popen.stdin.write(message.decode("utf-8").encode("utf-8")+u'\n')
             log.log("raw"," "+message)
         else:
             # log.log("debug", "Message aborted, Thread not active ")
