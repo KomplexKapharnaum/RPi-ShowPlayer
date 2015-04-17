@@ -151,6 +151,7 @@ def append_timeout_flag():
     This function just add the timeout flag in the machine
     :return:
     """
+    log.log("raw", "append normal timeout flag")
     machine.append_flag(flag_timeout.get())
 
 
