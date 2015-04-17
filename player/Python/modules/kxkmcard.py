@@ -131,14 +131,10 @@ class KxkmCard(ExternalProcess):
         try:
             answer = dict()
             with open(path, 'r') as f:  # Use file to refer to the file object
-                log.log("debug", "File content : {0}".format(f.readlines()))
-            with open(path, 'r') as f:  # Use file to refer to the file object
                 answer = json.loads(f.read())
-            log.log("debug", "full JSON content : {0}".format(answer))
             answer['status'] = 'success'
             for device in answer["devices"]:
                 if device["hostname"] == settings.get("uName"):
-                    log.log("debug", "devices from devices.json = {0}".format(device))
                     voltage = device["tension"]
                     titreur = device["titreur"]
                     break
