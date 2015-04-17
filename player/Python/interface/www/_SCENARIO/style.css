@@ -41,15 +41,13 @@ body
 
 }
 .optionval {
-  height: 20px;
+  min-height: 20px;
   background-color: #EEEEEE;
   color: #444444;
   font-size: 12px;
   line-height: 22px;
   padding-left: 8px;
-  /*width: 100%;*/
-  overflow: ellipsis;
-  /*word-wrap: break-word;*/
+  word-break: break-all;
 }
 .textOption{
   padding: 0px;
@@ -289,7 +287,7 @@ body
 }
 
 #txted{
-  width: 275px;
+  width: 250px;
   height: 180px;
 }
 
