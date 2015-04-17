@@ -157,6 +157,7 @@ def send_sync_flag(flag):
     :param flag: FSM flag wich content target to the flag
     :return:
     """
+    log.log("raw", "send_sync_flag flag : {0}".format(flag))
     if "timeout" in flag.args.keys():
         network_scheduler.enter(flag.args["timeout"], append_timeout_flag)
     if "target" not in flag.args.keys():
