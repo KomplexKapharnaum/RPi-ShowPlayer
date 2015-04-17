@@ -52,7 +52,7 @@ Titreur mytitreur;
 
 
 void myInterruptCARTE (void) {
-  fprintf(stderr, "intercarte\n");
+  fprintf(stderr, "main - interrupt from carte\n");
   mycarte.readInterrupt();
 
 }
@@ -88,18 +88,19 @@ void beforekill(int signum)
 }
 
 void myInterruptTELECO(void) {
-  fprintf(stderr, "interteleco\n");
+  fprintf(stderr, "main - interrupt from teleco\n");
   if (myteleco.fisrtView()){
     delay(200);
-    fprintf(stderr, "delaypass\n");
-  }
-  if (digitalRead(21)==HIGH) {
-    fprintf(stderr, "reel interrupt\n");
-    myteleco.readInterrupt();
-    if (myteleco.fisrtView()) {
+    fprintf(stderr, "main - delaypass\n");
+    if (digitalRead(21)==HIGH) {
+      fprintf(stderr, "main - reel interrupt\n");
+      myteleco.readInterrupt();
       myteleco.start();
       sendStatusTeleco();
     }
+  }else{
+    fprintf(stderr, "main - reel interrupt\n");
+    myteleco.readInterrupt();
   }
 }
 
@@ -188,10 +189,10 @@ int parseInput(){
       strncpy(buff, carte_ip.c_str(), sizeof(buff));
       mytitreur.text(0,8,buff);
     }else{
-      fprintf(stderr, "error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
+      fprintf(stderr, "main - error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
     }
     if ("S"==parsedInput) {
-      fprintf(stderr, "overpass standard debug init\n");
+      fprintf(stderr, "main - overpass standard debug init\n");
       mytitreur.initTitreur(6,MODULE_24x16);
       mycarte.initCarte(PWM_LEDB,12);
       carte_name="TEST STAND";
@@ -242,7 +243,7 @@ int parseInput(){
 
 
     if ("initconfig"==parsedInput) {
-      fprintf(stderr, "error already init\n");
+      fprintf(stderr, "main - error already init\n");
     }
     //init ok, traitement des autres commandes
     if ("texttitreur"==parsedInput) {
@@ -377,7 +378,7 @@ int parseInput(){
           ss>>fade;
         }
       }
-      fprintf(stderr, "direct acces %u %u %u\n",reg,val,fade);
+      fprintf(stderr, "main - direct acces %u %u %u\n",reg,val,fade);
       mycarte.writeValue(reg,val,fade);
       
     }// end directaccess
@@ -390,7 +391,7 @@ int parseInput(){
           ss>>nbr;
         }
       }
-      fprintf(stderr, "test routine\n");
+      fprintf(stderr, "main - test routine\n");
       testRoutine(nbr);
       
     }// end testroutine
@@ -416,18 +417,16 @@ cout << "#INITHARDWARE" << endl;
   while(!init){
     parseInput();
   }
-  if(version_py=="-")
-    myteleco.initCarte(1);
-  else myteleco.initCarte(0);
+  if(version_py=="-") myteleco.initCarte(1); else myteleco.initCarte(0);
   delay(10);
   if (digitalRead(21)==HIGH) {
-    fprintf(stderr, "teleco add at boot\n");
+    fprintf(stderr, "main - teleco add at boot\n");
     myteleco.readInterrupt();
     myteleco.start();
     sendStatusTeleco();
   }
 
-  fprintf(stderr, "active interrupt for CARTE et télécomande\n");
+  fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
 
