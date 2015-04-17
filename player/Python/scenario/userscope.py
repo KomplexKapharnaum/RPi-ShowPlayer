@@ -8,6 +8,6 @@ log = init_log("public")
 #
 
 def sendSignal(uid):
-    signal = Flag(uid, TTL=1, JTL=3)
+    signal = Flag(uid, TTL=1, JTL=2)
     patcher.patch(signal.get())
     log.log("debug", "user signal : {0}".format(uid))
