@@ -26,7 +26,7 @@ class KxkmCard(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'kxkmcard-' + get_platform())
         self.onClose = "CARD_EVENT_CLOSE"
-        log.log("raw", "Statring KxkmCard ..")
+        log.log("debug", "Statring KxkmCard {0}.. ".format(get_platform()))
         self.start()
 
     ##
