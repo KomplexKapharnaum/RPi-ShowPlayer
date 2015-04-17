@@ -154,8 +154,7 @@ int parseInput(){
         if ("-carteVolt"==parsedInput){
           ss>>parsedInput;
           voltage=parsedInput;
-          if(voltage=="-")mycarte.initCarte(PWM_LEDB,0);
-          else if(voltage=="life12")mycarte.initCarte(PWM_LEDB,13);
+          if(voltage=="life12")mycarte.initCarte(PWM_LEDB,13);
           else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,11);
           else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,11);
           else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,27);
@@ -417,7 +416,10 @@ cout << "#INITHARDWARE" << endl;
   while(!init){
     parseInput();
   }
-  if(version_py=="-")myteleco.initCarte(1);else myteleco.initCarte(1);
+  if(version_py=="-")
+    myteleco.initCarte(1);
+  else myteleco.initCarte(0);
+  delay(10);
   if (digitalRead(21)==HIGH) {
     fprintf(stderr, "teleco add at boot\n");
     myteleco.readInterrupt();

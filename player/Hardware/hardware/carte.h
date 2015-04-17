@@ -78,7 +78,7 @@ protected:
   extSPI SPIcarte;
   
 public :
-  void initCarte(int _pwm_ledb_or_10w2 = PWM_LEDB, int _gamme_tension = 12, int checkFloat = 0);
+  void initCarte(int _pwm_ledb_or_10w2 = PWM_LEDB, int _gamme_tension = 0, int checkFloat = 0);
   void writeValue(int valueType,int value, int fadetime=0);
   int readValue(int valueType);
   int readInterrupt();

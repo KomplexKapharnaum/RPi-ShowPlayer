@@ -36,7 +36,7 @@ int Teleco::fisrtView(){
 void Teleco::start(){
   fprintf(stderr, "teleco - teleco start\n");
   uninit=0;
-  writeValue(T_LEDRVALUE,1);
+  setLedWarning(0);
 }
 
 void Teleco::reset(){
@@ -50,7 +50,7 @@ void Teleco::setLedOk(int val){
 }
 
 void Teleco::setLedWarning(int val){
-  writeValue(T_LEDRVALUE,val);
+  writeValue(T_LEDRVALUE,1-val);
 }
 
 
