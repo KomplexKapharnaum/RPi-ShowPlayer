@@ -141,7 +141,8 @@ class KxkmCard(ExternalProcess):
                     voltage = device["tension"]
                     titreur = device["titreur"]
                     break
-        except:
+        except OSError as e:
+            log.exception(log.show_exception(e))
             log.log("debug", "devices.json not found")
 
         self.say(
