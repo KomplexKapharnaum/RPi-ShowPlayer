@@ -24,7 +24,7 @@ from engine.threads import network_scheduler
 
 from engine.log import init_log
 
-log = init_log("media")
+log = init_log("media", log_lvl="raw")
 
 
 def get_all_media_list():
