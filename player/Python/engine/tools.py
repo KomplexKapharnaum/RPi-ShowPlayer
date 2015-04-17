@@ -74,7 +74,7 @@ def search_in_or_default(key, indict, setting=False, default=None):
     :param default: If really not found it will return None
     :return:
     """
-    if isinstance(key, list):
+    if isinstance(key, (list, tuple)):
         outdict = dict()
         for k in key:
             outdict[k] = search_in_or_default(k, indict, setting=setting, default=default)
