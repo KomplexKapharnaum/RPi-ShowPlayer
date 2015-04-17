@@ -48,7 +48,7 @@ def wait(flag, **kwargs):
 
 
 @publicbox('[duration]')
-def delay(flag, **kwars):
+def delay(flag, **kwargs):
     """
     This function (box) delay for a givent time and be ready for a transition after that
     :param flag:
