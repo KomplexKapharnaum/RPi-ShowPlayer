@@ -470,7 +470,8 @@
       gridwidth = this.blockbox.width();
       this.blockName = "block" +thispi.blockCount;
       this.blockbox.attr('id', this.blockName);
-      this.group = allgroups[0];
+      //this.group = allgroups[0];
+      this.group = 'default';
       this.scene = 'scene_lambda';
       this.scenarios = [];
       pool.unselectBlocks();
@@ -486,7 +487,7 @@
 
       this.editInfos = function(){
         $('#blocknameVisu').text(thisblock.blockbox.attr('id'));
-        var groupname = thisblock.group.name;
+        var groupname = thisblock.group;
         $('#groupselector').val(
           $('#groupselector option').filter(function(){ return $(this).html() == groupname; }).val()
         );
@@ -502,12 +503,10 @@
         $.each(allScenarios,function(index,scenario){
           var sceno = scenario.name.split('_')[0];
           if (sceno == thisblock.scene){
-            console.log(scenario.name);
             $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
             $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
           }
           if($.inArray(sceno, scenesList)==-1) {
-            console.log(scenario.name);
             $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
             $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
           }
@@ -526,7 +525,11 @@
       }
 
       this.refreshInfos = function(){
-        thisblock.blockbox.css('backgroundColor', thisblock.group.color);
+        var thecolor;
+        $.each(allgroups, function(index,group){
+          if (group.name == thisblock.group){ thecolor = group.color; }
+        });
+        thisblock.blockbox.css('backgroundColor', thecolor);
       }
 
 
@@ -588,7 +591,7 @@
         },
         stop: function(){
           thisblock.scenarios = [];
-          thisblock.group = allgroups[0];
+          thisblock.group = 'default';
           thisblock.getScene();
           thisblock.refreshInfos();
         }
@@ -699,6 +702,8 @@
         $('#groupselector').append(('<option value="'+index+'">'+group.name+'</option>'));
       });
     }
+    $("#groupselector option:odd").css("background-color","red");
+
     function refreshModulesList(){
       $('#disposms').empty();
       $.each(allModules, function(index,module){
@@ -746,7 +751,7 @@
 
 
   ///////////////////INSPECTOR SHOWS////////////////////
-  ///////////////////scenarioS
+  ///////////////////Scenarios
     $('#openscenarioseditor').click( function(){
       $(".inspector").hide();
       $("#scenarioseditor").fadeIn(200);
@@ -756,18 +761,8 @@
       $("#scenarioseditor").hide();
     });
 
-  ///////////////////group
-    $('#opengroupeditor').click( function(){
-      $(".inspector").hide();
-      $("#groupseditor").hide().fadeIn(100);
 
-    });
-
-    $('#closegroupditor').click( function(){
-      $("#groupseditor").hide();
-    });
     /////////////////////////////////////////////////////
-
 
     $(".textarea").on("click", function () {
       $(this).select();
@@ -781,43 +776,18 @@
     });
 
 
-    ///////////////////INSPECTOR group////////////////////
+    ///////////////////GROUP SELECTOR////////////////////
     $('#groupselector').change(function(){
       var that = $(this);
       $.each(pool.getActiveBlock(), function(index,block) {
-        block.group = allgroups[that.find(":selected").val()];
+        block.group = $('#groupselector option:selected').text();
         block.refreshInfos();
       });
-      $("#groupname").val($('#groupselector option:selected').text());
     });
 
-    $('#addbtn').click( function(){
-      var groupname = $("#groupname").val();
-      var newgroup = {name:groupname, color:colors[allgroups.length]};
-      allgroups.push(newgroup);
-      refreshgroupsList();
-      $("#groupname").val("New...");
-      });
-
-    $('#modifbtn').click( function(){
-      var groupname = $("#groupname").val();
-      var indexedited = $('#groupselector').find(":selected").val();
-      allgroups[indexedited].name = groupname;
-      refreshgroupsList();
-      $('#groupselector').val(indexedited);
-    });
-
-    $('#delbtn').click( function(){
-      var that = $('#groupselector');
-        var indexedited = that.find(":selected").val();
-        allgroups.splice(indexedited,1);
-        refreshgroupsList();
-        $("#groupname").val("New...");
-    });
 
     ///////////////////INSPECTOR DISPO////////////////////
     $('#disposms').change(function() {
-      //$("#modulesList").empty();
       var that = $(this);
       $.each(pool.getActivePi(), function(index,pi) {
         var selectedModules = that.multipleSelect("getSelects", "text");
@@ -828,7 +798,6 @@
       });
 
     });
-
 
     ///////////////////INSPECTOR SCENARIOS////////////////////
     $('#scenariosms').change(function() {
@@ -856,7 +825,6 @@
       var that = $(this);
       $("#scenarioname").val($('#scenariosdropdown option:selected').text());
     });
-
 
     $('#addscenariobtn').click( function(){
       var scenarioname = $("#scenarioname").val();

@@ -216,6 +216,10 @@
         outline: none;
       }
 
+      .select option[selected] {
+   color: red;
+}
+
     .dropdownGnrl{
       width:150px;
       height: 22px;
@@ -326,8 +330,6 @@
     	border-width: 6px;
     	margin-top: -6px;
     }
-
-
 
 
 
