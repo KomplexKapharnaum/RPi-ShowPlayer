@@ -49,6 +49,10 @@ class KxkmCard(ExternalProcess):
 
     def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None, fade=None):
         cmd = 'setlight'
+        if strob is not None:
+            cmd += ' -strob {0}'.format(int(strob))
+        if fade is not None:
+            cmd += ' -fade {0}'.format(int(fade))
         if rgb is not None:
             rgb = re.split('\W+', rgb)
             if len(rgb) == 0:
@@ -62,10 +66,7 @@ class KxkmCard(ExternalProcess):
             cmd += ' -10w1 {0}'.format(int(led10w1))
         if led10w2 is not None:
             cmd += ' -10w2 {0}'.format(int(led10w2))
-        if strob is not None:
-            cmd += ' -strob {0}'.format(int(strob))
-        if fade is not None:
-            cmd += ' -fade {0}'.format(int(fade))
+
         self.say(cmd)
 
     def setGyro(self, speed=None, strob=None, mode=None):
@@ -186,7 +187,7 @@ exposesignals(KxkmCard.Filters)
        "/lumiere/rgb [rgb] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/led1 [led10w1] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
-       "/lumiere/gyro [speed] [strob] [mode]": "kxkm_card_gyro"})
+       "/lumiere/gyro [mode] [speed] [strob]": "kxkm_card_gyro"})
 def kxkm_card(flag, **kwargs):
     if "kxkmcard" not in kwargs["_fsm"].vars.keys():
         kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
