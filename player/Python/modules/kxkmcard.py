@@ -142,7 +142,7 @@ class KxkmCard(ExternalProcess):
             log.log("debug", "devices.json not found")
 
         self.say(
-            'initconfig -titreurNbr 1 -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreur {tit} '
+            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreur {tit} '
             .format(name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
                     volt=voltage, tit=titreur))
         return False
