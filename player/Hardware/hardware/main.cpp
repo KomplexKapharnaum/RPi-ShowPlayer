@@ -42,6 +42,7 @@ string version_py="-";
 string version_c="0.2";
 string status="-";
 string popup1,popup2;
+string voltage="-";
 int init=0;
 
 Carte mycarte;
@@ -138,7 +139,7 @@ void testRoutine(int n){
 int parseInput(){
   string input;
   getline(cin, input);
-  fprintf(stderr, "\nGETCOMMAND : %s",input.c_str());
+  fprintf(stderr, "\nGETCOMMAND : %s\n",input.c_str());
   stringstream ss(input);
   string parsedInput;
   ss>>parsedInput;
@@ -151,9 +152,16 @@ int parseInput(){
           mytitreur.initTitreur(nbmodule,MODULE_24x16);
         }
         if ("-carteVolt"==parsedInput){
-          int voltage;
-          ss>>voltage;
-          mycarte.initCarte(PWM_LEDB,voltage);
+          ss>>parsedInput;
+          voltage=parsedInput;
+          if(voltage=="-")mycarte.initCarte(PWM_LEDB,0);
+          else if(voltage=="life12")mycarte.initCarte(PWM_LEDB,13);
+          else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,11);
+          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,11);
+          else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,27);
+          else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,26);
+          else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,24);
+          else mycarte.initCarte(PWM_LEDB,0);
         }
         if ("-name"==parsedInput){
           ss>>parsedInput;
