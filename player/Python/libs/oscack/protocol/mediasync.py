@@ -451,7 +451,7 @@ step_main_wait.transitions = {
     flag_usb_plugged.uid: trans_usb_have_dnc_media,
     flag_update_media_list.uid: step_update_media_list,
     msg_sync_flag.flag_name: trans_does_flag_newer,
-
+    flag_timeout_send_list.uid: trans_does_network_sync_enabled
     # TODO implement the other transitions
 }
 
