@@ -358,7 +358,7 @@ def trans_does_network_sync_enabled(flag):
     :return:
     """
     if settings.get("sync", "enable") and settings.get("sync", "media"):
-        if flag.args["path"] == msg_media_version.path:
+        if "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
             flag.args["files_to_test"] = media.MediaList()
             try:
                 ssh_user = flag.args["args"].pop(0)
@@ -379,6 +379,8 @@ def trans_does_network_sync_enabled(flag):
                 flag.args["trans_free"] = step_put_media_on_fs
                 flag.args["trans_full"] = trans_can_free
                 return trans_need_media_in
+        else:                               # elif "send" in flag.args.keys():
+            return step_send_media_list
     return step_main_wait
 
 
@@ -444,6 +446,10 @@ step_update_media_list = fsm.State("STEP_UPDATE_MEDIA_LIST", function=update_nee
 })
 
 step_update_sync_flag = fsm.State("STEP_UPDATE_SYNC_FLAG", function=update_sync_flag, transitions={
+    None: step_main_wait
+})
+
+step_send_media_list = fsm.State("STEP_SEND_MEDIA_LIST", function=send_media_list, transitions={
     None: step_main_wait
 })
 
