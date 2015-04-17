@@ -109,6 +109,14 @@ DEFAULT_SETTING["ack"]["interval_protocol"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 DEFAULT_SETTING["ack"]["interval_short"] = (0.100, 0.150, 0.200)
 DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 
+DEFAULT_SETTING["values"] = dict()
+
+DEFAULT_SETTING["values"]["gyro"] = dict()
+DEFAULT_SETTING["values"]["gyro"]["speed"] = 200
+DEFAULT_SETTING["values"]["lights"] = dict()
+DEFAULT_SETTING["values"]["lights"]["fade"] = 0
+DEFAULT_SETTING["values"]["lights"]["strob"] = 0
+
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
