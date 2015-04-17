@@ -210,7 +210,7 @@ def kxkm_card_gyro(flag, **kwargs):
     params = search_in_or_default(("speed", "strob", "mode"), flag.args, setting=("values", "gyro"))
     if None in params.values():
         log.warning("Missing default value for at least one argument : {0}".format(params))
-    params["_fsm"].vars["kxkmcard"].setGyro(**params)
+    kwargs["_fsm"].vars["kxkmcard"].setGyro(**params)
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_message(flag, **kwargs):
