@@ -50,7 +50,7 @@ void Teleco::setLedOk(int val){
 }
 
 void Teleco::setLedWarning(int val){
-  writeValue(T_LEDRVALUE,1-val);
+  writeValue(T_LEDRVALUE,val);
 }
 
 
