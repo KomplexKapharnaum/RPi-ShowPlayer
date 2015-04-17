@@ -83,6 +83,12 @@ class Flag:
         #return "Flag : {0} - {1}".format(self.uid, self.args)
         return "Flag : {0}".format(self.uid)
 
+    def get_info(self):
+        """
+        This function return large info on a flag
+        """
+        return "Flag : {0} [TTL:{2}, JTL:{3}] - {1}".format(self.uid, self.args, self.TTL, self.JTL)
+
     def __repr__(self):
         return self.__str__()
 

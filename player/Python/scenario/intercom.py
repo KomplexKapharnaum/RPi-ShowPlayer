@@ -14,7 +14,7 @@ def forward_signal(*args, **kwargs):
     """
     if args[0].args["path"] == '/signal':
         flag = cPickle.loads(str(bytearray(args[0].args["args"][1])))
-        log.debug('Forwarded signal received {0}'.format(flag))
+        log.debug('Forwarded signal received {0}'.format(flag.get_info()))
         patcher.serve(flag)
     else:
         return False
