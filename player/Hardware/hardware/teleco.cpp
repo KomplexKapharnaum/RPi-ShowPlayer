@@ -45,11 +45,11 @@ void Teleco::reset(){
   writeValue(T_INIT,0);
 }
 
-void setLedOk(int val){
+void Teleco::setLedOk(int val){
   writeValue(T_LEDOKVALUE,val);
 }
 
-void setLedWarning(int val){
+void Teleco::setLedWarning(int val){
   writeValue(T_LEDRVALUE,val);
 }
 
