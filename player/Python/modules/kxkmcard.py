@@ -33,7 +33,7 @@ class KxkmCard(ExternalProcess):
     # COMMANDS
     def setRelais(self, switch):
         cmd = 'setrelais'
-        if switch=="on":
+        if switch:
             cmd += ' -on'
         else:
             cmd += ' -off'
@@ -195,7 +195,7 @@ def kxkm_card(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_relais(flag, **kwargs):
-    switch = str(flag.args["on/off"]).lower() in ['None', 'off', '0']
+    switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
     kwargs["_fsm"].vars["kxkmcard"].setRelais(switch)
 
 
