@@ -68,11 +68,12 @@ void Carte::writeValue(int valueType,int value, int fadetime){
 }
 
 int Carte::readValue(int valueType){
+  fprintf(stderr, "carte - readValue %u = ", valueType);
   unsigned char buff[2];
   buff[0]= (char)(READCOMMAND+valueType);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  //fprintf(stderr, "read %u\n",buff[1]);
+  fprintf(stderr, "%u ",buff[1]);
   return buff[1];
 }
 
@@ -109,12 +110,11 @@ int Carte::readInterrupt(){
 }
 
 int Carte::checkTension(){
-  //fprintf(stderr, "checktension ");
+  fprintf(stderr, "checktension ");
   digitalWrite (GPIO_READ_BATT, HIGH);
   delay(5);
   writeValue(UBATT,0);
   delay(5);
-  value[VOLTAGEMODE] = readValue(VOLTAGEMODE);
   value[UBATT] = readValue(UBATT)+50;
   digitalWrite (GPIO_READ_BATT, LOW);
   return value[UBATT];

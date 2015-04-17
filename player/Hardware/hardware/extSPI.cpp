@@ -54,6 +54,7 @@ void extSPI::commonInit(int _spiSpeed){
   wiringPiSetupGpio();
   GPIO_LED=12;
   pinMode (GPIO_LED, OUTPUT) ;
+  digitalWrite (GPIO_LED, LOW);
   GPIO_244_ENABLE = 5; //define by electronic (do not forget it's inverted line)
   pinMode (GPIO_244_ENABLE, OUTPUT) ;
   digitalWrite (GPIO_244_ENABLE, LOW);
