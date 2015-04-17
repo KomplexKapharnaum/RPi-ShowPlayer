@@ -72,6 +72,7 @@ DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3    # Wait 3 sec, if no newe
 DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2    # 2 sec before remove mount point
 DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 15 sec before restart netctl after unplug usb storage device
 DEFAULT_SETTING["sync"]["timeout_media_version"] = 10   # 60 sec between each send media list version
+DEFAULT_SETTING["sync"]["scp_options"] = "-p -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
 
 DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']

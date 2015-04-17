@@ -481,8 +481,8 @@ class ScenarioFile:
             :return:
         """
         scp = ExternalProcess("scp")
-        scp.command += " -p -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {ip}:{path} {path}".format(
-            ip=ip, path=self.path)
+        scp.command += " {options} {ip}:{path} {path}".format(
+            ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
         log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
         scp.start()
         scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
