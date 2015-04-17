@@ -187,6 +187,7 @@ class Media:
         This function return an OSC reprentation of the Media
         :return: path, mtime, filesize
         """
+        log.log("raw", "get_osc_rep for : {0}".format(self))
         return str(self.rel_path), float(self.mtime), int(self.filesize)
 
     def put_on_fs(self):  # , error_fnct=None
