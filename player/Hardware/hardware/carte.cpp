@@ -46,7 +46,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   delay(50);
   writeValue(VOLTAGEMODE,gamme_tension);
   checkTension();
-  fprintf(stderr, "carte - tension initiale : %.1f mode : %uV\n", (float)value[UBATT]/10, gamme_tension);
+  fprintf(stderr, "carte - tension initiale : %.1f mode : %uV\n", (float)tension/10, gamme_tension);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
   writeValue(INTERRUPT,0);
@@ -115,9 +115,8 @@ int Carte::checkTension(){
   delay(5);
   writeValue(UBATT,0);
   delay(5);
-  value[UBATT] = readValue(UBATT)+50;
+  tension = readValue(UBATT)+50;
   digitalWrite (GPIO_READ_BATT, LOW);
-  return value[UBATT];
 }
 
 
