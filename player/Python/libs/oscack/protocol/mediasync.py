@@ -186,7 +186,7 @@ def trans_does_flag_newer(flag):
         return step_update_sync_flag
     else:
         flag.args["target"] = flag.args["src"]
-        return step_first_send_sync_flag
+        return step_send_sync_flag
 
 
 def sync_media_on():
