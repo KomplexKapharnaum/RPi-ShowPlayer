@@ -33,7 +33,7 @@ class KxkmCard(ExternalProcess):
     # COMMANDS
     def setRelais(self, switch):
         cmd = 'setrelais'
-        if switch:
+        if switch=="on":
             cmd += ' -on'
         else:
             cmd += ' -off'
