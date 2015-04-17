@@ -398,7 +398,8 @@ def send_media_list(flag):
         for value in f.get_osc_repr():
             args_list.append(value)             # Add all other media available
     log.log("raw", "arg list of send media : {0}".format(args_list))
-    message.send(message.Address("255.255.255.255"), msg_media_version.get(args_list))
+    # message.send(message.Address("255.255.255.255"), msg_media_version.get(args_list))
+    message.send(message.Address("255.255.255.255"), message.Message(msg_media_version.path, *args_list, ACK=False))
 
 
 def update_sync_flag(flag):
