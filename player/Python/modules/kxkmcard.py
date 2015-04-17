@@ -12,6 +12,7 @@ from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
 from engine.tools import search_in_or_default
 import json
+import subprocess
 
 log = init_log("kxkmcard")
 
@@ -24,9 +25,14 @@ class KxkmCard(ExternalProcess):
     """
 
     def __init__(self):
-        ExternalProcess.__init__(self, 'kxkmcard-' + get_platform())
+
+
+        if "armv6l" in subprocess.check_output(["/usr/bin/gcc", "-dumpmachine"]):
+            ExternalProcess.__init__(self, 'kxkmcard-armv6l')
+        else:
+            ExternalProcess.__init__(self, 'kxkmcard-armv7l')
         self.onClose = "CARD_EVENT_CLOSE"
-        log.log("debug", "Statring KxkmCard {0}.. ".format(get_platform()))
+        log.log("debug", "Starting KxkmCard {0}.. ".format(get_platform()))
         self.start()
 
     ##
