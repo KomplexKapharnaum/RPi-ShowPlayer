@@ -46,7 +46,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   delay(50);
   writeValue(VOLTAGEMODE,gamme_tension);
   checkTension();
-  fprintf(stderr, "carte - tension initiale : %f mode : %uV\n", (float)value[UBATT]/10, value[VOLTAGEMODE]);
+  fprintf(stderr, "carte - tension initiale : %.1f mode : %uV\n", (float)value[UBATT]/10, gamme_tension);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
   writeValue(INTERRUPT,0);
