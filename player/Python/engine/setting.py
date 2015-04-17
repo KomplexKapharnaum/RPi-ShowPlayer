@@ -71,7 +71,7 @@ DEFAULT_SETTING["sync"]["protected_space"] = 20000      # (Ko) Space protected t
 DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3    # Wait 3 sec, if no newer flag, we are update
 DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2    # 2 sec before remove mount point
 DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 15 sec before restart netctl after unplug usb storage device
-DEFAULT_SETTING["sync"]["timeout_media_version"] = 60   # 60 sec between each send media list version
+DEFAULT_SETTING["sync"]["timeout_media_version"] = 10   # 60 sec between each send media list version
 
 
 DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']

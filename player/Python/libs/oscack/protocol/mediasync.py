@@ -100,6 +100,7 @@ def init(flag):
     flag.args["timeout"] = settings.get("sync", "timeout_wait_syncflag")
     machine.append_flag(flag)
     stop_timeout.clear()
+    append_send_list_timeout()
 
 
 def _pass(flag):
