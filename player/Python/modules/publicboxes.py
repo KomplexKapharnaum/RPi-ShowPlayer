@@ -39,12 +39,12 @@ def start(flag, **kwargs):
         kwargs['_fsm'].stop()
 
 
-# @publicbox('[duration]')
-# def wait(flag, **kwargs):
-#     '''
-#     START Box: for concerned DEST only
-#     '''
-#     pass
+@publicbox('[duration]')
+def wait(flag, **kwargs):
+    '''
+    START Box: for concerned DEST only
+    '''
+    pass
 
 
 @publicbox('[duration]')
