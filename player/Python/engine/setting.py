@@ -113,6 +113,7 @@ DEFAULT_SETTING["values"] = dict()
 
 DEFAULT_SETTING["values"]["gyro"] = dict()
 DEFAULT_SETTING["values"]["gyro"]["speed"] = 200
+#DEFAULT_SETTING["values"]["gyro"]["strob"] = 0
 DEFAULT_SETTING["values"]["lights"] = dict()
 DEFAULT_SETTING["values"]["lights"]["fade"] = 0
 DEFAULT_SETTING["values"]["lights"]["strob"] = 0
