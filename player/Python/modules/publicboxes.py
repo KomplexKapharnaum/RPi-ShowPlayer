@@ -55,7 +55,7 @@ def delay(flag, **kwars):
     :param kwars:
     :return:
     """
-    duration = search_in_or_default("duration", flag.args, default=0)
+    duration = search_in_or_default("duration", kwargs['args'], default=0)
     time.sleep(float(duration))
 
 
