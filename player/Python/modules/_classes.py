@@ -122,7 +122,8 @@ class ExternalProcess(object):
             # except UnicodeEncodeError:
             #     log.log("error", "Fail to prompt ENCODE")
             #     pass
-            self._popen.stdin.write(message.decode("utf8")+u'\n')
+            m = message.decode(self._popen.stdin.enconding)
+            self._popen.stdin.write(m+u'\n')
             log.log("raw", " "+message)
         else:
             # log.log("debug", "Message aborted, Thread not active ")
