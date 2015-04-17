@@ -39,8 +39,8 @@ def init(flag):
     for patch in DECLARED_PATCHER.values():
         patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
         # patcher.add_patch(patch)
-    libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD
-    libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD (SEKU)
+    # libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD
+    # libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD (SEKU)
     if already_init.is_set():
         log.log("debug", "First init manager : set wildcard")
         libs.oscack.DNCserver.add_method(None, None, patch_msg)
