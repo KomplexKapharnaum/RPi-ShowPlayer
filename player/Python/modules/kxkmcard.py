@@ -180,6 +180,7 @@ exposesignals(KxkmCard.Filters)
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
+       "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
        "/lumiere/rgb [rgb] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/led1 [led10w1] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
@@ -215,15 +216,9 @@ def kxkm_card_gyro(flag, **kwargs):
 def kxkm_card_titreur_message(flag, **kwargs):
     kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"])
 
-
 @link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
-
-
-@link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
+def kxkm_card_popup_teleco(flag, **kwargs):
+    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"])
 
 
 @link({None: "kxkm_card"})
@@ -231,17 +226,4 @@ def kxkm_card_titreur_text(flag, **kwargs):
     pass
 
 
-@link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
-
-
-@link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
-
-
-@link({None: "kxkm_card"})
-def kxkm_card_titreur_text(flag, **kwargs):
-    pass
 
