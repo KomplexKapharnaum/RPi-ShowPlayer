@@ -257,7 +257,6 @@ class Media:
             scp = ExternalProcess("scp")
             scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path, options=settings.get("sync", "scp_options"))
             log.log("raw", "SCP : Try to get distant media {0} with {1}".format(self, scp.command))
-            log.log("")
             scp.start()
             try:
                 scp.join(timeout=self.filesize / settings.get("sync", "scp_speed_min") + 10)
