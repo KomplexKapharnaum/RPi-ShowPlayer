@@ -277,7 +277,7 @@
     }
 
     #scenarioseditor,#groupseditor{
-      margin-top: 295px;
+      margin-top: 367px;
     }
 
     .form-group{
@@ -329,6 +329,13 @@
     	border-right-color: #888888;
     	border-width: 6px;
     	margin-top: -6px;
+    }
+
+    #serverDisplay{
+      color: #797979;
+      position: absolute;
+      top: 600px;
+
     }
 
 
