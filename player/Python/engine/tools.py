@@ -7,6 +7,10 @@
 import weakref
 import sys
 import os
+from setting import settings
+from engine.log import init_log
+
+log = init_log("tools")
 
 
 _to_stop_thread = dict()

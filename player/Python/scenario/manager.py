@@ -17,7 +17,7 @@ log = init_log("manager")
 
 
 def patch_msg(path, args, types, src,):
-    log.log("error", "OSC WILD CARD get {0}".format(path))
+    #log.log("error", "OSC WILD CARD get {0}".format(path))
     patcher.patch(libs.oscack.network.get_flag_from_msg(path, args, types, src))
 
 

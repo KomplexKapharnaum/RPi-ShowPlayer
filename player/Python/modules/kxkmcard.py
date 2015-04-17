@@ -10,6 +10,7 @@ from engine.log import init_log
 from engine.setting import settings
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
+from engine.tools import search_in_or_default
 import json
 
 log = init_log("kxkmcard")
@@ -30,11 +31,6 @@ class KxkmCard(ExternalProcess):
     ##
     # COMMANDS
     def setRelais(self, switch):
-        """
-        la fonction controle le relais présent sur la carte via le gpio
-        :param switch:
-        :return:
-        """
         cmd = 'setrelais'
         if switch:
             cmd += ' -on'
@@ -43,12 +39,6 @@ class KxkmCard(ExternalProcess):
         self.say(cmd)
 
     def setMessage(self, line1=None, line2=None):
-        """
-        fonction pour titrer sur les titreurs
-        :param line1:
-        :param line2:
-        :return:
-        """
         cmd = 'texttitreur'
         if line1 is not None:
             cmd += ' -line1 ' + line1.replace(' ', '_')
@@ -78,13 +68,6 @@ class KxkmCard(ExternalProcess):
         self.say(cmd)
 
     def setGyro(self, speed=None, strob=None, mode=None):
-        """
-        gestion des 4 flex led type gyrophare
-        :param speed:
-        :param strob:
-        :param mode:
-        :return:
-        """
         cmd = 'setgyro'
         if speed is not None:
             cmd += ' -speed {0}'.format(int(speed))
@@ -234,8 +217,28 @@ def kxkm_card_titreur_message(flag, **kwargs):
 
 
 @link({None: "kxkm_card"})
-def kxkm_card_popup_teleco(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"])
+def kxkm_card_titreur_text(flag, **kwargs):
+    pass
+
+
+@link({None: "kxkm_card"})
+def kxkm_card_titreur_text(flag, **kwargs):
+    pass
+
+
+@link({None: "kxkm_card"})
+def kxkm_card_titreur_text(flag, **kwargs):
+    pass
+
+
+@link({None: "kxkm_card"})
+def kxkm_card_titreur_text(flag, **kwargs):
+    pass
+
+
+@link({None: "kxkm_card"})
+def kxkm_card_titreur_text(flag, **kwargs):
+    pass
 
 
 @link({None: "kxkm_card"})
