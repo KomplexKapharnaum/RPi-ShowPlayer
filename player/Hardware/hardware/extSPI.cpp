@@ -152,7 +152,7 @@ int extSPI::sendWithPause(int _selectedChip, unsigned char *_tab,int _len){
 //cs is active thru HC595
 //use mosi and sck two put data to hc595 and an aditional rck to latch value
 void extSPI::HC595select(){
-    //fprintf(stderr, "active hc95 %u, prev=%u, keep=%u\n",chipSelect[selectedChip].HC595, hc595activated, keepSelect);
+    fprintf(stderr, "extspi - active hc95 %u, prev=%u, keep=%u\n",chipSelect[selectedChip].HC595, hc595activated, keepSelect);
     hc595activated=chipSelect[selectedChip].HC595;
     int cs=nbmodule*8-chipSelect[selectedChip].HC595;
     unsigned long bitcs=0;
@@ -188,7 +188,7 @@ void extSPI::selectHC595csline(int _selectedCSofHC595){
 
 //cs is active thru 74ACT244
 void extSPI::activeCS(){
-  fprintf(stderr, "extspi - active spi, speed=%u",chipSelect[selectedChip].speed);
+  fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",selectedChip, chipSelect[selectedChip].speed,chipSelect[selectedChip].GPIO);
   wiringPiSPISetup(0,chipSelect[selectedChip].speed);
   if(chipSelect[selectedChip].GPIO!=csactivated || hc595activated!=chipSelect[selectedChip].HC595 || keepSelect==0){
     fprintf(stderr, "extspi - active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
