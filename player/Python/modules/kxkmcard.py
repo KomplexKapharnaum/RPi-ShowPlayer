@@ -132,6 +132,7 @@ class KxkmCard(ExternalProcess):
             answer = dict()
             with open(path, 'r') as f:  # Use file to refer to the file object
                 log.log("debug", "File content : {0}".format(f.readlines()))
+            with open(path, 'r') as f:  # Use file to refer to the file object
                 answer = json.loads(f.read())
             log.log("debug", "full JSON content : {0}".format(answer))
             answer['status'] = 'success'
