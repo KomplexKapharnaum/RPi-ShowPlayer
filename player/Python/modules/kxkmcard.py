@@ -220,7 +220,7 @@ def kxkm_card_titreur_message(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_popup_teleco(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"])
+    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"])
 
 
 @link({None: "kxkm_card"})
