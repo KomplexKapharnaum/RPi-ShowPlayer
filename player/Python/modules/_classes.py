@@ -105,24 +105,24 @@ class ExternalProcess(object):
 
     def say(self, message):
         if self.is_running():
-            try:
-                log.log("error", "Message raw : {0}, __repr__ {1}".format(message,  message.__repr__()))
-            except UnicodeEncodeError:
-                log.log("error", "Fail to prompt RAW")
-                pass
-            message = message.decode("utf-8")
-            try:
-                log.log("error", "Message decode : {0}, __repr__ {1}".format(message, message.__repr__()))
-            except UnicodeEncodeError:
-                log.log("error", "Fail to prompt DECODE")
-                pass
-            message = message.encode("utf-8")
-            try:
-                log.log("error", "Message encode : {0}, __repr__ {1}".format(message,  message.__repr__()))
-            except UnicodeEncodeError:
-                log.log("error", "Fail to prompt ENCODE")
-                pass
-            self._popen.stdin.write(message.decode("utf-8").encode("utf-8")+u'\n')
+            # try:
+            #     log.log("error", "Message raw : {0}, __repr__ {1}".format(message,  message.__repr__()))
+            # except UnicodeEncodeError:
+            #     log.log("error", "Fail to prompt RAW")
+            #     pass
+            # message = message.decode("utf-8")
+            # try:
+            #     log.log("error", "Message decode : {0}, __repr__ {1}".format(message, message.__repr__()))
+            # except UnicodeEncodeError:
+            #     log.log("error", "Fail to prompt DECODE")
+            #     pass
+            # message = message.encode("utf-8")
+            # try:
+            #     log.log("error", "Message encode : {0}, __repr__ {1}".format(message,  message.__repr__()))
+            # except UnicodeEncodeError:
+            #     log.log("error", "Fail to prompt ENCODE")
+            #     pass
+            self._popen.stdin.write(message.decode("utf8")+u'\n')
             log.log("raw", " "+message)
         else:
             # log.log("debug", "Message aborted, Thread not active ")
