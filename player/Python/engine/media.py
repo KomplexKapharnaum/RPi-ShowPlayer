@@ -291,10 +291,8 @@ def restart_netctl():
     :return:
     """
     log.info("Restarting NETCTL auto-wifi ...")
-    if subprocess.check_call(shlex.split(settings.get("path", "systemctl")+" restart netctl-auto@wlan0.service")):
-        log.log("debug", "Succes")
-    else:
-        log.log("debug", "Fail to restart netctl")
+    log.debug("Restart netctl return {0}".format(
+        subprocess.check_call(shlex.split(settings.get("path", "systemctl")+" restart netctl-auto@wlan0.service"))))
 
 
 class UdevThreadMonitor(threading.Thread):
