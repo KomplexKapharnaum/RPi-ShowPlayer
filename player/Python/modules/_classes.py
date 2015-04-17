@@ -4,6 +4,7 @@
 import os
 import shlex
 import threading
+import sys
 import codecs
 
 from modules import MODULES
@@ -122,7 +123,7 @@ class ExternalProcess(object):
             # except UnicodeEncodeError:
             #     log.log("error", "Fail to prompt ENCODE")
             #     pass
-            m = message.decode(self._popen.stdin.encoding)
+            m = message.decode(sys.stdin.encoding)
             self._popen.stdin.write(m+u'\n')
             log.log("raw", " "+message)
         else:
