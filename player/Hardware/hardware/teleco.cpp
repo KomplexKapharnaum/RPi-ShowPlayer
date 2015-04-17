@@ -41,7 +41,16 @@ void Teleco::start(){
 
 void Teleco::reset(){
   fprintf(stderr, "teleco - teleco reset\n");
+  setLedWarning(1);
   writeValue(T_INIT,0);
+}
+
+void setLedOk(int val){
+  writeValue(T_LEDOKVALUE,val);
+}
+
+void setLedWarning(int val){
+  writeValue(T_LEDRVALUE,val);
 }
 
 
@@ -66,6 +75,7 @@ void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
 }
 
 void Teleco::sendPopUp(char Str1[], char Str2[]){
+  setLedWarning(1);
   unsigned char buff[35];
   buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
   for(int i=0;i<16;i++){
@@ -76,11 +86,12 @@ void Teleco::sendPopUp(char Str1[], char Str2[]){
   }
   fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
   SPIcarte.send(0,buff,34);
-  
+  setLedWarning(0);
 }
 
 
 int Teleco::readInterrupt(){
+  setLedWarning(1);
   unsigned char buff[2];
   buff[0]= (char)(READCOMMAND+T_INTERRUPT);
   buff[1]=0;
@@ -144,4 +155,5 @@ int Teleco::readInterrupt(){
       uninit=1;
       break;
   }
+  setLedWarning(0);
 }

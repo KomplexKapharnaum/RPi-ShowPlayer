@@ -60,7 +60,7 @@ private:
   int nbmodule;
   int classmode;
   int GPIO_244_ENABLE;
-  int GPIO_LED_G;
+  int GPIO_LED;
   
   void commonInit(int _spiSpeed);
   int check();

@@ -39,6 +39,22 @@ class KxkmCard(ExternalProcess):
             cmd += ' -off'
         self.say(cmd)
 
+    def setLedTelecoOk(self, switch):
+        cmd = 'setledtelecook'
+        if switch:
+            cmd += ' -on'
+        else:
+            cmd += ' -off'
+        self.say(cmd)
+
+    def setLedCarteOk(self, switch):
+        cmd = 'setledcarteok'
+        if switch:
+            cmd += ' -on'
+        else:
+            cmd += ' -off'
+        self.say(cmd)
+
     def setMessage(self, line1=None, line2=None):
         cmd = 'texttitreur'
         if line1 is not None:
@@ -184,6 +200,8 @@ exposesignals(KxkmCard.Filters)
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
+       "/remote/ledOkT [on/off]": "kxkm_card_lekOK_teleco",
+       "/carte/ledOkC [on/off]": "kxkm_card_lekOK_card",
        "/lumiere/rgb [rgb] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/led1 [led10w1] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
@@ -198,6 +216,15 @@ def kxkm_card_relais(flag, **kwargs):
     switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
     kwargs["_fsm"].vars["kxkmcard"].setRelais(switch)
 
+@link({None: "kxkm_card"})
+def kxkm_card_lekOK_teleco(flag, **kwargs):
+    switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
+    kwargs["_fsm"].vars["kxkmcard"].setLedTelecoOk(switch)
+
+@link({None: "kxkm_card"})
+def kxkm_card_lekOK_card(flag, **kwargs):
+    switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
+    kwargs["_fsm"].vars["kxkmcard"].setLedCarteOk(switch)
 
 @link({None: "kxkm_card"})
 def kxkm_card_lights(flag, **kwargs):
