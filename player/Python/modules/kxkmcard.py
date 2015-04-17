@@ -26,6 +26,7 @@ class KxkmCard(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'kxkmcard-' + get_platform())
         self.onClose = "CARD_EVENT_CLOSE"
+        log.log("raw", "Statring KxkmCard ..")
         self.start()
 
     ##
@@ -99,6 +100,7 @@ class KxkmCard(ExternalProcess):
         :param cmd:
         :return:
         """
+        log.log("raw", "Init HardWare on KxkmCard ..")
         path = settings.get('path', 'deviceslist')
         voltage = None
         titreur = None
@@ -116,11 +118,11 @@ class KxkmCard(ExternalProcess):
         except:
             log.log("debug", "devices.json not found")
 
-            self.say(
-                'initconfig -titreurNbr 1 -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreur {tit} '
-                .format(name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
-                        volt=voltage, tit=titreur))
-            return False
+        self.say(
+            'initconfig -titreurNbr 1 -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreur {tit} '
+            .format(name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
+                    volt=voltage, tit=titreur))
+        return False
 
     def sendInfo(self, cmd=None):
         self.say('info -status {status}'.format(status='yeah!'))
