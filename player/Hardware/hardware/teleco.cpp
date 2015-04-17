@@ -131,6 +131,7 @@ int Teleco::readInterrupt(){
         case 5:
           std::cout << "#TELECO_MESSAGE_POWEROFF" << std::endl;
           if(localpoweroff==1){
+            
             system ("sudo shutdown -h now");
           }
           break;
