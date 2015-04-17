@@ -18,6 +18,7 @@
 	  var boxCount = 0;
     var connectionSelected;
     var listening = true;
+		var editing = false;
     allStates = new Array();
     var Graphique = {};
 
@@ -62,9 +63,11 @@
     var cat2 = {name:'VIDEO', color:'008080'};
     var cat3 = {name:'LUMIERE', color:'F0E080'};
     var cat4 = {name:'REMOTE', color:'FFA07A'};
-    var cat5 = {name:'TITREUR', color:'CD853F'};
-    var cat6 = {name:'CARTE', color:'D8BFD8'};
-    var cat7 = {name:'GENERAL', color:'444444'};
+    var cat5 = {name:'TITREUR', color:'CD5C5C'};
+    var cat6 = {name:'CARTE', color:'3F5F5F'};//2F4F4F
+    var cat7 = {name:'GENERAL', color:'696969'};
+		var cat8 = {name:'DEVICE', color:'708090'};
+		var cat9 = {name:'SCENE', color:'66CDAA'};
     var allCats = new Array();
     allCats.push(cat1);
     allCats.push(cat2);
@@ -73,6 +76,8 @@
     allCats.push(cat5);
     allCats.push(cat6);
     allCats.push(cat7);
+		allCats.push(cat8);
+		allCats.push(cat9);
 	  $.each(allCats, function(index,cat){
 	    $('#addCat,#editCat,#selCat').append(('<option value="'+index+'">'+cat.name+'</option>'));
 	  });
@@ -373,15 +378,20 @@
     ///////////////////////////NEW STATE///////////////////////////////
     ///////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////
+		var relX=0;
+		var relY=0;
     function draggable(){
     var draggablePos;
     $(".lib").draggable({
-      start: function () {
+      start: function (e) {
         draggablePos = $(this).offset();
+				  var parentOffset = $(this).offset();
+					relX = e.pageX - parentOffset.left;
+					relY = e.pageY - parentOffset.top;
         },
       stop: function (e,ui) {
           $(this).offset(draggablePos);
-          if ((e.pageX < 700)&&(e.pageY < 700)){
+          if ((e.pageX < 900)&&(e.pageY < 2000)){
 
 						boxCount++;
 						$.each(allStates,function(index,state){
@@ -392,8 +402,8 @@
             var name = $(this).attr('id');
             var category = $(this).attr('category');
             var boxname = 'box' + boxCount;
-            var py = e.pageY;
-            var px = e.pageX;
+            var py = e.pageY-relY;
+            var px = e.pageX-relX;
             var arg1 = 'arg1';
             var arg2 = 'arg2';
             var boxCreated;
@@ -421,8 +431,6 @@
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
     function state(name,boxname,category,px,py,dispoBOO,dispositifs,mediaBOO,arguments){
-
-
 
       var thisState = this;
   		this.box = $('<div>').addClass('box').attr('id', boxname);
@@ -494,6 +502,12 @@
   		this.box.append(this.connect);
   		$('#container').append(this.box);
 
+			// var topo = this.box.offset().top;
+			// var lefto = this.box.offset().left;
+			// this.box.css({
+  		//   'top': topo-10,
+  		//   'left': lefto-10
+  		// });
 
       //////////////////////// DISPOS LIST /////////////////////
       if (dispoBOO==true){
@@ -643,6 +657,7 @@
           arg1Temp.focus();
           listenToEnterArg1();
           listening = false;
+					editing = true;
         });
         function listenToEnterArg1(){
           arg1Temp.focusout(function(e) {
@@ -650,6 +665,7 @@
             thisState.arg1Val.attr('id', this.value);
             thisState.argumentsArray[thisState.argumentsList[0]]=this.value;
             arg1Temp.remove();
+						editing = false;
           });
         }
       }
@@ -661,6 +677,7 @@
           arg2Temp.focus();
           listenToEnterArg2();
           listening = false;
+					editing = true;
         });
         function listenToEnterArg2(){
           arg2Temp.focusout(function(e) {
@@ -668,6 +685,7 @@
             thisState.arg2Val.attr('id', this.value);
             thisState.argumentsArray[thisState.argumentsList[1]]=this.value;
             arg2Temp.remove();
+						editing = false;
           });
         }
       }
@@ -679,6 +697,7 @@
           arg3Temp.focus();
           listenToEnterArg3();
           listening = false;
+					editing = true;
         });
         function listenToEnterArg3(){
           arg3Temp.focusout(function(e) {
@@ -686,6 +705,7 @@
             thisState.arg3Val.attr('id', this.value);
             thisState.argumentsArray[thisState.argumentsList[2]]=this.value;
             arg3Temp.remove();
+						editing = false;
           });
         }
       }
@@ -700,8 +720,9 @@
         this.box.css('background-color','#'+this.color);
       }
 
-
-
+			//REPAINT ??
+			//jsPlumb.repaint(thisState.box);
+			//jsPlumb.recalculateOffsets(thisState.box)
 
 	  }
     /////////////////////////////////////////////////////////////////////
@@ -716,6 +737,8 @@
 
     ///////////////////////  CONNECTION /////////////////////////////////
     /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+
 
     jsPlumb.bind("connection", function (info) {
         //info.connection.setLabel(info.connection.id);
@@ -762,7 +785,6 @@
       unselectConnections();
       connection.setType("selected");
       connection.setLabel(label);
-      //$(".box").css('background-color','darkblue');
       $.each(allStates, function(index, state){
         this.resetColor();
       });
@@ -788,13 +810,14 @@
 					selected = 'nothing';
         }
 
-        if((e.keyCode == 8)&&(listening == true)&&(selected=='box')){
+        if((e.keyCode == 8)&&(listening == true)&&(selected=='box')&&(editing == false)){
           e.preventDefault();
           var indextoremove;
           $.each(allStates, function(index, state) {
             if (state.active) {
               indextoremove = index;
               jsPlumb.detachAllConnections(state.box);
+							jsPlumb.removeAllEndpoints(state.box);
               state.box.remove();
             }
           });
@@ -843,9 +866,14 @@
     });
 
     function clearAll(){
-      jsPlumb.detachEveryConnection();
+
+
+			jsPlumb.detachEveryConnection();
       $('.box').remove();
       allStates = [];
+
+			jsPlumb.reset();
+
     }
 
 
@@ -993,8 +1021,10 @@
             //anchors: ["BottomCenter", [0.75, 0, 0, -1]]
         });
         newConnection.setLabel(connection.connectionLabel);
-        //newConnection.id=connection.connectionId;
       });
+
+			jsPlumb.repaintEverything();
+
 
     }
 
