@@ -247,12 +247,12 @@ class Media:
                 return self, e
             cp.stop()
             return True
-        elif self.source == "scp":
+        elif self.source == "osc":
             log.warning("!! NOT IMPLEMENTED !! ")
             log.info("Media to scp copy : {0} ".format(self))
             return True
         else:
-            log.warning("What the ..? ")
+            log.warning("What the ..? ask to copy from {0} ".format(self.source))
 
     def remove_from_fs(self):
         """
