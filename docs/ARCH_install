@@ -88,10 +88,23 @@ sudo make install
 
 ####DNC Dependencies
 git clone https://github.com/KomplexKapharnaum/RPi-ShowPlayer.git /dnc
-pacman -S --noconfirm python2-setuptools python2-simplejson cython liblo
+pacman -S --noconfirm python2-setuptools python2-simplejson cython liblo python2-pip fuse-exfat
+pip2.7 install pyudev
 yaourt python2-pyliblo
 yaourt omxplayer 
 /dnc/player/Libs/recompile.sh /dnc/player/Libs
+
+## PyLIBLO
+cd /dnc/docs/PKGBUILDs
+for f in *; do
+	cp $f /tmp/PKGBUILD
+	cd /tmp
+	su pi -c makepkg
+	pacman -U --noconfirm *.pkg.tar.xz
+	rm *.pkg.tar.xz
+	cd /dnc/docs/PKGBUILDs
+done
+
 
 ####NETCTL
 pacman -S --noconfirm wpa_actiond

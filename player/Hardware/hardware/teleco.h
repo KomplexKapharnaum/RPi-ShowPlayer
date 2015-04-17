@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "carte.h"
+#include <string>
 
 
 //VALUE FOR PINOUT
@@ -35,9 +36,10 @@
 #define T_STROBLVSPEED 14
 #define T_STROBLOKSPEED 15
 
-#define T_STRING 16
-#define T_POPUP 17
-#define T_INIT 18
+#define T_INIT 16
+
+#define T_STRING 17
+#define T_POPUP 18
 
 //size of table
 #define T_REGISTERSIZE 19
@@ -69,7 +71,10 @@ public:
   void sendPopUp(char Str1[], char Str2[]);
   int fisrtView();
   void start();
+  void reset();
   int readInterrupt();
+  void setLedOk(int val);
+  void setLedWarning(int val);
 };
 
 

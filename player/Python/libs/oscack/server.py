@@ -198,3 +198,7 @@ class DNCServer(object):
     def add_method(self, *args, **kwargs):
         self.classicServer.add_method(*args, **kwargs)
         self.ackServer.add_method(*args, **kwargs)
+
+    def del_method(self, *args, **kwargs):
+        self.classicServer.del_method(*args, **kwargs)
+        self.ackServer.del_method(*args, **kwargs)

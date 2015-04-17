@@ -10,6 +10,8 @@ import datetime
 import tarfile
 import threading
 import time
+import subprocess
+import shlex
 
 import pyudev
 
@@ -17,10 +19,11 @@ from modules._classes import ExternalProcess
 from libs import pyhashxx
 from engine.setting import settings
 from engine import tools
+from engine.threads import network_scheduler
 
 from engine.log import init_log
 
-log = init_log("media", log_lvl="raw")
+log = init_log("media")
 
 
 def get_unwanted_media_list(needed_media_list):
@@ -179,6 +182,13 @@ class Media:
         """
         return Media(rel_path=rel_path, mtime=None, source="fs", source_path=abs_path, filesize=filesize)
 
+    def get_osc_repr(self):
+        """
+        This function return an OSC reprentation of the Media
+        :return: path, mtime, filesize
+        """
+        return self.rel_path, self.mtime, self.filesize
+
     def put_on_fs(self):  # , error_fnct=None
         """
             This methof put the Media to the file system with the correct way to preserve mtime
@@ -211,6 +221,8 @@ class Media:
             return True
         elif self.source == "scp":
             log.warning("!! NOT IMPLEMENTED !! ")
+            log.info("Media to scp copy : {0} ".format(self))
+            return True
         else:
             log.warning("What the ..? ")
 
@@ -244,7 +256,11 @@ def mount_partition(block_path, mount_path):
     log.debug("Mount {0} on {1} ".format(block_path, mount_path))
     mount_cmd = ExternalProcess(name="mount")
     if not os.path.exists(mount_path):
-        os.mkdir(mount_path)
+        try:
+            os.makedirs(mount_path)
+        except OSError as e:
+            log.warning("Should create mounbt point {0} but failed ".format(mount_path))
+            log.exception(log.show_exception(e))
     else:
         log.warning("Warning, we mount a device {0} on an existing mount point {1}".format(block_path, mount_path))
     mount_cmd.command += " {0} {1}".format(block_path, mount_path)
@@ -291,6 +307,16 @@ def umount_partitions():
     return sucess
 
 
+def restart_netctl():
+    """
+    This function restart netctl
+    :return:
+    """
+    log.info("Restarting NETCTL auto-wifi ...")
+    log.debug("Restart netctl return {0}".format(
+        subprocess.check_call(shlex.split(settings.get("path", "systemctl")+" restart netctl-auto@wlan0.service"))))
+
+
 class UdevThreadMonitor(threading.Thread):
     """
     This class is a thread wich wait on new block plug event and try to mount it
@@ -319,6 +345,9 @@ class UdevThreadMonitor(threading.Thread):
             if device.action == "remove":
                 log.log("debug", "Remove block device {0}".format(device.device_node))
                 umount_partitions()
+                log.log("info",
+                        "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
+                network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), restart_netctl)
                 continue
             elif device.action not in ("add", "change"):
                 log.log("raw", "Block device event {1} (not add) : {0}".format(device.device_node, device.action))
@@ -348,7 +377,7 @@ def save_scenario_on_fs(group, date_timestamp):
     edit_date = datetime.datetime.fromtimestamp(float(date_timestamp)).strftime(settings.get("scenario", "date_format"))
     path = os.path.join(settings.get("path", "scenario"), group)
     if not os.path.exists(path):
-        os.mkdir(path)
+        os.maekdirs(path)
     with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
         tar.add(settings.get("path", "activescenario"),
                 arcname=os.path.basename(settings.get("path", "activescenario")))

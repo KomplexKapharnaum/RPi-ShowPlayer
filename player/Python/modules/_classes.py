@@ -1,5 +1,11 @@
+# -*- coding: utf-8 -*-
+#
+
+import os
 import shlex
 import threading
+import sys
+import codecs
 
 from modules import MODULES
 from libs.subprocess32 import Popen, PIPE
@@ -61,9 +67,17 @@ class ExternalProcess(object):
             log.warning("There is no where ({0}) to put log of {1}".format(logfile, self.name))
             self.stderr = None
         self._running.set()
-        self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
-                                         preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None,
-                                         universal_newlines=False, startupinfo=None, creationflags=0)
+        # if self.name == 'vlcvideo':
+        #     log.debug('HIGH PRIORITY')
+        #     self._popen = Popen( 'chrt -r 80 '+self.command, bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
+        #                                      close_fds=False, shell=True, cwd=None, env=None,
+        #                                      universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
+        #                                     # preexec_fn=lambda : os.nice(-20)
+        # else: 
+        self._popen = Popen(shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
+                                         close_fds=False, shell=False, cwd=None, env=None,
+                                         universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
+                                        # preexec_fn=lambda : os.nice(-20)
         self._watchdog.start()
         register_thread(self)
         if self.onOpen:
@@ -92,8 +106,10 @@ class ExternalProcess(object):
 
     def say(self, message):
         if self.is_running():
-            self._popen.stdin.write(message+"\n")
-            log.log("raw"," "+message)
+            message += "\n"
+            m = message.encode("utf-8")
+            self._popen.stdin.write(m)
+            log.log("raw", " "+message)
         else:
             # log.log("debug", "Message aborted, Thread not active ")
             pass

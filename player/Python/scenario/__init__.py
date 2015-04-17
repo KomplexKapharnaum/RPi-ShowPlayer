@@ -5,11 +5,13 @@ from engine import log, fsm
 from engine.setting import settings
 log = log.init_log("scenario")
 
-SCENARIO_FSM = None
 CURRENT_FRAME = None
 CURRENT_SCENE = None
+
+SCENARIO_FSM = None
 FSM = list()
 DEVICE_FSM = list()
+
 GLOBALS = dict()
 
 def init():

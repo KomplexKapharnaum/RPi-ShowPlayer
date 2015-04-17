@@ -5,7 +5,7 @@
     setTimeout(function(){
       loadTimeline();
       $('#colonne2').fadeIn(200);
-    },100);
+    },200);
 
 
     function pool() {
@@ -97,15 +97,6 @@
         });
       }
 
-      // this.getActiveScene = function(){
-      //   var activeScene = new Array();
-      //     $.each(allScenes,function(key,scene){
-      //       if (scene.active == true){ activeScene.push(scene); }
-      //     })
-      //   return activeScene;
-      //}
-
-
     }
     /////////////////////// SCENE OBJECT ////////////////////////
     /////////////////////////////////////////////////////////////
@@ -133,7 +124,6 @@
       cursor: "move",
       tolerance: "pointer",
       start: function (event, ui) {
-          //console.log($(ui.item).data("startindex", ui.item.index()));
           pool.getScenes();
       },
       sort: function(){
@@ -141,7 +131,6 @@
         pool.followScenes();
       },
       stop: function (event, ui) {
-        //console.log(ui.item.offset().left);
         $.each(allScenes,function(index,scene){ scene.actuPosition();})
         pool.followScenes();
 
@@ -229,7 +218,6 @@
     /////////////////////////////////////////////////////////////
 
     $('#delSceneButton').click(function(){
-      //console.log('scene');
       var indextoremove;
       pool.getScenes();
 
@@ -307,11 +295,12 @@
     var gridwidth;
     var gridtop = $('#allpi').offset().top;
     var gridleft =  $('#allpi').offset().left;
+
+    var sorting = false;
+
     $('#allpinames').sortable({
       axis: "y",
-      start: function (event, ui) {
-          //console.log(ui.item.text());
-      },
+      start: function(){ sorting = true; $('.tip').hide(); },
       sort: function(){
         $.each(allPi,function(index,pi){
           var linenamePos = pi.linename.offset().top-(gridheight*index)-gridtop;
@@ -336,6 +325,7 @@
         // $.each(allPi,function(index,pi){
         //   console.log(index + ' '+pi.lineheight + ' '+ pi.raspiname);
         // });
+        sorting = false;
 
       }
     });
@@ -360,7 +350,7 @@
       this.active = false;
       var thispi = this;
       this.lineheight = this.linename.offset().top;
-      this.description = 'what can i do';
+      this.infos = '...';
 
 
       this.line.dblclick( function()
@@ -393,9 +383,19 @@
         $("#disposms").multipleSelect("setSelects", toCheck);
       }
 
-      this.recoverPiInfos = function(mod){
+      this.recoverPiModules = function(mod){
         thispi.modules = mod;
       }
+
+      this.recoverPiInfos = function(){
+        $.each(disposList,function(index,dispo){
+          if (dispo.hostname == thispi.raspiname){
+            thispi.infos = dispo.infos;
+          }
+        });
+      }
+
+
 
       ///////////////////NAME EDITOR /////////////////
       var piName = $('<input>').attr('type', 'text').addClass("textareaSmall");
@@ -441,6 +441,19 @@
         this.linename.remove();
       }
 
+      ///////////////////SCENE TIPS///////////////////////
+      this.linename.mouseenter(function(e){
+        $('.tip').html('');
+        $('.tip').append(thispi.infos+'<br>');
+      });
+      this.linename.mousemove(function(e){
+        if ( (tooltips == true)&&(sorting == false)){ $('.tip').show();}
+        $('.tip').css({ 'top': e.pageY-14,'left': e.pageX+18 });
+      });
+      this.linename.mouseout(function(){
+        $('.tip').hide();
+      });
+
     }
 
 
@@ -453,18 +466,17 @@
       var thisblock = this;
       this.blockbox = $('<div>').addClass('block');
       thispi.line.append(this.blockbox);
-      //---------------------------
       gridheight = this.blockbox.height();
       gridwidth = this.blockbox.width();
-
       this.blockName = "block" +thispi.blockCount;
       this.blockbox.attr('id', this.blockName);
-      this.group = allgroups[0];
+      //this.group = allgroups[0];
+      this.group = 'default';
       this.scene = 'scene_lambda';
       this.scenarios = [];
       pool.unselectBlocks();
       this.active = false;
-      //$('#blocknameVisu').text(thisblock.blockbox.attr('id'));
+
 
       this.blockbox.on('click', function () {
         pool.unselectBlocks();
@@ -475,12 +487,12 @@
 
       this.editInfos = function(){
         $('#blocknameVisu').text(thisblock.blockbox.attr('id'));
-        var groupname = thisblock.group.name;
+        var groupname = thisblock.group;
         $('#groupselector').val(
           $('#groupselector option').filter(function(){ return $(this).html() == groupname; }).val()
         );
 
-        $('#scenarioname').val(thisblock.scene+'_scenario');
+        $('#scenarioname').val(thisblock.scene+'_temp');
         ///////////// SORTING SCENARIOS
         $("#scenariosms").empty();
         $('#scenariosdropdown').empty();
@@ -513,7 +525,11 @@
       }
 
       this.refreshInfos = function(){
-        thisblock.blockbox.css('backgroundColor', thisblock.group.color);
+        var thecolor;
+        $.each(allgroups, function(index,group){
+          if (group.name == thisblock.group){ thecolor = group.color; }
+        });
+        thisblock.blockbox.css('backgroundColor', thecolor);
       }
 
 
@@ -562,19 +578,20 @@
             }
         });
       }
-      //this.getScene();
+      this.getScene();
 
       //////////////////DRAGGABLE////////////////////////
       thisblock.blockbox.draggable({
         grid: [ 50,50 ],
         axis: "x",
+        distance: 50,
         containment: "parent",
         drag: function(){
           thisblock.actuPosition();
         },
         stop: function(){
           thisblock.scenarios = [];
-          thisblock.group = allgroups[0];
+          thisblock.group = 'default';
           thisblock.getScene();
           thisblock.refreshInfos();
         }
@@ -584,17 +601,14 @@
       this.blockbox.mouseenter(function(e){
         $('.tip').html('');
         $('.tip').append(thisblock.scene+'<br>');
-        // $.each(thisblock.scenarios,function(index,scenar){
-        //   $('.tip').append(scenar+'<br>');
-        // });
+        $.each(thisblock.scenarios,function(index,scenar){
+          $('.tip').append(scenar+'<br>');
+        });
       });
       this.blockbox.mousemove(function(e){
-        if ( tooltips == true){
-          $('.tip').show();
-        }
-        $('.tip').css({ 'top': e.pageY+25,'left': e.pageX-30 });
+        if (tooltips == true){ $('.tip').show();}
+        $('.tip').css({ 'top': e.pageY-14,'left': e.pageX+18 });
       });
-
       this.blockbox.mouseout(function(){
         $('.tip').hide();
       });
@@ -619,9 +633,8 @@
   		});
 
 
-  //////////////////// groupS ///////////////////
-    var colors = new Array ('B5B5B5','218C8D','D83E3E','F9E559','EF7126','8EDC9D','A05C7B',
-    'E1CE9A','3F7CAC','E21D1D','82A647','9B6236','75C1FF','C4E00F','F4FF52','6E0014');
+  //////////////////// groupS ///////////////////EF7126
+    var colors = new Array ('B5B5B5','218C8D','D83E3E','F9E559','3F7CAC','8EDC9D','A05C7B','E1CE9A','75C1FF','82A647', 'EF7126','9B6236','C4E00F','F4FF52','6E0014');
     var group0 = {name:'default', color:colors[0]};
     var group1 = {name:'group1', color:colors[1]};
     var group2 = {name:'group2', color:colors[2]};
@@ -630,6 +643,9 @@
     var group5 = {name:'group5', color:colors[5]};
     var group6 = {name:'group6', color:colors[6]};
     var group7 = {name:'group7', color:colors[7]};
+    var group8 = {name:'group8', color:colors[8]};
+    var group9 = {name:'group9', color:colors[9]};
+    var group10 = {name:'group10', color:colors[10]};
     var allgroups = new Array();
     allgroups.push(group0);
     allgroups.push(group1);
@@ -639,7 +655,9 @@
     allgroups.push(group5);
     allgroups.push(group6);
     allgroups.push(group7);
-
+    allgroups.push(group8);
+    allgroups.push(group9);
+    allgroups.push(group10);
 
     //////////////////// SCENARIOS ///////////////////
     var allScenarios = new Array();
@@ -654,7 +672,10 @@
           }
       })
       .done(function(filelist) {
-        var scenariosList = JSON.parse(filelist);
+        var scenariosList = filelist;
+        if( Object.prototype.toString.call( scenariosList ) !== '[object Array]' ) {
+          scenariosList = JSON.parse(scenariosList);
+        }
         $.each(scenariosList,function(index,name){
           if (name !== 'library.json'){
             var newname = name.replace('.json','');
@@ -681,6 +702,8 @@
         $('#groupselector').append(('<option value="'+index+'">'+group.name+'</option>'));
       });
     }
+    $("#groupselector option:odd").css("background-color","red");
+
     function refreshModulesList(){
       $('#disposms').empty();
       $.each(allModules, function(index,module){
@@ -690,7 +713,6 @@
       $('#disposms').multipleSelect('refresh');
     }
     function refreshscenariosList(){
-      console.log('refreshing scenarios');
       $('#scenariosms').empty();
       $('#scenariosdropdown').empty();
       $.each(allScenarios, function(index,scenario){
@@ -729,7 +751,7 @@
 
 
   ///////////////////INSPECTOR SHOWS////////////////////
-  ///////////////////scenarioS
+  ///////////////////Scenarios
     $('#openscenarioseditor').click( function(){
       $(".inspector").hide();
       $("#scenarioseditor").fadeIn(200);
@@ -739,18 +761,8 @@
       $("#scenarioseditor").hide();
     });
 
-  ///////////////////group
-    $('#opengroupeditor').click( function(){
-      $(".inspector").hide();
-      $("#groupseditor").hide().fadeIn(100);
 
-    });
-
-    $('#closegroupditor').click( function(){
-      $("#groupseditor").hide();
-    });
     /////////////////////////////////////////////////////
-
 
     $(".textarea").on("click", function () {
       $(this).select();
@@ -764,43 +776,18 @@
     });
 
 
-    ///////////////////INSPECTOR group////////////////////
+    ///////////////////GROUP SELECTOR////////////////////
     $('#groupselector').change(function(){
       var that = $(this);
       $.each(pool.getActiveBlock(), function(index,block) {
-        block.group = allgroups[that.find(":selected").val()];
+        block.group = $('#groupselector option:selected').text();
         block.refreshInfos();
       });
-      $("#groupname").val($('#groupselector option:selected').text());
     });
 
-    $('#addbtn').click( function(){
-      var groupname = $("#groupname").val();
-      var newgroup = {name:groupname, color:colors[allgroups.length]};
-      allgroups.push(newgroup);
-      refreshgroupsList();
-      $("#groupname").val("New...");
-      });
-
-    $('#modifbtn').click( function(){
-      var groupname = $("#groupname").val();
-      var indexedited = $('#groupselector').find(":selected").val();
-      allgroups[indexedited].name = groupname;
-      refreshgroupsList();
-      $('#groupselector').val(indexedited);
-    });
-
-    $('#delbtn').click( function(){
-      var that = $('#groupselector');
-        var indexedited = that.find(":selected").val();
-        allgroups.splice(indexedited,1);
-        refreshgroupsList();
-        $("#groupname").val("New...");
-    });
 
     ///////////////////INSPECTOR DISPO////////////////////
     $('#disposms').change(function() {
-      //$("#modulesList").empty();
       var that = $(this);
       $.each(pool.getActivePi(), function(index,pi) {
         var selectedModules = that.multipleSelect("getSelects", "text");
@@ -811,7 +798,6 @@
       });
 
     });
-
 
     ///////////////////INSPECTOR SCENARIOS////////////////////
     $('#scenariosms').change(function() {
@@ -839,7 +825,6 @@
       var that = $(this);
       $("#scenarioname").val($('#scenariosdropdown option:selected').text());
     });
-
 
     $('#addscenariobtn').click( function(){
       var scenarioname = $("#scenarioname").val();
@@ -1002,6 +987,7 @@
         exportPool.push({
           name: pi.raspiname,
           modules: pi.modules,
+        //infos: pi.infos,
           blocks: []
         });
         $.each(pi.allBlocks, function(indexblock, block) {
@@ -1040,7 +1026,7 @@
       });
 
       $.each(allPi, function( indexpi, pi ) {
-        pi.recoverPiInfos(newPool[indexpi].modules);
+        pi.recoverPiModules(newPool[indexpi].modules );
 
         $.each(newPool[indexpi].blocks, function( indexblk, blk ) {
           pi.allBlocks.push( new block(pi) );
@@ -1061,6 +1047,7 @@
       })
 
       pool.getScenes();
+      getDisposList();
 
     }
 
@@ -1079,7 +1066,10 @@
           }
       })
       .done(function(filelist) {
-        var alltime = JSON.parse(filelist);
+        var alltime = filelist;
+        if( Object.prototype.toString.call( alltime ) !== '[object Array]' ) {
+          alltime = JSON.parse(alltime);
+        }
         $.each(alltime,function(index,name){
             var newname = name.replace('.json','');
             allTimelines.push(newname);
@@ -1104,11 +1094,11 @@
     //////////////////////// CHOOSE  DISPO   ////////////////////////////
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
-    var dispotemp = {hostname:'Select...', description: 'when', active: 'yes'};
-    var dispo1 = {hostname:'dispo1', description: 'when', active: 'yes'};
-    var dispo2 = {hostname:'dispo2', description: 'where', active: 'yes'};
-    var dispo3 = {hostname:'dispo3', description: 'what', active: 'yes'};
-    var dispo4 = {hostname:'dispo4', description: 'who', active: 'yes'};
+    var dispotemp = {hostname:'Select...', infos: 'when', active: 'yes'};
+    var dispo1 = {hostname:'dispo1', infos: 'when', active: 'yes'};
+    var dispo2 = {hostname:'dispo2', infos: 'where', active: 'yes'};
+    var dispo3 = {hostname:'dispo3', infos: 'what', active: 'yes'};
+    var dispo4 = {hostname:'dispo4', infos: 'who', active: 'yes'};
 
     var disposList = new Array();
     disposList.push(dispotemp);
@@ -1117,16 +1107,22 @@
     disposList.push(dispo3);
     disposList.push(dispo4);
 
-		$.ajax({
-			type: 'GET',
-			timeout: 1000,
-		  url: "http://2.0.1.89:8080/disposList",
-			dataType: "jsonp",
-		}).done(function(data) {
-			disposList = data.devices;
-			disposList.unshift(dispotemp);
-      updateDispos();
-		});
+    // DO after loadTimeline(), --> recoverPiInfos finds raspiname
+    function getDisposList(){
+  		$.ajax({
+  			type: 'GET',
+  			timeout: 1000,
+  		  url: "http://2.0.1.89:8080/disposList",
+  			dataType: "jsonp",
+  		}).done(function(data) {
+  			disposList = data.devices;
+  			disposList.unshift(dispotemp);
+        updateDispos();
+        $.each(allPi, function( indexpi, pi ) {
+          pi.recoverPiInfos();
+        });
+  		});
+    }
 
 		function updateDispos(){
 			$('#disposelector').empty();
@@ -1149,10 +1145,11 @@
         editedPi.linename.text(newval);
         $('#piname').text(newval);
         $.each(disposList,function(index,dispo){
-          if (dispo.name == newval){
-            editedPi.description = dispo.description;
+          if (dispo.hostname == newval){
+            editedPi.infos = dispo.infos;
           }
-        })
+        });
+
       }
     });
 

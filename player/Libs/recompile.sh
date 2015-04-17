@@ -51,3 +51,4 @@ cd ../
 #cp build/lib.linux-$(lscpu | grep Architecture | cut -d":" -f 2 | sed -e 's/^[ \t]*//')-2.7/spilib.so ../../Python/libs/
 #cd ../
 
+

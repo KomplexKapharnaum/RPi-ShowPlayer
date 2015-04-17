@@ -17,22 +17,26 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 #include <iostream>
+#include <string>
+
 
 
 
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
-  fprintf(stderr, "add extension card dnc\n");
+  fprintf(stderr, "carte - add extension card dnc\n");
   SPIcarte.initSPI();
-  SPIcarte.addChipSelect(13,500000);
+  SPIcarte.addChipSelect(13,1000000);
   gamme_tension=_gamme_tension;
   pwm_ledb_or_10w2=_pwm_ledb_or_10w2;
   wiringPiSetupGpio();
   GPIO_READ_BATT=25;
   GPIO_RESET=27;
   GPIO_RELAIS=26;
+  GPIO_LED_GREEN=16;
   pinMode (GPIO_READ_BATT, OUTPUT);
   pinMode (GPIO_RESET, OUTPUT);
   pinMode (GPIO_RELAIS, OUTPUT);
+  pinMode (GPIO_LED_GREEN, OUTPUT);
   digitalWrite (GPIO_RELAIS, LOW);
   digitalWrite (GPIO_RESET, HIGH);
   delay(1);
@@ -40,8 +44,9 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   delay(5);
   digitalWrite (GPIO_RESET, HIGH);
   delay(50);
+  writeValue(VOLTAGEMODE,gamme_tension);
   checkTension();
-  fprintf(stderr, "tension initiale : %f mode : %uV\n", (float)value[UBATT]/10, value[VOLTAGEMODE]);
+  fprintf(stderr, "carte - tension initiale : %.1f mode : %uV\n", (float)value[UBATT]/10, gamme_tension);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
   writeValue(INTERRUPT,0);
@@ -49,7 +54,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
 
 
 void Carte::writeValue(int valueType,int value, int fadetime){
-  fprintf(stderr, "writeValue %u : %u (f:%u) ", valueType,value,fadetime);
+  fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
   int size;
   if(fadetime==0){size=2; }else {size=4;}
   unsigned char buff[5];
@@ -76,12 +81,12 @@ int Carte::readInterrupt(){
   buff[0]= (char)(READCOMMAND+INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "read i %u\n",buff[1]);
+  fprintf(stderr, "carte - read i %u\n",buff[1]);
   int address = buff[1];
   buff[0]= (char)(READCOMMAND+buff[1]);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "read v %u\n",buff[1]);
+  fprintf(stderr, "carte - read v %u\n",buff[1]);
   int valeur =buff[1];
   switch (address) {
       //@todo : faire un tableau et l'envoyer
@@ -147,8 +152,13 @@ void Carte::setGyro(int mode, int speed, int strob){
 }
 
 void Carte::setRelais(int val){
-  fprintf(stderr, "set relais %u",val);
+  fprintf(stderr, "carte - set relais %u",val);
   digitalWrite (GPIO_RELAIS, val);
+}
+
+void Carte::setledG(int val){
+  fprintf(stderr, "carte - set led green %u",val);
+  digitalWrite (GPIO_LED_GREEN, val);
 }
 
 

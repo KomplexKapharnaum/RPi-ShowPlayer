@@ -10,6 +10,7 @@ from _classes import ExternalProcess, module
 from modules import link, exposesignals
 from engine.setting import settings
 from engine.log import init_log
+from libs import rtplib
 log = init_log("video")
 
 
@@ -20,12 +21,9 @@ class VlcPlayer(ExternalProcess):
     def __init__(self):
         ExternalProcess.__init__(self, 'vlcvideo')
         self.onClose = "VIDEO_END"
-        current_userid = os.getuid()
-        if current_userid == 0:
-            os.seteuid(1000)
+        self.media = None
+        self.repeat = 'off'
         self.start()
-        if current_userid == 0:
-            os.seteuid(0)
         # self._rcport = 1250
         # self.command += " -I rc --rc-host 0.0.0.0:{port} --no-osd --aout alsa".format(port=self._rcport)
 
@@ -33,25 +31,22 @@ class VlcPlayer(ExternalProcess):
     #     cmd = "echo {txt} | nc -c localhost {port}".format(txt=message, port=self._rcport)
     #     subprocess.call(cmd, shell=True)
 
-    def play(self, filename=None, repeat=None):
+    def preload(self, filename=None, repeat=None):
         media = os.path.join(settings.get("path", "video"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             self.say("clear")
-            self.say("add {media}".format(media=self.media))
+            
             if repeat is not None:
-                self.repeat = repeat
-                switch = 'on' if self.repeat else 'off'
-                self.say("repeat {switch}".format(switch=switch))
+                self.repeat = 'on' if repeat else 'off'
             self.say("play")
         else:
             log.warning("Media File not found {0}".format(media))
 
-    def stop(self):
-        self.say("stop")
+    def play(self):
+        self.say("add {media}".format(media=self.media))
+        self.say("repeat {switch}".format(switch=self.repeat))
 
-    def pause(self):
-        self.say("pause")
 
     Filters = {
         'VIDEO_END': [True]
@@ -64,9 +59,10 @@ class VlcPlayerOneShot(VlcPlayer):
     def __init__(self):
         ExternalProcess.__init__(self, 'vlcvideo')
         self.onClose = "VIDEO_END"
+        self.media = None
+        self.repeat = 'off'
 
     def play(self, filename=None, repeat=None):
-        
         media = os.path.join(settings.get("path", "video"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
@@ -83,6 +79,7 @@ class VlcPlayerOneShot(VlcPlayer):
 
 exposesignals(VlcPlayer.Filters)
 
+PROCESS = VlcPlayerOneShot()
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
@@ -95,25 +92,38 @@ def video_player(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
+    # log.debug('+++ {0}'.format(flag.args['abs_time_sync']))
     # flag.args['media']
     # flag.args["args"][0]
-    if "video" in kwargs["_fsm"].vars.keys():
+    if 'video' in kwargs["_fsm"].vars:
         kwargs["_fsm"].vars["video"].stop()
     kwargs["_fsm"].vars["video"] = VlcPlayerOneShot()
+
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
-    kwargs["_fsm"].vars["video"].play(media, repeat)
+
+    kwargs["_fsm"].vars["video"].preload(media, repeat)
+    kwargs["_fsm"].vars["video"].play()
+    kwargs["_fsm"].vars["video"].say("pause")
+
+    if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args: 
+        rtplib.wait_abs_time(*flag.args['abs_time_sync'])
+        kwargs["_fsm"].vars["video"].say("pause")
+        log.debug('+++ SYNC PLAY')
+
+    
+    
     kwargs["_etape"].preemptible.set()
 
 
 @link({None: "video_player"})
 def video_stop(flag, **kwargs):
-    kwargs["_fsm"].vars["video"].stop()
+    kwargs["_fsm"].vars["video"].say("stop")
 
 
 @link({None: "video_player"})
 def video_pause(flag, **kwargs):
-    kwargs["_fsm"].vars["video"].pause()
+    kwargs["_fsm"].vars["video"].say("pause")
 
 
 

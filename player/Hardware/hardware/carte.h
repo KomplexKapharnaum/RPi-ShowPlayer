@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "extSPI.h"
+#include <string>
 
 //VALUE FOR PINOUT
 #define LEDRVALUE 0
@@ -69,16 +70,15 @@ class Carte{
 private:
   int gamme_tension;
   int pwm_ledb_or_10w2;
-  int GPIO_READ_BATT;
-  int GPIO_RESET;
   int value[];
-  int GPIO_RELAIS;
+  int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT;
+
   
 protected:
   extSPI SPIcarte;
   
 public :
-  void initCarte(int _pwm_ledb_or_10w2 = PWM_LEDB, int _gamme_tension = 12, int checkFloat = 0);
+  void initCarte(int _pwm_ledb_or_10w2 = PWM_LEDB, int _gamme_tension = 0, int checkFloat = 0);
   void writeValue(int valueType,int value, int fadetime=0);
   int readValue(int valueType);
   int readInterrupt();
@@ -87,6 +87,8 @@ public :
   void led10WValue(int v, int fadetime = 0, int strob=0);
   void setGyro(int mode, int speed, int strob=0);
   void setRelais(int val);
+  void setledG(int val);
+
   
   ~Carte();
   
