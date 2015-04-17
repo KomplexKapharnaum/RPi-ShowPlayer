@@ -39,7 +39,7 @@ def start(flag, **kwargs):
         kwargs['_fsm'].stop()
 
 
-@publicbox('[ ]')
+@publicbox('[none]')
 def wait(flag, **kwargs):
     '''
     START Box: for concerned DEST only
