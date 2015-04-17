@@ -75,7 +75,7 @@ body
   margin-left: 0px;
   display: block;
   border: 1px solid gray;
-  width: 800px;
+  width: 950px;
   height: 2000px;
 
 }
@@ -118,6 +118,9 @@ body
 .btn:focus{
   outline: none;
 }
+.btn:active{
+  opacity: 0.5;
+}
 .btnValid
 {
   color: white;
@@ -128,6 +131,9 @@ body
 }
 .btnValid:focus{
   outline: none;
+}
+.btnValid:active{
+  opacity: 0.5;
 }
 .btn2
 {
@@ -230,7 +236,7 @@ body
 }
 
 #colonne2{
-  margin-left: 810px;
+  margin-left: 960px;
   float: left;
   width: 150px;
   display: block;
@@ -238,9 +244,9 @@ body
 
 }
 #colonne3{
-  margin-left: 968px;
+  margin-left: 1118px;
   float: left;
-  width: 300px;
+  width: 275px;
   display: block;
   position: fixed;
 }
@@ -265,7 +271,7 @@ body
   /*border: 1px solid lightslategrey;*/
   font-size: 12px;
   height:200px;
-  width:280px;
+  width:255px;
   font-family: Consolas;
 }
 
@@ -286,6 +292,11 @@ body
 
 #txted:focus{
   outline:none;
+}
+
+#serverDisplay{
+  position: absolute;
+  top: 560px;
 }
 
 /* ///////////////  CHECKBOX ///////////// */

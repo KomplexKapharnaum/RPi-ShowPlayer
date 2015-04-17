@@ -1,6 +1,7 @@
 	jsPlumb.ready(function() {
 
     /////////////////////////  GLOBAL  //////////////////////////////
+
     jsPlumb.registerConnectionType("selected", {
       paintStyle:{ strokeStyle:"lawngreen", lineWidth:3  },
       hoverPaintStyle:{ strokeStyle:"lawngreen", lineWidth:4 },
@@ -14,6 +15,8 @@
     });
 
 	  jsPlumb.setContainer($('#container'));
+
+
 
 	  var boxCount = 0;
     var connectionSelected;
@@ -502,12 +505,6 @@
   		this.box.append(this.connect);
   		$('#container').append(this.box);
 
-			// var topo = this.box.offset().top;
-			// var lefto = this.box.offset().left;
-			// this.box.css({
-  		//   'top': topo-10,
-  		//   'left': lefto-10
-  		// });
 
       //////////////////////// DISPOS LIST /////////////////////
       if (dispoBOO==true){
@@ -791,6 +788,7 @@
 
     });
 
+
     function unselectConnections(){
       $.each(jsPlumb.getAllConnections(), function(idx, connection) {
         var label = connection.getLabel();
@@ -872,8 +870,9 @@
       $('.box').remove();
       allStates = [];
 
-			jsPlumb.reset();
-
+			//jsPlumb.reset();
+			// AND REPAINT EVERYTHING AFTER LOAD?
+			//jsPlumb.repaintEverything();
     }
 
 
@@ -999,6 +998,8 @@
 
     function loadGraphique(){
       clearAll();
+			//jsPlumb.reset();
+
 
       var boxes = Graphique.boxes;
       $.each(boxes, function( index, box ) {
@@ -1023,8 +1024,11 @@
         newConnection.setLabel(connection.connectionLabel);
       });
 
-			jsPlumb.repaintEverything();
-
+			//jsPlumb.repaintEverything();
+			// $.each(allStates, function( index, state ) {
+			// 			jsPlumb.repaint(state.box);
+			// 			jsPlumb.recalculateOffsets(state.box)
+			// });
 
     }
 
