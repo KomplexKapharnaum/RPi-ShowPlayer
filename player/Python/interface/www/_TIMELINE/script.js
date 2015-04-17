@@ -502,11 +502,14 @@
         //sort
         $.each(allScenarios,function(index,scenario){
           var sceno = scenario.name.split('_')[0];
+          //console.log(sceno);
           if (sceno == thisblock.scene){
+            //console.log(sceno);
             $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
             $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
           }
-          if($.inArray(sceno, scenesList)==-1) {
+          if(($.inArray(sceno, scenesList)==-1)&&(scenario.name.indexOf('_')==-1)) {
+            console.log(sceno);
             $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
             $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
           }
@@ -577,6 +580,8 @@
             thisblock.scene = scene.name;
             }
         });
+        // console.log(thisblock.scene);
+        // console.log(thisblock.start);
       }
       this.getScene();
 
