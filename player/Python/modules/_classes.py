@@ -105,11 +105,11 @@ class ExternalProcess(object):
 
     def say(self, message):
         if self.is_running():
-            log.log("erro", "Message raw : {0}, __repr__ {1}".format(message,  message.__repr__()))
+            log.log("error", "Message raw : {0}, __repr__ {1}".format(message,  message.__repr__()))
             message = message.decode("utf-8")
-            log.log("erro", "Message decode : {0}, __repr__ {1}".format(message, message.__repr__()))
+            log.log("error", "Message decode : {0}, __repr__ {1}".format(message, message.__repr__()))
             message = message.encode("utf-8")
-            log.log("erro", "Message encode : {0}, __repr__ {1}".format(message,  message.__repr__()))
+            log.log("error", "Message encode : {0}, __repr__ {1}".format(message,  message.__repr__()))
             self._popen.stdin.write(message.decode("utf-8").encode("utf-8")+u'\n')
             log.log("raw", " "+message)
         else:
