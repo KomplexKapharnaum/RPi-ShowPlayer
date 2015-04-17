@@ -62,8 +62,11 @@ class MediaList(list):
         """
         This function test if media_obj is wanted (present and newer) based on the NeededMediaList
         """
+        log.log("raw", "Do this list need {0}".format(media_obj))
         for elem in self:
-            if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime:
+            log.log("raw", "Test with : {0}".format(elem))
+            if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime or elem.mtime:
+                log.log("raw", "Found !!  ")
                 return True
         return False
 
@@ -77,6 +80,16 @@ class MediaList(list):
             if elem.filesize < smaller.filesize: # and elem not in ignore:
                 smaller = elem
         return smaller
+
+    def total_space(self):
+        """
+        This function return the total space of media content in the media list
+        """
+        total_size = 0
+        for elem in self:
+            if elem.filesize is not None:
+                total_size += elem.filesize
+        return total_size
 
     def __repr__(self):
         r = "Media list : \n"
@@ -128,7 +141,7 @@ class Media:
             # return False
             mtime = 0
         else:
-            mtime = time.ctime(os.path.getmtime(path))
+            mtime = os.path.getmtime(path)
         return Media(rel_path=rel_path, mtime=mtime, source="scenario", source_path=path)
 
     @staticmethod
@@ -141,7 +154,7 @@ class Media:
         if not os.path.exists(abs_path):
             log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
             return False
-        mtime = time.ctime(os.path.getmtime(abs_path))
+        mtime = os.path.getmtime(abs_path)
         filesize = int(os.path.getsize(abs_path) / 1000)  # In Ko
         return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
 
@@ -174,7 +187,8 @@ class Media:
         This function return an OSC reprentation of the Media
         :return: path, mtime, filesize
         """
-        return self.rel_path, self.mtime, self.filesize
+        log.log("raw", "get_osc_rep for : {0}".format(self))
+        return str(self.rel_path), float(self.mtime), int(self.filesize)
 
     def put_on_fs(self):  # , error_fnct=None
         """

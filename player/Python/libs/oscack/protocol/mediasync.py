@@ -100,6 +100,7 @@ def init(flag):
     flag.args["timeout"] = settings.get("sync", "timeout_wait_syncflag")
     machine.append_flag(flag)
     stop_timeout.clear()
+    append_send_list_timeout()
 
 
 def _pass(flag):
@@ -111,6 +112,7 @@ def append_send_list_timeout():
     This function append a send list time out flag and recron itself
     :return:
     """
+    log.log("raw", "Before appending send list flag  ..")
     if stop_timeout.is_set():
         log.log("debug", "Stop send list media timeout")
     else:
@@ -355,8 +357,8 @@ def trans_does_network_sync_enabled(flag):
     :param flag:
     :return:
     """
-    if settings.get("sync", "enabled") and settings.get("sync", "media"):
-        if flag.args["path"] == msg_media_version.path:
+    if settings.get("sync", "enable") and settings.get("sync", "media"):
+        if "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
             flag.args["files_to_test"] = media.MediaList()
             try:
                 ssh_user = flag.args["args"].pop(0)
@@ -377,6 +379,8 @@ def trans_does_network_sync_enabled(flag):
                 flag.args["trans_free"] = step_put_media_on_fs
                 flag.args["trans_full"] = trans_can_free
                 return trans_need_media_in
+        else:                               # elif "send" in flag.args.keys():
+            return step_send_media_list
     return step_main_wait
 
 
@@ -390,9 +394,11 @@ def send_media_list(flag):
     args_list.append(getpass.getuser())                 # username
     args_list.append(settings.get("path", "media"))     # media path
     for f in needed_media_list:
-        args_list.append(*f.get_osc_repr())             # Add all needed media
+        for value in f.get_osc_repr():
+            args_list.append(value)             # Add all needed media
     for f in unwanted_media_list:
-        args_list.append(*f.get_osc_repr())             # Add all other media available
+        for value in f.get_osc_repr():
+            args_list.append(value)             # Add all other media available
     message.send(message.Address("255.255.255.255"), msg_media_version.get(args_list))
 
 
@@ -410,7 +416,7 @@ step_main_wait = fsm.State("STEP_MAIN_WAIT", function=_pass, transitions={})
 
 step_first_send_sync_flag = fsm.State("STEP_FIRST_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
     flag_timeout.uid: step_main_wait,  # TODO : Go to first sync instead of main wait
-    msg_sync_flag.flag_name: trans_does_flag_newer  # TODO : Implement newer sync flag ?
+    # msg_sync_flag.flag_name: trans_does_flag_newer  # TODO : Implement newer sync flag ?
 })
 
 step_send_sync_flag = fsm.State("STEP_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
@@ -445,11 +451,15 @@ step_update_sync_flag = fsm.State("STEP_UPDATE_SYNC_FLAG", function=update_sync_
     None: step_main_wait
 })
 
+step_send_media_list = fsm.State("STEP_SEND_MEDIA_LIST", function=send_media_list, transitions={
+    None: step_main_wait
+})
+
 step_main_wait.transitions = {
     flag_usb_plugged.uid: trans_usb_have_dnc_media,
     flag_update_media_list.uid: step_update_media_list,
     msg_sync_flag.flag_name: trans_does_flag_newer,
-
+    flag_timeout_send_list.uid: trans_does_network_sync_enabled
     # TODO implement the other transitions
 }
 
