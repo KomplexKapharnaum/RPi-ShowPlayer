@@ -214,8 +214,8 @@ class Media:
         :return: path, pickle(mtime, filesize)
         """
         log.log("raw", "get_osc_rep for : {0}".format(self))
-        # return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('f', float(self.filesize/1000))
-        return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
+        return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize/1000))
+        # return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
 
     def put_on_fs(self):  # , error_fnct=None
         """
