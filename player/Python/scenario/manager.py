@@ -3,6 +3,8 @@
 # This file provide a FSM which manage a scenario by witch between scenes
 #
 
+import threading
+
 import libs.oscack
 
 from engine.threads import patcher
@@ -16,15 +18,18 @@ from engine.log import init_log
 log = init_log("manager")
 
 
+already_init = threading.Event()
+
+
 def patch_msg(path, args, types, src,):
     log.log("error", "OSC WILD CARD get {0}".format(path))
     patcher.patch(libs.oscack.network.get_flag_from_msg(path, args, types, src))
 
 
 def init(flag):
+    global already_init
     log.debug("Init manager")
     scenario.CURRENT_FRAME = 0
-
     # Register Device Patchs
     # pool.Cartes[settings["uName"]].device.register_patchs()
     for patch in scenario.pool.Cartes[settings["uName"]].device.patchs:
@@ -36,7 +41,12 @@ def init(flag):
         # patcher.add_patch(patch)
     libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD
     libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD (SEKU)
-    libs.oscack.DNCserver.add_method(None, None, patch_msg)
+    if already_init.is_set():
+        log.log("First init manager : set wildcard")
+        libs.oscack.DNCserver.add_method(None, None, patch_msg)
+        already_init.set()
+    else:
+        log.log("Omit wildcard because manager already been inited")
 
 
 def start_scene(flag):
