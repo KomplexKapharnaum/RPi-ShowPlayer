@@ -188,9 +188,10 @@ void extSPI::selectHC595csline(int _selectedCSofHC595){
 
 //cs is active thru 74ACT244
 void extSPI::activeCS(){
+  fprintf(stderr, "extspi - active spi, speed=%u",chipSelect[selectedChip].speed);
   wiringPiSPISetup(0,chipSelect[selectedChip].speed);
   if(chipSelect[selectedChip].GPIO!=csactivated || hc595activated!=chipSelect[selectedChip].HC595 || keepSelect==0){
-    //fprintf(stderr, "active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
+    fprintf(stderr, "extspi - active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
     csactivated=chipSelect[selectedChip].GPIO;
     inactiveCS();
     digitalWrite (GPIO_LED, HIGH);
@@ -198,7 +199,6 @@ void extSPI::activeCS(){
     if(chipSelect[selectedChip].HC595==-1) digitalWrite (chipSelect[selectedChip].GPIO, LOW);
     else HC595select();
   }
-  
 }
 
 
