@@ -157,7 +157,7 @@ int parseInput(){
           if(voltage=="-")mycarte.initCarte(PWM_LEDB,0);
           else if(voltage=="life12")mycarte.initCarte(PWM_LEDB,13);
           else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,11);
-          else if(voltage=="pb12"){mycarte.initCarte(PWM_LEDB,11);
+          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,11);
           else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,27);
           else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,26);
           else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,24);
