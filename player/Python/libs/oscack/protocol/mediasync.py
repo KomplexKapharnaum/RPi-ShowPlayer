@@ -393,10 +393,8 @@ def send_media_list(flag):
     args_list = list()
     args_list.append(getpass.getuser())                 # username
     args_list.append(settings.get("path", "media"))     # media path
-    for f in needed_media_list:
-        for value in f.get_osc_repr():
-            args_list.append(value)             # Add all needed media
-    for f in unwanted_media_list:
+    all_media = media.get_all_media_list()
+    for f in all_media:
         for value in f.get_osc_repr():
             args_list.append(value)             # Add all other media available
     message.send(message.Address("255.255.255.255"), msg_media_version.get(args_list))

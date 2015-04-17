@@ -26,6 +26,21 @@ from engine.log import init_log
 log = init_log("media", log_lvl="raw")
 
 
+def get_all_media_list():
+    """
+    This function return a MediaList for all media in scenario
+    :return:
+    """
+    all_media = MediaList()
+    media_path = settings.get("path", "media")
+    for path, dirs, files in os.walk(media_path):  # Retreived file list to check
+        for f in files:
+            abs_path = os.path.join(path, f)
+            rel_path = os.path.relpath(abs_path, media_path)
+            all_media.append(Media.from_fs(rel_path, abs_path, os.path.getsize(abs_path)))
+    return all_media
+
+
 def get_unwanted_media_list(needed_media_list):
     """
     This function return the list of media present on the filesystem but which are not required by scenario
