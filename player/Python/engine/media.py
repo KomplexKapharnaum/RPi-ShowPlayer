@@ -169,6 +169,13 @@ class Media:
         """
         return Media(rel_path=rel_path, mtime=None, source="fs", source_path=abs_path, filesize=filesize)
 
+    def get_osc_repr(self):
+        """
+        This function return an OSC reprentation of the Media
+        :return: path, mtime, filesize
+        """
+        return self.rel_path, self.mtime, self.filesize
+
     def put_on_fs(self):  # , error_fnct=None
         """
             This methof put the Media to the file system with the correct way to preserve mtime
@@ -201,6 +208,8 @@ class Media:
             return True
         elif self.source == "scp":
             log.warning("!! NOT IMPLEMENTED !! ")
+            log.info("Media to scp copy : {0} ".format(self))
+            return True
         else:
             log.warning("What the ..? ")
 
@@ -291,10 +300,8 @@ def restart_netctl():
     :return:
     """
     log.info("Restarting NETCTL auto-wifi ...")
-    if subprocess.check_call(shlex.split(settings.get("path", "systemctl")+" restart netctl-auto@wlan0.service")):
-        log.log("debug", "Succes")
-    else:
-        log.log("debug", "Fail to restart netctl")
+    log.debug("Restart netctl return {0}".format(
+        subprocess.check_call(shlex.split(settings.get("path", "systemctl")+" restart netctl-auto@wlan0.service"))))
 
 
 class UdevThreadMonitor(threading.Thread):
