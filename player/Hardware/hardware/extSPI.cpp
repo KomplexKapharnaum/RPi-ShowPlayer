@@ -52,8 +52,8 @@ void extSPI::commonInit(int _spiSpeed){
   wiringPiSPISetup(0,_spiSpeed);
   //define 244
   wiringPiSetupGpio();
-  GPIO_LED_G=16;
-  pinMode (GPIO_LED_G, OUTPUT) ;
+  GPIO_LED=12;
+  pinMode (GPIO_LED, OUTPUT) ;
   GPIO_244_ENABLE = 5; //define by electronic (do not forget it's inverted line)
   pinMode (GPIO_244_ENABLE, OUTPUT) ;
   digitalWrite (GPIO_244_ENABLE, LOW);
@@ -193,7 +193,7 @@ void extSPI::activeCS(){
     //fprintf(stderr, "active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
     csactivated=chipSelect[selectedChip].GPIO;
     inactiveCS();
-    digitalWrite (GPIO_LED_G, HIGH);
+    digitalWrite (GPIO_LED, HIGH);
     digitalWrite (GPIO_244_ENABLE, HIGH);
     if(chipSelect[selectedChip].HC595==-1) digitalWrite (chipSelect[selectedChip].GPIO, LOW);
     else HC595select();
@@ -209,7 +209,7 @@ void extSPI::inactiveCS(){
     else digitalWrite (chipSelect[i].GPIO, LOW);
   }
   digitalWrite (GPIO_244_ENABLE, LOW);
-  digitalWrite (GPIO_LED_G, LOW);
+  digitalWrite (GPIO_LED, LOW);
   }
 }
 

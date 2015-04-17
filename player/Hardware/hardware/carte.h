@@ -70,10 +70,8 @@ class Carte{
 private:
   int gamme_tension;
   int pwm_ledb_or_10w2;
-  int GPIO_READ_BATT;
-  int GPIO_RESET;
   int value[];
-  int GPIO_RELAIS;
+  int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT;
 
   
 protected:
@@ -89,6 +87,7 @@ public :
   void led10WValue(int v, int fadetime = 0, int strob=0);
   void setGyro(int mode, int speed, int strob=0);
   void setRelais(int val);
+  void setledG(int val);
 
   
   ~Carte();

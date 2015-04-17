@@ -73,6 +73,8 @@ public:
   void start();
   void reset();
   int readInterrupt();
+  void setLedOk(int val);
+  void setLedWarning(int val);
 };
 
 

@@ -337,6 +337,30 @@ int parseInput(){
       }
     }// end setgyro
     
+    if ("setledtelecook"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-on"==parsedInput){
+          myteleco.setLedOk(1);
+        }
+        if ("-off"==parsedInput){
+          myteleco.setLedOk(0);
+        }
+        
+      }
+    }// end setgyro
+    
+    if ("setledcarteok"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-on"==parsedInput){
+          mycarte.setledG(1);
+        }
+        if ("-off"==parsedInput){
+          mycarte.setledG(0);
+        }
+        
+      }
+    }// end setgyro
+    
     
     if ("DR"==parsedInput) {
       int reg = 0;
