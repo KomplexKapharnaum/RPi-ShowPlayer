@@ -26,6 +26,15 @@ from engine.log import init_log
 log = init_log("media", log_lvl="raw")
 
 
+# def get_mtime_from_path(path):
+#     """
+#     Return the mtime (in float) for the file in the given path
+#     :param path: absolute path of the file
+#     :return:
+#     """
+#     return
+
+
 def get_all_media_list():
     """
     This function return a MediaList for all media in scenario
@@ -195,7 +204,8 @@ class Media:
         :param filesize: filesize in Ko of the media
         :return:
         """
-        return Media(rel_path=rel_path, mtime=None, source="fs", source_path=abs_path, filesize=filesize)
+        return Media(rel_path=rel_path, mtime=os.path.getmtime(abs_path), source="fs", source_path=abs_path,
+                     filesize=filesize)
 
     def get_osc_repr(self):
         """
