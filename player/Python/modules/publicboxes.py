@@ -48,14 +48,14 @@ def wait(flag, **kwargs):
 
 
 @publicbox('[duration]')
-def delay(flag, **kwars):
+def delay(flag, **kwargs):
     """
     This function (box) delay for a givent time and be ready for a transition after that
     :param flag:
     :param kwars:
     :return:
     """
-    duration = search_in_or_default("duration", flag.args, default=0)
+    duration = search_in_or_default("duration", kwargs['args'], default=0)
     time.sleep(float(duration))
 
 
