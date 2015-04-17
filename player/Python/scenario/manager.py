@@ -42,11 +42,11 @@ def init(flag):
     libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD
     libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD (SEKU)
     if already_init.is_set():
-        log.log("First init manager : set wildcard")
+        log.log("debug", "First init manager : set wildcard")
         libs.oscack.DNCserver.add_method(None, None, patch_msg)
         already_init.set()
     else:
-        log.log("Omit wildcard because manager already been inited")
+        log.log("debug", "Omit wildcard because manager already been inited")
 
 
 def start_scene(flag):
