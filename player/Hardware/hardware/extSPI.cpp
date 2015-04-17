@@ -42,7 +42,7 @@ int extSPI::check(){
 void extSPI::initSPI(int speed){
   commonInit(speed);
   nbmodule=1;
-  fprintf(stderr, "extspi - init ok \n");
+  fprintf(stderr, "extspi - init base speed %u ok \n",speed);
 }
 
 void extSPI::commonInit(int _spiSpeed){
@@ -68,7 +68,7 @@ void extSPI::addChipSelect(int GPIO,int speed){
   pinMode (chipSelect[csmax].GPIO, OUTPUT) ;
   digitalWrite (chipSelect[csmax].GPIO, HIGH);
   csmax++;
-  fprintf(stderr, "extspi - add direct gpio cs \n");
+  fprintf(stderr, "extspi - add direct gpio cs, gpio=%u, speed=%u\n",GPIO,speed);
   releaseSelect();
 }
 
@@ -79,7 +79,7 @@ void extSPI::addChipSelectWithHC595Buffer(int RCK, int HC595,int speed){
   pinMode (chipSelect[csmax].GPIO, OUTPUT) ;
   digitalWrite (chipSelect[csmax].GPIO, LOW);
   csmax++;
-  fprintf(stderr, "extspi - add hc595 cs \n");
+  fprintf(stderr, "extspi - add hc595 cs, RCK=%u, HC595=%u, speed=%u\n",RCK,HC595, speed);
   releaseSelect();
 }
 /*
