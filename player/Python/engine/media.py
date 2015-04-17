@@ -213,7 +213,7 @@ class Media:
         :return: path, mtime, filesize
         """
         log.log("raw", "get_osc_rep for : {0}".format(self))
-        return str(self.rel_path), float(self.mtime), int(self.filesize)
+        return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
 
     def put_on_fs(self):  # , error_fnct=None
         """
