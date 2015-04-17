@@ -131,7 +131,7 @@ def trans_must_i_get_scenario(flag):
             group_path = os.path.join(settings.get("path", "scenario"), groupname)
             try:
                 if not os.path.exists(group_path):
-                    os.mkdir()
+                    os.mkdir(group_path)
             except OSError as e:
                 log.exception(log.show_exception(e))
         while len(group) > 0:

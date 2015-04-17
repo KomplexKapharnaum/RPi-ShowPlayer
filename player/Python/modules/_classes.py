@@ -4,6 +4,7 @@
 import os
 import shlex
 import threading
+import codecs
 
 from modules import MODULES
 from libs.subprocess32 import Popen, PIPE
@@ -104,7 +105,7 @@ class ExternalProcess(object):
 
     def say(self, message):
         if self.is_running():
-            self._popen.stdin.write(message+"\n")
+            self._popen.stdin.write(message.decode("utf-8").encode("utf-8")+"\n")
             log.log("raw"," "+message)
         else:
             # log.log("debug", "Message aborted, Thread not active ")
