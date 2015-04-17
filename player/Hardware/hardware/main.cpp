@@ -427,7 +427,7 @@ cout << "#INITHARDWARE" << endl;
     sendStatusTeleco();
   }
 
-  
+  fprintf(stderr, "active interrupt for CARTE et télécomande\n");
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
 
