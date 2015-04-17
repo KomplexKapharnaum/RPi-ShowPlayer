@@ -135,6 +135,7 @@ class KxkmCard(ExternalProcess):
             answer['status'] = 'success'
             for device in answer["devices"]:
                 if device["hostname"] == settings.get("uName"):
+                    log.log("debug","devices from devices.json = {0}".format(device))
                     voltage = device["tension"]
                     titreur = device["titreur"]
                     break
@@ -142,7 +143,7 @@ class KxkmCard(ExternalProcess):
             log.log("debug", "devices.json not found")
 
         self.say(
-            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreur {tit} '
+            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit} '
             .format(name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
                     volt=voltage, tit=titreur))
         return False
