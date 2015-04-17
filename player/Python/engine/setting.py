@@ -204,6 +204,17 @@ class Settings(dict):
                 return Settings.get_default(*args)
         return d
 
+    def get_path(self, *args):
+        """
+        This function return a path based on settings with ("path","main") as root path
+        :param args: each relative path to cross
+        :return:
+        """
+        abs_path = self.get("path", "main")
+        for path in args:
+            abs_path = os.path.join(abs_path, settings.get("path", path))
+        return abs_path
+
 
 settings = Settings(os.path.expanduser(DEFAULT_SETTING_PATH))
 # status = Settings(settings.get("path", "status"))
