@@ -249,7 +249,7 @@ def trans_need_media_in(flag):
     :param flag: need args : files_to_test, trans_need, trans_end
     :return:
     """
-    log.log("raw", "start on {0}".format(flag))
+    log.log("raw", "start")# on {0}".format(flag))
     global needed_media_list
     log.log("raw", "Needed media list : {0}".format(needed_media_list))
     while len(flag.args["files_to_test"]) > 0:
@@ -278,7 +278,7 @@ def trans_enought_place(flag):
     :param flag: args need : get_media, trans_free, trans_full
     :return:
     """
-    log.log("raw", "start on {0}".format(flag))
+    log.log("raw", "start")# on {0}".format(flag))
     flag.args["free_space"] = get_fs_media_free_space() - settings.get("sync", "protected_space")
     log.log("raw", "Does have enought place is fs ? (free : {0} Ko, file : {1} Ko)".format(flag.args["free_space"],
                                                                                            flag.args[
@@ -335,7 +335,7 @@ def get_media(flag):
     :param flag: need : get_media
     :return:
     """
-    log.log("raw", "start on {0}".format(flag))
+    log.log("raw", "start ")#on {0}".format(flag))
     log.log("raw", "Go to definitve copy {0} on filesystem".format(flag.args["get_media"]))
     if not flag.args["get_media"].put_on_fs():
         log.error("Unabled to put {0} on fs".format(flag.args["get_media"]))
