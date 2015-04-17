@@ -410,7 +410,7 @@ step_main_wait = fsm.State("STEP_MAIN_WAIT", function=_pass, transitions={})
 
 step_first_send_sync_flag = fsm.State("STEP_FIRST_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
     flag_timeout.uid: step_main_wait,  # TODO : Go to first sync instead of main wait
-    msg_sync_flag.flag_name: trans_does_flag_newer  # TODO : Implement newer sync flag ?
+    # msg_sync_flag.flag_name: trans_does_flag_newer  # TODO : Implement newer sync flag ?
 })
 
 step_send_sync_flag = fsm.State("STEP_SEND_SYNC_FLAG", function=send_sync_flag, transitions={
