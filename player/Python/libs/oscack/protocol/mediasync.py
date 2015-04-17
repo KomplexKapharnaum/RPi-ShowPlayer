@@ -105,7 +105,7 @@ def init(flag):
 
 
 def _pass(flag):
-    log.log("step main wait !")
+    log.log("raw", "step main wait !")
     pass
 
 
