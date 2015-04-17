@@ -6,18 +6,18 @@
 # SYSTEM INSTALL/UPDATE
 pacman -Sy --noconfirm pacman
 pacman-key --init
-pacman -S --noconfirm archlinux-keyring
+pacman -Sy --noconfirm archlinux-keyring
 pacman-key --populate archlinux
 pacman -Syu --noconfirm --ignore filesystem
-pacman -S --noconfirm filesystem --force
-pacman -S --noconfirm sudo adduser
+pacman -Sy --noconfirm filesystem --force
+pacman -Sy --noconfirm sudo adduser
 visudo  			#allow wheel sudoers group
 adduser 			#adduser pi with additional group wheel (sudoers)
 nano /boot/config.txt #add overclocking options
 
-pacman -S --noconfirm wget nfs-utils htop openssh autofs alsa-utils alsa-firmware alsa-lib alsa-plugins 
-pacman -S --noconfirm git zsh base-devel libtool diffutils libnewt polkit
-pacman -S --noconfirm mesa-libgl  ttf-freefont wpasupplicant
+pacman -Sy --noconfirm wget nfs-utils htop openssh autofs alsa-utils alsa-firmware alsa-lib alsa-plugins
+pacman -Sy --noconfirm git zsh base-devel libtool diffutils libnewt polkit
+pacman -Sy --noconfirm mesa-libgl  ttf-freefont wpasupplicant
 
 timedatectl set-timezone Europe/Paris
 timedatectl ste-ntp true
@@ -88,9 +88,8 @@ sudo make install
 
 ####DNC Dependencies
 git clone https://github.com/KomplexKapharnaum/RPi-ShowPlayer.git /dnc
-pacman -S --noconfirm python2-setuptools python2-simplejson cython liblo python2-pip fuse-exfat
-pip2.7 install pyudev
-yaourt python2-pyliblo
+pacman -Sy --noconfirm python2-setuptools python2-simplejson cython liblo python2-pip fuse-exfat
+date -s "2015-01-01" && pip2.7 install pyudev
 yaourt omxplayer 
 /dnc/player/Libs/recompile.sh /dnc/player/Libs
 
@@ -107,7 +106,7 @@ done
 
 
 ####NETCTL
-pacman -S --noconfirm wpa_actiond
+pacman -Sy --noconfirm wpa_actiond
 systemctl enable netctl-auto@wlan0.service
 - (Disable old profiles : netctl disable *** )
 - Create profiles for wlan0 iterface and set Priority=XXX to ordonate profiles. Higher priority win.

@@ -39,7 +39,7 @@ using namespace std;
 string carte_name;
 string carte_ip;
 string version_py="-";
-string version_c="0.2";
+string version_c="0.3";
 string status="-";
 string popup1,popup2;
 string voltage="-";
