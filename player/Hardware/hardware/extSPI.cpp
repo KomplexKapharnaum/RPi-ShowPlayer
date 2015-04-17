@@ -137,7 +137,7 @@ int extSPI::sendWithPause(int _selectedChip, unsigned char *_tab,int _len){
     wiringPiSPIDataRW (0, buff, 1);
     //fprintf(stderr, "swp %u->%u ",_tab[i],buff[0]);
     _tab[i]= buff[0];
-    delay(1);
+    delay(2);
     //nanosleep((struct timespec[]){{0, 20000}}, NULL);
     //nanosleep(&tim);
   }

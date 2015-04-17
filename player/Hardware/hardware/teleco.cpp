@@ -103,6 +103,7 @@ int Teleco::readInterrupt(){
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "teleco - read v %u\n",buff[1]);
   int valeur = buff[1];
+  setLedWarning(0);
   switch (address) {
     case T_PUSHA:
       std::cout << "#TELECO_PUSH_A "<< valeur << std::endl;
@@ -155,5 +156,5 @@ int Teleco::readInterrupt(){
       uninit=1;
       break;
   }
-  setLedWarning(0);
+
 }

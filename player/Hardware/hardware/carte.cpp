@@ -117,6 +117,7 @@ int Carte::checkTension(){
   delay(5);
   tension = readValue(UBATT)+50;
   digitalWrite (GPIO_READ_BATT, LOW);
+  return tension;
 }
 
 
