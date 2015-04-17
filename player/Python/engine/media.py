@@ -141,7 +141,7 @@ class Media:
             # return False
             mtime = 0
         else:
-            mtime = time.ctime(os.path.getmtime(path))
+            mtime = os.path.getmtime(path)
         return Media(rel_path=rel_path, mtime=mtime, source="scenario", source_path=path)
 
     @staticmethod
@@ -154,7 +154,7 @@ class Media:
         if not os.path.exists(abs_path):
             log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
             return False
-        mtime = time.ctime(os.path.getmtime(abs_path))
+        mtime = os.path.getmtime(abs_path)
         filesize = int(os.path.getsize(abs_path) / 1000)  # In Ko
         return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
 
@@ -187,7 +187,7 @@ class Media:
         This function return an OSC reprentation of the Media
         :return: path, mtime, filesize
         """
-        return str(self.rel_path), int(self.mtime), int(self.filesize)
+        return str(self.rel_path), int(time.strptime(self.mtime)), int(self.filesize)
 
     def put_on_fs(self):  # , error_fnct=None
         """
