@@ -112,6 +112,7 @@ def append_send_list_timeout():
     This function append a send list time out flag and recron itself
     :return:
     """
+    log.log("raw", "Before appending send list flag  ..")
     if stop_timeout.is_set():
         log.log("debug", "Stop send list media timeout")
     else:
