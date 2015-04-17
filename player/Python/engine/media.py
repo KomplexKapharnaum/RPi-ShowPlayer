@@ -10,6 +10,8 @@ import datetime
 import tarfile
 import threading
 import time
+import subprocess
+import shlex
 
 import pyudev
 
@@ -17,6 +19,7 @@ from modules._classes import ExternalProcess
 from libs import pyhashxx
 from engine.setting import settings
 from engine import tools
+from engine.threads import network_scheduler
 
 from engine.log import init_log
 
@@ -278,6 +281,18 @@ def umount_partitions():
     return sucess
 
 
+def restart_netctl():
+    """
+    This function restart netctl
+    :return:
+    """
+    log.info("Restarting NETCTL auto-wifi ...")
+    if subprocess.check_call(shlex.split(settings.get("path", "systemctl")+" restart netctl-auto@wlan0.service")):
+        log.log("debug", "Succes")
+    else:
+        log.log("debug", "Fail to restart netctl")
+
+
 class UdevThreadMonitor(threading.Thread):
     """
     This class is a thread wich wait on new block plug event and try to mount it
@@ -306,6 +321,9 @@ class UdevThreadMonitor(threading.Thread):
             if device.action == "remove":
                 log.log("debug", "Remove block device {0}".format(device.device_node))
                 umount_partitions()
+                log.log("info",
+                        "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
+                network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), restart_netctl)
                 continue
             elif device.action not in ("add", "change"):
                 log.log("raw", "Block device event {1} (not add) : {0}".format(device.device_node, device.action))

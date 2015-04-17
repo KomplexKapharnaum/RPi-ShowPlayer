@@ -48,6 +48,7 @@ DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hard
 DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
 DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
+DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7 --play-and-exit"
 DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd --zoom=0.7 --play-and-exit" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
@@ -69,6 +70,7 @@ DEFAULT_SETTING["sync"]["usb_speed_min"] = 5000         # (Ko/s) Behind 5 Mo/s i
 DEFAULT_SETTING["sync"]["protected_space"] = 20000      # (Ko) Space protected to keep the rest of the project safe
 DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3    # Wait 3 sec, if no newer flag, we are update
 DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2    # 2 sec before remove mount point
+DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 2 sec before remove mount point
 
 
 DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']
@@ -121,6 +123,8 @@ DEFAULT_SETTING["values"]["lights"]["strob"] = 0
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
+
+DEFAULT_SETTING["misc"]["raspi"] = True    # This settings is for debug, if raspi is False it will prevent pc for error
 
 
 DEFAULT_SETTING["temp"] = dict()            # TEMP SETTINGS FOR TEST

@@ -74,7 +74,7 @@ class ExternalProcess(object):
         #                                      universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
         #                                     # preexec_fn=lambda : os.nice(-20)
         # else: 
-        self._popen = Popen( shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
+        self._popen = Popen(shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
                                          close_fds=False, shell=False, cwd=None, env=None,
                                          universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
                                         # preexec_fn=lambda : os.nice(-20)
@@ -106,25 +106,8 @@ class ExternalProcess(object):
 
     def say(self, message):
         if self.is_running():
-            # try:
-            #     log.log("error", "Message raw : {0}, __repr__ {1}".format(message,  message.__repr__()))
-            # except UnicodeEncodeError:
-            #     log.log("error", "Fail to prompt RAW")
-            #     pass
-            # message = message.decode("utf-8")
-            # try:
-            #     log.log("error", "Message decode : {0}, __repr__ {1}".format(message, message.__repr__()))
-            # except UnicodeEncodeError:
-            #     log.log("error", "Fail to prompt DECODE")
-            #     pass
-            # message = message.encode("utf-8")
-            # try:
-            #     log.log("error", "Message encode : {0}, __repr__ {1}".format(message,  message.__repr__()))
-            # except UnicodeEncodeError:
-            #     log.log("error", "Fail to prompt ENCODE")
-            #     pass
             message += "\n"
-            m = message.encode("utf-8")        # sys.stdin.encoding
+            m = message.encode("utf-8")
             self._popen.stdin.write(m)
             log.log("raw", " "+message)
         else:
