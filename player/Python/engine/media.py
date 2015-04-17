@@ -81,7 +81,7 @@ class MediaList(list):
         log.log("raw", "Do this list need {0}".format(media_obj))
         for elem in self:
             log.log("raw", "Test with : {0}".format(elem))
-            if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime or elem.mtime:
+            if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime:
                 log.log("raw", "Found !!  ")
                 return True
         return False
