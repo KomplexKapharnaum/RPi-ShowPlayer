@@ -248,8 +248,24 @@ class Media:
             cp.stop()
             return True
         elif self.source == "osc":
-            log.warning("!! NOT IMPLEMENTED !! ")
             log.info("Media to scp copy : {0} ".format(self))
+            dest_path = os.path.join(settings.get("path", "media"), self.rel_path)
+            dir_path = os.path.dirname(dest_path)
+            if not os.path.exists(dir_path):
+                log.log("raw", "Create directory to get file {0}".format(dest_path))
+                os.makedirs(dir_path)
+            scp = ExternalProcess("scp")
+            scp.command += " {options} {scp_path} {path}".format(
+                username=self.source_path, path=dest_path, options=settings.get("sync", "scp_options"))
+            log.log("raw", "SCP : Try to get distant media {0} with {1}".format(self, scp.command))
+            scp.start()
+            try:
+                scp.join(timeout=self.filesize / settings.get("sync", "scp_speed_min") + 10)
+            except RuntimeError as e:
+                log.exception(log.show_exception(e))
+                scp.stop()
+                return self, e
+            scp.stop()
             return True
         else:
             log.warning("What the ..? ask to copy from {0} ".format(self.source))
