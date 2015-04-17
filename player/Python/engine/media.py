@@ -12,6 +12,7 @@ import threading
 import time
 import subprocess
 import shlex
+import cPickle
 
 import pyudev
 
@@ -24,6 +25,21 @@ from engine.threads import network_scheduler
 from engine.log import init_log
 
 log = init_log("media")
+
+
+def get_all_media_list():
+    """
+    This function return a MediaList for all media in scenario
+    :return:
+    """
+    all_media = MediaList()
+    media_path = settings.get("path", "media")
+    for path, dirs, files in os.walk(media_path):  # Retreived file list to check
+        for f in files:
+            abs_path = os.path.join(path, f)
+            rel_path = os.path.relpath(abs_path, media_path)
+            all_media.append(Media.from_fs(rel_path, abs_path, Media.get_size(abs_path)))
+    return all_media
 
 
 def get_unwanted_media_list(needed_media_list):
@@ -40,7 +56,7 @@ def get_unwanted_media_list(needed_media_list):
             rel_path = os.path.relpath(abs_path, media_path)
             if rel_path in needed_media_list:
                 continue
-            unwanted_media_list.append(Media.from_fs(rel_path, abs_path, os.path.getsize(abs_path)))
+            unwanted_media_list.append(Media.from_fs(rel_path, abs_path, Media.get_size(abs_path)))
     return unwanted_media_list
 
 
@@ -65,7 +81,7 @@ class MediaList(list):
         log.log("raw", "Do this list need {0}".format(media_obj))
         for elem in self:
             log.log("raw", "Test with : {0}".format(elem))
-            if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime or elem.mtime:
+            if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime:
                 log.log("raw", "Found !!  ")
                 return True
         return False
@@ -155,7 +171,7 @@ class Media:
             log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
             return False
         mtime = os.path.getmtime(abs_path)
-        filesize = int(os.path.getsize(abs_path) / 1000)  # In Ko
+        filesize = Media.get_size(abs_path)  # In Ko
         return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
 
     @staticmethod
@@ -180,7 +196,17 @@ class Media:
         :param filesize: filesize in Ko of the media
         :return:
         """
-        return Media(rel_path=rel_path, mtime=None, source="fs", source_path=abs_path, filesize=filesize)
+        return Media(rel_path=rel_path, mtime=os.path.getmtime(abs_path), source="fs", source_path=abs_path,
+                     filesize=filesize)
+
+    @staticmethod
+    def get_size(abs_path):
+        """
+        This function return the size of a file in always the same format !
+        :param abs_path: Absolute path of the file
+        :return:
+        """
+        return int(os.path.getsize(abs_path) / 1000)
 
     def get_osc_repr(self):
         """
@@ -188,7 +214,8 @@ class Media:
         :return: path, mtime, filesize
         """
         log.log("raw", "get_osc_rep for : {0}".format(self))
-        return str(self.rel_path), float(self.mtime), int(self.filesize)
+        return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
+        # return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
 
     def put_on_fs(self):  # , error_fnct=None
         """
@@ -220,12 +247,27 @@ class Media:
                 return self, e
             cp.stop()
             return True
-        elif self.source == "scp":
-            log.warning("!! NOT IMPLEMENTED !! ")
+        elif self.source == "osc":
             log.info("Media to scp copy : {0} ".format(self))
+            dest_path = os.path.join(settings.get("path", "media"), self.rel_path)
+            dir_path = os.path.dirname(dest_path)
+            if not os.path.exists(dir_path):
+                log.log("raw", "Create directory to get file {0}".format(dest_path))
+                os.makedirs(dir_path)
+            scp = ExternalProcess("scp")
+            scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path, options=settings.get("sync", "scp_options"))
+            log.log("raw", "SCP : Try to get distant media {0} with {1}".format(self, scp.command))
+            scp.start()
+            try:
+                scp.join(timeout=self.filesize / settings.get("sync", "scp_speed_min") + 10)
+            except RuntimeError as e:
+                log.exception(log.show_exception(e))
+                scp.stop()
+                return self, e
+            scp.stop()
             return True
         else:
-            log.warning("What the ..? ")
+            log.warning("What the ..? ask to copy from {0} ".format(self.source))
 
     def remove_from_fs(self):
         """
@@ -378,7 +420,7 @@ def save_scenario_on_fs(group, date_timestamp):
     edit_date = datetime.datetime.fromtimestamp(float(date_timestamp)).strftime(settings.get("scenario", "date_format"))
     path = os.path.join(settings.get("path", "scenario"), group)
     if not os.path.exists(path):
-        os.maekdirs(path)
+        os.makedirs(path)
     with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
         tar.add(settings.get("path", "activescenario"),
                 arcname=os.path.basename(settings.get("path", "activescenario")))
@@ -454,8 +496,8 @@ class ScenarioFile:
             :return:
         """
         scp = ExternalProcess("scp")
-        scp.command += " -p -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {ip}:{path} {path}".format(
-            ip=ip, path=self.path)
+        scp.command += " {options} {ip}:{path} {path}".format(
+            ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
         log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
         scp.start()
         scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))

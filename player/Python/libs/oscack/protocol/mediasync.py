@@ -22,7 +22,7 @@ from libs.oscack import network
 from engine.setting import settings
 from engine.log import init_log
 
-log = init_log("msync", log_lvl="raw")
+log = init_log("msync")
 
 machine = fsm.FiniteStateMachine("MediaSyncProtocol")
 
@@ -72,6 +72,7 @@ def init(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start")
     flag = fsm.Flag("INIT")
     global monitor_udev
     global async_monitor_udev
@@ -104,6 +105,7 @@ def init(flag):
 
 
 def _pass(flag):
+    log.log("raw", "step main wait !")
     pass
 
 
@@ -126,6 +128,7 @@ def update_needed_list(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start on {0}".format(flag))
     global needed_media_list
     global unwanted_media_list
     from_scenario_wanted = None
@@ -148,6 +151,7 @@ def append_timeout_flag():
     This function just add the timeout flag in the machine
     :return:
     """
+    log.log("raw", "append normal timeout flag")
     machine.append_flag(flag_timeout.get())
 
 
@@ -157,7 +161,9 @@ def send_sync_flag(flag):
     :param flag: FSM flag wich content target to the flag
     :return:
     """
+    log.log("raw", "send_sync_flag flag : {0}".format(flag))
     if "timeout" in flag.args.keys():
+        log.log("raw", "add timeout {0}".format(flag.args["timeout"]))
         network_scheduler.enter(flag.args["timeout"], append_timeout_flag)
     if "target" not in flag.args.keys():
         target = message.Address("255.255.255.255")
@@ -175,11 +181,12 @@ def trans_does_flag_newer(flag):
     :param flag:
     :return:
     """
-    if flag.args["args"]["timestamp"] > settings.get("sync", "flag_timestamp"):
+    log.log("raw", "trans_does_sync_flag flag : {0}".format(flag))
+    if flag.args["kwargs"]["timestamp"] > settings.get("sync", "flag_timestamp"):
         return step_update_sync_flag
     else:
         flag.args["target"] = flag.args["src"]
-        return step_first_send_sync_flag
+        return step_send_sync_flag
 
 
 def sync_media_on():
@@ -196,6 +203,7 @@ def trans_usb_have_dnc_media(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start on {0}".format(flag))
     path = settings.get("path", "usb")
     flag.args["trans_enough_place"] = trans_enought_place
     flag.args["trans_end"] = step_usb_end_copy
@@ -241,6 +249,7 @@ def trans_need_media_in(flag):
     :param flag: need args : files_to_test, trans_need, trans_end
     :return:
     """
+    log.log("raw", "start")# on {0}".format(flag))
     global needed_media_list
     log.log("raw", "Needed media list : {0}".format(needed_media_list))
     while len(flag.args["files_to_test"]) > 0:
@@ -269,6 +278,7 @@ def trans_enought_place(flag):
     :param flag: args need : get_media, trans_free, trans_full
     :return:
     """
+    log.log("raw", "start")# on {0}".format(flag))
     flag.args["free_space"] = get_fs_media_free_space() - settings.get("sync", "protected_space")
     log.log("raw", "Does have enought place is fs ? (free : {0} Ko, file : {1} Ko)".format(flag.args["free_space"],
                                                                                            flag.args[
@@ -287,6 +297,7 @@ def trans_can_free(flag):
     :param flag: args need : get_media,
     :return:
     """
+    log.log("raw", "start on {0}".format(flag))
     global unwanted_media_list
     if len(unwanted_media_list) < 1:
         flag.args["error"] = "Not enough space, there no left media to remove, need {0}, only have {1}".format(
@@ -307,6 +318,7 @@ def remove_media(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start on {0}".format(flag))
     global unwanted_media_list
     if len(unwanted_media_list) < 1:
         log.error("There is no left media to remove")
@@ -323,6 +335,7 @@ def get_media(flag):
     :param flag: need : get_media
     :return:
     """
+    log.log("raw", "start ")#on {0}".format(flag))
     log.log("raw", "Go to definitve copy {0} on filesystem".format(flag.args["get_media"]))
     if not flag.args["get_media"].put_on_fs():
         log.error("Unabled to put {0} on fs".format(flag.args["get_media"]))
@@ -336,6 +349,7 @@ def monitor_usb_end_copy(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start on {0}".format(flag))
     log.info("USB copy end, wait a little for unplug your device")
     media.umount_partitions()
     log.info("USB umount end, you can unplug safely your device")
@@ -347,6 +361,7 @@ def error_function(flag):
     :param flag: need : error
     :return:
     """
+    log.log("raw", "start on {0}".format(flag))
     log.error(flag.args["error"])
     # TODO implement prompt on monitor
 
@@ -357,6 +372,7 @@ def trans_does_network_sync_enabled(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start on {0}".format(flag))
     if settings.get("sync", "enable") and settings.get("sync", "media"):
         if "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
             flag.args["files_to_test"] = media.MediaList()
@@ -390,16 +406,17 @@ def send_media_list(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start on {0}".format(flag))
     args_list = list()
-    args_list.append(getpass.getuser())                 # username
-    args_list.append(settings.get("path", "media"))     # media path
-    for f in needed_media_list:
-        for value in f.get_osc_repr():
-            args_list.append(value)             # Add all needed media
-    for f in unwanted_media_list:
+    args_list.append(('s', getpass.getuser()))                 # username
+    args_list.append(('s', settings.get("path", "media")))     # media path
+    all_media = media.get_all_media_list()
+    for f in all_media:
         for value in f.get_osc_repr():
             args_list.append(value)             # Add all other media available
-    message.send(message.Address("255.255.255.255"), msg_media_version.get(args_list))
+    log.log("raw", "arg list of send media : {0}".format(args_list))
+    message.send(message.Address("255.255.255.255"), msg_media_version.get(*args_list))
+    # message.send(message.Address("255.255.255.255"), message.Message(msg_media_version.path, *args_list, ACK=False))
 
 
 def update_sync_flag(flag):
@@ -459,7 +476,8 @@ step_main_wait.transitions = {
     flag_usb_plugged.uid: trans_usb_have_dnc_media,
     flag_update_media_list.uid: step_update_media_list,
     msg_sync_flag.flag_name: trans_does_flag_newer,
-    flag_timeout_send_list.uid: trans_does_network_sync_enabled
+    flag_timeout_send_list.uid: trans_does_network_sync_enabled,
+    msg_media_version.flag_name: trans_does_network_sync_enabled
     # TODO implement the other transitions
 }
 
