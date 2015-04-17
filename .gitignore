@@ -12,7 +12,7 @@
 
 #SCENARIO ARCHIVES
 *.tar
-scenario/
+scenario/*
 
 #Log Files
 *.log
