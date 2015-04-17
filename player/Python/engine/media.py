@@ -255,9 +255,9 @@ class Media:
                 log.log("raw", "Create directory to get file {0}".format(dest_path))
                 os.makedirs(dir_path)
             scp = ExternalProcess("scp")
-            scp.command += " {options} {scp_path} {path}".format(
-                username=self.source_path, path=dest_path, options=settings.get("sync", "scp_options"))
+            scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path, options=settings.get("sync", "scp_options"))
             log.log("raw", "SCP : Try to get distant media {0} with {1}".format(self, scp.command))
+            log.log("")
             scp.start()
             try:
                 scp.join(timeout=self.filesize / settings.get("sync", "scp_speed_min") + 10)
