@@ -72,6 +72,7 @@ def init(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start")
     flag = fsm.Flag("INIT")
     global monitor_udev
     global async_monitor_udev
@@ -126,6 +127,7 @@ def update_needed_list(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start")
     global needed_media_list
     global unwanted_media_list
     from_scenario_wanted = None
@@ -198,6 +200,7 @@ def trans_usb_have_dnc_media(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start")
     path = settings.get("path", "usb")
     flag.args["trans_enough_place"] = trans_enought_place
     flag.args["trans_end"] = step_usb_end_copy
@@ -243,6 +246,7 @@ def trans_need_media_in(flag):
     :param flag: need args : files_to_test, trans_need, trans_end
     :return:
     """
+    log.log("raw", "start")
     global needed_media_list
     log.log("raw", "Needed media list : {0}".format(needed_media_list))
     while len(flag.args["files_to_test"]) > 0:
@@ -271,6 +275,7 @@ def trans_enought_place(flag):
     :param flag: args need : get_media, trans_free, trans_full
     :return:
     """
+    log.log("raw", "start")
     flag.args["free_space"] = get_fs_media_free_space() - settings.get("sync", "protected_space")
     log.log("raw", "Does have enought place is fs ? (free : {0} Ko, file : {1} Ko)".format(flag.args["free_space"],
                                                                                            flag.args[
@@ -289,6 +294,7 @@ def trans_can_free(flag):
     :param flag: args need : get_media,
     :return:
     """
+    log.log("raw", "start")
     global unwanted_media_list
     if len(unwanted_media_list) < 1:
         flag.args["error"] = "Not enough space, there no left media to remove, need {0}, only have {1}".format(
@@ -309,6 +315,7 @@ def remove_media(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start")
     global unwanted_media_list
     if len(unwanted_media_list) < 1:
         log.error("There is no left media to remove")
@@ -325,6 +332,7 @@ def get_media(flag):
     :param flag: need : get_media
     :return:
     """
+    log.log("raw", "start")
     log.log("raw", "Go to definitve copy {0} on filesystem".format(flag.args["get_media"]))
     if not flag.args["get_media"].put_on_fs():
         log.error("Unabled to put {0} on fs".format(flag.args["get_media"]))
@@ -338,6 +346,7 @@ def monitor_usb_end_copy(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start")
     log.info("USB copy end, wait a little for unplug your device")
     media.umount_partitions()
     log.info("USB umount end, you can unplug safely your device")
@@ -349,6 +358,7 @@ def error_function(flag):
     :param flag: need : error
     :return:
     """
+    log.log("raw", "start")
     log.error(flag.args["error"])
     # TODO implement prompt on monitor
 
@@ -359,6 +369,7 @@ def trans_does_network_sync_enabled(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start")
     if settings.get("sync", "enable") and settings.get("sync", "media"):
         if "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
             flag.args["files_to_test"] = media.MediaList()
@@ -392,6 +403,7 @@ def send_media_list(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "start")
     args_list = list()
     args_list.append(('s', getpass.getuser()))                 # username
     args_list.append(('s', settings.get("path", "media")))     # media path
