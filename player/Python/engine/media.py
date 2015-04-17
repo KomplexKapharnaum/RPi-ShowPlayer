@@ -234,7 +234,11 @@ def mount_partition(block_path, mount_path):
     log.debug("Mount {0} on {1} ".format(block_path, mount_path))
     mount_cmd = ExternalProcess(name="mount")
     if not os.path.exists(mount_path):
-        os.mkdir(mount_path)
+        try:
+            os.makedirs(mount_path)
+        except OSError as e:
+            log.warning("Should create mounbt point {0} but failed ".format(mount_path))
+            log.exception(log.show_exception(e))
     else:
         log.warning("Warning, we mount a device {0} on an existing mount point {1}".format(block_path, mount_path))
     mount_cmd.command += " {0} {1}".format(block_path, mount_path)
@@ -353,7 +357,7 @@ def save_scenario_on_fs(group, date_timestamp):
     edit_date = datetime.datetime.fromtimestamp(float(date_timestamp)).strftime(settings.get("scenario", "date_format"))
     path = os.path.join(settings.get("path", "scenario"), group)
     if not os.path.exists(path):
-        os.mkdir(path)
+        os.maekdirs(path)
     with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
         tar.add(settings.get("path", "activescenario"),
                 arcname=os.path.basename(settings.get("path", "activescenario")))

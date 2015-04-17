@@ -124,6 +124,7 @@ DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
 
+DEFAULT_SETTING["misc"] = dict()
 DEFAULT_SETTING["misc"]["raspi"] = True    # This settings is for debug, if raspi is False it will prevent pc for error
 
 

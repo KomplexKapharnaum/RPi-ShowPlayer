@@ -33,7 +33,7 @@ staticpath = os.path.dirname(os.path.realpath(__file__))+'/www/'
 scenariopath = settings.get("path", "activescenario")
 if not os.path.exists(scenariopath):
     try:
-        os.mkdir(scenariopath)
+        os.makedirs(scenariopath)
     except OSError as e:
         log.exception(log.show_exception(e))
 mediapath = settings.get("path", "media")
