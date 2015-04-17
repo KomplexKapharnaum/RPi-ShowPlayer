@@ -209,7 +209,7 @@ def client_sync(flag):
     target = message.Address(flag.args["src"].get_hostname())
     # msg = msg_pong.get(**kwargs_pong)
     def catch_ping(path, args, types, src):
-        log.log("error", "catch ping from {0}".format(target))
+        # log.log("error", "catch ping from {0}".format(target))
         # BEGIN # TIME CRITICAL
         message.send(target, msg_pong.get(**kwargs_pong))
         # END # TIME CRITICAL
@@ -223,9 +223,9 @@ def client_sync(flag):
                             flag_timeout_wait_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))
     machine.current_state.preemptible.set()
-    log.log("error", "Just before sending asktime")
+    #log.log("error", "Just before sending asktime")
     message.send(target, msg_asktime.get())
-    log.log("error", "Just after sending asktime")
+    #log.log("error", "Just after sending asktime")
 
 
 def client_get_sync(path, args, types, src):
