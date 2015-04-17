@@ -176,6 +176,7 @@ def trans_does_flag_newer(flag):
     :param flag:
     :return:
     """
+    log.log("raw", "trans_does_sync_flag flag : {0}".format(flag))
     if flag.args["args"]["timestamp"] > settings.get("sync", "flag_timestamp"):
         return step_update_sync_flag
     else:
