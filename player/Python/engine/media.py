@@ -27,14 +27,6 @@ from engine.log import init_log
 log = init_log("media", log_lvl="raw")
 
 
-# def get_mtime_from_path(path):
-#     """
-#     Return the mtime (in float) for the file in the given path
-#     :param path: absolute path of the file
-#     :return:
-#     """
-#     return
-
 
 def get_all_media_list():
     """
@@ -47,7 +39,7 @@ def get_all_media_list():
         for f in files:
             abs_path = os.path.join(path, f)
             rel_path = os.path.relpath(abs_path, media_path)
-            all_media.append(Media.from_fs(rel_path, abs_path, os.path.getsize(abs_path)))
+            all_media.append(Media.from_fs(rel_path, abs_path, Media.get_size(abs_path)))
     return all_media
 
 
@@ -65,7 +57,7 @@ def get_unwanted_media_list(needed_media_list):
             rel_path = os.path.relpath(abs_path, media_path)
             if rel_path in needed_media_list:
                 continue
-            unwanted_media_list.append(Media.from_fs(rel_path, abs_path, os.path.getsize(abs_path)))
+            unwanted_media_list.append(Media.from_fs(rel_path, abs_path, Media.get_size(abs_path)))
     return unwanted_media_list
 
 
@@ -180,7 +172,7 @@ class Media:
             log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
             return False
         mtime = os.path.getmtime(abs_path)
-        filesize = int(os.path.getsize(abs_path) / 1000)  # In Ko
+        filesize = Media.get_size(abs_path)  # In Ko
         return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
 
     @staticmethod
@@ -207,6 +199,15 @@ class Media:
         """
         return Media(rel_path=rel_path, mtime=os.path.getmtime(abs_path), source="fs", source_path=abs_path,
                      filesize=filesize)
+
+    @staticmethod
+    def get_size(abs_path):
+        """
+        This function return the size of a file in always the same format !
+        :param abs_path: Absolute path of the file
+        :return:
+        """
+        return int(os.path.getsize(abs_path) / 1000)
 
     def get_osc_repr(self):
         """
