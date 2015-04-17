@@ -23,7 +23,7 @@ from engine.threads import network_scheduler
 
 from engine.log import init_log
 
-log = init_log("media")
+log = init_log("media", log_lvl="raw")
 
 
 def get_unwanted_media_list(needed_media_list):
