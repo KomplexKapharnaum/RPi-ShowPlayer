@@ -26,13 +26,13 @@ class KxkmCard(ExternalProcess):
 
     def __init__(self):
 
-
-        if "armv6l" in subprocess.check_output(["/usr/bin/gcc", "-dumpmachine"]):
+        plateform = subprocess.check_output(["/usr/bin/gcc", "-dumpmachine"])
+        if "armv6l" in plateform:
             ExternalProcess.__init__(self, 'kxkmcard-armv6l')
         else:
             ExternalProcess.__init__(self, 'kxkmcard-armv7l')
         self.onClose = "CARD_EVENT_CLOSE"
-        log.log("debug", "Starting KxkmCard {0}.. ".format(get_platform()))
+        log.log("debug", "Starting KxkmCard {0}.. ".format(plateform))
         self.start()
 
     ##
