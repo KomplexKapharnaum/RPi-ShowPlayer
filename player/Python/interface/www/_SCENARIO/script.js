@@ -512,7 +512,6 @@
         this.disposList.append(('<option value="0">Self</option>'));
         this.disposList.append(('<option value="1">Group</option>'));
         this.disposList.append(('<option value="2">All</option>'));
-
         $.each(allPi, function(index,pi){
           var newIndex=index+3;
           thisState.disposList.append(('<option value="'+newIndex+'">'+pi.name+'</option>'));
@@ -651,6 +650,7 @@
         this.arg1Val.dblclick(function(e) {
           $(this).text("");
           thisState.arg1Name.append(arg1Temp);
+					arg1Temp.val(thisState.argumentsArray[thisState.argumentsList[0]]);
           arg1Temp.focus();
           listenToEnterArg1();
           listening = false;
@@ -671,6 +671,7 @@
         this.arg2Val.dblclick(function(e) {
           $(this).text("");
           thisState.arg2Name.append(arg2Temp);
+					arg2Temp.val(thisState.argumentsArray[thisState.argumentsList[1]]);
           arg2Temp.focus();
           listenToEnterArg2();
           listening = false;
@@ -691,6 +692,7 @@
         this.arg3Val.dblclick(function(e) {
           $(this).text("");
           thisState.arg3Name.append(arg3Temp);
+					arg3Temp.val(thisState.argumentsArray[thisState.argumentsList[2]]);
           arg3Temp.focus();
           listenToEnterArg3();
           listening = false;
