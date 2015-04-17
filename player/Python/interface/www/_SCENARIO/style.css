@@ -6,10 +6,17 @@ body
   font-size: 10pt;
   background-color: white;
   line-height:12px;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .box {
-  width: 130px;
+  width: 120px;
   position: absolute;
   border: 1px solid #444444;
   background-color: darkblue;
@@ -17,7 +24,7 @@ body
 }
 
 .title {
-  padding: 10px;
+  padding: 8px;
   cursor: move;
 }
 
@@ -43,7 +50,10 @@ body
 }
 .textOption{
   padding: 0px;
-  width: 116px;
+  width: 100px;
+}
+.textOption:focus{
+  outline: none;
 }
 
 .connect {
@@ -151,6 +161,16 @@ body
 .btnText:focus{
   outline: none;
 }
+
+.titletext{
+  width: 115px;
+}
+
+.textarea{
+  width: 115px;
+}
+
+
 .dropdown{
   width:122px;
   height: 22px;
@@ -162,6 +182,7 @@ body
   border-color: #777777;
   border-radius: 0px;
   -webkit-appearance: none;
+  -moz-appearance: none;
   }
 .dropdown:focus{
   outline: none;
@@ -177,6 +198,7 @@ body
   border-color: #777777;
   border-radius: 0px;
   -webkit-appearance: none;
+  -moz-appearance: none;
   margin-top: 10px;
   }
 .dropdownGnrl:focus{
@@ -197,6 +219,7 @@ body
   margin-top: -1px;
   border-radius: 0px;
   -webkit-appearance: none;
+  -moz-appearance: none;
   }
 .dropdownMedias:focus{
   outline: none;
@@ -253,6 +276,7 @@ body
 
 .argsList{
   margin-top: 10px;
+  width: 115px;
 }
 
 #txted{
