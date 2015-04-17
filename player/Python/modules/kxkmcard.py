@@ -8,6 +8,7 @@ from _classes import ExternalProcess, module
 from modules import link, exposesignals
 from engine.log import init_log
 from engine.setting import settings
+from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
 log = init_log("kxkmcard")
 
@@ -42,7 +43,7 @@ class KxkmCard(ExternalProcess):
             cmd += ' -line2 '+line2.replace(' ', '_')
         self.say(cmd)
 
-    def setLight(self, rgb=None, led10A=None, led10B=None, strob=None, fade=None):
+    def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None, fade=None):
         cmd = 'setlight'
         if rgb is not None:
             rgb = re.split('\W+', rgb)
@@ -50,13 +51,13 @@ class KxkmCard(ExternalProcess):
                 rgb = str(rgb)
                 rgb = rgb.lstrip('#')
                 lv = len(rgb)
-                rgb = list(str(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+                rgb = list(str(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))    # TODO DEBUG HERE value
             if len(rgb) == 3:
                 cmd += ' -rgb {R} {G} {B}'.format(R=rgb[0], G=rgb[1], B=rgb[2])
-        if led10A is not None:
-            cmd += ' -10w1 {0}'.format(int(led10A))
-        if led10B is not None:
-            cmd += ' -10w2 {0}'.format(int(led10B))
+        if led10w1 is not None:
+            cmd += ' -10w1 {0}'.format(int(led10w1))
+        if led10w2 is not None:
+            cmd += ' -10w2 {0}'.format(int(led10w2))
         if strob is not None:
             cmd += ' -strob {0}'.format(int(strob))
         if fade is not None:
@@ -139,7 +140,9 @@ exposesignals(KxkmCard.Filters)
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
-       "/lumiere/lights [rgb] [led10w-1] [led10w-2] [strob] [fade]": "kxkm_card_lights",
+       "/lumiere/rgb [rgb] [strob] [fade]": "kxkm_card_lights",
+       "/lumiere/led1 [led10w1] [strob] [fade]": "kxkm_card_lights",
+       "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/gyro [speed] [strob] [mode]": "kxkm_card_gyro"})
 def kxkm_card(flag, **kwargs):
     if "kxkmcard" not in kwargs["_fsm"].vars.keys():
@@ -154,14 +157,18 @@ def kxkm_card_relais(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_lights(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].setLight(rgb=flag.args["rgb"],
-                                                led10A=flag.args["led10w-1"], led10B=flag.args["led10w-2"],
-                                                strob=flag.args["strob"], fade=flag.args["fade"])
+    params = search_in_or_default(("rgb", "led10w1", "led10w2", "strob", "fade"),
+                                  flag.args, setting=("values", "lights"))
+    kwargs["_fsm"].vars["kxkmcard"].setLight(**params)
 
 
 @link({None: "kxkm_card"})
 def kxkm_card_gyro(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].setMessage(speed=flag.args["speed"], strob=flag.args["strob"], mode=flag.args["mode"])
+    params = search_in_or_default(("speed", "strob", "mode"), flag.args, setting=("values", "gyro"))
+    if None not in params.values():
+        params["_fsm"].vars["kxkmcard"].setGyro(**params)
+    else:
+        log.warning("Missing correct value for at least one argument : {0}".format(params))
 
 
 @link({None: "kxkm_card"})
