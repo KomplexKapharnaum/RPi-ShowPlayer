@@ -161,6 +161,7 @@ def send_sync_flag(flag):
     """
     log.log("raw", "send_sync_flag flag : {0}".format(flag))
     if "timeout" in flag.args.keys():
+        log.log("raw", "add timeout {0}".format(flag.args["timeout"]))
         network_scheduler.enter(flag.args["timeout"], append_timeout_flag)
     if "target" not in flag.args.keys():
         target = message.Address("255.255.255.255")
