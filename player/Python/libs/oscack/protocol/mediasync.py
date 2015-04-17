@@ -391,8 +391,8 @@ def send_media_list(flag):
     :return:
     """
     args_list = list()
-    args_list.append(getpass.getuser())                 # username
-    args_list.append(settings.get("path", "media"))     # media path
+    args_list.append(('s', getpass.getuser()))                 # username
+    args_list.append(('s', settings.get("path", "media")))     # media path
     all_media = media.get_all_media_list()
     for f in all_media:
         for value in f.get_osc_repr():
