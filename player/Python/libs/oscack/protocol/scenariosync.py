@@ -150,7 +150,7 @@ def trans_must_i_get_scenario(flag):
                 flag.args["to_get"] = scenario
                 return step_get_scenario
     if "reload" in flag.args.keys():
-        log.log("debug", "There is a new timeline to reload : Emit signal ")
+        log.log("info", "There is a new timeline to reload : Emit signal ")
         patcher.patch(fsm.Flag("FS_TIMELINE_UPDATED").get())   # Emit signal to warn somewhere there is new T.L.
     return step_main_wait  # End treatment
 
