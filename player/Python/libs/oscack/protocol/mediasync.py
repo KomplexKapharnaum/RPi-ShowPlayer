@@ -411,7 +411,7 @@ def trans_does_network_sync_enabled(flag):
                 flag.args["trans_free"] = step_put_scp_media_on_fs
                 flag.args["trans_full"] = trans_can_free
                 return trans_need_media_in
-        elif flag is None:                               # end usb copy and send list
+        else:                          # end usb copy and send list or timeout
             return step_send_media_list
     else:
         log.log("raw", "Sync disabled, aborting..")
