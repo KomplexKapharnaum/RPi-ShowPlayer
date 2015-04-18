@@ -34,7 +34,6 @@ DEFAULT_SETTING["path"]["media"] = "/dnc/media"
 DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
 DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
 DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
-
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["cp"] = "/usr/bin/cp"
 DEFAULT_SETTING["path"]["umount"] = "/usr/bin/umount"
@@ -55,6 +54,20 @@ DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
 DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
+
+DEFAULT_SETTING["path"]["relative"] = dict()
+DEFAULT_SETTING["path"]["relative"]["usb"] = "usb"
+DEFAULT_SETTING["path"]["relative"]["scenario"] = "scenario"
+DEFAULT_SETTING["path"]["relative"]["activescenario"] = "__active"
+DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv6l"] = "player/Hardware/hardware/hardware6"
+DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv7l"] = "player/Hardware/hardware/hardware7"
+DEFAULT_SETTING["path"]["relative"]["interface"] = "player/Python/interface/bottleserver.py"
+DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "deviceslist"
+DEFAULT_SETTING["path"]["relative"]["media"] = "media"
+DEFAULT_SETTING["path"]["relative"]["video"] = "video"
+DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
+DEFAULT_SETTING["path"]["relative"]["text"] = "text"
+DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
 
 DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["video"] = False                # Explain if the scyn protocol must sync video or not
@@ -127,6 +140,13 @@ DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
 
+
+DEFAULT_SETTING["perf"] = dict()
+DEFAULT_SETTING["perf"]["history"] = dict()
+DEFAULT_SETTING["perf"]["history"]["enable"] = True
+DEFAULT_SETTING["perf"]["history"]["length"] = 20
+DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10          # Undeclared FSM (stopped) to be keept with history
+
 DEFAULT_SETTING["sys"] = dict()
 DEFAULT_SETTING["sys"]["raspi"] = True    # This settings is for debug, if raspi is False it will prevent pc for error
 
@@ -146,21 +166,25 @@ class Settings(dict):
         :return:
         """
         self._path = path
+        self.correctly_load = None
         dict.__init__(self, DEFAULT_SETTING)
         try:
             with open(path, 'r') as fp:
                 try:
                     self.update(json.load(fp))
                     log.info("Settings loaded from {0}".format(path))
+                    self.correctly_load = True
                 except Exception as e:
                     log.error("Could not load settings at {0}".format(path))
                     log.exception(log.show_exception(e))
+                    self.correctly_load = False
         except IOError:
             log.info("No settings found at path {0}, create one".format(path))
             with open(path, 'wr') as fp:
-                pass
+                Settings.__init__(self)             # Restart loading settings
         except json.scanner.JSONDecodeError as e:
             log.error("Could not load settings : {0}".format(e))
+            self.correctly_load = False
 
     def save(self):
         return self._save(self._path, "w")
@@ -212,7 +236,8 @@ class Settings(dict):
         """
         abs_path = self.get("path", "main")
         for path in args:
-            abs_path = os.path.join(abs_path, settings.get("path", path))
+            abs_path = os.path.join(abs_path, settings.get("path", "relative", path))
+        log.error("Return relative path {0}".format(abs_path))
         return abs_path
 
 
