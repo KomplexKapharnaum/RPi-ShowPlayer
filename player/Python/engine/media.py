@@ -86,14 +86,14 @@ class MediaList(list):
                 return True
         return False
 
-    def get_smaller_media(self):    #, ignore=()):
+    def get_smaller_media(self):  # , ignore=()):
         """
         This function return the smaller media to delete in the MediaList
         # :param ignore: list of elem to ignore
         """
         smaller = self[0]
         for elem in self:
-            if elem.filesize < smaller.filesize: # and elem not in ignore:
+            if elem.filesize < smaller.filesize:  # and elem not in ignore:
                 smaller = elem
         return smaller
 
@@ -116,13 +116,12 @@ class MediaList(list):
     def __str__(self):
         return self.__repr__()
 
-    # def get_media_to_delete(self, needspace):
-    #     """
-    #     This function return a list of smaller media
-    #     """
-    #     freespace = 0
-    #     while freespace < needspace:
-
+        # def get_media_to_delete(self, needspace):
+        # """
+        #     This function return a list of smaller media
+        #     """
+        #     freespace = 0
+        #     while freespace < needspace:
 
 
 class Media:
@@ -255,7 +254,8 @@ class Media:
                 log.log("raw", "Create directory to get file {0}".format(dest_path))
                 os.makedirs(dir_path)
             scp = ExternalProcess("scp")
-            scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path, options=settings.get("sync", "scp_options"))
+            scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path,
+                                                                 options=settings.get("sync", "scp_options"))
             log.log("raw", "SCP : Try to get distant media {0} with {1}".format(self, scp.command))
             scp.start()
             try:
@@ -358,7 +358,8 @@ def restart_netctl():
     if settings.get("sys", "raspi"):
         log.info("Restarting NETCTL auto-wifi ...")
         log.debug("Restart netctl return {0}".format(
-            subprocess.check_call(shlex.split(settings.get("path", "systemctl")+" restart netctl-auto@wlan0.service"))))
+            subprocess.check_call(
+                shlex.split(settings.get("path", "systemctl") + " restart netctl-auto@wlan0.service"))))
     else:
         log.debug("Don't restart netctl because we are not on a raspi")
 
@@ -477,7 +478,7 @@ class ScenarioFile:
         This class represent a scenario file in the fs
     """
 
-    def __init__(self, path, group, edit_date, dateobj, distant_path="", user_ip=""):
+    def __init__(self, path, group, edit_date, dateobj, user_ip="", distant_path=""):
         """
             :param path: Absolute path of the scenario file
             :param group: Work group of the scenario
@@ -505,7 +506,7 @@ class ScenarioFile:
             :return:
         """
         # if settings.get("sys", "raspi"):
-        #     scp = ExternalProcess("scp")
+        # scp = ExternalProcess("scp")
         #     scp.command += " {options} {ip}:{path} {path}".format(
         #         ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
         #     log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
@@ -514,13 +515,18 @@ class ScenarioFile:
         # else:
         #     log.warning("!! NOT IMPLEMENTED !!")
         #     log.warning("Should copy distant scenario {0} with scp but we are not on a raspi")
+        log.log("raw", "path : {0}, distant_path {1}".format(self.path, self.distant_path))
         scp = ExternalProcess("scp")
         scp.command += " {options} {ip}:{distant_path} {path}".format(
-            ip=self.user_ip, distant_path=self.distant_path,
+            ip=self.user_ip,
+            distant_path=os.path.join(self.distant_path, os.path.relpath(self.path, settings.get_path("scenario"))),
             path=self.path, options=settings.get("sync", "scp_options"))
         log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
         scp.start()
-        scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
+        try:
+            scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
+        except RuntimeError:
+            log.warning("Can't get scenario {0} with {1}".format(self, scp.command))
 
 
     @staticmethod
@@ -547,7 +553,7 @@ class ScenarioFile:
         filename = group + "@" + edit_date + ".tar"
         path = os.path.join(settings.get_path("scenario"), group, filename)
         dateobj = datetime.datetime.strptime(edit_date, settings.get("scenario", "date_format"))
-        return ScenarioFile(path, group, edit_date, dateobj, user_ip, distant_path)
+        return ScenarioFile(path, group, edit_date, dateobj, user_ip=user_ip, distant_path=distant_path)
 
     def __str__(self):
         return "ScenarioFile : {0}@{1}".format(self.group, self.date)
@@ -588,14 +594,15 @@ def get_scenario_by_group_in_osc(osc_args, ip):
     :return: dictionary with groups in keys and foreach a list of version
     """
     log.log("raw", "Recv osc_args : {0}".format(osc_args))
-    user_ip = osc_args.pop(0)+"@"+ip
+    user_ip = osc_args.pop(0) + "@" + ip
     distant_path = osc_args.pop(0)
     scenario_by_group = dict()
     if len(osc_args) % 2 != 0:
         log.critical("We must have n*2 arguments (one for group the other for date)")
         return []
     for i in range(len(osc_args) / 2):
-        scenario = ScenarioFile.create_by_OSC(osc_args[2 * i], osc_args[2 * i + 1], user_ip, distant_path)
+        scenario = ScenarioFile.create_by_OSC(osc_args[2 * i], osc_args[2 * i + 1], user_ip=user_ip,
+                                              distant_path=distant_path)
         log.log("raw", "[i={0}]Create scenario : {1}".format(i, scenario))
         if scenario.group not in scenario_by_group.keys():
             log.log("raw", "New group : {0}".format(scenario.group))
@@ -619,7 +626,7 @@ def get_newer_scenario(group):
 
 #
 # class MediaMoved:
-#     """
+# """
 #     This class just represent the fact that the file as change his place
 #     """
 #
