@@ -35,6 +35,7 @@ flag_timeout = fsm.Flag("TIMEOUT", TTL=None, JTL=None)
 flag_scp_copy_error = fsm.Flag("SCP_COPY_MEDIA_ERROR", TTL=None, JTL=None)
 flag_update_sync_flag = fsm.Flag("UPDATE_SYNC_FLAG", TTL=None, JTL=None)
 flag_init_end = fsm.Flag("INIT_END", TTL=None, JTL=None)
+flag_scp_end_copy = fsm.Flag("SCP_END_COPY", TTL=1, JTL=1)
 
 msg_media_version = network.UnifiedMessageInterpretation("/sync/media/version", values=None, ACK=False,
                                                          JTL=3, TTL=1, flag_name="RECV_MEDIA_LIST")
@@ -211,7 +212,7 @@ def trans_usb_have_dnc_media(flag):
     path = settings.get_path("usb")
     flag.args["trans_enough_place"] = trans_enought_place
     flag.args["trans_end"] = step_usb_end_copy
-    flag.args["trans_free"] = step_put_media_on_fs
+    flag.args["trans_free"] = step_put_usb_media_on_fs
     flag.args["trans_full"] = trans_can_free
     log.log("raw", "Does usb have dnc media ? usb path root : {0}".format(path))
     for f in os.listdir(path):
@@ -341,10 +342,14 @@ def get_media(flag):
     """
     log.log("raw", "start ")#on {0}".format(flag))
     log.log("raw", "Go to definitve copy {0} on filesystem".format(flag.args["get_media"]))
+    if flag.args["get_media"].source == "scp":          # It's a distant media we can need to jump to an usb sync
+        machine.current_state.preemptible.set()
     if not flag.args["get_media"].put_on_fs():
         log.error("Unabled to put {0} on fs".format(flag.args["get_media"]))
     else:
         log.log("raw", "Copy worked !")
+    if flag.args["get_media"].source == "scp":
+        machine.append_flag(flag_scp_end_copy.get())    # We are done with this copy we can go next
 
 
 def monitor_usb_end_copy(flag):
@@ -399,7 +404,7 @@ def trans_does_network_sync_enabled(flag):
             else:
                 flag.args["trans_enough_place"] = trans_enought_place
                 flag.args["trans_end"] = step_main_wait
-                flag.args["trans_free"] = step_put_media_on_fs
+                flag.args["trans_free"] = step_put_scp_media_on_fs
                 flag.args["trans_full"] = trans_can_free
                 return trans_need_media_in
         else:                               # elif "send" in flag.args.keys():
@@ -451,8 +456,13 @@ step_init = fsm.State("INIT_SYNC_MEDIA", function=init, transitions={
     flag_init_end.uid: step_first_send_sync_flag
 })
 
-step_put_media_on_fs = fsm.State("STEP_PUT_MEDIA_ON_FS", function=get_media, transitions={
+step_put_usb_media_on_fs = fsm.State("STEP_PUT_USB_MEDIA_ON_FS", function=get_media, transitions={
     True: trans_need_media_in
+})
+
+step_put_scp_media_on_fs = fsm.State("STEP_PUT_SCP_MEDIA_ON_FS", function=get_media, transitions={
+    flag_usb_plugged.uid: trans_usb_have_dnc_media,
+    flag_scp_end_copy.uid: trans_need_media_in
 })
 
 step_usb_end_copy = fsm.State("STEP_END_COPY", function=monitor_usb_end_copy, transitions={
@@ -485,7 +495,6 @@ step_main_wait.transitions = {
     msg_sync_flag.flag_name: trans_does_flag_newer,
     flag_timeout_send_list.uid: trans_does_network_sync_enabled,
     msg_media_version.flag_name: trans_does_network_sync_enabled
-    # TODO implement the other transitions
 }
 
 
