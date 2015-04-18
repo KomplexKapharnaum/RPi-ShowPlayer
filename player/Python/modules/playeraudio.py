@@ -23,7 +23,7 @@ class VlcAudio(ExternalProcess):
         self.start()
 
     def play(self, filename=None, repeat=None):
-        media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
+        media = os.path.join(settings.get_path("audio"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             #self.say("clear")
@@ -57,7 +57,7 @@ class Mpg123(ExternalProcess):
         self.onClose = "AUDIO_END"
 
     def play(self, filename=None, repeat=None):
-        media = os.path.join(settings.get("path", "audio"), filename) if filename is not None else self.media
+        media = os.path.join(settings.get_path("audio"), filename) if filename is not None else self.media
         if os.path.isfile(media):
             self.media = media
             self.repeat = repeat
