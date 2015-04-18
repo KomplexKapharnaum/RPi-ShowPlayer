@@ -197,7 +197,9 @@ class keyboardThread(threading.Thread):
                 except Exception:      # For no shell env
                     time.sleep(10)
                     continue
-                if c in ("q", "Q", "quit", "exit"):
+                if c in ("q", "Q", "quit", "exit", "qs"):
+                    if c == "qs":   # Prompt all fsm history and quit
+                        engine.perf.all_history()
                     POWEROFF = 1
                     break
                 if c == "":

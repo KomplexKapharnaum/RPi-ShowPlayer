@@ -209,7 +209,7 @@ def prompt_history(list_all=True):
     log.info("Which FSM history do you want to see ? (* for all)\n{0}".format(list_fsm(list_all)))
     selected = raw_input("Chose one or * for all : ")
     if selected == "*":
-        log.warning("NOT IMPLEMENTED")
+        all_history(stopped=True)
     else:
         try:
             selected = int(selected)
@@ -226,6 +226,21 @@ def prompt_history(list_all=True):
                 log.warning("Too high, choose a correct number")
                 return False
         log.info("History for {0} :\n".format(to_show[selected])+str(to_show[selected].get_history()))
+
+
+def all_history(stopped=False):
+    """
+    This function return the history of all FSM
+    :param stopped: If True return stopped FSM with running ones
+    :return:
+    """
+    to_show = fsm_declared
+    if stopped:
+        to_show += old_fsm_declared
+    for fsm in to_show:
+        log.info("History for {0} :\n".format(fsm)+str(fsm.get_history()))
+
+
 
 
 
