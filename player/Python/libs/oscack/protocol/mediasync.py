@@ -182,7 +182,7 @@ def trans_does_flag_newer(flag):
     :param flag:
     :return:
     """
-    if flag.args["src"] in get_ip():
+    if flag.args["src"].get_hostname() in get_ip():
         log.log("raw", "Ignore because it's our message")
         return None
     log.log("raw", "trans_does_sync_flag flag : {0}".format(flag))
@@ -379,7 +379,7 @@ def trans_does_network_sync_enabled(flag):
     log.log("raw", "start on {0}".format(flag))
     if settings.get("sync", "enable") and settings.get("sync", "media"):
         if "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
-            if flag.args["src"] in get_ip():
+            if flag.args["src"].get_hostname() in get_ip():
                 log.log("raw", "Ignore because it's our message")
                 return None
             flag.args["files_to_test"] = media.MediaList()
