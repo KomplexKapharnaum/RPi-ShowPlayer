@@ -515,7 +515,7 @@ class ScenarioFile:
         #     log.warning("!! NOT IMPLEMENTED !!")
         #     log.warning("Should copy distant scenario {0} with scp but we are not on a raspi")
         scp = ExternalProcess("scp")
-        scp.command += " {options} {ip}:{distabnt_path} {path}".format(
+        scp.command += " {options} {ip}:{distant_path} {path}".format(
             ip=self.user_ip, distant_path=self.distant_path,
             path=self.path, options=settings.get("sync", "scp_options"))
         log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
