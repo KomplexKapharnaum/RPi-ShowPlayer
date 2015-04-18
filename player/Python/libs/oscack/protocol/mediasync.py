@@ -36,7 +36,7 @@ flag_scp_copy_error = fsm.Flag("SCP_COPY_MEDIA_ERROR", TTL=None, JTL=None)
 flag_update_sync_flag = fsm.Flag("UPDATE_SYNC_FLAG", TTL=None, JTL=None)
 flag_init_end = fsm.Flag("INIT_END", TTL=None, JTL=None)
 flag_scp_end_copy = fsm.Flag("SCP_END_COPY", TTL=1, JTL=1)
-flag_usb_end_copy = fsm.Flag("USB_END_COPY")    # This flag perform no transition but is raise at the end of a usb copy
+# flag_usb_end_copy = fsm.Flag("USB_END_COPY")    # This flag perform no transition but is raise at the end of a usb copy
 
 msg_media_version = network.UnifiedMessageInterpretation("/sync/media/version", values=None, ACK=False,
                                                          JTL=3, TTL=1, flag_name="RECV_MEDIA_LIST")
@@ -384,12 +384,10 @@ def trans_does_network_sync_enabled(flag):
     """
     log.log("raw", "start on {0}".format(flag))
     if settings.get("sync", "enable") and settings.get("sync", "media"):
-        if flag is None or "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
-            if flag is not None and flag.args["src"].get_hostname() in get_ip():
+        if flag is not None and "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
+            if flag.args["src"].get_hostname() in get_ip():
                 log.log("raw", "Ignore because it's our message")
                 return None
-            if flag is None:    # If this transition is reached because of the end of a usb copy
-                flag = flag_usb_end_copy.get()
             flag.args["files_to_test"] = media.MediaList()
             try:
                 ssh_user = flag.args["args"].pop(0)
@@ -410,7 +408,7 @@ def trans_does_network_sync_enabled(flag):
                 flag.args["trans_free"] = step_put_scp_media_on_fs
                 flag.args["trans_full"] = trans_can_free
                 return trans_need_media_in
-        else:                               # elif "send" in flag.args.keys():
+        elif flag is None:                               # end usb copy and send list
             return step_send_media_list
     else:
         log.log("raw", "Sync disabled, aborting..")
