@@ -21,6 +21,7 @@ from engine import fsm
 from libs.oscack import network
 from engine.setting import settings
 from engine.log import init_log
+from libs.oscack.utils import get_ip
 
 log = init_log("msync")
 
@@ -181,6 +182,9 @@ def trans_does_flag_newer(flag):
     :param flag:
     :return:
     """
+    if flag.args["src"] in get_ip():
+        log.log("raw", "Ignore because it's our message")
+        return None
     log.log("raw", "trans_does_sync_flag flag : {0}".format(flag))
     if flag.args["kwargs"]["timestamp"] > settings.get("sync", "flag_timestamp"):
         return step_update_sync_flag
@@ -375,6 +379,9 @@ def trans_does_network_sync_enabled(flag):
     log.log("raw", "start on {0}".format(flag))
     if settings.get("sync", "enable") and settings.get("sync", "media"):
         if "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
+            if flag.args["src"] in get_ip():
+                log.log("raw", "Ignore because it's our message")
+                return None
             flag.args["files_to_test"] = media.MediaList()
             try:
                 ssh_user = flag.args["args"].pop(0)
