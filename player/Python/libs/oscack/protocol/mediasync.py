@@ -342,13 +342,13 @@ def get_media(flag):
     """
     log.log("raw", "start ")#on {0}".format(flag))
     log.log("raw", "Go to definitve copy {0} on filesystem".format(flag.args["get_media"]))
-    if flag.args["get_media"].source == "scp":          # It's a distant media we can need to jump to an usb sync
+    if flag.args["get_media"].source == "osc":          # It's a distant media we can need to jump to an usb sync
         machine.current_state.preemptible.set()
     if not flag.args["get_media"].put_on_fs():
         log.error("Unabled to put {0} on fs".format(flag.args["get_media"]))
     else:
         log.log("raw", "Copy worked !")
-    if flag.args["get_media"].source == "scp":
+    if flag.args["get_media"].source == "osc":
         machine.append_flag(flag_scp_end_copy.get())    # We are done with this copy we can go next
 
 
