@@ -6,6 +6,7 @@
 #
 
 import os
+import getpass
 
 from libs.oscack import message, network, DNCserver #, BroadcastAddress
 from engine.threads import network_scheduler, patcher
@@ -78,6 +79,8 @@ def send_version(flag):
     :return:
     """
     args = list()
+    args.append(('s', getpass.getuser()))                    # username
+    args.append(('s', settings.get_path("scenario")))        # media path
     groups = media.get_scenario_by_group_in_fs()
     for groupname, group in groups.items():
         group.sort(key=lambda r: r.dateobj, reverse=True)
@@ -109,8 +112,10 @@ def trans_must_i_get_scenario(flag):
                     log.log("raw", "His : {0}, us {1}".format(
                         media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag.args["args"][1]), newer))
                     message.send(flag.args["src"], message.Message(OSC_PATH_SCENARIO_VERSION,
-                                                                                 ('s', flag.args["args"][0]),
-                                                                                 ('s', newer.date)))
+                                                                   ('s', getpass.getuser()),
+                                                                   ('s', settings.get_path("scenario")),
+                                                                   ('s', flag.args["args"][0]),
+                                                                   ('s', newer.date)))
                     # We send our newer version of scenario
         return None  # Not a distant OSC version message
     log.log("raw", ".. It's a OSC_PATH_SCENARIO_VERSION ")
@@ -154,7 +159,7 @@ def get_scenario(flag):
     """
     to_get = flag.args["to_get"]
     log.log("debug", "Try to get wia scp : {0}".format(to_get))
-    to_get.get_from_distant(flag.args["src"].get_hostname())
+    to_get.get_from_distant(flag.args["src"])
     if flag.args["local_newer"] is not None:
         log.log("raw", "Check is distant group : {0} is same as us {1}".format(to_get.group, flag.args["local_newer"].group))
         log.log("raw", "Flag args keys : {0}".format(flag.args.keys()))
