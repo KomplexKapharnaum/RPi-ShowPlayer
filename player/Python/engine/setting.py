@@ -222,6 +222,8 @@ class Settings(dict):
         :param args: path to the setting (ex: ("OSC", "ackport"))
         :return:
         """
+        if args[0] == "path" and len(args) > 1 and args[1] != "main":
+            log.warning("Depreciated : use relative path with get_path(*args) instead ")
         d = self
         for elem in args:
             if elem in d.keys():

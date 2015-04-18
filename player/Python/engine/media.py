@@ -457,15 +457,15 @@ def load_scenario_from_fs(group, date_timestamp=None):
         if newer is None:  # Can't find scenario in fs
             log.error("Can't find scenario ({0}@{1}) in fs".format(group, edit_date))
             return False
-    path = os.path.join(settings.get("path", "scenario"), group)
+    path = os.path.join(settings.get_path("scenario"), group)
     tar_path = os.path.join(path, group + "@" + newer.date + ".tar")
     log.log("raw", "Ask to load {0} from fs to update scenario ".format(tar_path))
     with tarfile.open(tar_path, "r") as tar:
         # RM current scenario active directory ! #
-        if os.path.exists(settings.get("path", "activescenario")):
-            shutil.rmtree(settings.get("path", "activescenario"))
+        if os.path.exists(settings.get_path("scenario", "activescenario")):
+            shutil.rmtree(settings.get_path("scenario", "activescenario"))
         ##
-        tar.extractall(path=settings.get("path", "scenario"))  # path=settings.get("path", "scenario"))
+        tar.extractall(path=settings.get_path("scenario"))  # path=settings.get("path", "scenario"))
         return True
     # if here it's because we ca not open tar file
     log.warning("Error when opening scnario at {0}".format(os.path.join(path, group + "@" + newer.date + ".tar")))
