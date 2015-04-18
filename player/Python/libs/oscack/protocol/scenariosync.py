@@ -13,6 +13,7 @@ from engine.threads import network_scheduler, patcher
 
 from engine import media
 from engine import fsm
+from libs.oscack.utils import get_ip
 from engine.setting import settings
 from engine.log import init_log
 
@@ -98,8 +99,11 @@ def trans_must_i_get_scenario(flag):
     :return:
     """
     log.log("raw", "Transition..")
-    if flag.args["path"] != OSC_PATH_SCENARIO_VERSION or \
-                    flag.args["src"].get_hostname() == DNCserver.net_elem._ip:
+    if flag.args["src"].get_hostname() in get_ip():
+        # It's our message
+        log.log("raw", "Ignore because it's our message")
+        return None
+    if flag.args["path"] != OSC_PATH_SCENARIO_VERSION:
         log.log("raw", "Not a scenario/version msg")
         if flag.args["path"] == OSC_PATH_SCENARIO_ASK:  # We ask if someone is newer than me
             log.log("raw", "It's a newer asking {0}@{1}".format(flag.args["args"][0], flag.args["args"][1]))
@@ -121,7 +125,7 @@ def trans_must_i_get_scenario(flag):
     log.log("raw", ".. It's a OSC_PATH_SCENARIO_VERSION ")
     if "scenario" not in flag.args.keys():  # We just recv the OSC msg
         log.log("raw", "First iter on loop get_scenario")
-        flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"])
+        flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"], flag.args["src"].get_hostname())
         flag.args["local_scenario"] = media.get_scenario_by_group_in_fs()
         if settings.get("current_timeline") in flag.args["local_scenario"].keys():
             flag.args["local_newer"] = media.get_newer_scenario(
