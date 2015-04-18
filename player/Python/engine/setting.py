@@ -142,9 +142,11 @@ DEFAULT_SETTING["log"]["output"] = "Console"
 
 
 DEFAULT_SETTING["perf"] = dict()
+DEFAULT_SETTING["perf"]["enable"] = True
 DEFAULT_SETTING["perf"]["history"] = dict()
 DEFAULT_SETTING["perf"]["history"]["enable"] = True
 DEFAULT_SETTING["perf"]["history"]["length"] = 20
+DEFAULT_SETTING["perf"]["history"]["format"] = "simple"
 DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10          # Undeclared FSM (stopped) to be keept with history
 
 DEFAULT_SETTING["sys"] = dict()

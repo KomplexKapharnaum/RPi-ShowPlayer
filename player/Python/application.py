@@ -78,6 +78,20 @@ class keyboardThread(threading.Thread):
         engine.tools.register_thread(self)
 
     @staticmethod
+    def basic_all_info():
+        if not settings.correctly_load:
+            log.warning("/!\\ SETTINGS NOT CORRECTLY LOADED /!\\ ")
+        log.info("uName : {0}, Team : {1}".format(settings["uName"], settings["current_timeline"]))
+
+    @staticmethod
+    def path_info():
+        log.info("--- PATH ---")
+        log.info("DNC path : {0}".format(settings.get("path", "main")))
+        log.info("Media path : {0}".format(settings.get_path("media")))
+        log.info("Scenario path : {0}".format(settings.get_path("media")))
+        log.info("------------")
+
+    @staticmethod
     def in_info(key="INFO"):
         log.info()
         log.info("=== {key} ===".format(key=key))
@@ -94,21 +108,77 @@ class keyboardThread(threading.Thread):
         keyboardThread.out_info(key)
 
     @staticmethod
-    def osc_info():
-        pass
+    def osc_info(alone=False, info=False):
+        if not alone:
+            log.info("--- OSC ---")
+        if alone or info:
+            keyboardThread.basic_osc_info(alone)
+        keyboardThread.media_sync_info()
+        keyboardThread.scenario_sync_info()
+        keyboardThread.rtp_info()
+        if not alone:
+            log.info("-----------")
 
     @staticmethod
-    def basic_osc_info():
-        pass
+    def basic_osc_info(alone=True):
+        if alone:
+            keyboardThread.basic_all_info()
+        log.info("OSC port : {0}, ACK port : {1}".format(settings.get("OSC", "classicport"), settings.get("OSC", "ackport")))
 
     @staticmethod
     def media_sync_info(alone=False):
-        if not alone:
+        if alone:
             keyboardThread.basic_osc_info()
         log.info(oscack.protocol.mediasync.machine)
         log.info("All media : {0}".format(engine.media.get_all_media_list()))
         log.info("Needed media : {0}".format(oscack.protocol.mediasync.needed_media_list))
         log.info("Uneeded media : {0}".format(oscack.protocol.mediasync.unwanted_media_list))
+
+    @staticmethod
+    def scenario_sync_info(alone=False):
+        if alone:
+            keyboardThread.basic_osc_info()
+        log.info(oscack.protocol.scenariosync.machine)
+
+    @staticmethod
+    def rtp_info(alone=False):
+        if alone:
+            keyboardThread.basic_osc_info()
+        log.info(oscack.protocol.discover.machine)
+        log.info(" = oscack.DNCServer.networkmap : {0} ".format(oscack.DNCserver.networkmap))
+        log.info(" = oscack.timetag : {0} ".format(oscack.timetag))
+        log.info(" = oscack.accuracy : {0} ".format(oscack.accuracy))
+
+    @staticmethod
+    def basic_scenario_info(alone=True):
+        if alone:
+            keyboardThread.basic_all_info()
+
+    @staticmethod
+    def scenario_info(alone=False, info=False):
+        if alone or info:
+            keyboardThread.basic_scenario_info(alone)
+        keyboardThread.scenario_fsm_info()
+
+    @staticmethod
+    def scenario_fsm_info(alone=False):
+        if alone:
+            keyboardThread.basic_scenario_info()
+        if not alone:
+            log.info("--- SCENARIO FSM ---")
+
+        if scenario.SCENARIO_FSM is not None:
+            log.info(scenario.SCENARIO_FSM.current_state)
+        for f in scenario.FSM:
+            log.info(f.current_state)
+            log.info(f._flag_stack)
+        for f in scenario.DEVICE_FSM:
+            log.info(f.current_state)
+            log.info(f._flag_stack)
+
+        if not alone:
+            log.info("--------------------")
+
 
     def run(self):
         # DEV
@@ -135,6 +205,8 @@ class keyboardThread(threading.Thread):
                 cmd = c.split()
                 if cmd[0] == "pw":
                     log.info(str(POWEROFF))
+                if cmd[0] == "history":
+                    engine.perf.prompt_history()
                 elif cmd[0] == "settings":
                     log.info()
                     log.info("=== SETTINGS ===")
@@ -146,25 +218,23 @@ class keyboardThread(threading.Thread):
                     log.info()
                 elif cmd[0] == "msync":
                     keyboardThread.info(keyboardThread.media_sync_info, key="MEDIA SYNC", alone=True)
+                elif cmd[0] == "ssync":
+                    keyboardThread.info(keyboardThread.scenario_sync_info, key="SCENARIO SYNC", alone=True)
+                elif cmd[0] == "rtp":
+                    keyboardThread.info(keyboardThread.rtp_info, key="REAL TIME PROTOCOL", alone=True)
+                elif cmd[0] == "osc":
+                    keyboardThread.info(keyboardThread.osc_info, key="OSC", alone=True)
+                elif cmd[0] == "scenario":
+                    keyboardThread.info(keyboardThread.scenario_info, key="SCENARIO", alone=True)
+                elif cmd[0] == "sfsm":
+                    keyboardThread.info(keyboardThread.scenario_fsm_info, key="SCENARIO FSM", alone=True)
                 elif cmd[0] == "info":
                     log.info()
                     log.info("=== INFO ===")
-                    log.info("--- SCENARIO FSM ---")
-                    if scenario.SCENARIO_FSM is not None:
-                        log.info(scenario.SCENARIO_FSM.current_state)
-                    log.info("--------------------")
-                    log.info(oscack.protocol.discover.machine)
-                    log.info(oscack.protocol.scenariosync.machine)
-                    keyboardThread.media_sync_info()
-                    for f in scenario.FSM:
-                        log.info(f.current_state)
-                        log.info(f._flag_stack)
-                    for f in scenario.DEVICE_FSM:
-                        log.info(f.current_state)
-                        log.info(f._flag_stack)
-                    log.info(" = oscack.DNCServer.networkmap : {0} ".format(oscack.DNCserver.networkmap))
-                    log.info(" = oscack.timetag : {0} ".format(oscack.timetag))
-                    log.info(" = oscack.accuracy : {0} ".format(oscack.accuracy))
+                    keyboardThread.basic_all_info()
+                    keyboardThread.path_info()
+                    keyboardThread.scenario_info(info=True)
+                    keyboardThread.osc_info(info=True)
                     log.info("=== END INFO ===")
                     log.info()
                 elif cmd[0] == "signal":

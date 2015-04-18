@@ -24,7 +24,7 @@ from engine.log import init_log
 
 log = init_log("msync")
 
-machine = fsm.FiniteStateMachine("MediaSyncProtocol")
+machine = fsm.FiniteStateMachine("MEDIA_SYNC_FSM")
 
 flag_usb_plugged = fsm.Flag("USB_PLUGGED", TTL=None, JTL=None)
 flag_usb_copy_error = fsm.Flag("USB_MEDIA_COPY_ERROR", TTL=2, JTL=10)

@@ -14,7 +14,10 @@ log = init_log("perf")
 
 
 fsm_declared = list()
-old_fsm_declared = deque(maxlen=settings.get("history", "undeclared_fsm"))
+old_fsm_declared = deque(maxlen=settings.get("perf", "undeclared_fsm"))
+
+history_max_len = settings.get("perf", "history", "length")
+default_format = settings.get("perf", "history", "format")
 
 
 class ChangeFSM(object):
@@ -28,6 +31,29 @@ class ChangeFSM(object):
         self.to_state = to_state
         self.flag = flag
 
+    def _simple_format(self):
+        """
+        This function return a prompt of this change in a simple format
+        """
+        r = "{0} ".format(self.from_state)
+        if self.changetype == "transition":
+            r += "~~"
+        else:
+            r += "=>"
+        flag = self.flag
+        if flag in (None, True):
+            flag = str(flag)
+        else:
+            flag = flag.uid
+        return r + " {0} caused by {1}".format(self.to_state, flag)
+
+    def prompt(self, p_format=default_format):
+        """
+        This function prompt a change according to a given format
+        """
+        if p_format == "simple":
+            return self._simple_format()
+
 
 class HistoryFSM(deque):
     """
@@ -38,25 +64,35 @@ class HistoryFSM(deque):
         :param weak_parent: Weak_ref to the FSM
         """
         self._fsm = weak_parent
-        deque.__init__(self, maxlen=settings.get("perf", "history", "length"))
+        self._indice = 0
+        deque.__init__(self, maxlen=history_max_len)
 
-    def change_step(self, from_step, next_step, flag):
+    def append(self, *args, **kwargs):
         """
-        This function log when a fsm change his step and why
-        :param from_step: Previous step
-        :param next_step: Next step to reach
-        :param flag: Flag which pass to this step
+        This function override append to keep an history of how many change the FSM performed
+        :param args:
+        :param kwargs:
+        :return:
         """
-        self.append(ChangeFSM("step", from_step, next_step, flag))
+        self._indice += 1
+        deque.append(self, *args, **kwargs)
 
-    def condition_transition(self, from_step, transition, flag):
+    def show(self, p_format=default_format, n=None):
         """
-        This function log when a fsm perform a transition and why
-        :param from_step: Previous step
-        :param transition: Transition function which wiil be called
-        :param flag: Flag which pass to this transition
+        This function show the history according to a given format
+        :param p_format:
+        :param n: Number of elem to show, None = all
         """
-        self.append(ChangeFSM("transition", from_step, transition, flag))
+        r = ""
+        if n is None:
+            n = len(self)
+        if n < 1:
+            log.debug("Show {0} history elem".format(n))
+            return False
+        for i in range(n):
+            change_indice = self._indice + i - n
+            r += "[{:>3}] {change}\n".format(change_indice, change=self[len(self)+i-n].prompt(p_format=p_format))
+        return r
 
 
 class DeclaredFSM(object):
@@ -75,6 +111,25 @@ class DeclaredFSM(object):
         self.source = source
         self.running = True
         self._history = HistoryFSM(self._fsm)
+        self.get_history = self._history.show
+
+    def change_step(self, from_step, next_step, flag):
+        """
+        This function log when a fsm change his step and why
+        :param from_step: Previous step
+        :param next_step: Next step to reach
+        :param flag: Flag which pass to this step
+        """
+        self._history.append(ChangeFSM("step", from_step, next_step, flag))
+
+    def condition_transition(self, from_step, transition, flag):
+        """
+        This function log when a fsm perform a transition and why
+        :param from_step: Previous step
+        :param transition: Transition function which wiil be called
+        :param flag: Flag which pass to this transition
+        """
+        self._history.append(ChangeFSM("transition", from_step, transition, flag))
 
     @property
     def fsm(self):
@@ -104,7 +159,9 @@ def declare_fsm(fsm, fsmtype="fsm", source=None):
     :param fsmtype: If True, it's a scenario FSM
     :return:
     """
-    fsm_declared.append(DeclaredFSM(fsm, fsmtype, source))
+    dec_fsm = DeclaredFSM(fsm, fsmtype, source)
+    fsm_declared.append(dec_fsm)
+    return dec_fsm
 
 
 def undeclare_fsm(fsm):
@@ -123,5 +180,55 @@ def undeclare_fsm(fsm):
         old_fsm_declared.append(fsm_to_remove)
     else:
         log.warning("Try to undeclared an FSM {0} which doesn't exit or have already died".format(fsm))
+
+
+def list_fsm(list_all=True):
+    """
+    This function list FSMs
+    :param list_all: If True list undeclared fsm
+    :return:
+    """
+    i = 0
+    r = ""
+    for fsm in fsm_declared:
+        r += "[{:>3}] {_fsm}\n".format(i, _fsm=fsm)
+        i += 1
+    if list_all:
+        for fsm in old_fsm_declared:
+            r += "[{:>3}] (stop){_fsm}\n".format(i, _fsm=fsm)
+            i += 1
+    return r
+
+
+def prompt_history(list_all=True):
+    """
+    This function ask for a given FSM and prompt his history
+    :param list_all: If True list undeclared fsm
+    :return:
+    """
+    log.info("Which FSM history do you want to see ? (* for all)\n{0}".format(list_fsm(list_all)))
+    selected = raw_input("Chose one or * for all : ")
+    if selected == "*":
+        log.warning("NOT IMPLEMENTED")
+    else:
+        try:
+            selected = int(selected)
+        except TypeError:
+            log.info("Incorrect.. {0} (we need an int)".format(selected))
+            return False
+        to_show = fsm_declared
+        if selected >= len(fsm_declared):
+            log.debug("It's will be an old fsm (selected {2}, declared : {0}, stopped {1})".format(
+                len(fsm_declared, old_fsm_declared, selected)))
+            selected -= len(fsm_declared)
+            to_show = old_fsm_declared
+            if selected >= len(old_fsm_declared):
+                log.warning("Too high, choose a correct number")
+                return False
+        log.info("History for {0} :\n".format(to_show[selected])+str(to_show[selected].get_history()))
+
+
+
+
 
 

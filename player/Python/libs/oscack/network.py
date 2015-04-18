@@ -119,10 +119,10 @@ class NetworkMap(dict):  # TODO : Implement check neighbour
             return dict.__iter__(self)
 
     def __str__(self):
-        r = ""
+        r = "\n"
         for netelem in self.values():
             r += str(netelem) + "\n"
-        return r
+        return r[:-1]
 
     # def netelems_in(self, group):
     #     """

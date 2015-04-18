@@ -1,54 +1,14 @@
 {
     "pool": [
         {
-            "blocks": [
-                {
-                    "end": 50, 
-                    "group": {
-                        "color": "218C8D", 
-                        "name": "group1"
-                    }, 
-                    "name": "block1", 
-                    "position": 0, 
-                    "scenarios": [
-                        "SC1_temp"
-                    ], 
-                    "start": 0
-                }
-            ], 
-            "modules": [
-                "AudioPlayer", 
-                "VideoPlayer"
-            ], 
+            "blocks": [], 
+            "modules": [], 
             "name": "Pi1"
         }, 
         {
-            "blocks": [
-                {
-                    "end": 50, 
-                    "group": {
-                        "color": "218C8D", 
-                        "name": "group1"
-                    }, 
-                    "name": "block1", 
-                    "position": 0, 
-                    "scenarios": [
-                        "SC1_temp"
-                    ], 
-                    "start": 0
-                }
-            ], 
-            "modules": [
-                "AudioPlayer", 
-                "VideoPlayer"
-            ], 
-            "name": "raspi2mgr"
-        }
-    ], 
-    "scenes": [
-        {
-            "name": "SC1", 
-            "position": 0
+            "blocks": [], 
+            "modules": [], 
+            "name": "Pi2"
         }
     ]
 }

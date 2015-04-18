@@ -25,7 +25,9 @@ class KxkmCard(ExternalProcess):
     """
 
     def __init__(self):
-
+        if not settings.get("sys", "raspi"):
+            log.warning("KXKM Card should not be launched on no raspi device ")
+            return None
         plateform = subprocess.check_output(["/usr/bin/gcc", "-dumpmachine"])
         if "armv6l" in plateform:
             ExternalProcess.__init__(self, 'kxkmcard-armv6l')

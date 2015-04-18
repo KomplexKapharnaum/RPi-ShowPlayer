@@ -30,7 +30,7 @@ msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENAR
 msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None,
                                                              flag_name="RECV_SCENARIO_ASK")
 
-machine = fsm.FiniteStateMachine(name="syncscenario")
+machine = fsm.FiniteStateMachine(name="SCENARIO_SYNC_FSM")
 
 flag_timeout = fsm.Flag("TIMEOUT_SEND_VERSION")
 

@@ -7,6 +7,11 @@ from collections import deque
 
 from libs import rtplib
 from engine.log import init_log
+from engine.setting import settings
+is_perf_enabled = settings.get("perf", "enable")
+if is_perf_enabled:
+    from engine import perf
+    is_history_enabled = settings.get("perf", "history", "enable")
 # import scenario
 
 log = init_log("fsm")
@@ -154,11 +159,13 @@ class FiniteStateMachine:
         evole when it get signals
     """
 
-    def __init__(self, name="FSM", flag_stack_len=256):
+    def __init__(self, name="FSM", flag_stack_len=256, fsmtype="fsm", source=None):
         """
         Init method
         :param name: optional name for the FSM, usefull for debug
         :param flag_stack_len: Define the length of the flag stack
+        :param fsmtype: For perf : Type of FSM (fsm or scenario)
+        :param source: For perf : Source of the FSM
         :return:
         """
         self.name = name
@@ -172,11 +179,16 @@ class FiniteStateMachine:
         self._event_stop = threading.Event()
         self._event_stop.set()
         self.main_thread = None
+        self._perf_ref = None       # Ref to the perf FSM object
+        if is_perf_enabled:
+            self._perf_ref = perf.declare_fsm(self, fsmtype, source=source)
 
     def stop(self):
         log.log("raw", "Asking {0} FiniteStateMachine to stop".format(self.name))
         self._event_stop.set()
         self._event_flag_stack_new.set()  # To directly stop the FSM if it waits for flag
+        if is_perf_enabled:
+            perf.undeclare_fsm(self)
         # self._event_flag_stack_not_empty.set()
 
     def join(self):
@@ -210,8 +222,12 @@ class FiniteStateMachine:
             if state in (True, None):
                 return state  # Do not perform transition
             else:  # It's a transition
+                if is_perf_enabled and is_history_enabled:
+                    self._perf_ref.condition_transition(self.current_state, state, flag)
                 return self._catch_flag(flag, state(flag))  # Go throw it
         else:
+            if is_perf_enabled and is_history_enabled:
+                    self._perf_ref.change_step(self.current_state, state, flag)
             return self._change_state(flag, state)
 
     def _change_state(self, flag, state):
@@ -324,7 +340,7 @@ class FiniteStateMachine:
         return True
 
     def __str__(self):
-        return self.name
+        return "FSM : {name} on step {step}".format(name=self.name, step=self.current_state)
 
     def __repr__(self):
         return self.__str__()

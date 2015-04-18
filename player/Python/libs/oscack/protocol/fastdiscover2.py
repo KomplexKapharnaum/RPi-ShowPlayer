@@ -23,7 +23,7 @@ from scenario import manager
 
 log = init_log("discov")
 
-machine = fsm.FiniteStateMachine()
+machine = fsm.FiniteStateMachine("RTP_FSM")
 
 msg_iamhere = network.UnifiedMessageInterpretation("/iamhere", values=(
     ('s', "uName"),
