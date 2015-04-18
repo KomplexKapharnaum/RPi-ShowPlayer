@@ -156,7 +156,7 @@ class Media:
             # return False
             mtime = 0
         else:
-            mtime = os.path.getmtime(path)
+            mtime = int(os.path.getmtime(path))
         return Media(rel_path=rel_path, mtime=mtime, source="scenario", source_path=path)
 
     @staticmethod
@@ -169,7 +169,7 @@ class Media:
         if not os.path.exists(abs_path):
             log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
             return False
-        mtime = os.path.getmtime(abs_path)
+        mtime = int(os.path.getmtime(abs_path))
         filesize = Media.get_size(abs_path)  # In Ko
         return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
 
@@ -195,7 +195,7 @@ class Media:
         :param filesize: filesize in Ko of the media
         :return:
         """
-        return Media(rel_path=rel_path, mtime=os.path.getmtime(abs_path), source="fs", source_path=abs_path,
+        return Media(rel_path=rel_path, mtime=int(os.path.getmtime(abs_path)), source="fs", source_path=abs_path,
                      filesize=filesize)
 
     @staticmethod
@@ -214,7 +214,7 @@ class Media:
         """
         log.log("raw", "get_osc_rep for : {0}".format(self))
         # return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
-        return ('s', str(self.rel_path)), ('f', float(os.path.getmtime(os.path.join(settings.get_path("media"), self.rel_path)))), ('i', int(self.filesize))
+        return ('s', str(self.rel_path)), ('i', int(os.path.getmtime(os.path.join(settings.get_path("media"), self.rel_path)))), ('i', int(self.filesize))
         # return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
 
     def put_on_fs(self):  # , error_fnct=None
