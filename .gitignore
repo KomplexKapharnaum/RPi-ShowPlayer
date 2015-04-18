@@ -13,6 +13,7 @@
 #SCENARIO ARCHIVES
 *.tar
 scenario/*
+scenario/__active/*
 
 #Log Files
 *.log
