@@ -258,13 +258,16 @@ def trans_need_media_in(flag):
     log.log("raw", "start")# on {0}".format(flag))
     global needed_media_list
     log.log("raw", "Needed media list : {0}".format(needed_media_list))
-    while len(flag.args["files_to_test"]) > 0:
-        f = flag.args["files_to_test"].pop()
-        log.log("raw", "Do I need {0} file ?".format(f))
-        if needed_media_list.need(f):
-            log.log("raw", "Need {0}, go to copy it !".format(f))
-            flag.args["get_media"] = f
-            return flag.args["trans_enough_place"]
+    try:
+        while len(flag.args["files_to_test"]) > 0:
+            f = flag.args["files_to_test"].pop()
+            log.log("raw", "Do I need {0} file ?".format(f))
+            if needed_media_list.need(f):
+                log.log("raw", "Need {0}, go to copy it !".format(f))
+                flag.args["get_media"] = f
+                return flag.args["trans_enough_place"]
+    except KeyError as e:
+        log.exception(log.show_exception(e))
     return flag.args["trans_end"]
 
 
