@@ -23,7 +23,7 @@ from engine.setting import settings
 from engine.log import init_log
 from libs.oscack.utils import get_ip
 
-log = init_log("msync")
+log = init_log("msync", log_lvl="raw")
 
 machine = fsm.FiniteStateMachine("MEDIA_SYNC_FSM")
 
@@ -409,6 +409,8 @@ def trans_does_network_sync_enabled(flag):
                 return trans_need_media_in
         else:                               # elif "send" in flag.args.keys():
             return step_send_media_list
+    else:
+        log.log("raw", "Sync disabled, aborting..")
     return step_main_wait
 
 
