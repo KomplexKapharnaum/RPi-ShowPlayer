@@ -190,9 +190,11 @@ def trans_does_flag_newer(flag):
     log.log("raw", "trans_does_sync_flag flag : {0}".format(flag))
     if flag.args["kwargs"]["timestamp"] > settings.get("sync", "flag_timestamp"):
         return step_update_sync_flag
-    else:
+    elif flag.args["kwargs"]["timestamp"] < settings.get("sync", "flag_timestamp"):
         flag.args["target"] = flag.args["src"]
         return step_send_sync_flag
+    else:
+        None
 
 
 def sync_media_on():
