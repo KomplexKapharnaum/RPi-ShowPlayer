@@ -259,6 +259,7 @@ def trans_need_media_in(flag):
     """
     log.log("raw", "start")# on {0}".format(flag))
     global needed_media_list
+    needed_media_list.update()
     log.log("raw", "Needed media list : {0}".format(needed_media_list))
     try:
         while len(flag.args["files_to_test"]) > 0:

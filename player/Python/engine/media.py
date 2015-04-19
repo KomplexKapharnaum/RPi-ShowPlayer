@@ -86,6 +86,15 @@ class MediaList(list):
                 return True
         return False
 
+    def update(self):
+        """
+        This function update mtime information for all media from fs
+        """
+        for elem in self:
+            if elem.source == "fs" and os.path.exists(elem.source_path):
+                elem.mtime = int(os.path.getmtime(elem.source_path))
+
+
     def get_smaller_media(self):  # , ignore=()):
         """
         This function return the smaller media to delete in the MediaList
