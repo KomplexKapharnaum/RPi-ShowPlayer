@@ -218,7 +218,7 @@ class FiniteStateMachine:
             self._flag_stack.append(flag)
             # self._event_flag_stack_not_empty.set()
             self._event_flag_stack_new.set()
-            log.log("raw", "Flag stack of {1} : {0}".format(self._flag_stack, self))
+            # log.log("raw", "Flag stack of {1} : {0}".format(self._flag_stack, self))
 
     def _catch_flag(self, flag, state):
         """
@@ -274,7 +274,7 @@ class FiniteStateMachine:
         :return:
         """
         with self._lock_flag_stack:
-            log.log("raw", "- FSM ({0}) : Start clean flag stack ".format(self.name))
+            # log.log("raw", "- FSM ({0}) : Start clean flag stack ".format(self.name))
             expired_flags = list()
             for flag in self._flag_stack:
                 if flag.JTL is not None:
@@ -286,7 +286,7 @@ class FiniteStateMachine:
                             self._perf_ref.flag_event(flag, event="removed",
                                                       event_args={"reason": "JTL", "value": flag.JTL})
                         expired_flags.append(flag)
-                        log.log("raw", "JTL Expiration: {0}".format(flag.uid))
+                        # log.log("raw", "JTL Expiration: {0}".format(flag.uid))
                 if flag.TTL is not None and flag not in expired_flags:
                     if rtplib.is_expired(*flag.TTL):
                         flag.ignore(reason="TTL")
@@ -294,17 +294,17 @@ class FiniteStateMachine:
                             self._perf_ref.flag_event(flag, event="removed",
                                                       event_args={"reason": "TTL", "value": flag._TTL})
                         expired_flags.append(flag)
-                        log.log("raw", "TTL Expiration: {0}".format(flag.uid))
+                        # log.log("raw", "TTL Expiration: {0}".format(flag.uid))
             for flag in expired_flags:
                 try:
-                    log.log("raw", "[{1}] Remove flag {0}".format(flag.uid, self))
+                    # log.log("raw", "[{1}] Remove flag {0}".format(flag.uid, self))
                     self._flag_stack.remove(flag)
                 except ValueError:
                     log.log("debug", "[{1}] ERROR Removing flag {0}".format(flag.uid, self.name))
             if len(self._flag_stack) == 0:
                 # self._event_flag_stack_not_empty.clear()
                 self._event_flag_stack_new.clear()
-            log.log("raw", "- FSM ({0}) : End clean flag stack ".format(self))
+            #log.log("raw", "- FSM ({0}) : End clean flag stack ".format(self))
 
     def _wait_for_transition(self):
         """
@@ -331,7 +331,7 @@ class FiniteStateMachine:
                 if consume is not False:
                     if isinstance(flag, Flag):
                         with self._lock_flag_stack:
-                            log.log("raw", "- FSM ({0}) : Consume {0} flag".format(self, flag))
+                            # log.log("raw", "- FSM ({0}) : Consume {0} flag".format(self, flag))
                             try:
                                 self._flag_stack.remove(flag)
                             except ValueError:
