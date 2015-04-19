@@ -13,8 +13,8 @@ is_perf_enabled = settings.get("perf", "enable")
 if is_perf_enabled:
     import inspect
     from engine import perf
-
     is_history_enabled = settings.get("perf", "history", "enable")
+    is_flag_enabled = settings.get("perf", "history", "withflag")
 # import scenario
 
 log = init_log("fsm")
@@ -211,7 +211,7 @@ class FiniteStateMachine:
         """
         with self._lock_flag_stack:
             log.log("raw", "Append flag {0} to {1}".format(flag, self))
-            if is_perf_enabled and is_history_enabled:
+            if is_perf_enabled and is_history_enabled and is_flag_enabled:
                 self._perf_ref.flag_event(flag, event="add", event_args={"frame": inspect.stack()[1][0]})
             self._flag_stack.append(flag)
             # self._event_flag_stack_not_empty.set()
@@ -230,11 +230,11 @@ class FiniteStateMachine:
             if state in (True, None):
                 return state  # Do not perform transition
             else:  # It's a transition
-                if is_perf_enabled and is_history_enabled:
+                if is_perf_enabled and is_history_enabled and is_flag_enabled:
                     self._perf_ref.condition_transition(self.current_state, state, flag)
                 return self._catch_flag(flag, state(flag))  # Go throw it
         else:
-            if is_perf_enabled and is_history_enabled:
+            if is_perf_enabled and is_history_enabled and is_flag_enabled:
                 self._perf_ref.change_step(self.current_state, state, flag)
             return self._change_state(flag, state)
 

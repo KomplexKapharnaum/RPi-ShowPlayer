@@ -5,7 +5,9 @@
 
 import weakref
 import time
+import datetime
 import inspect
+import os
 
 from collections import deque
 
@@ -26,7 +28,11 @@ class HistoryEvent(object):
     Main class of all event which can append during the life of a fsm
     """
     def __init__(self):
-        pass
+        self._time = datetime.datetime.now()
+
+    @property
+    def time(self):
+        return str(self._time.strftime("%Y-%m-%d %H:%M:%S:%f"))
 
     def prompt(self, p_format=default_format):
         pass
@@ -38,7 +44,6 @@ class ChangeFSM(HistoryEvent):
     """
     def __init__(self, changetype, from_state, to_state, flag):
         HistoryEvent.__init__(self)
-        self.ctime = time.ctime()
         self.changetype = changetype
         self.from_state = from_state
         self.to_state = to_state
@@ -48,7 +53,7 @@ class ChangeFSM(HistoryEvent):
         """
         This function return a prompt of this change in a simple format
         """
-        r = "{0} ".format(self.from_state)
+        r = "({ctime}) {:<30} ".format(self.from_state, ctime=self.time)
         if self.changetype == "transition":
             r += "~~"
         else:
@@ -92,10 +97,11 @@ class FlagEvent(HistoryEvent):
             uid = self.flag
         else:
             uid = self.flag.uid
-        r = "{:<7} {:<20}".format(self.event, uid)
+        r = "({ctime})      - {:<10} {:<25}".format(self.event.upper(), uid, ctime=self.time)
         if self.event == "add":
             frame = inspect.getframeinfo(self.event_args["frame"])
-            r += " in {0} at {1}:{2}".format(frame.function, frame.filename, frame.lineno)
+            r += " in {0} at {1}:{2}".format(frame.function,
+                                             os.path.relpath(frame.filename, settings.get_path("codepy")), frame.lineno)
         elif self.event == "removed":
             r += " because of {0} : {1}".format(self.event_args["reason"], self.event_args["value"])
         # elif self.event == "catched":
