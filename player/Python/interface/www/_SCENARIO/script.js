@@ -1080,9 +1080,9 @@
           data: { type: 'scenario'}
       })
       .done(function(filelist) {
-        var scenariosList = JSON.parse(filelist); // HOT FIX by Olivier  , is it correct ?
+        // var scenariosList = JSON.parse(filelist); // HOT FIX by Olivier  , is it correct ?
 		      // The filelist var seems to already de a JSON object so parsing result in an error
-		// var scenariosList = filelist;   // So juste rename the var for compatibility
+		var scenariosList = filelist;   // So juste rename the var for compatibility
         $.each(scenariosList,function(index,name){
           if (name !== 'library.json'){
             var newname = name.replace('.json','');
