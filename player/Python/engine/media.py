@@ -281,8 +281,8 @@ class Media:
             if not os.path.exists(dir_path):
                 log.log("raw", "Create directory to get file {0}".format(dest_path))
                 os.makedirs(dir_path)
-            if os.path.exists(dest_path):
-                os.remove(dest_path)        # Need to remove in order to get the correct date to avoid scp loop
+            # if os.path.exists(dest_path):
+            #     os.remove(dest_path)        # Need to remove in order to get the correct date to avoid scp loop
             scp = ExternalProcess("scp")
             scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path,
                                                                  options=settings.get("sync", "scp_options"))
@@ -294,6 +294,8 @@ class Media:
                 log.exception(log.show_exception(e))
                 scp.stop()
                 return self, e
+            log.log("raw", "Force mtime to {0}".format(self.mtime))
+            os.utime(dest_path, (-1, self.mtime))  # Force setting new time on file to avoid scp loop (-p dosen't work)
             scp.stop()
             return True
         else:
