@@ -24,7 +24,7 @@ from engine.threads import network_scheduler
 
 from engine.log import init_log
 
-log = init_log("media", log_lvl="raw")
+log = init_log("media")
 
 
 def get_mtime(path):

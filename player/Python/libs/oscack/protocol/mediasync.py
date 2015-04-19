@@ -23,7 +23,7 @@ from engine.setting import settings
 from engine.log import init_log
 from libs.oscack.utils import get_ip
 
-log = init_log("msync", log_lvl="raw")
+log = init_log("msync")
 
 machine = fsm.FiniteStateMachine("MEDIA_SYNC_FSM")
 
