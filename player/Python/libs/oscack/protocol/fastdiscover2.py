@@ -28,8 +28,8 @@ machine = fsm.FiniteStateMachine("RTP_FSM")
 msg_iamhere = network.UnifiedMessageInterpretation("/iamhere", values=(
     ('s', "uName"),
     ('i', "timetag")
-), flag_name="RECV_IAM_HERE")
-msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME")
+), flag_name="RECV_IAM_HERE", machine=machine)
+msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME", machine=machine)
 msg_ping = network.UnifiedMessageInterpretation("/rtp/ping", ACK=True, values=(
     ("i", "ping_1"),
     ("i", "ping_2"),

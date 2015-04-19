@@ -39,11 +39,11 @@ flag_scp_end_copy = fsm.Flag("SCP_END_COPY", TTL=1, JTL=1)
 # flag_usb_end_copy = fsm.Flag("USB_END_COPY")    # This flag perform no transition but is raise at the end of a usb copy
 
 msg_media_version = network.UnifiedMessageInterpretation("/sync/media/version", values=None, ACK=False,
-                                                         JTL=3, TTL=1, flag_name="RECV_MEDIA_LIST")
+                                                         JTL=3, TTL=1, flag_name="RECV_MEDIA_LIST", machine=machine)
 msg_sync_flag = network.UnifiedMessageInterpretation("/sync/flag", values=(
     ('i', "timestamp"),
     ('i', "syncglobal"),
-    ('i', "video")), ACK=False, JTL=3, TTL=1, flag_name="RECV_SYNC_FLAG")
+    ('i', "video")), ACK=False, JTL=3, TTL=1, flag_name="RECV_SYNC_FLAG", machine=machine)
 msg_error_diskfull = network.UnifiedMessageInterpretation("/error/diskfull", values=(
     ('s', "path"),
     ('i', "size"),  # in Ko

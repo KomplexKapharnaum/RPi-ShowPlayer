@@ -22,17 +22,18 @@ from engine.log import init_log
 BroadcastAddress = None # libs.oscack.BroadcastAddress
 
 
+machine = fsm.FiniteStateMachine(name="SCENARIO_SYNC_FSM")
+
 log = init_log("ssync")
 
 OSC_PATH_SCENARIO_VERSION = "/sync/scenario/version"
 OSC_PATH_SCENARIO_ASK = "/sync/scenario/amiuptodate"
 
 msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None,
-                                                                 flag_name="RECV_SCENARIO_VERSION")
+                                                                 flag_name="RECV_SCENARIO_VERSION", machine=machine)
 msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None,
-                                                             flag_name="RECV_SCENARIO_ASK")
+                                                             flag_name="RECV_SCENARIO_ASK", machine=machine)
 
-machine = fsm.FiniteStateMachine(name="SCENARIO_SYNC_FSM")
 
 flag_timeout = fsm.Flag("TIMEOUT_SEND_VERSION")
 
