@@ -33,7 +33,10 @@ def get_mtime(path):
     :param path: absolute path
     :return:
     """
-    return float(os.path.getmtime(path))
+    if os.path.exists(path):
+        return float(os.path.getmtime(path))
+    else:
+        return float(0)
 
 
 def get_all_media_list():
@@ -101,8 +104,9 @@ class MediaList(list):
         """
         log.log("error", "Update {0}".format(self))
         for elem in self:
-            if elem.source == "fs" and os.path.exists(elem.source_path):
+            if elem.source == "fs":
                 elem.mtime = get_mtime(elem.source_path)
+
 
 
     def get_smaller_media(self):  # , ignore=()):
