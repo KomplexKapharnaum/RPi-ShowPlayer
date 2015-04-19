@@ -23,7 +23,7 @@ from engine.setting import settings
 from engine.log import init_log
 from libs.oscack.utils import get_ip
 
-log = init_log("msync", log_lvl="raw")
+log = init_log("msync")
 
 machine = fsm.FiniteStateMachine("MEDIA_SYNC_FSM")
 
@@ -41,7 +41,7 @@ flag_scp_end_copy = fsm.Flag("SCP_END_COPY", TTL=1, JTL=1)
 msg_media_version = network.UnifiedMessageInterpretation("/sync/media/version", values=None, ACK=False,
                                                          JTL=3, TTL=1, flag_name="RECV_MEDIA_LIST")
 msg_sync_flag = network.UnifiedMessageInterpretation("/sync/flag", values=(
-    ('f', "timestamp"),
+    ('i', "timestamp"),
     ('i', "syncglobal"),
     ('i', "video")), ACK=False, JTL=3, TTL=1, flag_name="RECV_SYNC_FLAG")
 msg_error_diskfull = network.UnifiedMessageInterpretation("/error/diskfull", values=(
