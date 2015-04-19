@@ -5,6 +5,7 @@
 
 import weakref
 import time
+import inspect
 
 from collections import deque
 
@@ -20,11 +21,23 @@ history_max_len = settings.get("perf", "history", "length")
 default_format = settings.get("perf", "history", "format")
 
 
-class ChangeFSM(object):
+class HistoryEvent(object):
+    """
+    Main class of all event which can append during the life of a fsm
+    """
+    def __init__(self):
+        pass
+
+    def prompt(self, p_format=default_format):
+        pass
+
+
+class ChangeFSM(HistoryEvent):
     """
     This class represent a change in the state of a FSM
     """
     def __init__(self, changetype, from_state, to_state, flag):
+        HistoryEvent.__init__(self)
         self.ctime = time.ctime()
         self.changetype = changetype
         self.from_state = from_state
@@ -53,6 +66,44 @@ class ChangeFSM(object):
         """
         if p_format == "simple":
             return self._simple_format()
+
+
+class FlagEvent(HistoryEvent):
+    """
+    This class represent a flag event as event add to a fsm, perform transition or be remove cause to TTL or JTL
+    """
+    def __init__(self, flag, event, event_args):
+        """
+        :param flag: Ref to the flag
+        :param event: Can be : ADDED, REMOVED, CATCHED
+        :param event_args: Args to explain what append during the event, should be a dict
+        """
+        HistoryEvent.__init__(self)
+        self.ctime = time.ctime()
+        self.flag = flag        # Becarefull, it add a reference so the flag won't be garbage until this die
+        self.event = event
+        self.event_args = event_args
+
+    def _simple_format(self):
+        """
+        This function return a prompt of this event in a simple format
+        """
+        if self.flag in (None, True, False):
+            uid = self.flag
+        else:
+            uid = self.flag.uid
+        r = "{:<7} {:<20}".format(self.event, uid)
+        if self.event == "add":
+            frame = inspect.getframeinfo(self.event_args["frame"])
+            r += " in {0} at {1}:{2}".format(frame.function, frame.filename, frame.lineno)
+        elif self.event == "removed":
+            r += " because of {0} : {1}".format(self.event_args["reason"], self.event_args["value"])
+        # elif self.event == "catched":
+        #     r += " to {0} "
+        return r
+
+    def prompt(self, p_format=default_format):
+        return self._simple_format()
 
 
 class HistoryFSM(deque):
@@ -130,6 +181,15 @@ class DeclaredFSM(object):
         :param flag: Flag which pass to this transition
         """
         self._history.append(ChangeFSM("transition", from_step, transition, flag))
+
+    def flag_event(self, flag, event, event_args):
+        """
+        This function add a Flag event into the history
+        :param flag: Flag to log
+        :param event: Event to record (added, removed)
+        :param event_args: Agrs to explain what happends
+        """
+        self._history.append(FlagEvent(flag, event, event_args))
 
     @property
     def fsm(self):
