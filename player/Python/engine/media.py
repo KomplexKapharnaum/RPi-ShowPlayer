@@ -27,6 +27,15 @@ from engine.log import init_log
 log = init_log("media")
 
 
+def get_mtime(path):
+    """
+    Get the mtime of a file, if you change think to change osc repr in Media class
+    :param path: absolute path
+    :return:
+    """
+    return float(os.path.getmtime(path))
+
+
 def get_all_media_list():
     """
     This function return a MediaList for all media in scenario
@@ -82,7 +91,7 @@ class MediaList(list):
         for elem in self:
             log.log("raw", "Test with : {0}".format(elem))
             if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime:
-                log.log("raw", "Found !!  ")
+                log.log("raw", "NEED MEDIA Found !! our : {0}, update {1}  ".format(elem.mtime, media_obj.mtime))
                 return True
         return False
 
@@ -93,7 +102,7 @@ class MediaList(list):
         log.log("error", "Update {0}".format(self))
         for elem in self:
             if elem.source == "fs" and os.path.exists(elem.source_path):
-                elem.mtime = int(os.path.getmtime(elem.source_path))
+                elem.mtime = get_mtime(elem.source_path)
 
 
     def get_smaller_media(self):  # , ignore=()):
@@ -166,7 +175,7 @@ class Media:
             # return False
             mtime = 0
         else:
-            mtime = int(os.path.getmtime(path))
+            mtime = get_mtime(path)
         return Media(rel_path=rel_path, mtime=mtime, source="scenario", source_path=path)
 
     @staticmethod
@@ -179,7 +188,7 @@ class Media:
         if not os.path.exists(abs_path):
             log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
             return False
-        mtime = int(os.path.getmtime(abs_path))
+        mtime = get_mtime(abs_path)
         filesize = Media.get_size(abs_path)  # In Ko
         return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
 
@@ -205,7 +214,7 @@ class Media:
         :param filesize: filesize in Ko of the media
         :return:
         """
-        return Media(rel_path=rel_path, mtime=int(os.path.getmtime(abs_path)), source="fs", source_path=abs_path,
+        return Media(rel_path=rel_path, mtime=get_mtime(abs_path), source="fs", source_path=abs_path,
                      filesize=filesize)
 
     @staticmethod
@@ -224,7 +233,7 @@ class Media:
         """
         log.log("raw", "get_osc_rep for : {0}".format(self))
         # return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
-        return ('s', str(self.rel_path)), ('i', int(os.path.getmtime(os.path.join(settings.get_path("media"), self.rel_path)))), ('i', int(self.filesize))
+        return ('s', str(self.rel_path)), ('f', get_mtime(os.path.join(settings.get_path("media"), self.rel_path))), ('i', int(self.filesize))
         # return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
 
     def put_on_fs(self):  # , error_fnct=None
