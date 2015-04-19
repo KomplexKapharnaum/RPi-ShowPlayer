@@ -90,6 +90,7 @@ class MediaList(list):
         """
         This function update mtime information for all media from fs
         """
+        log.log("error", "Update {0}".format(self))
         for elem in self:
             if elem.source == "fs" and os.path.exists(elem.source_path):
                 elem.mtime = int(os.path.getmtime(elem.source_path))
