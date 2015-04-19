@@ -279,7 +279,6 @@ def filelist():
     #onlyfiles.append(filetype+"_"+filetype+".json")
     if os.path.exists(path):
         onlyfiles = [ f.replace(filetype+"_",'') for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(filetype+"_") ]
-        log.debug(onlyfiles)
     return sendjson(onlyfiles)
 
 
