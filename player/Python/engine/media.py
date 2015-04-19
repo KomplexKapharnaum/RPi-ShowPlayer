@@ -401,9 +401,10 @@ class UdevThreadMonitor(threading.Thread):
             if device.action == "remove":
                 log.log("debug", "Remove block device {0}".format(device.device_node))
                 umount_partitions()
-                log.log("info",
-                        "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
-                network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), restart_netctl)
+                if settings.get("sys", "raspi") and settings.get("sync", "netctl_autorestart"):
+                    log.log("info",
+                            "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
+                    network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), restart_netctl)
                 continue
             elif device.action not in ("add", "change"):
                 log.log("raw", "Block device event {1} (not add) : {0}".format(device.device_node, device.action))
