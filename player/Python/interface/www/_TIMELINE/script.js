@@ -629,8 +629,9 @@
   		$.ajax({
   			type: 'GET',
   			timeout: 1000,
-  		  url: "http://2.0.1.89:8080/moduleslist",
-  			dataType: "jsonp",
+  		  // url: "http://2.0.1.89:8080/moduleslist", HORFIX by Olivier : url shouldn't be raw codded
+		    url: "/moduleslist",
+  			dataType: "jsonp"
   		}).done(function(data) {
         allModules = {};
   			allModules = data;
@@ -1117,8 +1118,9 @@
   		$.ajax({
   			type: 'GET',
   			timeout: 1000,
-  		  url: "http://2.0.1.89:8080/disposList",
-  			dataType: "jsonp",
+  		  // url: "http://2.0.1.89:8080/disposList", HORFIX by Olivier : url shouldn't be raw codded
+		    url: "/disposList",
+  			dataType: "jsonp"
   		}).done(function(data) {
   			disposList = data.devices;
   			disposList.unshift(dispotemp);
