@@ -104,7 +104,7 @@ class MediaList(list):
         """
         log.log("error", "Update {0}".format(self))
         for elem in self:
-            if elem.source == "fs":
+            if elem.source != "osc":
                 elem.mtime = get_mtime(elem.source_path)
 
 
