@@ -248,7 +248,15 @@ class Media:
             cp.stop()
             return True
         elif self.source == "osc":
-            log.info("Media to scp copy : {0}".format(self))
+            # TODO remove this test !
+            all_list = get_all_media_list()
+            local = None
+            for f in all_list:
+                if f.rel_path == self.rel_path:
+                    local = f
+                    break
+            log.info("Media to scp copy : {0} , local {1}".format(self, local))
+            ###### !!!
             dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
             if not os.path.exists(dir_path):
