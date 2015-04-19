@@ -355,7 +355,7 @@ def get_media(flag):
     else:
         log.log("raw", "Copy worked !")
     if flag.args["get_media"].source == "osc":
-        machine.append_flag(flag_scp_end_copy.get())    # We are done with this copy we can go next
+        machine.append_flag(flag_scp_end_copy.get(flag.args))    # We are done with this copy we can go next
 
 
 def monitor_usb_end_copy(flag):
