@@ -13,8 +13,8 @@ from collections import deque
 
 from engine.setting import settings
 from engine.log import init_log
-log = init_log("perf")
 
+log = init_log("perf")
 
 fsm_declared = list()
 old_fsm_declared = deque(maxlen=settings.get("perf", "undeclared_fsm"))
@@ -27,12 +27,14 @@ class HistoryEvent(object):
     """
     Main class of all event which can append during the life of a fsm
     """
+
     def __init__(self):
         self._time = datetime.datetime.now()
 
     @property
     def time(self):
-        return str(self._time.strftime("%Y-%m-%d %H:%M:%S:%f"))
+        return str(self._time.strftime("%H:%M:%S:%f"))
+        #return str(self._time.strftime("%Y-%m-%d %H:%M:%S:%f"))
 
     def prompt(self, p_format=default_format):
         pass
@@ -42,6 +44,7 @@ class ChangeFSM(HistoryEvent):
     """
     This class represent a change in the state of a FSM
     """
+
     def __init__(self, changetype, from_state, to_state, flag):
         HistoryEvent.__init__(self)
         self.changetype = changetype
@@ -53,7 +56,7 @@ class ChangeFSM(HistoryEvent):
         """
         This function return a prompt of this change in a simple format
         """
-        r = "({ctime}) {:<30} ".format(self.from_state, ctime=self.time)
+        r = "({ctime}) {:<40} ".format(self.from_state.uid, ctime=self.time)
         if self.changetype == "transition":
             r += "~~"
         else:
@@ -77,6 +80,7 @@ class FlagEvent(HistoryEvent):
     """
     This class represent a flag event as event add to a fsm, perform transition or be remove cause to TTL or JTL
     """
+
     def __init__(self, flag, event, event_args):
         """
         :param flag: Ref to the flag
@@ -85,7 +89,7 @@ class FlagEvent(HistoryEvent):
         """
         HistoryEvent.__init__(self)
         self.ctime = time.ctime()
-        self.flag = flag        # Becarefull, it add a reference so the flag won't be garbage until this die
+        self.flag = flag  # Becarefull, it add a reference so the flag won't be garbage until this die
         self.event = event
         self.event_args = event_args
 
@@ -100,12 +104,16 @@ class FlagEvent(HistoryEvent):
         r = "({ctime})      - {:<10} {:<25}".format(self.event.upper(), uid, ctime=self.time)
         if self.event == "add":
             frame = inspect.getframeinfo(self.event_args["frame"])
-            r += " in {0} at {1}:{2}".format(frame.function,
-                                             os.path.relpath(frame.filename, settings.get_path("codepy")), frame.lineno)
+            r += " in {0:<30} with (JTL:{JTL:<4},TTL:{TTL:<4}) at {1}:{2}".format(frame.function,
+                                                                        os.path.relpath(frame.filename,
+                                                                                        settings.get_path("codepy")),
+                                                                        frame.lineno,
+                                                                        JTL=self.event_args["JTL"],
+                                                                        TTL=self.event_args["TTL"])
         elif self.event == "removed":
             r += " because of {0} : {1}".format(self.event_args["reason"], self.event_args["value"])
         # elif self.event == "catched":
-        #     r += " to {0} "
+        # r += " to {0} "
         return r
 
     def prompt(self, p_format=default_format):
@@ -116,6 +124,7 @@ class HistoryFSM(deque):
     """
     This class keep an history of the past of an fsm
     """
+
     def __init__(self, weak_parent):
         """
         :param weak_parent: Weak_ref to the FSM
@@ -148,7 +157,7 @@ class HistoryFSM(deque):
             return False
         for i in range(n):
             change_indice = self._indice + i - n
-            r += "[{:>3}] {change}\n".format(change_indice, change=self[len(self)+i-n].prompt(p_format=p_format))
+            r += "[{:>3}] {change}\n".format(change_indice, change=self[len(self) + i - n].prompt(p_format=p_format))
         return r
 
 
@@ -156,6 +165,7 @@ class DeclaredFSM(object):
     """
     This class explain why the fsm have start
     """
+
     def __init__(self, fsm, fsmtype, source=None):
         """
         :param fsm: FSM to delcared
@@ -210,9 +220,11 @@ class DeclaredFSM(object):
 
     def __str__(self):
         if self.running:
-            return "{name}({fsmtype}) from {source} [run]".format(name=self.name, fsmtype=self.fsmtype, source=self.source)
+            return "{name}({fsmtype}) from {source} [run]".format(name=self.name, fsmtype=self.fsmtype,
+                                                                  source=self.source)
         else:
-            return "{name}({fsmtype}) from {source} [end]".format(name=self.name, fsmtype=self.fsmtype, source=self.source)
+            return "{name}({fsmtype}) from {source} [end]".format(name=self.name, fsmtype=self.fsmtype,
+                                                                  source=self.source)
 
     def __repr__(self):
         return self.__str__()
@@ -291,7 +303,7 @@ def prompt_history(list_all=True):
             if selected >= len(old_fsm_declared):
                 log.warning("Too high, choose a correct number")
                 return False
-        log.info("History for {0} :\n".format(to_show[selected])+str(to_show[selected].get_history()))
+        log.info("History for {0} :\n".format(to_show[selected]) + str(to_show[selected].get_history()))
 
 
 def all_history(stopped=False):
@@ -304,7 +316,7 @@ def all_history(stopped=False):
     if stopped:
         to_show += old_fsm_declared
     for fsm in to_show:
-        log.info("History for {0} :\n".format(fsm)+str(fsm.get_history()))
+        log.info("History for {0} :\n".format(fsm) + str(fsm.get_history()))
 
 
 

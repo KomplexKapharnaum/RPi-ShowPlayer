@@ -212,7 +212,9 @@ class FiniteStateMachine:
         with self._lock_flag_stack:
             log.log("raw", "Append flag {0} to {1}".format(flag, self))
             if is_perf_enabled and is_history_enabled and is_flag_enabled:
-                self._perf_ref.flag_event(flag, event="add", event_args={"frame": inspect.stack()[1][0]})
+                self._perf_ref.flag_event(flag, event="add", event_args={"frame": inspect.stack()[1][0],
+                                                                         "JTL": flag.JTL,
+                                                                         "TTL": flag._TTL})
             self._flag_stack.append(flag)
             # self._event_flag_stack_not_empty.set()
             self._event_flag_stack_new.set()
