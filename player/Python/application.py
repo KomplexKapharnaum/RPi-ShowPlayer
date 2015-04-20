@@ -40,7 +40,7 @@ def init(autoload=True):
 
 def reload():
     # RELOAD SCENARIO
-    oscack.DNCserver.del_method(None, None)         # Disconnect WILD CARD from DNC Server
+    # oscack.DNCserver.del_method(None, None)         # Disconnect WILD CARD from DNC Server
     scenario.reload()
     # INFORM MEDIA WATCHER
     oscack.media_list_updated()
