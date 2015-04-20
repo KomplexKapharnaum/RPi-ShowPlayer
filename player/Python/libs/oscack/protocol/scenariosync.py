@@ -52,7 +52,7 @@ def init_scenprotocol(flag):
     log.log("debug", "Start scenario sync protocol machine")
     groups = media.get_scenario_by_group_in_fs()
     log.log("raw", "Parsed fs groups {0}".format(groups))
-    if settings.get("current_timeline") in groups.keys():
+    if settings.get("current_timeline") in groups.keys() and len(groups[settings.get("current_timeline")]) > 0:
         current_newer_timeline = media.get_newer_scenario(groups[settings.get("current_timeline")])
         log.log("debug", "Current timeline : {0}".format(current_newer_timeline))
         message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_ASK,

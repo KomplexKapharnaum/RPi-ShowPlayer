@@ -647,7 +647,10 @@ def get_newer_scenario(group):
     :param group: list of scneario versions
     :return: The newer version (ScenarioFile)
     """
-    newer = group[0]
+    if len(group) > 0:
+        newer = group[0]
+    else:
+        return None     # There is no file in group
     for version in group:
         if version.dateobj > newer.dateobj:
             newer = version
