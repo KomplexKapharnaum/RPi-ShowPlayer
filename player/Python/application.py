@@ -10,6 +10,7 @@ from engine.log import set_default_log_by_settings
 set_default_log_by_settings(settings)                   # Set default log level and output via settings
 
 import engine
+from engine import fsm
 import scenario
 import modules
 from libs import oscack
@@ -207,8 +208,16 @@ class keyboardThread(threading.Thread):
                 cmd = c.split()
                 if cmd[0] == "pw":
                     log.info(str(POWEROFF))
-                if cmd[0] == "history":
+                elif cmd[0] == "except":
+                    tmpfsm = fsm.FiniteStateMachine("test_fsm")
+                    def tmp_fnct(flag):
+                        a = 1/0
+                    tmpstate = fsm.State("TEST_EXCEPT_STATE", function=tmp_fnct)
+                    tmpfsm.start(tmpstate)
+                elif cmd[0] == "history":
                     engine.perf.prompt_history()
+                elif cmd[0] == "mhistory":
+                    engine.perf.multiplex_history(cmd[1:])
                 elif cmd[0] == "settings":
                     log.info()
                     log.info("=== SETTINGS ===")

@@ -12,9 +12,11 @@ from engine.setting import settings
 is_perf_enabled = settings.get("perf", "enable")
 if is_perf_enabled:
     import inspect
+    import sys
     from engine import perf
     is_history_enabled = settings.get("perf", "history", "enable")
     is_flag_enabled = settings.get("perf", "history", "withflag")
+    is_exception_enabled = settings.get("perf", "history", "withexception")
 # import scenario
 
 log = init_log("fsm")
@@ -138,6 +140,7 @@ class State:
         :param flag: The flag wich trigged the State
         :return:
         """
+        return_code = True
         log.log("raw", "Run state, uid : {0}, flag : {1}".format(self.uid, flag))
         self.stop.clear()
         self.preemptible.clear()
@@ -146,10 +149,13 @@ class State:
         except Exception as e:
             log.log("error", "State function faill !")
             log.exception(e)
+            if is_history_enabled and is_exception_enabled:
+                return_code = e, sys.exc_info()
             pass
         finally:
             self.preemptible.set()
             log.log("raw", "Preemptible state, uid : {0}".format(self.uid, flag))
+            return return_code
 
     def __str__(self):
         return "State : {0}".format(self.uid)
@@ -232,11 +238,11 @@ class FiniteStateMachine:
             if state in (True, None):
                 return state  # Do not perform transition
             else:  # It's a transition
-                if is_perf_enabled and is_history_enabled and is_flag_enabled:
+                if is_perf_enabled and is_history_enabled:
                     self._perf_ref.condition_transition(self.current_state, state, flag)
                 return self._catch_flag(flag, state(flag))  # Go throw it
         else:
-            if is_perf_enabled and is_history_enabled and is_flag_enabled:
+            if is_perf_enabled and is_history_enabled:
                 self._perf_ref.change_step(self.current_state, state, flag)
             return self._change_state(flag, state)
 
@@ -251,7 +257,9 @@ class FiniteStateMachine:
         if self.current_state is not None:
             self.current_state.stop.set()
         self.current_state = state
-        state.run(flag)  # Can be a thread inside or not
+        return_code = state.run(flag)       # Can be a thread inside or not
+        if return_code is not True and is_perf_enabled and is_history_enabled and is_exception_enabled:
+            self._perf_ref.log_exception(*return_code)
         self._clean_flag_stack(jump=True)
         state.preemptible.wait()
         # Now watch if there is some direct transition to perform
@@ -282,7 +290,7 @@ class FiniteStateMachine:
                         flag.JTL -= 1
                     if flag.JTL < 0:
                         flag.ignore(reason="JTL")
-                        if is_perf_enabled and is_history_enabled:
+                        if is_perf_enabled and is_history_enabled and is_flag_enabled:
                             self._perf_ref.flag_event(flag, event="removed",
                                                       event_args={"reason": "JTL", "value": flag.JTL})
                         expired_flags.append(flag)
@@ -290,7 +298,7 @@ class FiniteStateMachine:
                 if flag.TTL is not None and flag not in expired_flags:
                     if rtplib.is_expired(*flag.TTL):
                         flag.ignore(reason="TTL")
-                        if is_perf_enabled and is_history_enabled:
+                        if is_perf_enabled and is_history_enabled and is_flag_enabled:
                             self._perf_ref.flag_event(flag, event="removed",
                                                       event_args={"reason": "TTL", "value": flag._TTL})
                         expired_flags.append(flag)

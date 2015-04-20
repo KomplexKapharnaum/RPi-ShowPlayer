@@ -55,7 +55,7 @@ DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 # DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
 # DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
 
-DEFAULT_SETTING["path"]["relative"] = dict()
+DEFAULT_SETTING["path"]["relative"] = dict()            # Relatives path from path:main
 DEFAULT_SETTING["path"]["relative"]["usb"] = "usb"
 DEFAULT_SETTING["path"]["relative"]["scenario"] = "scenario"
 DEFAULT_SETTING["path"]["relative"]["activescenario"] = "__active"
@@ -78,7 +78,7 @@ DEFAULT_SETTING["sync"]["scenario"] = True              # GLOABL Put False to di
 DEFAULT_SETTING["sync"]["enable"] = True                # GLOBAL Put False to disable sync
 DEFAULT_SETTING["sync"]["flag_timestamp"] = 0           # flag_timestamp
 DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the same group to be sync
-DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 30   # 30 seconds
+DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 180  # 180 seconds
 DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
 DEFAULT_SETTING["sync"]["usb_mount_timeout"] = 5        # 5 seconds max for mounting/unmounting usb device
 DEFAULT_SETTING["sync"]["netctl_autorestart"] = True    # 5 seconds max for mounting/unmounting usb device
@@ -88,8 +88,8 @@ DEFAULT_SETTING["sync"]["protected_space"] = 20000      # (Ko) Space protected t
 DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3    # Wait 3 sec, if no newer flag, we are update
 DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2    # 2 sec before remove mount point
 DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 15 sec before restart netctl after unplug usb storage device
-DEFAULT_SETTING["sync"]["timeout_media_version"] = 10   # 60 sec between each send media list version
-DEFAULT_SETTING["sync"]["scp_options"] = "-p -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+DEFAULT_SETTING["sync"]["timeout_media_version"] = 180  # 180 sec between each send media list version
+DEFAULT_SETTING["sync"]["scp_options"] = "-p -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"   # -p useless
 
 
 DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']
@@ -100,7 +100,8 @@ DEFAULT_SETTING["scenario"]["date_len"] = 24            # extension + date lengt
 DEFAULT_SETTING["scenario"]["dest_all"] = "All"         # string for all dest in a signal
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"     # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"       # string for self dest in a signal
-DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.500  # time delta before run sync between cards
+DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.500  # 500 ms : time delta before run sync between cards, if sync
+# fail try to increase this value
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
@@ -130,8 +131,7 @@ DEFAULT_SETTING["ack"]["interval_protocol"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 DEFAULT_SETTING["ack"]["interval_short"] = (0.100, 0.150, 0.200)
 DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 
-DEFAULT_SETTING["values"] = dict()
-
+DEFAULT_SETTING["values"] = dict()                      # Dictionary for default values
 DEFAULT_SETTING["values"]["gyro"] = dict()
 DEFAULT_SETTING["values"]["gyro"]["speed"] = 200
 #DEFAULT_SETTING["values"]["gyro"]["strob"] = 0
@@ -145,12 +145,13 @@ DEFAULT_SETTING["log"]["output"] = "Console"
 
 
 DEFAULT_SETTING["perf"] = dict()
-DEFAULT_SETTING["perf"]["enable"] = True
+DEFAULT_SETTING["perf"]["enable"] = True                    # Enable FSM register (need for history)
 DEFAULT_SETTING["perf"]["history"] = dict()
-DEFAULT_SETTING["perf"]["history"]["enable"] = True
-DEFAULT_SETTING["perf"]["history"]["withflag"] = True
-DEFAULT_SETTING["perf"]["history"]["length"] = 50
-DEFAULT_SETTING["perf"]["history"]["format"] = "simple"
+DEFAULT_SETTING["perf"]["history"]["enable"] = True         # Enable log history for each FSM
+DEFAULT_SETTING["perf"]["history"]["withflag"] = True       # Enable flag log in history
+DEFAULT_SETTING["perf"]["history"]["withexception"] = True  # Enable excpetion log in history
+DEFAULT_SETTING["perf"]["history"]["length"] = 50           # Maximum length of an FSM history (keep older)
+DEFAULT_SETTING["perf"]["history"]["format"] = "simple"     # History prompt format #TODO
 DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10          # Undeclared FSM (stopped) to be keept with history
 
 DEFAULT_SETTING["sys"] = dict()

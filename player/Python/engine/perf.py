@@ -8,6 +8,8 @@ import time
 import datetime
 import inspect
 import os
+import sys
+import traceback
 
 from collections import deque
 
@@ -28,8 +30,16 @@ class HistoryEvent(object):
     Main class of all event which can append during the life of a fsm
     """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        """
+        :param fsm: FSM which event is atteched
+        """
         self._time = datetime.datetime.now()
+        self.parent_fsm = kwargs["fsm"]
+        self.indice = kwargs["indice"]
+
+    def get_raw_time(self):
+        return self._time
 
     @property
     def time(self):
@@ -40,13 +50,55 @@ class HistoryEvent(object):
         pass
 
 
+class ExceptionEvent(HistoryEvent):
+    """
+    This class represent an excpetion appended during a FSM state function
+    """
+
+    def __init__(self, exception, exec_info, *args, **kwargs):
+        """
+        :param exception: Exception object of the error
+        """
+        HistoryEvent.__init__(self, *args, **kwargs)
+        self.exception = exception
+        self.sys_info = exec_info
+        self.sys_formated = traceback.format_exception(*self.sys_info)
+        # self.sys_formated = traceback.extract_stack()[-1]
+
+    def add_line_begin(self, line):
+        """
+        Add line begin
+        :param line: Line to treat
+        """
+
+    def _simple_format(self):
+        """
+        This function return a prompt entry of the exception
+        """
+        r = "({ctime}) {:<40}".format(self.exception, ctime=self.time)
+        sep = "                        "
+        sep_return = "\n" + sep
+        lines = []
+        for line in self.sys_formated:
+            line = line.split("\n")
+            for real_line in line:
+                if real_line != "":
+                    lines.append(real_line)
+        r += sep_return.join(lines)
+        # r += sep.join([sep_return.join(line.split("\n")) for line in self.sys_formated])
+        return r
+
+    def prompt(self, p_format=default_format):
+        return self._simple_format()
+
+
 class ChangeFSM(HistoryEvent):
     """
     This class represent a change in the state of a FSM
     """
 
-    def __init__(self, changetype, from_state, to_state, flag):
-        HistoryEvent.__init__(self)
+    def __init__(self, changetype, from_state, to_state, flag, *args, **kwargs):
+        HistoryEvent.__init__(self, *args, **kwargs)
         self.changetype = changetype
         self.from_state = from_state
         self.to_state = to_state
@@ -81,13 +133,13 @@ class FlagEvent(HistoryEvent):
     This class represent a flag event as event add to a fsm, perform transition or be remove cause to TTL or JTL
     """
 
-    def __init__(self, flag, event, event_args):
+    def __init__(self, flag, event, event_args, *args, **kwargs):
         """
         :param flag: Ref to the flag
         :param event: Can be : ADDED, REMOVED, CATCHED
         :param event_args: Args to explain what append during the event, should be a dict
         """
-        HistoryEvent.__init__(self)
+        HistoryEvent.__init__(self, *args, **kwargs)
         self.ctime = time.ctime()
         self.flag = flag  # Becarefull, it add a reference so the flag won't be garbage until this die
         self.event = event
@@ -180,6 +232,13 @@ class DeclaredFSM(object):
         self._history = HistoryFSM(self._fsm)
         self.get_history = self._history.show
 
+    def get_raw_history(self):
+        """
+        Return raw history of the FSM
+        :return:
+        """
+        return self._history
+
     def change_step(self, from_step, next_step, flag):
         """
         This function log when a fsm change his step and why
@@ -187,7 +246,7 @@ class DeclaredFSM(object):
         :param next_step: Next step to reach
         :param flag: Flag which pass to this step
         """
-        self._history.append(ChangeFSM("step", from_step, next_step, flag))
+        self._history.append(ChangeFSM("step", from_step, next_step, flag, fsm=self._fsm, indice=self._history._indice))
 
     def condition_transition(self, from_step, transition, flag):
         """
@@ -196,7 +255,7 @@ class DeclaredFSM(object):
         :param transition: Transition function which wiil be called
         :param flag: Flag which pass to this transition
         """
-        self._history.append(ChangeFSM("transition", from_step, transition, flag))
+        self._history.append(ChangeFSM("transition", from_step, transition, flag, fsm=self._fsm, indice=self._history._indice))
 
     def flag_event(self, flag, event, event_args):
         """
@@ -205,7 +264,13 @@ class DeclaredFSM(object):
         :param event: Event to record (added, removed)
         :param event_args: Agrs to explain what happends
         """
-        self._history.append(FlagEvent(flag, event, event_args))
+        self._history.append(FlagEvent(flag, event, event_args, fsm=self._fsm, indice=self._history._indice))
+
+    def log_exception(self, exception, exec_info):
+        """
+        This function log an exception from a FSM state
+        """
+        self._history.append(ExceptionEvent(exception, exec_info, fsm=self._fsm, indice=self._history._indice))
 
     @property
     def fsm(self):
@@ -317,6 +382,36 @@ def all_history(stopped=False):
         to_show += old_fsm_declared
     for fsm in to_show:
         log.info("History for {0} :\n".format(fsm) + str(fsm.get_history()))
+
+
+def multiplex_history(fsm_list):
+    """
+    Show multiple FSM in the same output
+    :param fsm_list: list of FSM to show, if * it takes all declared, if ** takes old fsm with declared
+    :return:
+    """
+    to_show = list()
+    if fsm_list == list("*"):
+        to_show = fsm_declared
+    elif fsm_list == list("**"):
+        to_show = fsm_declared + old_fsm_declared
+    else:
+        for n in fsm_list:
+            if int(n) < len(fsm_declared):
+                to_show.append(fsm_declared[int(n)])
+            else:
+                to_show.append(old_fsm_declared[int(n)-len(fsm_declared)])
+    global_history = []
+    for fsm in to_show:
+        global_history += fsm.get_raw_history()
+    global_history.sort(key=lambda x: x.get_raw_time())
+    r = ""
+    for i, entry in enumerate(global_history):
+        uid = entry.parent_fsm()
+        if uid is not None:
+            uid = uid.name
+        r += "[{i:<3}] in {fsm:<20} [{indice:<3}] {change}".format(i=i, fsm=uid, indice=entry.indice, change=entry.prompt()) + "\n"
+    log.info(r)
 
 
 
