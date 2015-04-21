@@ -24,7 +24,7 @@ from engine.threads import network_scheduler
 
 from engine.log import init_log
 
-log = init_log("media")
+log = init_log("media", log_lvl="raw")
 
 
 def get_mtime(path):
@@ -94,6 +94,9 @@ class MediaList(list):
         if media_obj.source == "osc" and not settings.get("sync", "video") and Media.get_root_dir(
                 media_obj.rel_path) == settings.get("path", "relative", "video"):
             log.log("raw", "Ignore because it's a video and we ask to do not scp copy them")
+            log.log("raw", "Media : {0}, settings sync {1} settings video {2}".format(
+                media_obj, settings.get("sync", "video"), settings.get("path", "relative", "video")
+            ))
             return False  # It's a video and we ask to do not scp copy them
         for elem in self:
             log.log("raw", "Test with : {0}".format(elem))
@@ -168,7 +171,7 @@ class Media:
         self.source = source
         self.source_path = source_path
         self.filesize = filesize
-        log.log("raw", "Init {0}".format(self))
+        #log.log("raw", "Init {0}".format(self))
 
     @staticmethod
     def from_scenario(rel_path):
