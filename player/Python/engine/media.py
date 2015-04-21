@@ -253,7 +253,7 @@ class Media:
         This function return an OSC reprentation of the Media
         :return: path, mtime, filesize
         """
-        log.log("raw", "get_osc_rep for : {0}".format(self))
+        # log.log("raw", "get_osc_rep for : {0}".format(self))
         # return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
         return ('s', str(self.rel_path)), ('f', get_mtime(os.path.join(settings.get_path("media"), self.rel_path))), (
             'i', int(self.filesize))
@@ -651,9 +651,9 @@ def get_scenario_by_group_in_osc(osc_args, ip):
     for i in range(len(osc_args) / 2):
         scenario = ScenarioFile.create_by_OSC(osc_args[2 * i], osc_args[2 * i + 1], user_ip=user_ip,
                                               distant_path=distant_path)
-        log.log("raw", "[i={0}]Create scenario : {1}".format(i, scenario))
+        # log.log("raw", "[i={0}]Create scenario : {1}".format(i, scenario))
         if scenario.group not in scenario_by_group.keys():
-            log.log("raw", "New group : {0}".format(scenario.group))
+            # log.log("raw", "New group : {0}".format(scenario.group))
             scenario_by_group[scenario.group] = list()
         scenario_by_group[scenario.group].append(scenario)
     log.log("raw", "Return : {0}".format(scenario_by_group))
