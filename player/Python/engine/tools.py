@@ -94,11 +94,11 @@ def search_in_or_default(key, indict, setting=False, default=None):
     return default
 
 
-def log_teleco(line1=None, line2=None):
+def log_teleco(ligne1=None, ligne2=None):
     """
     This function log a message to the teleco
-    :param line1:
-    :param line2:
+    :param ligne1:
+    :param ligne2:
     :return:
     """
-    engine.threads.patcher.patch(flag_popup.get(args={"line1": line1, "line2": line2}))
+    engine.threads.patcher.patch(flag_popup.get(args={"ligne1": ligne1, "ligne2": ligne2}))
