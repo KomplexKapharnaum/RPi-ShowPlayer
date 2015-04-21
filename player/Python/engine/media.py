@@ -91,6 +91,10 @@ class MediaList(list):
         This function test if media_obj is wanted (present and newer) based on the NeededMediaList
         """
         log.log("raw", "Do this list need {0}".format(media_obj))
+        if media_obj.source == "osc" and not settings.get("sync", "video") and Media.get_root_dir(
+                media_obj) == settings.get("path", "relative", "video"):
+            log.log("raw", "Ignore because it's a video and we ask to do not scp copy them")
+            return False  # It's a video and we ask to do not scp copy them
         for elem in self:
             log.log("raw", "Test with : {0}".format(elem))
             if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime:
@@ -102,11 +106,10 @@ class MediaList(list):
         """
         This function update mtime information for all media from fs
         """
-        #log.log("error", "Update {0}".format(self))
+        # log.log("error", "Update {0}".format(self))
         for elem in self:
             if elem.source != "osc":
                 elem.mtime = get_mtime(elem.source_path)
-
 
 
     def get_smaller_media(self):  # , ignore=()):
@@ -141,7 +144,7 @@ class MediaList(list):
 
         # def get_media_to_delete(self, needspace):
         # """
-        #     This function return a list of smaller media
+        # This function return a list of smaller media
         #     """
         #     freespace = 0
         #     while freespace < needspace:
@@ -230,6 +233,18 @@ class Media:
         """
         return int(os.path.getsize(abs_path) / 1000)
 
+    @staticmethod
+    def get_root_dir(path):
+        """
+        Return the first directory of a path
+        :param path: Absolute or relative path
+        :return:
+        """
+        path = os.path.split(path)
+        while path[0] != "":
+            path = os.path.split(path[0])
+        return path[1]
+
     def get_osc_repr(self):
         """
         This function return an OSC reprentation of the Media
@@ -237,7 +252,8 @@ class Media:
         """
         log.log("raw", "get_osc_rep for : {0}".format(self))
         # return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
-        return ('s', str(self.rel_path)), ('f', get_mtime(os.path.join(settings.get_path("media"), self.rel_path))), ('i', int(self.filesize))
+        return ('s', str(self.rel_path)), ('f', get_mtime(os.path.join(settings.get_path("media"), self.rel_path))), (
+            'i', int(self.filesize))
         # return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
 
     def put_on_fs(self):  # , error_fnct=None
@@ -278,7 +294,7 @@ class Media:
                 log.log("raw", "Create directory to get file {0}".format(dest_path))
                 os.makedirs(dir_path)
             # if os.path.exists(dest_path):
-            #     os.remove(dest_path)        # Need to remove in order to get the correct date to avoid scp loop
+            # os.remove(dest_path)        # Need to remove in order to get the correct date to avoid scp loop
             scp = ExternalProcess("scp")
             scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path,
                                                                  options=settings.get("sync", "scp_options"))
@@ -536,7 +552,7 @@ class ScenarioFile:
         """
         # if settings.get("sys", "raspi"):
         # scp = ExternalProcess("scp")
-        #     scp.command += " {options} {ip}:{path} {path}".format(
+        # scp.command += " {options} {ip}:{path} {path}".format(
         #         ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
         #     log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
         #     scp.start()
@@ -650,7 +666,7 @@ def get_newer_scenario(group):
     if len(group) > 0:
         newer = group[0]
     else:
-        return None     # There is no file in group
+        return None  # There is no file in group
     for version in group:
         if version.dateobj > newer.dateobj:
             newer = version
@@ -659,7 +675,7 @@ def get_newer_scenario(group):
 #
 # class MediaMoved:
 # """
-#     This class just represent the fact that the file as change his place
+# This class just represent the fact that the file as change his place
 #     """
 #
 #     def __init__(self, old_path, new_path):
