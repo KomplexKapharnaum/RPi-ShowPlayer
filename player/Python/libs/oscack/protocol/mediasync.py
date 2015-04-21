@@ -18,6 +18,7 @@ from engine.threads import network_scheduler, patcher
 from scenario import functions
 from engine import media
 from engine import fsm
+from engine import tools
 from libs.oscack import network
 from engine.setting import settings
 from engine.log import init_log

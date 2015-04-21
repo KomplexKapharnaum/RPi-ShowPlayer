@@ -7,6 +7,7 @@
 import weakref
 import sys
 import os
+import time
 
 from setting import settings
 import engine
@@ -94,11 +95,14 @@ def search_in_or_default(key, indict, setting=False, default=None):
     return default
 
 
-def log_teleco(ligne1=None, ligne2=None):
+def log_teleco(ligne1=None, ligne2=None, error=False):
     """
     This function log a message to the teleco
     :param ligne1:
     :param ligne2:
+    :param error: Set if it's an error or not, if True wait for the error_delay teleco setting
     :return:
     """
     engine.threads.patcher.patch(flag_popup.get(args={"ligne1": ligne1, "ligne2": ligne2}))
+    if error:
+        time.sleep(settings.get("log", "teleco", "error_delay"))

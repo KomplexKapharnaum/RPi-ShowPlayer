@@ -142,6 +142,8 @@ DEFAULT_SETTING["values"]["lights"]["strob"] = 0
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
+DEFAULT_SETTING["log"]["teleco"] = dict()
+DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5       # Block 1.5 s for assure error displaying
 
 
 DEFAULT_SETTING["perf"] = dict()

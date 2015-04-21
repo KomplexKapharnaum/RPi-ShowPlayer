@@ -148,7 +148,7 @@ class MediaList(list):
         # def get_media_to_delete(self, needspace):
         # """
         # This function return a list of smaller media
-        #     """
+        # """
         #     freespace = 0
         #     while freespace < needspace:
 
@@ -171,7 +171,7 @@ class Media:
         self.source = source
         self.source_path = source_path
         self.filesize = filesize
-        #log.log("raw", "Init {0}".format(self))
+        # log.log("raw", "Init {0}".format(self))
 
     @staticmethod
     def from_scenario(rel_path):
@@ -269,7 +269,7 @@ class Media:
         if self.source == "scenario":
             log.warning("Ask to get a file from the scenario... do nothing")
             return False
-        tools.log_teleco(ligne1=self.rel_path, ligne2="Copie depuis {0}".format(self.source.upper()))
+        tools.log_teleco(ligne1=os.path.basename(self.rel_path), ligne2="Copie depuis {0}".format(self.source.upper()))
         if self.source == "usb":
             dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
@@ -287,10 +287,11 @@ class Media:
                 # if error_fnct is not None:
                 # error_fnct(self, e)
                 cp.stop()
-                tools.log_teleco(ligne1=self.rel_path, ligne2="ERREUR COPIE {0}".format(self.source.upper()))
-                time.sleep(1.5)
+                tools.log_teleco(ligne1=os.path.basename(self.rel_path),
+                                 ligne2="ERREUR COPIE {0}".format(self.source.upper()), error=True)
                 return self, e
-            tools.log_teleco(ligne1=self.rel_path, ligne2="Copie {0} : OK".format(self.source.upper()))
+            tools.log_teleco(ligne1=os.path.basename(self.rel_path),
+                             ligne2="Copie {0} : OK".format(self.source.upper()))
             cp.stop()
             return True
         elif self.source == "osc":
@@ -312,12 +313,13 @@ class Media:
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 scp.stop()
-                tools.log_teleco(ligne1=self.rel_path, ligne2="ERREUR COPIE {0}".format(self.source.upper()))
-                time.sleep(1.5)
+                tools.log_teleco(ligne1=os.path.basename(self.rel_path),
+                                 ligne2="ERREUR COPIE {0}".format(self.source.upper()), error=True)
                 return self, e
             log.log("raw", "Force mtime to {0}".format(self.mtime))
             os.utime(dest_path, (-1, self.mtime))  # Force setting new time on file to avoid scp loop (-p dosen't work)
-            tools.log_teleco(ligne1=self.rel_path, ligne2="Copie {0} : OK".format(self.source.upper()))
+            tools.log_teleco(ligne1=os.path.basename(self.rel_path),
+                             ligne2="Copie {0} : OK".format(self.source.upper()))
             scp.stop()
             return True
         else:
@@ -367,8 +369,10 @@ def mount_partition(block_path, mount_path):
     except RuntimeError as e:
         log.exception(log.show_exception(e))
         log.warning("Unable to mount  {0} on {1} ".format(block_path, mount_path))
+        tools.log_teleco(ligne1="!USB! : Impossible de", ligne2="monter la clé", error=True)
         mount_cmd.stop()
         return False
+    tools.log_teleco(ligne1="USB : La clé a été", ligne2="correctement montée")
     mount_cmd.stop()
     return True
 
@@ -394,10 +398,12 @@ def umount_partitions():
                 time.sleep(settings.get("sync", "timeout_rm_mountpoint"))
                 os.rmdir(path)
                 log.log("raw", "Correctly remove after umount {0}".format(path))
+                tools.log_teleco(ligne1="USB : La clé a été", ligne2="correctement démontée")
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 log.warning("Unable to umount {0}".format(path))
                 umount_cmd.stop()
+                tools.log_teleco(ligne1="!USB! : Erreur de", ligne2="démontage", error=True)
                 sucess = False
                 continue
             umount_cmd.stop()
@@ -414,6 +420,7 @@ def restart_netctl():
         log.debug("Restart netctl return {0}".format(
             subprocess.check_call(
                 shlex.split(settings.get("path", "systemctl") + " restart netctl-auto@wlan0.service"))))
+        tools.log_teleco(ligne1="Le réseau a redémarré")
     else:
         log.debug("Don't restart netctl because we are not on a raspi")
 
@@ -450,6 +457,8 @@ class UdevThreadMonitor(threading.Thread):
                     log.log("info",
                             "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
                     network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), restart_netctl)
+                    tools.log_teleco(ligne1="Le réseau va redémarrer", ligne2="dans {0} sec".format(settings.get("sync", "timeout_restart_netctl")))
+                    time.sleep(settings.get("log", "teleco", "error_delay"))        # Not an error but..
                 continue
             elif device.action not in ("add", "change"):
                 log.log("raw", "Block device event {1} (not add) : {0}".format(device.device_node, device.action))
@@ -563,7 +572,7 @@ class ScenarioFile:
         # if settings.get("sys", "raspi"):
         # scp = ExternalProcess("scp")
         # scp.command += " {options} {ip}:{path} {path}".format(
-        #         ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
+        # ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
         #     log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
         #     scp.start()
         #     scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
@@ -686,7 +695,7 @@ def get_newer_scenario(group):
 # class MediaMoved:
 # """
 # This class just represent the fact that the file as change his place
-#     """
+# """
 #
 #     def __init__(self, old_path, new_path):
 #         self.old_path = old_path
