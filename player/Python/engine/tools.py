@@ -95,7 +95,7 @@ def search_in_or_default(key, indict, setting=False, default=None):
     return default
 
 
-def log_teleco(ligne1=None, ligne2=None, error=False, encode="utf-8"):
+def log_teleco(ligne1="", ligne2="", error=False, encode="utf-8"):
     """
     This function log a message to the teleco
     :param ligne1:
