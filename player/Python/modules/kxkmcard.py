@@ -66,8 +66,12 @@ class KxkmCard(ExternalProcess):
     def setMessage(self, line1=None, line2=None):
         cmd = 'texttitreur'
         if line1 is not None:
+            if line1 == "":
+                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line1 ' + line1.replace(' ', '_')
         if line2 is not None:
+            if line2 == "":
+                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
@@ -112,8 +116,12 @@ class KxkmCard(ExternalProcess):
         """
         cmd = 'popup'
         if line1 is not None:
+            if line1 == "":
+                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line1 ' + line1.replace(' ', '_')
         if line2 is not None:
+            if line2 == "":
+                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
