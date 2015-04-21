@@ -92,7 +92,7 @@ class MediaList(list):
         """
         log.log("raw", "Do this list need {0}".format(media_obj))
         if media_obj.source == "osc" and not settings.get("sync", "video") and Media.get_root_dir(
-                media_obj) == settings.get("path", "relative", "video"):
+                media_obj.rel_path) == settings.get("path", "relative", "video"):
             log.log("raw", "Ignore because it's a video and we ask to do not scp copy them")
             return False  # It's a video and we ask to do not scp copy them
         for elem in self:
