@@ -269,6 +269,7 @@ class Media:
         if self.source == "scenario":
             log.warning("Ask to get a file from the scenario... do nothing")
             return False
+        tools.log_teleco(line1=self.rel_path, line2="Copie depuis {0}".format(self.source.upper()))
         if self.source == "usb":
             dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
@@ -286,7 +287,10 @@ class Media:
                 # if error_fnct is not None:
                 # error_fnct(self, e)
                 cp.stop()
+                tools.log_teleco(line1=self.rel_path, line2="ERREUR COPIE {0}".format(self.source.upper()))
+                time.sleep(1.5)
                 return self, e
+            tools.log_teleco(line1=self.rel_path, line2="Copie {0} : OK".format(self.source.upper()))
             cp.stop()
             return True
         elif self.source == "osc":
@@ -308,9 +312,12 @@ class Media:
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 scp.stop()
+                tools.log_teleco(line1=self.rel_path, line2="ERREUR COPIE {0}".format(self.source.upper()))
+                time.sleep(1.5)
                 return self, e
             log.log("raw", "Force mtime to {0}".format(self.mtime))
             os.utime(dest_path, (-1, self.mtime))  # Force setting new time on file to avoid scp loop (-p dosen't work)
+            tools.log_teleco(line1=self.rel_path, line2="Copie {0} : OK".format(self.source.upper()))
             scp.stop()
             return True
         else:

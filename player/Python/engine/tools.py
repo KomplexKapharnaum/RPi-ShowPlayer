@@ -7,13 +7,17 @@
 import weakref
 import sys
 import os
+
 from setting import settings
+import engine
 from engine.log import init_log
 
 log = init_log("tools")
 
 
 _to_stop_thread = dict()
+
+flag_popup = engine.fsm.Flag("REMOTE_POPUP")
 
 
 def register_thread(thread):
@@ -88,3 +92,13 @@ def search_in_or_default(key, indict, setting=False, default=None):
         except AttributeError, KeyError:
             log.log("debug", "Search for a setting value which doesn't exist")
     return default
+
+
+def log_teleco(line1=None, line2=None):
+    """
+    This function log a message to the teleco
+    :param line1:
+    :param line2:
+    :return:
+    """
+    engine.threads.patcher.patch(flag_popup.get(args={"line1": line1, "line2": line2}))
