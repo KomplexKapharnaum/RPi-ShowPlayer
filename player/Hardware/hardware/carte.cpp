@@ -112,7 +112,7 @@ int Carte::readInterrupt(){
 int Carte::checkTension(){
   fprintf(stderr, "carte - checktension gpio high\n");
   digitalWrite (GPIO_READ_BATT, HIGH);
-  delay(100);
+  delay(10);
   writeValue(UBATT,0);
   delay(5);
   tension = readValue(UBATT)+50;
