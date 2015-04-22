@@ -400,13 +400,10 @@ void gyroUpdate() {
 
 void readTensionBatt() {
   int batt = analogRead(inpinanalog[UBATT - DECALALOGPIN]);
-  if (Value[VOLTAGEMODE] == 0) {
-    if (batt < 320) newValue[VOLTAGEMODE] = 12;
-    else newValue[VOLTAGEMODE] = 24;
-  }
   long voltage;
-  if (batt <= 438) voltage = (long)batt * 54 + 206;
-  else  voltage = (long)batt * 765 - 312500;
+  //if (batt <= 438) voltage = (long)batt * 54 + 206;
+  //else  voltage = (long)batt * 765 - 312500;
+  voltage = (long)batt * 54 + 206;
   newValue[UBATT] = (byte) ((voltage - 5000) / 100);
   Value[UBATT] = newValue[UBATT];
   Serial.print("bat ");
