@@ -417,7 +417,13 @@ cout << "#INITHARDWARE" << endl;
   while(!init){
     parseInput();
   }
-  if(version_py=="-") myteleco.initCarte(1); else myteleco.initCarte(0);
+  if(version_py=="-") {
+    fprintf(stderr, "main - init teleco with local poweroff\n");
+    myteleco.initCarte(1);}
+  else {
+    fprintf(stderr, "main - init teleco with main program poweroff\n");
+    myteleco.initCarte(0);
+  }
   delay(10);
   if (digitalRead(21)==HIGH) {
     fprintf(stderr, "main - teleco add at boot\n");
