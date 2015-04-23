@@ -97,7 +97,7 @@ void Teleco::sendButtonString(char Str1[]){
     buff[i+1]= *(Str1+i);
   }
   fprintf(stderr, "teleco - teleco send button string : %s\n",buff);
-  SPIcarte.send(0,buff,34);
+  SPIcarte.send(0,buff,19);
 
 }
 
