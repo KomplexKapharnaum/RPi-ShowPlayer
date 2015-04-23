@@ -10,6 +10,7 @@ char line3 [17];
 char line4 [17];
 char popline1 [17];
 char popline2 [17];
+char buttonline [17];
 int nbmenuinfo =3;
 
 
@@ -53,10 +54,11 @@ volatile byte adress = 0;
 
 #define T_STRING 17
 #define T_POPUP 18
+#define T_BUTON_STRING 19
 
 
 //size of table
-#define T_REGISTERSIZE 19
+#define T_REGISTERSIZE 20
 //size of menu
 #define T_NBMENU 7
 
@@ -102,7 +104,7 @@ void setup (void) {
   Serial.println("telec");
   checkInputPeriod = 100;
   waitforinit();
-      positionLeft = rotary.read();
+  positionLeft = rotary.read();
   Serial.println("init");
 }
 
@@ -123,8 +125,31 @@ void initpin() {
 
   pos = 0;   // buffer empty
   lcd.begin(16, 2);
+#define LCD_PLAY 0
+#define LCD_NEXT 1
+#define LCD_REWIND 2
+#define LCD_BACK 3
+#define LCD_PAUSE 4
+#define LCD_RELOAD 5
+#define LCD_SYMBOL_DISCONNECT 6
+#define LCD_SYMBOL_MINTIME 7
+  byte character_data[8][8] = {
+    { B00000,B10000,B11000,B11100,B11110,B11100,B11000,B10000},//play
+    { B00000,B10001,B11001,B11101,B11111,B11101,B11001,B10001},//next
+    { B00000,B00001,B00011,B00111,B01111,B00111,B00011,B00001},//rewind
+    { B00000,B10001,B10011,B10111,B11111,B10111,B10011,B10001},//back
+    { B00000,B00000,B11011,B11011,B11011,B11011,B11011,B00000},//pause
+    { B00100,B00110,B11111,B10110,B10100,B10000,B10001,B01110},//reload
+    { B00000, B01010, B11111, B11100, B10001, B00111, B01110, B00100 },
+    { B10101, B00000, B00100, B01110, B10011, B10101, B10001, B01110 }
+  };
+  for (byte i=0;i<8;i++) {
+    lcd.createChar(i,character_data[i]);
+  }
   lcd.setCursor(0, 0);
-  lcd.print("  do not clean");
+  lcd.write(LCD_PLAY);
+  lcd.print(" do not clean ");
+  lcd.write(LCD_REWIND);
   lcd.setCursor(0, 1);
   lcd.print("      V0.3      ");
   lcd.setBackLight(1);
@@ -135,6 +160,7 @@ void clearRegister() {
     Value[i] = 0;
     newValue[i] = 0;
   }
+
 }
 
 void initSPIslave() {
@@ -276,6 +302,13 @@ void checkStringReceive() {
     pos = 0;
     adress = 0;
   }
+  if (command == 0 && adress == T_BUTON_STRING) {
+    buf [pos] = 0;
+    Serial.println (buf);
+    memcpy(buttonline, &buf[0], 16 );
+    pos = 0;
+    adress = 0;
+  }
 }
 
 
@@ -354,6 +387,14 @@ void checkInput() {
         }else{
           lcd.setCursor(0, 0);
           lcd.print(menu[abs(newLeft)%(T_NBMENU+2)]);
+          lcd.setCursor(0, 1);
+          for(byte i=0;i<16;i++){
+            if (buttonline[i]<'0' || buttonline[i]>'9') {
+              lcd.print(buttonline[i]);
+            }else{
+              lcd.write(i);
+            }
+          }
         }
         positionLeft = newLeft;
       }

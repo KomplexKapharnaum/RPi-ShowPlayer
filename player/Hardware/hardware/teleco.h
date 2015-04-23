@@ -40,9 +40,11 @@
 
 #define T_STRING 17
 #define T_POPUP 18
+#define T_BUTON_STRING 19
+
 
 //size of table
-#define T_REGISTERSIZE 19
+#define T_REGISTERSIZE 20
 
 #define READCOMMAND 0x40
 #define WRITECOMMANDVALUE 0xc0
@@ -69,6 +71,7 @@ public:
   void initCarte(char pow);
   void sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]);
   void sendPopUp(char Str1[], char Str2[]);
+  void sendButtonString(char Str1[]);
   int fisrtView();
   void start();
   void reset();

@@ -404,6 +404,7 @@ void readTensionBatt() {
   //if (batt <= 438) voltage = (long)batt * 54 + 206;
   //else  voltage = (long)batt * 765 - 312500;
   voltage = (long)batt * 54 + 206;
+  if(voltage>24600)voltage += (((long)batt)*732 - 328902);
   newValue[UBATT] = (byte) ((voltage - 5000) / 100);
   Value[UBATT] = newValue[UBATT];
   Serial.print("bat ");

@@ -41,7 +41,7 @@ string carte_ip;
 string version_py="-";
 string version_c="0.3";
 string status="-";
-string popup1,popup2;
+string popup1,popup2,buttonString;
 string voltage="-";
 int init=0;
 
@@ -240,6 +240,23 @@ int parseInput(){
       sprintf(mess2,"%s",popup2.c_str());
       myteleco.sendPopUp(mess1,mess2);
     }
+    
+    if ("buttonstring"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-line"==parsedInput){
+          ss>>parsedInput;
+          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
+          buttonString=parsedInput;
+        }
+        if ("-clear"==parsedInput){
+          buttonString=" ";
+        }
+      }
+      char mess1[17];
+      sprintf(mess1,"%s",buttonString.c_str());
+      myteleco.sendButtonString(mess1);
+    }
+
 
 
     if ("initconfig"==parsedInput) {
