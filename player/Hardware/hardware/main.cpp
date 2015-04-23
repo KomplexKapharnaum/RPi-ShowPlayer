@@ -248,6 +248,9 @@ int parseInput(){
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
           buttonString=parsedInput;
         }
+        if ("-media"==parsedInput){
+          buttonString="32  0/4  01  all";
+        }
         if ("-clear"==parsedInput){
           buttonString=" ";
         }
