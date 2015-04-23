@@ -151,7 +151,7 @@ void initpin() {
   lcd.print(" do not clean ");
   lcd.write(LCD_REWIND);
   lcd.setCursor(0, 1);
-  lcd.print("      V0.3      ");
+  lcd.print("      V0.4      ");
   lcd.setBackLight(1);
 }
 
@@ -392,7 +392,7 @@ void checkInput() {
             if (buttonline[i]<'0' || buttonline[i]>'9') {
               lcd.print(buttonline[i]);
             }else{
-              lcd.write(i);
+              lcd.write(buttonline[i]-48);
             }
           }
         }
