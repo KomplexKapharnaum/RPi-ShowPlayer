@@ -78,7 +78,7 @@ char menu[T_NBMENU][16] = {"previous scene","restart scene","next scene","blink 
 byte Value[T_REGISTERSIZE];
 byte newValue[T_REGISTERSIZE];
 
-byte outpin[4] = {A5, A5, A0, 4};
+byte outpin[4] = {A5, A7, A0, 4};
 
 byte inpin[5] = {A2, A3, 5, A4, A1};
 
@@ -90,6 +90,8 @@ long unsigned lastLVStrob;
 byte strobLVStep;
 long unsigned lastLOKStrob;
 byte strobLOKStep;
+
+byte lock=0;
 
 long unsigned lastCheckInput;
 int checkInputPeriod;
@@ -114,15 +116,15 @@ void initpin() {
     pinMode(outpin[i], OUTPUT);
     updateValue(i);
   }
-
+  
   for (i = T_DECINPIN; i < T_DECALALOGPIN; i++) {
     pinMode(inpin[i - T_DECINPIN], INPUT);
   }
-
+  
   strobLRStep = 0;
   strobLVStep = 0;
   strobLOKStep = 0;
-
+  
   pos = 0;   // buffer empty
   lcd.begin(16, 2);
 #define LCD_PLAY 0
@@ -160,7 +162,7 @@ void clearRegister() {
     Value[i] = 0;
     newValue[i] = 0;
   }
-
+  
 }
 
 void initSPIslave() {
@@ -189,7 +191,7 @@ ISR (SPI_STC_vect)
 {
   byte c = SPDR;
   //Serial.println(c, HEX);
-
+  
   if (command < 10) {
     //Serial.print("R add");
     adress = c & ~COMMANDMASK;
@@ -215,36 +217,36 @@ ISR (SPI_STC_vect)
   }
   
   //renvoie la valeur enregistree
-    if (command == READCOMMAND) {
-      SPDR = Value[adress];
-      command = 1;
-      if (inputRange(adress)) {
-        newValue[T_INTERRUPT] = 0;
-        Value[T_INTERRUPT] = newValue[T_INTERRUPT];
-        digitalWrite(outpin[T_INTERRUPT], LOW);
-      }
-      Serial.print("r ");
-      Serial.println (Value[adress],DEC);
+  if (command == READCOMMAND) {
+    SPDR = Value[adress];
+    command = 1;
+    if (inputRange(adress)) {
+      newValue[T_INTERRUPT] = 0;
+      Value[T_INTERRUPT] = newValue[T_INTERRUPT];
+      digitalWrite(outpin[T_INTERRUPT], LOW);
     }
-
+    Serial.print("r ");
+    Serial.println (Value[adress],DEC);
+  }
   
-
-
+  
+  
+  
 }  // end of interrupt service routine (ISR) SPI_STC_vect
 
 
 //boucle principale
 
 void loop (void) {
-
+  
   // if SPI not active, clear current command
   if (digitalRead (SS) == HIGH) command = 0;
-
+  
   //verification changement de valeur
   if (command == 0 && adress < T_STRING) {
     for (byte i = 0; i < T_REGISTERSIZE; i++) {
       if (Value[i] != newValue[i]) {
-        if(newValue[T_INIT]==0) resetFunc(); 
+        if(newValue[T_INIT]==0) resetFunc();
         if (outputRange(i)) updateValue(i); //cas led output
         if (inputRange(i)) updateInput(i);
         else {
@@ -255,37 +257,37 @@ void loop (void) {
           Serial.print(i, DEC);
           Serial.print(" - v ");
           Serial.println(Value[i], DEC);
-
-
+          
+          
           //cas particulier
           if (i == T_STROBLRSPEED)lastLRStrob = millis();
           if (i == T_STROBLRSPEED && Value[i] == 0) strobLRRoutine(1);
           if (i == T_STROBLVSPEED)lastLVStrob = millis();
           if (i == T_STROBLVSPEED && Value[i] == 0) strobLVRoutine(1);
-
-
+          
+          
         }
       }
     }
   }
-
-
+  
+  
   if (Value[T_STROBLRSPEED] > 0) strobLRRoutine(0);
   if (Value[T_STROBLVSPEED] > 0) strobLVRoutine(0);
   //if (Value[T_STROBLVSPEED] > 0) strobLVRoutine();
   checkStringReceive();
   checkInput();
-
+  
 }  // end of loop
 
 void checkStringReceive() {
   if (command == 0 && adress == T_STRING) {
     buf [pos] = 0;
     Serial.println (buf);
-      memcpy( line1, &buf[0], 16 );
-      memcpy( line2, &buf[16], 16 );
-      memcpy( line3, &buf[32], 16 );
-      memcpy( line4, &buf[48], 16 );
+    memcpy( line1, &buf[0], 16 );
+    memcpy( line2, &buf[16], 16 );
+    memcpy( line3, &buf[32], 16 );
+    memcpy( line4, &buf[48], 16 );
     pos = 0;
     adress = 0;
   }
@@ -327,6 +329,7 @@ bool outputRange(byte i) {
 //fonction pour generer une interuption sur le rpi
 void updateInput(byte i) {
   if (Value[T_INTERRUPT] == 0) {
+    if(i==T_REED && newValue[i]==1) switchLock();
     Value[i] = newValue[i];
     newValue[T_INTERRUPT] = i;
     Value[T_INTERRUPT] = newValue[T_INTERRUPT];
@@ -337,49 +340,81 @@ void updateInput(byte i) {
   }
 }
 
+void switchLock(){
+  if (lock==0){
+    lock=1;
+    pinMode(outpin[T_LEDRVALUE], INPUT);
+    Serial.println ("lock");
+    return;
+  }
+  if (lock==1){
+    lock=2;
+    pinMode(outpin[T_LEDRVALUE], INPUT);
+    lcd.noDisplay();
+    lcd.setBackLight(0);
+    Serial.println ("lock and sleep");
+    return;
+  }
+  if (lock==2){
+    lock=0;
+    pinMode(outpin[T_LEDRVALUE], OUTPUT);
+    updateValue(T_LEDRVALUE);
+    lcd.display();
+    lcd.setBackLight(1);
+    Serial.println ("unlock");
+    return;
+  }
+}
+
 
 
 void checkInput() {
   if (millis() > lastCheckInput + checkInputPeriod) {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
-      if(T_DECINPIN+i==T_PUSHROTARY){
-        if( 1-digitalRead(inpin[i])==1) {
-          if (abs(positionLeft)%(T_NBMENU+nbmenuinfo)<T_NBMENU){
-            newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+nbmenuinfo)+1;
+      if(lock==0 || T_DECINPIN+i==T_REED){
+        if(T_DECINPIN+i==T_PUSHROTARY){
+          if( 1-digitalRead(inpin[i])==1) {
+            if (abs(positionLeft)%(T_NBMENU+nbmenuinfo)<T_NBMENU){
+              newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+nbmenuinfo)+1;
+            }else {
+              newValue[T_DECINPIN + i] =250;
+            }
           }else {
-            newValue[T_DECINPIN + i] =250;
-          }
-        }else {
             newValue[T_DECINPIN + i] =0;
           }
+        }else{
+          newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+          //Serial.print("b");
+          //Serial.println(i, DEC);
+        }
       }else{
-        newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
-      //Serial.print("b");
-      //Serial.println(i, DEC);
+         if(lock==0) newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+        }
       }
-    }
+    
     //if (Value[T_BOARDCHECKFLOAT] == 1) newValue[T_FLOAT] = map(analogRead(inpinanalog[T_FLOAT - T_DECALALOGPIN]), 0, 1024, 0, 255);
     
-    long newLeft;
-    newLeft = (long)rotary.read()*1.0/2;
-    if (newLeft>T_NBMENU+nbmenuinfo-1 || newLeft<0) {
-      newLeft=positionLeft;
-      rotary.write(positionLeft*2);
-    }
-    if (newLeft != positionLeft) {
-        lcd.clear();     
-        if(abs(newLeft)%(T_NBMENU+nbmenuinfo)==T_NBMENU){
+    if(lock==0){
+      long newLeft;
+      newLeft = (long)rotary.read()*1.0/2;
+      if (newLeft > T_NBMENU+nbmenuinfo-1 || newLeft < 0) {
+        newLeft=positionLeft;
+        rotary.write(positionLeft*2);
+      }
+      if (newLeft != positionLeft) {
+        lcd.clear();
+        if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU){
           lcd.setCursor(0, 0);
           lcd.print(line1);
           lcd.setCursor(0, 1);
           lcd.print(line2);
-        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo)==T_NBMENU+1){
+        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU+1){
           lcd.setCursor(0, 0);
           lcd.print(line3);
           lcd.setCursor(0, 1);
           lcd.print(line4);
-        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo)==T_NBMENU+2){
+        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU+2){
           lcd.setCursor(0, 0);
           lcd.print(popline1);
           lcd.setCursor(0, 1);
@@ -398,9 +433,11 @@ void checkInput() {
         }
         positionLeft = newLeft;
       }
+    }
     
     lastCheckInput = millis();
   }
+  
 }
 
 
@@ -417,10 +454,10 @@ byte lightfunc(byte v) {
 void updateValue(byte i) {
   Value[i] = newValue[i];
   /*Serial.print(millis(), DEC);
-  Serial.print(" new ");
-  Serial.print(i, DEC);
-  Serial.print(" - v ");
-  Serial.println(Value[i], DEC);*/
+   Serial.print(" new ");
+   Serial.print(i, DEC);
+   Serial.print(" - v ");
+   Serial.println(Value[i], DEC);*/
   digitalWrite(outpin[i], lightfunc(Value[i]));
 }
 
