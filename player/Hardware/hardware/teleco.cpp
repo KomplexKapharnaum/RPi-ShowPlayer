@@ -101,6 +101,17 @@ void Teleco::sendButtonString(char Str1[]){
 
 }
 
+int Teleco::readOrSetTelecoLock(int val){
+  int state = readValue(T_LOCK);
+  if (val!=-1 && state != val){
+    writeValue(T_LOCK,val);
+    delay(1);
+    return readValue(T_LOCK);
+  }
+  return state;
+  
+}
+
 
 
 int Teleco::readInterrupt(){

@@ -9,6 +9,10 @@ info -status (string)
 popup [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-clear]
 buttonstring [-line (stringespace=underscore)] [-media] [-clear]
 
+setledtelecook [-on] [-off]
+setledcarteok [-on] [-off]
+settelecolock [-lock] [-unlock] [-sleep] [-read]
+
 texttitreur [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-scroll]
 
 setlight [-fade (int)] [-strob (int)] [-rgb (int) (int) (int)] [-10w1 (int)] [-10w2 (int)] 

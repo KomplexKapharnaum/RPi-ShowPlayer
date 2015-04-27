@@ -355,7 +355,7 @@ int parseInput(){
         }
         
       }
-    }// end setgyro
+    }// end setrelais
     
     if ("setledtelecook"==parsedInput) {
       while (ss>>parsedInput){
@@ -367,7 +367,7 @@ int parseInput(){
         }
         
       }
-    }// end setgyro
+    }// end setledtelecook
     
     if ("setledcarteok"==parsedInput) {
       while (ss>>parsedInput){
@@ -379,7 +379,25 @@ int parseInput(){
         }
         
       }
-    }// end setgyro
+    }// end setledcarteok
+    
+    if ("settelecolock"==parsedInput) {
+      while (ss>>parsedInput){
+        if ("-lock"==parsedInput){
+          myteleco.readOrSetTelecoLock(T_ISLOCK);
+        }
+        if ("-unlock"==parsedInput){
+          myteleco.readOrSetTelecoLock(T_ISOPEN);
+        }
+        if ("-sleep"==parsedInput){
+          myteleco.readOrSetTelecoLock(T_ISLOCKWITHSLEEP);
+        }
+        if ("-read"==parsedInput){
+          int state = myteleco.readOrSetTelecoLock();
+          std::cout << "#TELECO_LOCK_STATE "<< state << std::endl;
+        }
+      }
+    }// end settelecolock
     
     
     if ("DR"==parsedInput) {

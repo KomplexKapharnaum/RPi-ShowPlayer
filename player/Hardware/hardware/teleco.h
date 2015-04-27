@@ -62,6 +62,10 @@
 
 #define T_START 99;
 
+#define T_ISOPEN 0
+#define T_ISLOCK 1
+#define T_ISLOCKWITHSLEEP 2
+
 
 
 class Teleco : public Carte {
@@ -79,6 +83,7 @@ public:
   int readInterrupt();
   void setLedOk(int val);
   void setLedWarning(int val);
+  void readOrSetTelecoLock(int val=-1);
 };
 
 

@@ -73,6 +73,10 @@ volatile byte adress = 0;
 
 #define T_MODEBASE 1
 
+#define T_ISOPEN 0
+#define T_ISLOCK 1
+#define T_ISLOCKWITHSLEEP 2
+
 
 char menu[T_NBMENU][16] = {"previous scene","restart scene","next scene","blink group","poweroff","reboot","test routine"};
 
@@ -264,6 +268,7 @@ void loop (void) {
           if (i == T_STROBLRSPEED && Value[i] == 0) strobLRRoutine(1);
           if (i == T_STROBLVSPEED)lastLVStrob = millis();
           if (i == T_STROBLVSPEED && Value[i] == 0) strobLVRoutine(1);
+          if (i == T_LOCK) switchLock(Value[i]);
           
           
         }
@@ -340,23 +345,23 @@ void updateInput(byte i) {
   }
 }
 
-void switchLock(){
-  if (Value[T_LOCK]==0){
-    Value[T_LOCK]=1; newValue[T_LOCK]=1;
+void switchLock(byte force=255){
+  if (Value[T_LOCK]==T_ISOPEN || force==T_ISLOCK){
+    Value[T_LOCK]=T_ISLOCK; newValue[T_LOCK]=T_ISLOCK;
     pinMode(outpin[T_LEDRVALUE], INPUT);
     Serial.println ("lock");
     return;
   }
-  if (Value[T_LOCK]==1){
-    Value[T_LOCK]=2; newValue[T_LOCK]=2;
+  if (Value[T_LOCK]==T_ISLOCK || force==T_ISLOCKWITHSLEEP){
+    Value[T_LOCK]=T_ISLOCKWITHSLEEP; newValue[T_LOCK]=T_ISLOCKWITHSLEEP;
     pinMode(outpin[T_LEDRVALUE], INPUT);
     lcd.noDisplay();
     lcd.setBackLight(0);
     Serial.println ("lock and sleep");
     return;
   }
-  if (Value[T_LOCK]==2){
-    Value[T_LOCK]=0; newValue[T_LOCK]=0;
+  if (Value[T_LOCK]==T_ISLOCKWITHSLEEP || force==T_ISOPEN){
+    Value[T_LOCK]=T_ISOPEN; newValue[T_LOCK]=T_ISOPEN;
     pinMode(outpin[T_LEDRVALUE], OUTPUT);
     updateValue(T_LEDRVALUE);
     lcd.display();
@@ -372,7 +377,7 @@ void checkInput() {
   if (millis() > lastCheckInput + checkInputPeriod) {
     //boutons
     for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
-      if(lock==0 || T_DECINPIN+i==T_REED){
+      if(Value[T_LOCK]==T_ISOPEN || T_DECINPIN+i==T_REED){
         if(T_DECINPIN+i==T_PUSHROTARY){
           if( 1-digitalRead(inpin[i])==1) {
             if (abs(positionLeft)%(T_NBMENU+nbmenuinfo)<T_NBMENU){
@@ -389,13 +394,13 @@ void checkInput() {
           //Serial.println(i, DEC);
         }
       }else{
-         if(lock==0) newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+         if(Value[T_LOCK]==T_ISOPEN) newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
         }
       }
     
     //if (Value[T_BOARDCHECKFLOAT] == 1) newValue[T_FLOAT] = map(analogRead(inpinanalog[T_FLOAT - T_DECALALOGPIN]), 0, 1024, 0, 255);
     
-    if(lock==0){
+    if(Value[T_LOCK]==T_ISOPEN){
       long newLeft;
       newLeft = (long)rotary.read()*1.0/2;
       if (newLeft > T_NBMENU+nbmenuinfo-1 || newLeft < 0) {
