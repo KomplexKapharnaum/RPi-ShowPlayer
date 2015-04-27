@@ -51,14 +51,15 @@ volatile byte adress = 0;
 #define T_STROBLOKSPEED 15
 
 #define T_INIT 16
+#define T_LOCK 17
 
-#define T_STRING 17
-#define T_POPUP 18
-#define T_BUTON_STRING 19
+#define T_STRING 18
+#define T_POPUP 19
+#define T_BUTON_STRING 20
 
 
 //size of table
-#define T_REGISTERSIZE 20
+#define T_REGISTERSIZE 21
 //size of menu
 #define T_NBMENU 7
 
@@ -91,7 +92,6 @@ byte strobLVStep;
 long unsigned lastLOKStrob;
 byte strobLOKStep;
 
-byte lock=0;
 
 long unsigned lastCheckInput;
 int checkInputPeriod;
@@ -341,22 +341,22 @@ void updateInput(byte i) {
 }
 
 void switchLock(){
-  if (lock==0){
-    lock=1;
+  if (Value[T_LOCK]==0){
+    Value[T_LOCK]=1; newValue[T_LOCK]=1;
     pinMode(outpin[T_LEDRVALUE], INPUT);
     Serial.println ("lock");
     return;
   }
-  if (lock==1){
-    lock=2;
+  if (Value[T_LOCK]==1){
+    Value[T_LOCK]=2; newValue[T_LOCK]=2;
     pinMode(outpin[T_LEDRVALUE], INPUT);
     lcd.noDisplay();
     lcd.setBackLight(0);
     Serial.println ("lock and sleep");
     return;
   }
-  if (lock==2){
-    lock=0;
+  if (Value[T_LOCK]==2){
+    Value[T_LOCK]=0; newValue[T_LOCK]=0;
     pinMode(outpin[T_LEDRVALUE], OUTPUT);
     updateValue(T_LEDRVALUE);
     lcd.display();
