@@ -83,7 +83,7 @@ public:
   int readInterrupt();
   void setLedOk(int val);
   void setLedWarning(int val);
-  void readOrSetTelecoLock(int val=-1);
+  int readOrSetTelecoLock(int val=-1);
 };
 
 
