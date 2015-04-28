@@ -8,6 +8,8 @@ import weakref
 import sys
 import os
 import time
+import unicodedata
+
 
 from libs.unidecode import unidecode
 
@@ -21,6 +23,12 @@ log = init_log("tools")
 _to_stop_thread = dict()
 
 flag_popup = engine.fsm.Flag("REMOTE_POPUP")
+
+
+def remove_nonspacing_marks(s):
+    """Decompose the unicode string s and remove non-spacing marks."""
+    return ''.join(c for c in unicodedata.normalize('NFKD', s)
+                   if unicodedata.category(c) != 'Mn')
 
 
 def register_thread(thread):
@@ -106,8 +114,8 @@ def log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
     :param encode: Encoding of input strings, if none, assume data are already encoded
     :return:
     """
-    ligne1 = unidecode(ligne1)
-    ligne2 = unidecode(ligne2)
+    ligne1 = remove_nonspacing_marks(ligne1)
+    ligne2 = remove_nonspacing_marks(ligne2)
     if encode is not None:
         if ligne1 is not None:
             ligne1 = ligne1.decode(encode)
