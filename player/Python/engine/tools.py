@@ -114,13 +114,13 @@ def log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
     :param encode: Encoding of input strings, if none, assume data are already encoded
     :return:
     """
-    ligne1 = remove_nonspacing_marks(ligne1)
-    ligne2 = remove_nonspacing_marks(ligne2)
     if encode is not None:
         if ligne1 is not None:
             ligne1 = ligne1.decode(encode)
         if ligne2 is not None:
             ligne2 = ligne2.decode(encode)
+    ligne1 = remove_nonspacing_marks(ligne1)
+    ligne2 = remove_nonspacing_marks(ligne2)
     engine.threads.patcher.patch(flag_popup.get(args={"ligne1": ligne1, "ligne2": ligne2}))
     if error:
         time.sleep(settings.get("log", "teleco", "error_delay"))
