@@ -9,6 +9,8 @@ import sys
 import os
 import time
 
+from libs.unidecode import unidecode
+
 from setting import settings
 import engine
 from engine.log import init_log
@@ -109,6 +111,8 @@ def log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
             ligne1 = ligne1.decode(encode)
         if ligne2 is not None:
             ligne2 = ligne2.decode(encode)
+    ligne1 = unidecode(ligne1)
+    ligne2 = unidecode(ligne2)
     engine.threads.patcher.patch(flag_popup.get(args={"ligne1": ligne1, "ligne2": ligne2}))
     if error:
         time.sleep(settings.get("log", "teleco", "error_delay"))
