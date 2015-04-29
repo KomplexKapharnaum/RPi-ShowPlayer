@@ -10,7 +10,6 @@ from engine.log import init_log
 from engine.setting import settings
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
-from engine.tools import search_in_or_default
 import json
 import subprocess
 
@@ -240,6 +239,7 @@ def kxkm_card_lights(flag, **kwargs):
     params = search_in_or_default(("rgb", "led10w1", "led10w2", "strob", "fade"),
                                   flag.args, setting=("values", "lights"))
     kwargs["_fsm"].vars["kxkmcard"].setLight(**params)
+    kwargs["_etape"].preemptible.set()
 
 
 @link({None: "kxkm_card"})
