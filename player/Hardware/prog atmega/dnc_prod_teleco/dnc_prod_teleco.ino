@@ -64,7 +64,7 @@ volatile byte adress = 0;
 //size of table
 #define T_REGISTERSIZE 21
 //size of menu
-#define T_NBMENU 7
+#define T_NBMENU 10
 
 #define READCOMMAND 0x40
 #define WRITECOMMANDVALUE 0xc0
@@ -81,7 +81,7 @@ volatile byte adress = 0;
 #define T_ISLOCKWITHSLEEP 2
 
 
-char menu[T_NBMENU][16] = {"previous scene","restart scene","next scene","blink group","poweroff","reboot","test routine"};
+char menu[T_NBMENU][16] = {"previous scene","restart scene","next scene","blink group","restart py","restart wifi","update sys","poweroff","reboot","test routine"};
 
 byte Value[T_REGISTERSIZE];
 byte newValue[T_REGISTERSIZE];
@@ -160,7 +160,7 @@ void initpin() {
   lcd.print(" do not clean ");
   lcd.write(LCD_REWIND);
   lcd.setCursor(0, 1);
-  lcd.print("      V0.4      ");
+  lcd.print("      V0.5      ");
   lcd.setBackLight(1);
 }
 
