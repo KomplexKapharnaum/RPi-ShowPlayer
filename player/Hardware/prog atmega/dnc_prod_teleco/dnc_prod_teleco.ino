@@ -334,7 +334,7 @@ bool outputRange(byte i) {
 //fonction pour generer une interuption sur le rpi
 void updateInput(byte i) {
   if (Value[T_INTERRUPT] == 0) {
-    if(i==T_REED && newValue[i]==1) switchLock();
+    if(i==T_REED && newValue[i]==1) switchLock(255);
     Value[i] = newValue[i];
     newValue[T_INTERRUPT] = i;
     Value[T_INTERRUPT] = newValue[T_INTERRUPT];
@@ -345,7 +345,7 @@ void updateInput(byte i) {
   }
 }
 
-void switchLock(byte force=255){
+void switchLock(byte force){
   if (Value[T_LOCK]==T_ISOPEN || force==T_ISLOCK){
     Value[T_LOCK]=T_ISLOCK; newValue[T_LOCK]=T_ISLOCK;
     pinMode(outpin[T_LEDRVALUE], INPUT);
