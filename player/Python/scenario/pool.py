@@ -63,10 +63,12 @@ def load():
         fn_auto_transit = Etapes_and_Functions["TRANSIT_AUTO"]
         fn_auto_transit_clean = Etapes_and_Functions["TRANSIT_CLEAN"]
         for path, route in DECLARED_OSCROUTES.items():
-            etape_sender = Etape('SEND_'+route['signal'], actions=[(fn_sgn_sender, {'signal':route['signal']}),
-                                                                   (fn_auto_transit, {})],
-                                                          out_actions= ((fn_auto_transit_clean, {}),)
-                                                        )
+            # AUTO TRANSIT BACK
+            # etape_sender = Etape('SEND_'+route['signal'], actions=[(fn_sgn_sender, {'signal':route['signal']}),
+            #                                                        (fn_auto_transit, {})],
+            #                                               out_actions= ((fn_auto_transit_clean, {}),)
+            #                                             )
+            etape_sender = Etape('SEND_'+route['signal'], actions=[(fn_sgn_sender, {'signal':route['signal']}),] )
             DECLARED_ETAPES[etape_sender.uid] = etape_sender
 
     # ..

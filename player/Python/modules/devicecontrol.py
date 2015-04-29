@@ -18,6 +18,7 @@ log = init_log("devicecontrol")
 @link({"/device/reload": "device_reload",
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
+        "/device/restart": "device_restart",
         "/scene/previous": "device_scene_prev",
         "/scene/next": "device_scene_next",
         "/scene/restart": "device_scene_restart",
@@ -30,17 +31,17 @@ def device_control(flag, **kwargs):
 def device_reload(flag, **kwargs):
     application.reload()
 
+@link({None: "device_control"})
+def device_restart(flag, **kwargs):
+    application.POWEROFF = 1
 
 @link({None: "device_control"})
 def device_poweroff(flag, **kwargs):
     application.POWEROFF = 2
 
-
 @link({None: "device_control"})
 def device_reboot(flag, **kwargs):
-    log.warning('PW: '+str(application.POWEROFF))
     application.POWEROFF = 3
-    log.warning('PW: '+str(application.POWEROFF))
 
 @link({None: "device_reload"})
 def device_update_timeline(flag, **kwargs):

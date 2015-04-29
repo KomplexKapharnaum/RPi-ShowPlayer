@@ -49,8 +49,8 @@ DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hard
 DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
-DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7 --play-and-exit"
-DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd --zoom=0.7 --play-and-exit" # --no-autoscale --zoom=0.7
+DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7"
+DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
