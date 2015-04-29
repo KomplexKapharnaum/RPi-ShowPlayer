@@ -218,7 +218,11 @@ int parseInput(){
     }
     
     if ("popup"==parsedInput) {
+      int n=0;
       while (ss>>parsedInput){
+        if ("-n"==parsedInput){
+            ss>>n;
+        }
         if ("-line1"==parsedInput){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
@@ -234,10 +238,10 @@ int parseInput(){
           popup2=" ";
         }
       }
-      char mess1[17];
-      char mess2[17];
-      sprintf(mess1,"%s",popup1.c_str());
-      sprintf(mess2,"%s",popup2.c_str());
+      char mess1[33];
+      char mess2[33];
+      sprintf(mess1,"%u%s",n,popup1.c_str());
+      sprintf(mess2,"%u%s",n,popup2.c_str());
       myteleco.sendPopUp(mess1,mess2);
     }
     
