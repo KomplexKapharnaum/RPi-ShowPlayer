@@ -240,8 +240,8 @@ int parseInput(){
           popup2=" ";
         }
       }
-      char mess1[33];
-      char mess2[33];
+      char mess1[18];
+      char mess2[18];
       sprintf(mess1,"%u%s",n,popup1.c_str());
       sprintf(mess2,"%u%s",n,popup2.c_str());
       myteleco.sendPopUp(mess1,mess2);
