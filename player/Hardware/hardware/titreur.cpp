@@ -199,6 +199,14 @@ void Titreur::printScreen(){
   
 }
 
+void Titreur::powerdown(){
+  for (int i=0; i<nb_module; i++) {
+    fprintf(stderr, "titreur - power down titreur module %u\n",m);
+    ht1632_sendcmd(m, HT1632_CMD_SYSDIS);  // Disable system
+  }
+}
+
+
 int Titreur::charbyline(){
   return nb_module*typeModule/6;
 }

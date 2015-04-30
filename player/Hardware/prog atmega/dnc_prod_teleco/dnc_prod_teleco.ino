@@ -411,6 +411,7 @@ void poweroff(){
     pinMode (i, OUTPUT);    // changed as per below
     digitalWrite (i, LOW);  //     ditto
   }
+  pinMode(outpin[T_LEDRVALUE], INPUT);
   // disable ADC
   ADCSRA = 0;
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);

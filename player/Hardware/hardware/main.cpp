@@ -73,16 +73,18 @@ void sendStatusTeleco(){
   myteleco.sendInfo(mess1,mess2,mess3,mess4);
 }
 
-void beforekill(int signum)
+int beforekill(int signum)
 {
-    
-  mycarte.setGyro(0, 200);
+  mycarte.setGyro(0,200);
   mycarte.led10WValue(0);
   mycarte.rgbValue(0,0,0);
   mycarte.setRelais(0);
   mytitreur.allLedOff();
+  mytitreur.powerdown();
   status="noC";
   myteleco.reset();
+  myteleco.readOrSetTelecoLock(T_POWEROFF);
+  mycarte.writeValue(POWERDOWN,100);
   fprintf(stderr, "bye bye\n");
   exit(signum);
 }
@@ -407,8 +409,7 @@ int parseInput(){
     }// end settelecolock
     
     if ("powerdownhardware"==parsedInput) {
-      myteleco.readOrSetTelecoLock(T_POWEROFF);
-      mycarte.writeValue(POWERDOWN,100);
+      beforekill(0);
     }
     
     
