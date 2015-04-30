@@ -257,6 +257,11 @@ class inputThread(threading.Thread):
                             engine.threads.patcher.patch(flag_all.get())
                         if cmd[1] == "testgroup":
                             engine.threads.patcher.patch(flag_group.get())
+                elif cmd[0] == "teleco":
+                    if len(cmd) < 3:
+                        log.warning("Need at least a page number an a message")
+                        continue
+                    engine.tools.log_teleco(" ".join(cmd[2:]), int(cmd[1]))
                 else:
                     log.info("Unknown commad in prompt ..")
         except Exception as e:
