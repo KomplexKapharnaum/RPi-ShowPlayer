@@ -122,7 +122,7 @@ float Carte::checkTension(){
   digitalWrite (GPIO_READ_BATT, LOW);
   fprintf(stderr, "carte - checktension gpio low\n");
   fprintf(stderr, "carte - get %.1fV\n",tension);
-  std::cout << "#CARTE_TENSION" << tension << std::endl;
+  std::cout << "#CARTE_TENSION " << tension << std::endl;
   needStatusUpdate=0;
   switch (gamme_tension) {
     case LIPO12:
