@@ -188,6 +188,9 @@ class ThreadTeleco(threading.Thread):
         self._pages_lock = threading.Lock()
         self._something_new = threading.Event()
 
+    def stop(self):
+        self._stop.set()
+
     def run(self):
         while not self._stop.is_set():
             try:
@@ -223,7 +226,17 @@ class ThreadTeleco(threading.Thread):
         """
         message = ThreadTeleco.prepare_message(message)
         for n, bloc in enumerate(message):
-            engine.threads.patcher.patch(flag_popup.get(args={"ligne1": bloc[0], "ligne2": bloc[1], "page": page}))
+            args = dict()
+            log.log("warning", "Bloc to display : {0}".format(bloc))
+            args["ligne1"] = bloc[0]
+            log.log("warning", "Line1 to display : {0}".format(bloc[0]))
+            if len(bloc) > 1:
+                args["ligne2"] = bloc[1]
+                log.log("warning", "Line2 to display : {0}".format(bloc[1]))
+            else:
+                args["ligne2"] = ""
+            args["page"] = page
+            engine.threads.patcher.patch(flag_popup.get(args=args))
             if len(message) >= n + 1:
                 time.sleep(settings.get("log", "teleco", "autoscroll"))
 

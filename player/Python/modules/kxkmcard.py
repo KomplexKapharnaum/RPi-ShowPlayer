@@ -116,7 +116,7 @@ class KxkmCard(ExternalProcess):
         """
         cmd = 'popup'
         if page is not None:
-            cmd += ' -n {0}' + page.__format__(int(page))
+            cmd += ' -n {0}'.format(page)
         if line1 is not None:
             if line1 == "":
                 log.warning("Line 1 empty : does teleco prompt it ?")
