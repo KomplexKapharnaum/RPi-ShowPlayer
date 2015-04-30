@@ -121,6 +121,7 @@ void setup (void) {
 }
 
 void initpin() {
+    ADCSRA = 1;
   byte i = 0;
   for (i = 0; i < T_DECINPIN; i++) {
     pinMode(outpin[i], OUTPUT);
@@ -396,7 +397,6 @@ void switchLock(byte force){
   }
   if (force==T_POWEROFF){
     Value[T_LOCK]=T_POWEROFF; newValue[T_LOCK]=T_POWEROFF;
-    updateValue(T_LEDRVALUE);
     lcd.noDisplay();
     lcd.setBackLight(0);
     Serial.println ("poweroff");
@@ -406,11 +406,6 @@ void switchLock(byte force){
 }
 
 void poweroff(){
-  for (byte i = 0; i <= A5; i++)
-  {
-    pinMode (i, OUTPUT);    // changed as per below
-    digitalWrite (i, LOW);  //     ditto
-  }
   pinMode(outpin[T_LEDRVALUE], INPUT);
   // disable ADC
   ADCSRA = 0;

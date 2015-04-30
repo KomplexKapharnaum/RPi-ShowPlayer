@@ -83,9 +83,11 @@ void beforekill(int signum)
   mytitreur.powerdown();
   status="noC";
   myteleco.reset();
+  delay(5);
   myteleco.readOrSetTelecoLock(T_POWEROFF);
   mycarte.writeValue(POWERDOWN,100);
   fprintf(stderr, "bye bye\n");
+  delay(10);
   exit(signum);
 }
 
