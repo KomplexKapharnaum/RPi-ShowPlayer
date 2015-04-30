@@ -31,6 +31,8 @@ import traceback
 import logging
 import logging.handlers
 
+import tools
+
 def add_coloring_to_emit_ansi(fn):
     # add methods we need to the class
     def new(*args):
@@ -73,6 +75,7 @@ for _level, _lvl_value in LEVELS.items():
 
 DEFAULT_LEVEL = "debug"
 DEFAULT_LOG_TYPE = "Console"
+DEFAULT_TELECO_LEVEL = -1
 LOG_PATH = os.path.join("/tmp/", "DNC_Python.log")
 
 
@@ -140,11 +143,12 @@ class BaseLog:
 
     """
 
-    def __init__(self, logger="", level=None):
+    def __init__(self, logger="", level=None, teleco_level=-1):
         if level is None:
             level = DEFAULT_LEVEL
         self.logger = logging.getLogger(logger)
         self.level = level
+        self.teleco_level = teleco_level
         self.logger.setLevel(LEVELS[level])
         self.logger.makeRecord = makeRecord
         self.handler = None
@@ -167,7 +171,6 @@ class BaseLog:
     #     d["_lnum"] = f._lineno
     #     d["_filename"] = code.co_filename
     #     return d
-
 
     def set_level(self, level=DEFAULT_LEVEL):
         """
@@ -199,6 +202,8 @@ class BaseLog:
         """
         try:
             self.logger.log(LEVELS[lvl], msg)
+            if LEVELS[lvl] <= LEVELS[self.teleco_level]:
+                tools.log_teleco(msg, 0)
         except KeyError:
             self.debug("Level name " + str(lvl) + " unknown. Message : " + str(msg))
 
@@ -210,7 +215,8 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-
+        if LEVELS["debug"] <= LEVELS[self.teleco_level]:
+            tools.log_teleco(msg, 0)
         self.logger.debug(msg)
 
     def info(self, msg=""):
@@ -221,7 +227,8 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-
+        if LEVELS["info"] <= LEVELS[self.teleco_level]:
+            tools.log_teleco(msg, 0)
         self.logger.info(msg)
 
     def warning(self, msg=""):
@@ -232,7 +239,8 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-
+        if LEVELS["warning"] <= LEVELS[self.teleco_level]:
+            tools.log_teleco(msg, 0)
         self.logger.warning(msg)
 
     def error(self, msg=""):
@@ -243,7 +251,8 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-
+        if LEVELS["error"] <= LEVELS[self.teleco_level]:
+            tools.log_teleco(msg, 0)
         self.logger.error(msg)
 
     def critical(self, msg=""):
@@ -254,7 +263,8 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-
+        if LEVELS["critical"] <= LEVELS[self.teleco_level]:
+            tools.log_teleco(msg, 0)
         self.logger.critical(msg)
 
     def dev(self, msg):
@@ -263,6 +273,8 @@ class BaseLog:
         :param msg: type(str) msg to log
         :return:
         """
+        if LEVELS["dev"] <= LEVELS[self.teleco_level]:
+            tools.log_teleco(msg, 0)
         self.logger.warning('{0}'.format(msg))
 
     def exception(self, msg=""):
@@ -273,7 +285,8 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-
+        if LEVELS["exception"] <= LEVELS[self.teleco_level]:
+            tools.log_teleco(msg, 0)
         self.logger.exception(msg)
 
     def exception_info(self, msg, exc_info):
@@ -316,7 +329,7 @@ class ConsoleLog(BaseLog):
 
     """
 
-    def __init__(self, logger="", level=None, format=DEFAULT_FORMAT):
+    def __init__(self, logger="", level=None, format=DEFAULT_FORMAT, **kwargs):
         """
         @type   logger: string
         @param  logger: A keyword describing the source of the log messages
@@ -326,7 +339,7 @@ class ConsoleLog(BaseLog):
 
         """
 
-        BaseLog.__init__(self, logger, level)
+        BaseLog.__init__(self, logger, level, **kwargs)
         self.set_handler(logging.StreamHandler(), format)
 
 
@@ -342,7 +355,7 @@ class FileLog(BaseLog):
 
     """
 
-    def __init__(self, logger="", level=None, format=DEFAULT_FORMAT):
+    def __init__(self, logger="", level=None, format=DEFAULT_FORMAT, **kwargs):
         """
         @type   logger: string
         @param  logger: A keyword describing the source of the log messages
@@ -352,7 +365,7 @@ class FileLog(BaseLog):
 
         """
 
-        BaseLog.__init__(self, logger, level)
+        BaseLog.__init__(self, logger, level, **kwargs)
         self.set_handler(
             logging.handlers.TimedRotatingFileHandler(LOG_PATH, "D", 1, 7, "utf-8"),
             ALL_FORMAT
@@ -372,7 +385,7 @@ class DualLog(BaseLog):
 
     """
 
-    def __init__(self, logger="", level=None, format=DEFAULT_FORMAT, format_file=None):
+    def __init__(self, logger="", level=None, format=DEFAULT_FORMAT, format_file=None, **kwargs):
         """
         @type   logger: string
         @param  logger: A keyword describing the source of the log messages
@@ -382,7 +395,7 @@ class DualLog(BaseLog):
 
         """
 
-        BaseLog.__init__(self, logger, level)
+        BaseLog.__init__(self, logger, level, **kwargs)
         if format_file is None:
             format_file = format
         self.set_handler(
@@ -448,11 +461,13 @@ def set_default_log_by_settings(settings):
     """
     global DEFAULT_LEVEL
     global DEFAULT_LOG_TYPE
+    global DEFAULT_TELECO_LEVEL
     DEFAULT_LEVEL = settings.get("log", "level")
     DEFAULT_LOG_TYPE = settings.get("log", "output")
+    DEFAULT_TELECO_LEVEL = settings.get("log", "teleco", "level")
 
 
-def init_log(log_name, log_lvl=None, log_type=None, format=DEFAULT_FORMAT, format_file=ALL_FORMAT):
+def init_log(log_name, log_lvl=None, log_type=None, teleco_level=DEFAULT_TELECO_LEVEL, format=DEFAULT_FORMAT, format_file=ALL_FORMAT):
     Log = None
     if log_lvl is None:
         log_lvl = DEFAULT_LEVEL
@@ -461,11 +476,11 @@ def init_log(log_name, log_lvl=None, log_type=None, format=DEFAULT_FORMAT, forma
     if log_type not in ("Console", "File", "Both", "Null"):
         raise ValueError("Must be in {0}".format(("Console", "File", "Both", "Null")))
     if log_type == "File":
-        Log = FileLog(log_name, level=log_lvl, format=format)
+        Log = FileLog(log_name, level=log_lvl, format=format, teleco_level=teleco_level)
     elif log_type == "Console":
-        Log = ConsoleLog(log_name, level=log_lvl, format=format)
+        Log = ConsoleLog(log_name, level=log_lvl, format=format, teleco_level=teleco_level)
     elif log_type == "Both":
-        Log = DualLog(log_name, level=log_lvl, format=format, format_file=format_file)
+        Log = DualLog(log_name, level=log_lvl, format=format, format_file=format_file, teleco_level=teleco_level)
     elif log_type == "Null":
         Log = NullLog(log_name, level=log_lvl)
     Log.log('raw', "=== START LOGGING ===")

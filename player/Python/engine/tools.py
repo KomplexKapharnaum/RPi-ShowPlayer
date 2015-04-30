@@ -214,7 +214,6 @@ class ThreadTeleco(threading.Thread):
         :param page: page where the message must be displayed
         :return:
         """
-        log.warning("Add meesage : {0}".format(message))
         self._pages.put((message, page))
 
     @staticmethod
@@ -257,7 +256,6 @@ class ThreadTeleco(threading.Thread):
             lines.append(line)
         for line in lines:
             if len(blocs[-1]) == 2:
-                log.warning("append bloc")
                 blocs.append(list())    # New block
             blocs[-1].append(line)
         return blocs
