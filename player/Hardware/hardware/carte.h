@@ -72,7 +72,7 @@ class Carte{
 private:
   int gamme_tension;
   int pwm_ledb_or_10w2;
-  int tension;
+  float tension;
   int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT;
 
   
@@ -80,11 +80,12 @@ protected:
   extSPI SPIcarte;
   
 public :
+  int needStatusUpdate;
   void initCarte(int _pwm_ledb_or_10w2 = PWM_LEDB, int _gamme_tension = 0, int checkFloat = 0);
   void writeValue(int valueType,int value, int fadetime=0);
   int readValue(int valueType);
   int readInterrupt();
-  int checkTension();
+  float checkTension();
   void rgbValue(int r, int v, int b, int fadetime=0, int strob=0);
   void led10WValue(int v, int fadetime = 0, int strob=0);
   void setGyro(int mode, int speed, int strob=0);
