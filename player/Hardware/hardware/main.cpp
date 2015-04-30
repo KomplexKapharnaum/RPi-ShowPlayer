@@ -73,7 +73,7 @@ void sendStatusTeleco(){
   myteleco.sendInfo(mess1,mess2,mess3,mess4);
 }
 
-int beforekill(int signum)
+void beforekill(int signum)
 {
   mycarte.setGyro(0,200);
   mycarte.led10WValue(0);
