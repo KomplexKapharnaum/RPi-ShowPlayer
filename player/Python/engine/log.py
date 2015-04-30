@@ -33,7 +33,7 @@ import logging.handlers
 
 
 def log_teleco(*args, **kwargs):
-    pass
+    print("ERROOOOORRR : Should not be launched !")
 
 
 def add_coloring_to_emit_ansi(fn):
