@@ -2,6 +2,7 @@
 #include "pins_arduino.h"
 #include <LiquidCrystal595.h>
 #include <Encoder.h>
+#include <avr/sleep.h>
 
 char buf [68];
 char line1 [17];
@@ -79,6 +80,8 @@ volatile byte adress = 0;
 #define T_ISOPEN 0
 #define T_ISLOCK 1
 #define T_ISLOCKWITHSLEEP 2
+#define T_POWEROFF 10
+
 
 
 char menu[T_NBMENU][16] = {"previous scene","restart scene","next scene","blink group","restart py","restart wifi","update sys","poweroff","reboot","test routine"};
@@ -391,6 +394,28 @@ void switchLock(byte force){
     Serial.println ("unlock");
     return;
   }
+  if (force==T_POWEROFF){
+    Value[T_LOCK]=T_POWEROFF; newValue[T_LOCK]=T_POWEROFF;
+    updateValue(T_LEDRVALUE);
+    lcd.noDisplay();
+    lcd.setBackLight(0);
+    Serial.println ("poweroff");
+    poweroff();
+    return;
+  }
+}
+
+void poweroff(){
+  for (byte i = 0; i <= A5; i++)
+  {
+    pinMode (i, OUTPUT);    // changed as per below
+    digitalWrite (i, LOW);  //     ditto
+  }
+  // disable ADC
+  ADCSRA = 0;
+  set_sleep_mode (SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  while(1)sleep_cpu ();
 }
 
 

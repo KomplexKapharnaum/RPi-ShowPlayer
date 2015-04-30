@@ -118,6 +118,7 @@ int Carte::checkTension(){
   tension = readValue(UBATT)+50;
   //digitalWrite (GPIO_READ_BATT, LOW);
   fprintf(stderr, "carte - get %umV\n",tension);
+  
   return tension;
 }
 

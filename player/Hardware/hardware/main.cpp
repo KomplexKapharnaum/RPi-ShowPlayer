@@ -396,12 +396,20 @@ int parseInput(){
         if ("-sleep"==parsedInput){
           myteleco.readOrSetTelecoLock(T_ISLOCKWITHSLEEP);
         }
+        if ("-powerdown"==parsedInput){
+          myteleco.readOrSetTelecoLock(T_POWEROFF);
+        }
         if ("-read"==parsedInput){
           int state = myteleco.readOrSetTelecoLock();
           std::cout << "#TELECO_LOCK_STATE "<< state << std::endl;
         }
       }
     }// end settelecolock
+    
+    if ("powerdownhardware"==parsedInput) {
+      myteleco.readOrSetTelecoLock(T_POWEROFF);
+      mycarte.writeValue(POWERDOWN,100);
+    }
     
     
     if ("DR"==parsedInput) {
