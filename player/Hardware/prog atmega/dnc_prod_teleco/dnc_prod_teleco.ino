@@ -121,7 +121,6 @@ void setup (void) {
 }
 
 void initpin() {
-    ADCSRA = 1;
   byte i = 0;
   for (i = 0; i < T_DECINPIN; i++) {
     pinMode(outpin[i], OUTPUT);

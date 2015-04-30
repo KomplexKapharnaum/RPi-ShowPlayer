@@ -107,7 +107,6 @@ void poweroff(){
 }
 
 void initpin() {
-  ADCSRA = 1;
   byte i = 0;
   for (i = 0; i < DECINPIN; i++) {
     pinMode(outpin[i], OUTPUT);
