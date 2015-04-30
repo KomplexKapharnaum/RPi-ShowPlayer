@@ -325,7 +325,7 @@ void checkStringReceive() {
       var=2;
       
     memcpy(popline1[var], &buf[1], 16 );
-    memcpy(popline2[var], &buf[17], 16 );
+    memcpy(popline2[var], &buf[18], 16 );
     lcd.setCursor(0, 0);
     lcd.print(popline1[var]);
     lcd.setCursor(0, 1);
