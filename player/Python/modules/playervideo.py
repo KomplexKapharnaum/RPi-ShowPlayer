@@ -28,7 +28,7 @@ class VlcPlayer(ExternalProcess):
 
     def preload(self, filename=None, repeat=None):
         if filename is not None:
-            media = os.path.join(settings.get("path", "video"), filename)
+            media = os.path.join(settings.get_path("video"), filename)
             if os.path.isfile(media):
                 self.media = media
         if repeat is not None:

@@ -43,7 +43,7 @@ def load(use_archived_scenario=False):
 
 
 def load_files():
-    path = settings.get("path", "activescenario")
+    path = settings.get_path("scenario", "activescenario")
     if not os.path.exists(path):
         log.warning("There is no {0} path for load scenario.. aborting".format(path))
         return False

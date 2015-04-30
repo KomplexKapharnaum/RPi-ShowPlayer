@@ -49,7 +49,10 @@ class ExternalProcess(object):
         self.onOpen = None
         self.onClose = None
         if name:
-            self.executable = settings.get("path", name)
+            if name not in settings.get("path", "relative").keys():
+                self.executable = settings.get("path", name)
+            else:
+                self.executable = settings.get_path(name)
             self.command = self.executable
 
     def start(self):
@@ -59,7 +62,7 @@ class ExternalProcess(object):
         """
         self.stop()# Stop current process
         self._watchdog = threading.Thread(target=self._watch)
-        logfile = settings.get("path", "logs")+'/'+self.name+'.log'
+        logfile = settings.get_path("logs")+'/'+self.name+'.log'
         try:
             self.stderr = open(logfile, 'w')
         except IOError:

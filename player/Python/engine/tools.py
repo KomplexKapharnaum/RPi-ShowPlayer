@@ -7,13 +7,28 @@
 import weakref
 import sys
 import os
+import time
+import unicodedata
+
+
+from libs.unidecode import unidecode
+
 from setting import settings
+import engine
 from engine.log import init_log
 
 log = init_log("tools")
 
 
 _to_stop_thread = dict()
+
+flag_popup = engine.fsm.Flag("REMOTE_POPUP")
+
+
+def remove_nonspacing_marks(s):
+    """Decompose the unicode string s and remove non-spacing marks."""
+    return ''.join(c for c in unicodedata.normalize('NFKD', s)
+                   if unicodedata.category(c) != 'Mn')
 
 
 def register_thread(thread):
@@ -88,3 +103,24 @@ def search_in_or_default(key, indict, setting=False, default=None):
         except AttributeError, KeyError:
             log.log("raw", "Search for a setting value which doesn't exist")
     return default
+
+
+def log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
+    """
+    This function log a message to the teleco
+    :param ligne1:
+    :param ligne2:
+    :param error: Set if it's an error or not, if True wait for the error_delay teleco setting
+    :param encode: Encoding of input strings, if none, assume data are already encoded
+    :return:
+    """
+    if encode is not None:
+        if ligne1 is not None:
+            ligne1 = ligne1.decode(encode)
+        if ligne2 is not None:
+            ligne2 = ligne2.decode(encode)
+    ligne1 = remove_nonspacing_marks(ligne1)
+    ligne2 = remove_nonspacing_marks(ligne2)
+    engine.threads.patcher.patch(flag_popup.get(args={"ligne1": ligne1, "ligne2": ligne2}))
+    if error:
+        time.sleep(settings.get("log", "teleco", "error_delay"))

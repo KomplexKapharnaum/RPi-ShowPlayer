@@ -30,13 +30,13 @@ import json
 
 app = Bottle()
 staticpath = os.path.dirname(os.path.realpath(__file__))+'/www/'
-scenariopath = settings.get('path', "activescenario")
+scenariopath = settings.get_path("scenario", "activescenario")
 if not os.path.exists(scenariopath):
     try:
         os.makedirs(scenariopath)
     except OSError as e:
         log.exception(log.show_exception(e))
-mediapath = settings.get('path', "media")
+mediapath = settings.get_path("media")
 
 
 def sendjson(data):
@@ -54,19 +54,19 @@ def medialist():
     answer['video'] = []
     answer['txt'] = []
 
-    path = settings.get('path', 'video')
+    path = settings.get_path('media', 'video')
     if isdir(path):
         for f in listdir(path):
             if f[0] != '.':
                 answer['video'].append(f)
 
-    path = settings.get('path', 'audio')
+    path = settings.get_path('media', 'audio')
     if isdir(path):
         for f in listdir(path):
             if f[0] != '.':
                 answer['audio'].append(f)
 
-    path = settings.get('path', 'text')
+    path = settings.get_path('media', 'text')
     if isdir(path):
         for f in listdir(path):
             if f[0] != '.':
@@ -81,7 +81,7 @@ def medialist():
 @app.route('/disposList')
 def dispoList():
     response.content_type = 'application/json'
-    path = settings.get('path', 'deviceslist')
+    path = settings.get_path('deviceslist')
     try:
         answer = dict()
         with open(path, 'r') as file:   # Use file to refer to the file object

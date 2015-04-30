@@ -24,7 +24,9 @@ class KxkmCard(ExternalProcess):
     """
 
     def __init__(self):
-
+        if not settings.get("sys", "raspi"):
+            log.warning("KXKM Card should not be launched on no raspi device ")
+            return None
         plateform = subprocess.check_output(["/usr/bin/gcc", "-dumpmachine"])
         if "armv6l" in plateform:
             ExternalProcess.__init__(self, 'kxkmcard-armv6l')
@@ -64,8 +66,12 @@ class KxkmCard(ExternalProcess):
     def setMessage(self, line1=None, line2=None):
         cmd = 'texttitreur'
         if line1 is not None:
+            if line1 == "":
+                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line1 ' + line1.replace(' ', '_')
         if line2 is not None:
+            if line2 == "":
+                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
@@ -112,8 +118,12 @@ class KxkmCard(ExternalProcess):
         if page is not None:
             cmd += ' -n {0}' + page.__format__(int(page))
         if line1 is not None:
+            if line1 == "":
+                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line1 ' + line1.replace(' ', '_')
         if line2 is not None:
+            if line2 == "":
+                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
@@ -126,7 +136,7 @@ class KxkmCard(ExternalProcess):
         :return:
         """
         log.log("raw", "Init HardWare on KxkmCard ..")
-        path = settings.get('path', 'deviceslist')
+        path = settings.get_path('deviceslist')
         voltage = None
         titreur = None
 

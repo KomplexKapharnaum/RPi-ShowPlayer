@@ -7,9 +7,20 @@ from collections import deque
 
 from libs import rtplib
 from engine.log import init_log
+from engine.setting import settings
+
+is_perf_enabled = settings.get("perf", "enable")
+if is_perf_enabled:
+    import inspect
+    import sys
+    from engine import perf
+    is_history_enabled = settings.get("perf", "history", "enable")
+    is_flag_enabled = settings.get("perf", "history", "withflag")
+    is_exception_enabled = settings.get("perf", "history", "withexception")
 # import scenario
 
 log = init_log("fsm")
+
 
 class FSMException(Exception):
     pass
@@ -52,7 +63,9 @@ class Flag:
         :return: Flag object, but initialized to be a real signal
         """
         flag = copy.deepcopy(self)
-        #flag = Flag(self.uid, args=copy.deepcopy(self.args), JTL=self.JTL, TTL=self.TTL, ignore_cb=copy.deepcopy(self.ignore_cb), ignore_cb_args=copy.deepcopy(self.ignore_cb_args), public_name=None)
+        # flag = Flag(self.uid, args=copy.deepcopy(self.args),
+        # JTL=self.JTL, TTL=self.TTL, ignore_cb=copy.deepcopy(self.ignore_cb),
+        # ignore_cb_args=copy.deepcopy(self.ignore_cb_args), public_name=None)
         if args is not None:
             flag.args = args
         for key, item in kwargs.items():
@@ -81,7 +94,7 @@ class Flag:
 
     def __str__(self):
         return "Flag : {0} - {1}".format(self.uid, self.args)
-        #return "Flag : {0}".format(self.uid)
+        # return "Flag : {0}".format(self.uid)
 
     def get_info(self):
         """
@@ -127,6 +140,7 @@ class State:
         :param flag: The flag wich trigged the State
         :return:
         """
+        return_code = True
         log.log("raw", "Run state, uid : {0}, flag : {1}".format(self.uid, flag))
         self.stop.clear()
         self.preemptible.clear()
@@ -135,10 +149,13 @@ class State:
         except Exception as e:
             log.log("error", "State function faill !")
             log.exception(e)
+            if is_history_enabled and is_exception_enabled:
+                return_code = e, sys.exc_info()
             pass
         finally:
             self.preemptible.set()
             log.log("raw", "Preemptible state, uid : {0}".format(self.uid, flag))
+            return return_code
 
     def __str__(self):
         return "State : {0}".format(self.uid)
@@ -154,11 +171,13 @@ class FiniteStateMachine:
         evole when it get signals
     """
 
-    def __init__(self, name="FSM", flag_stack_len=256):
+    def __init__(self, name="FSM", flag_stack_len=256, fsmtype="fsm", source=None):
         """
         Init method
         :param name: optional name for the FSM, usefull for debug
         :param flag_stack_len: Define the length of the flag stack
+        :param fsmtype: For perf : Type of FSM (fsm or scenario)
+        :param source: For perf : Source of the FSM
         :return:
         """
         self.name = name
@@ -178,7 +197,9 @@ class FiniteStateMachine:
         log.log("raw", "Asking {0} FiniteStateMachine to stop".format(self.name))
         self._event_stop.set()
         self._event_flag_stack_new.set()  # To directly stop the FSM if it waits for flag
-        # self._event_flag_stack_not_empty.set()
+        if is_perf_enabled:
+            perf.undeclare_fsm(self)
+            # self._event_flag_stack_not_empty.set()
 
         # Perform ExternalProcess STOP
         if self.process is not None:
@@ -198,10 +219,14 @@ class FiniteStateMachine:
         """
         with self._lock_flag_stack:
             log.log("raw", "Append flag {0} to {1}".format(flag, self))
+            if is_perf_enabled and is_history_enabled and is_flag_enabled:
+                self._perf_ref.flag_event(flag, event="add", event_args={"frame": inspect.stack()[1][0],
+                                                                         "JTL": flag.JTL,
+                                                                         "TTL": flag._TTL})
             self._flag_stack.append(flag)
-            #self._event_flag_stack_not_empty.set()
+            # self._event_flag_stack_not_empty.set()
             self._event_flag_stack_new.set()
-            log.log("raw", "Flag stack of {1} : {0}".format(self._flag_stack, self))
+            # log.log("raw", "Flag stack of {1} : {0}".format(self._flag_stack, self))
 
     def _catch_flag(self, flag, state):
         """
@@ -215,8 +240,12 @@ class FiniteStateMachine:
             if state in (True, None):
                 return state  # Do not perform transition
             else:  # It's a transition
+                if is_perf_enabled and is_history_enabled:
+                    self._perf_ref.condition_transition(self.current_state, state, flag)
                 return self._catch_flag(flag, state(flag))  # Go throw it
         else:
+            if is_perf_enabled and is_history_enabled:
+                self._perf_ref.change_step(self.current_state, state, flag)
             return self._change_state(flag, state)
 
     def _change_state(self, flag, state):
@@ -230,15 +259,19 @@ class FiniteStateMachine:
         if self.current_state is not None:
             self.current_state.stop.set()
         self.current_state = state
-        state.run(flag)  # Can be a thread inside or not
+        return_code = state.run(flag)       # Can be a thread inside or not
+        if return_code is not True and is_perf_enabled and is_history_enabled and is_exception_enabled:
+            self._perf_ref.log_exception(*return_code)
         self._clean_flag_stack(jump=True)
         state.preemptible.wait()
         # Now watch if there is some direct transition to perform
         if True in state.transitions.keys():
-            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to TRUE in transition".format(self, state, state.transitions[True]))
+            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to TRUE in transition".format(self, state,
+                                                                                          state.transitions[True]))
             self._catch_flag(flag, state.transitions[True])
         elif None in state.transitions.keys():
-            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to NONE in transition".format(self, state, state.transitions[None]))
+            log.log("raw", "[{0}]:{1} - Auto goto {2} cause to NONE in transition".format(self, state,
+                                                                                          state.transitions[None]))
             self._catch_flag(None, state.transitions[None])
         self._event_flag_stack_new.set()  # An old signal can now be interesting !
         log.log("raw", "[{0}] - End change state".format(self))
@@ -251,31 +284,37 @@ class FiniteStateMachine:
         :return:
         """
         with self._lock_flag_stack:
-            log.log("raw", "- FSM ({0}) : Start clean flag stack ".format(self.name))
+            # log.log("raw", "- FSM ({0}) : Start clean flag stack ".format(self.name))
             expired_flags = list()
             for flag in self._flag_stack:
                 if flag.JTL is not None:
                     if jump:
                         flag.JTL -= 1
                     if flag.JTL < 0:
-                        flag.ignore(reason="JTL < 0")
+                        flag.ignore(reason="JTL")
+                        if is_perf_enabled and is_history_enabled and is_flag_enabled:
+                            self._perf_ref.flag_event(flag, event="removed",
+                                                      event_args={"reason": "JTL", "value": flag.JTL})
                         expired_flags.append(flag)
-                        log.log("raw", "JTL Expiration: {0}".format(flag.uid))
+                        # log.log("raw", "JTL Expiration: {0}".format(flag.uid))
                 if flag.TTL is not None and flag not in expired_flags:
                     if rtplib.is_expired(*flag.TTL):
-                        flag.ignore(reason="TTL expired")
+                        flag.ignore(reason="TTL")
+                        if is_perf_enabled and is_history_enabled and is_flag_enabled:
+                            self._perf_ref.flag_event(flag, event="removed",
+                                                      event_args={"reason": "TTL", "value": flag._TTL})
                         expired_flags.append(flag)
-                        log.log("raw", "TTL Expiration: {0}".format(flag.uid))
+                        # log.log("raw", "TTL Expiration: {0}".format(flag.uid))
             for flag in expired_flags:
                 try:
-                    log.log("raw", "[{1}] Remove flag {0}".format(flag.uid, self))
+                    # log.log("raw", "[{1}] Remove flag {0}".format(flag.uid, self))
                     self._flag_stack.remove(flag)
                 except ValueError:
-                    log.log("debug", "[{1}] ERROR Removing flag {0}".format(flag.uid,self.name))
+                    log.log("debug", "[{1}] ERROR Removing flag {0}".format(flag.uid, self.name))
             if len(self._flag_stack) == 0:
                 # self._event_flag_stack_not_empty.clear()
                 self._event_flag_stack_new.clear()
-            log.log("raw", "- FSM ({0}) : End clean flag stack ".format(self))
+            #log.log("raw", "- FSM ({0}) : End clean flag stack ".format(self))
 
     def _wait_for_transition(self):
         """
@@ -302,7 +341,7 @@ class FiniteStateMachine:
                 if consume is not False:
                     if isinstance(flag, Flag):
                         with self._lock_flag_stack:
-                            log.log("raw", "- FSM ({0}) : Consume {0} flag".format(self, flag))
+                            # log.log("raw", "- FSM ({0}) : Consume {0} flag".format(self, flag))
                             try:
                                 self._flag_stack.remove(flag)
                             except ValueError:
@@ -330,7 +369,7 @@ class FiniteStateMachine:
         return True
 
     def __str__(self):
-        return self.name
+        return "FSM : {name} on step {step}".format(name=self.name, step=self.current_state)
 
     def __repr__(self):
         return self.__str__()

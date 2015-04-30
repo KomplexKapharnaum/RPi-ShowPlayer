@@ -83,7 +83,6 @@ class ThreadPatcher(threading.Thread):
         # Extract DEST and clear the signal Dests
         sendto = deepcopy(signal.args["dest"])
         signal.args["dest"] = list()
-
         # Replace SELF in DEST list by uName
         if settings.get("scenario", "dest_self") in sendto:
             sendto.remove(settings.get("scenario", "dest_self"))

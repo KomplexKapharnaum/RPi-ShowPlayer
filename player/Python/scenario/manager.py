@@ -19,6 +19,7 @@ log = init_log("manager")
 
 
 already_init = threading.Event()
+already_init.clear()
 
 
 def patch_msg(path, args, types, src,):

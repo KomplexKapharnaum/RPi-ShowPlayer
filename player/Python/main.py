@@ -28,8 +28,13 @@ try:
     application.init()
     application.start()
 
-    while application.POWEROFF == 0:
-        time.sleep(1)
+    try:
+        while application.POWEROFF == 0:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        application.POWEROFF = 1
+    except Exception as e:
+        log.exception("EXITING after exception in MAIN : \n"+log.show_exception(e))
 
 except Exception as e:
     log.exception(log.show_exception(e))
