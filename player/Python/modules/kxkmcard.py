@@ -116,8 +116,6 @@ class KxkmCard(ExternalProcess):
         if line1 is not None and not line1 == "":
             cmd += ' -line1 ' + line1.replace(' ', '_')
         if line2 is not None and not line2 == "":
-            if line2 == "":
-                log.warning("Line 1 empty : does teleco prompt it ?")
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
