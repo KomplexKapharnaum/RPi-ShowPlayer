@@ -78,7 +78,7 @@ for _level, _lvl_value in LEVELS.items():
 
 DEFAULT_LEVEL = "debug"
 DEFAULT_LOG_TYPE = "Console"
-DEFAULT_TELECO_LEVEL = -1
+DEFAULT_TELECO_LEVEL = "critical"
 LOG_PATH = os.path.join("/tmp/", "DNC_Python.log")
 
 
@@ -205,7 +205,7 @@ class BaseLog:
         """
         try:
             self.logger.log(LEVELS[lvl], msg)
-            if LEVELS[lvl] <= LEVELS[self.teleco_level]:
+            if LEVELS[lvl] >= LEVELS[self.teleco_level]:
                 log_teleco(msg, 0)
         except KeyError:
             self.debug("Level name " + str(lvl) + " unknown. Message : " + str(msg))
@@ -218,7 +218,7 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-        if LEVELS["debug"] <= LEVELS[self.teleco_level]:
+        if LEVELS["debug"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.debug(msg)
 
@@ -230,7 +230,7 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-        if LEVELS["info"] <= LEVELS[self.teleco_level]:
+        if LEVELS["info"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.info(msg)
 
@@ -256,7 +256,7 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-        if LEVELS["warning"] <= LEVELS[self.teleco_level]:
+        if LEVELS["warning"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.warning(msg)
 
@@ -268,7 +268,7 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-        if LEVELS["error"] <= LEVELS[self.teleco_level]:
+        if LEVELS["error"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.error(msg)
 
@@ -280,7 +280,7 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-        if LEVELS["critical"] <= LEVELS[self.teleco_level]:
+        if LEVELS["critical"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.critical(msg)
 
@@ -290,7 +290,7 @@ class BaseLog:
         :param msg: type(str) msg to log
         :return:
         """
-        if LEVELS["dev"] <= LEVELS[self.teleco_level]:
+        if LEVELS["warning"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.warning('{0}'.format(msg))
 
@@ -302,7 +302,7 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-        if LEVELS["exception"] <= LEVELS[self.teleco_level]:
+        if LEVELS["warning"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.exception(msg)
 
@@ -314,6 +314,8 @@ class BaseLog:
         @type exc_info: (type, value, traceback)
         @param exc_info: exception info
         """
+        if LEVELS["debug"] >= LEVELS[self.teleco_level]:
+            log_teleco(msg, 0)
         self.logger.debug(msg, exc_info=exc_info)
 
     def set_handler(self, handler, format=DEFAULT_FORMAT):
