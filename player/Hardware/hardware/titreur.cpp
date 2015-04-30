@@ -201,7 +201,7 @@ void Titreur::printScreen(){
 
 void Titreur::powerdown(){
   for (int i=0; i<nb_module; i++) {
-    fprintf(stderr, "titreur - power down titreur module %u\n",m);
+    fprintf(stderr, "titreur - power down titreur module %u\n",i);
     ht1632_sendcmd(m, HT1632_CMD_SYSDIS);  // Disable system
   }
 }
