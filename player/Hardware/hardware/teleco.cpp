@@ -76,16 +76,16 @@ void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
 
 void Teleco::sendPopUp(char Str1[], char Str2[]){
   setLedWarning(1);
-  unsigned char buff[36];
+  unsigned char buff[38];
   buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
   for(int i=0;i<18;i++){
     buff[i+1]= *(Str1+i);
   }
   for(int i=0;i<18;i++){
-    buff[i+19]= *(Str2+i);
+    buff[i+17]= *(Str2+i);
   }
   fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
-  SPIcarte.send(0,buff,36);
+  SPIcarte.send(0,buff,38);
   setLedWarning(0);
 }
 
