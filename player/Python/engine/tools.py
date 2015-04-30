@@ -205,7 +205,7 @@ class ThreadTeleco(threading.Thread):
             #             continue
             #         to_display = self._pages.pop(n), n
             #         break
-            self._display_message(*to_display)
+            ThreadTeleco._display_message(*to_display)
 
     def add_message(self, message, page=0):
         """
@@ -217,7 +217,8 @@ class ThreadTeleco(threading.Thread):
         log.warning("Add meesage : {0}".format(message))
         self._pages.put((message, page))
 
-    def _display_message(self, message, page):
+    @staticmethod
+    def _display_message(message, page):
         """
         This function display a message in a page
         :param message: message to display
