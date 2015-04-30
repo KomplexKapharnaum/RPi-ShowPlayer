@@ -19,6 +19,8 @@ log_teleco = tools.ThreadTeleco()
 
 def init():
     global patcher
+    global log_teleco
+    log_teleco.start()
     if not isinstance(patcher, ThreadPatcher):
         patcher = ThreadPatcher()
     if not patcher.is_alive():
