@@ -266,6 +266,11 @@ class inputThread(threading.Thread):
                         log.warning("Need at least a page number an a message")
                         continue
                     engine.tools.log_teleco(cmd[2:], int(cmd[1]))
+                elif cmd[0] == "log":
+                    if len(cmd) < 3:
+                        log.warning("Need at least a page number an a message")
+                        continue
+                    log.log(cmd[1], " ".join(cmd[2:]))
                 else:
                     log.info("Unknown commad in prompt ..")
         except Exception as e:
