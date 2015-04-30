@@ -215,6 +215,7 @@ class ThreadTeleco(threading.Thread):
         :return:
         """
         with self._pages_lock:
+            log.warning("Add meesage : {0}".format(message))
             self._pages[page].append(message)
 
     def _display_message(self, message, page):
