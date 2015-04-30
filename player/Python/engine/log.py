@@ -78,7 +78,7 @@ for _level, _lvl_value in LEVELS.items():
 
 DEFAULT_LEVEL = "debug"
 DEFAULT_LOG_TYPE = "Console"
-DEFAULT_TELECO_LEVEL = "critical"
+DEFAULT_TELECO_LEVEL = "error"
 LOG_PATH = os.path.join("/tmp/", "DNC_Python.log")
 
 
@@ -205,7 +205,6 @@ class BaseLog:
         """
         try:
             self.logger.log(LEVELS[lvl], msg)
-            print("log_test_teleco")
             if LEVELS[lvl] >= LEVELS[self.teleco_level]:
                 print("log_succes_teleco")
                 log_teleco(msg, 0)
