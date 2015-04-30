@@ -66,7 +66,7 @@ def start_scene():
         if name in pool.Scenes.keys():
             scene = pool.Scenes[name]
             log.log('important', '= SCENE '+name)
-            tools.log_teleco(("start scene","name"),1)
+            tools.log_teleco(("start scene",name),1)
             if settings["uName"] in scene.cartes.keys():
                 stop_scene()
                 for etape in scene.cartes[settings["uName"]]:
