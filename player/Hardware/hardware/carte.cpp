@@ -124,6 +124,32 @@ float Carte::checkTension(){
   //digitalWrite (GPIO_READ_BATT, LOW);
   fprintf(stderr, "carte - get %.1fV\n",tension);
   needStatusUpdate=0;
+  switch (gamme_tension) {
+    case LIPO12:
+      if(tension<10.8)
+        std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
+      if(tension<10)
+        std::cout << "#TELECO_MESSAGE_POWEROFF"<< std::endl;
+      break;
+    case LIFE12:
+      if(tension<12.5)
+        std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
+      if(tension<12)
+        std::cout << "#TELECO_MESSAGE_POWEROFF"<< std::endl;
+      break;
+    case PB12:
+      if(tension<12)
+        std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
+      if(tension<11.5)
+        std::cout << "#TELECO_MESSAGE_POWEROFF"<< std::endl;
+      break;
+    case LIPO24:
+      if(tension<23.8)
+        std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
+      if(tension<23)
+        std::cout << "#TELECO_MESSAGE_POWEROFF"<< std::endl;
+      break;
+  }
   return tension;
 }
 
