@@ -253,11 +253,14 @@ class ThreadTeleco(threading.Thread):
         blocs = list()
         blocs.append(list())
         for line in message:
+            log.warning("lines const .. {0}".format(lines))
             while len(line) > linelength:
+                log.warning("lines loop const .. {0}".format(lines))
                 lines.append(line[:linelength])
                 line = line[linelength:]
             lines.append(line)
         for line in lines:
+            log.warning("bloc const .. {0}".format(blocs))
             if len(blocs[-1]) == 2:
                 blocs.append(list())    # New block
             blocs[-1].append(line)
