@@ -229,8 +229,10 @@ class ThreadTeleco(threading.Thread):
             args = dict()
             log.log("warning", "Bloc to display : {0}".format(bloc))
             args["ligne1"] = bloc[0]
+            log.log("warning", "Line1 to display : {0}".format(bloc[0]))
             if len(bloc) > 1:
                 args["ligne2"] = bloc[1]
+                log.log("warning", "Line2 to display : {0}".format(bloc[1]))
             else:
                 args["ligne2"] = ""
             args["page"] = page
