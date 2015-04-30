@@ -57,15 +57,8 @@ class VlcPlayerOneShot(VlcPlayer):
         VlcPlayer.__init__(self, start=False)
 
     def play(self, filename=None, repeat=None):
-<<<<<<< HEAD
-        media = os.path.join(settings.get_path("video"), filename) if filename is not None else self.media
-        if os.path.isfile(media):
-            self.media = media
-            self.command += ' '+self.media 
-=======
         if self.preload(filename, repeat):
             self.command = self.executable+' --play-and-exit '+self.media 
->>>>>>> origin/master
             self.start()
 
 exposesignals(VlcPlayer.Filters)

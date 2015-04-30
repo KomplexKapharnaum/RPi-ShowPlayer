@@ -32,10 +32,10 @@ while (( running )); do
     if ((DIRECT_INOUT)); then
     	./player/Python/main.py
     else
-    	# mkdir -p /tmp/dnc
+    	mkdir -p /tmp/dnc
     	# echo '' > /tmp/dnc/stdin
-    	echo '' > /dnc/logs/main.log
-	./player/Python/main.py &> /dnc/logs/main.log
+    	touch /tmp/dnc/main.log
+	./player/Python/main.py &> /tmp/dnc/main.log
     	# ./player/Python/main.py < /tmp/dnc/stdin &> ./logs/main.log
     fi
     exitcode=$?

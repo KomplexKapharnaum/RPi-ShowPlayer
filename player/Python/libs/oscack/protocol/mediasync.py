@@ -392,7 +392,7 @@ def trans_does_network_sync_enabled(flag):
     :return:
     """
     log.log("raw", "start on {0}".format(flag))
-    if settings.get("sync", "enable") and settings.get("sync", "media"):
+    if settings.get("sync", "enable") and settings.get("sync", "media") and settings.get("sync", "scp", "recv"):
         if flag is not None and "path" in flag.args.keys() and flag.args["path"] == msg_media_version.path:
             if flag.args["src"].get_hostname() in get_ip():
                 log.log("raw", "Ignore because it's our message")
@@ -430,6 +430,10 @@ def send_media_list(flag):
     :param flag:
     :return:
     """
+    if settings.get("sync", "enable") and settings.get("sync", "media") and settings.get("sync", "scp", "send"):
+        pass
+    else:
+        return None         # Only send media list if settings tell it
     log.log("raw", "start on {0}".format(flag))
     args_list = list()
     args_list.append(('s', getpass.getuser()))                 # username

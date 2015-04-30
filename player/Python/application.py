@@ -105,32 +105,32 @@ class inputThread(threading.Thread):
 
     @staticmethod
     def info(fnct, key="INFO", *args, **kwargs):
-        keyboardThread.in_info(key)
+        inputThread.in_info(key)
         fnct(*args, **kwargs)
-        keyboardThread.out_info(key)
+        inputThread.out_info(key)
 
     @staticmethod
     def osc_info(alone=False, info=False):
         if not alone:
             log.info("--- OSC ---")
         if alone or info:
-            keyboardThread.basic_osc_info(alone)
-        keyboardThread.media_sync_info()
-        keyboardThread.scenario_sync_info()
-        keyboardThread.rtp_info()
+            inputThread.basic_osc_info(alone)
+        inputThread.media_sync_info()
+        inputThread.scenario_sync_info()
+        inputThread.rtp_info()
         if not alone:
             log.info("-----------")
 
     @staticmethod
     def basic_osc_info(alone=True):
         if alone:
-            keyboardThread.basic_all_info()
+            inputThread.basic_all_info()
         log.info("OSC port : {0}, ACK port : {1}".format(settings.get("OSC", "classicport"), settings.get("OSC", "ackport")))
 
     @staticmethod
     def media_sync_info(alone=False):
         if alone:
-            keyboardThread.basic_osc_info()
+            inputThread.basic_osc_info()
         log.info(oscack.protocol.mediasync.machine)
         log.info("All media : {0}".format(engine.media.get_all_media_list()))
         log.info("Needed media : {0}".format(oscack.protocol.mediasync.needed_media_list))
@@ -139,13 +139,13 @@ class inputThread(threading.Thread):
     @staticmethod
     def scenario_sync_info(alone=False):
         if alone:
-            keyboardThread.basic_osc_info()
+            inputThread.basic_osc_info()
         log.info(oscack.protocol.scenariosync.machine)
 
     @staticmethod
     def rtp_info(alone=False):
         if alone:
-            keyboardThread.basic_osc_info()
+            inputThread.basic_osc_info()
         log.info(oscack.protocol.discover.machine)
         log.info(" = oscack.DNCServer.networkmap : {0} ".format(oscack.DNCserver.networkmap))
         log.info(" = oscack.timetag : {0} ".format(oscack.timetag))
@@ -154,18 +154,18 @@ class inputThread(threading.Thread):
     @staticmethod
     def basic_scenario_info(alone=True):
         if alone:
-            keyboardThread.basic_all_info()
+            inputThread.basic_all_info()
 
     @staticmethod
     def scenario_info(alone=False, info=False):
         if alone or info:
-            keyboardThread.basic_scenario_info(alone)
-        keyboardThread.scenario_fsm_info()
+            inputThread.basic_scenario_info(alone)
+        inputThread.scenario_fsm_info()
 
     @staticmethod
     def scenario_fsm_info(alone=False):
         if alone:
-            keyboardThread.basic_scenario_info()
+            inputThread.basic_scenario_info()
         if not alone:
             log.info("--- SCENARIO FSM ---")
 
@@ -232,24 +232,24 @@ class inputThread(threading.Thread):
                     log.info("=== END SETTINGS ===")
                     log.info()
                 elif cmd[0] == "msync":
-                    keyboardThread.info(keyboardThread.media_sync_info, key="MEDIA SYNC", alone=True)
+                    inputThread.info(inputThread.media_sync_info, key="MEDIA SYNC", alone=True)
                 elif cmd[0] == "ssync":
-                    keyboardThread.info(keyboardThread.scenario_sync_info, key="SCENARIO SYNC", alone=True)
+                    inputThread.info(inputThread.scenario_sync_info, key="SCENARIO SYNC", alone=True)
                 elif cmd[0] == "rtp":
-                    keyboardThread.info(keyboardThread.rtp_info, key="REAL TIME PROTOCOL", alone=True)
+                    inputThread.info(inputThread.rtp_info, key="REAL TIME PROTOCOL", alone=True)
                 elif cmd[0] == "osc":
-                    keyboardThread.info(keyboardThread.osc_info, key="OSC", alone=True)
+                    inputThread.info(inputThread.osc_info, key="OSC", alone=True)
                 elif cmd[0] == "scenario":
-                    keyboardThread.info(keyboardThread.scenario_info, key="SCENARIO", alone=True)
+                    inputThread.info(inputThread.scenario_info, key="SCENARIO", alone=True)
                 elif cmd[0] == "sfsm":
-                    keyboardThread.info(keyboardThread.scenario_fsm_info, key="SCENARIO FSM", alone=True)
+                    inputThread.info(inputThread.scenario_fsm_info, key="SCENARIO FSM", alone=True)
                 elif cmd[0] == "info":
                     log.info()
                     log.info("=== INFO ===")
-                    keyboardThread.basic_all_info()
-                    keyboardThread.path_info()
-                    keyboardThread.scenario_info(info=True)
-                    keyboardThread.osc_info(info=True)
+                    inputThread.basic_all_info()
+                    inputThread.path_info()
+                    inputThread.scenario_info(info=True)
+                    inputThread.osc_info(info=True)
                     log.info("=== END INFO ===")
                     log.info()
                 elif cmd[0] == "signal":

@@ -72,8 +72,12 @@ DEFAULT_SETTING["path"]["relative"]["text"] = "text"
 DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
 
 DEFAULT_SETTING["sync"] = dict()
-DEFAULT_SETTING["sync"]["video"] = False                # Explain if the scyn protocol must sync video or not
+DEFAULT_SETTING["sync"]["scp"] = dict()
+DEFAULT_SETTING["sync"]["scp"]["recv"] = False          # Active or not the scp commande getting media on the network
+DEFAULT_SETTING["sync"]["scp"]["send"] = True           # Active or not the sending of media ist
+DEFAULT_SETTING["sync"]["video"] = True                 # Explain if the scyn protocol must sync video or not
 DEFAULT_SETTING["sync"]["media"] = True                 # GLOBAL Put False to disable only media sync
+DEFAULT_SETTING["sync"]["usb"] = True                   # GLOBAL Put False to disable USB copy
 DEFAULT_SETTING["sync"]["scenario"] = True              # GLOABL Put False to disable only scenario sync
 DEFAULT_SETTING["sync"]["enable"] = True                # GLOBAL Put False to disable sync
 DEFAULT_SETTING["sync"]["flag_timestamp"] = 0           # flag_timestamp
