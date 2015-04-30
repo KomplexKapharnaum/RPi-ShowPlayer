@@ -84,8 +84,8 @@ void beforekill(int signum)
   status="noC";
   myteleco.reset();
   delay(5);
-  myteleco.readOrSetTelecoLock(T_POWEROFF);
   mycarte.writeValue(POWERDOWN,100);
+  myteleco.readOrSetTelecoLock(T_POWEROFF);
   fprintf(stderr, "bye bye\n");
   delay(10);
   exit(signum);
