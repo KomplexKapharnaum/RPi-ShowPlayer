@@ -316,8 +316,8 @@ void checkStringReceive() {
     buf [pos] = 0;
     Serial.println (buf);
     lcd.clear();
-    char temp[33];
-    memcpy(temp ,&buf[0], 32);
+    char temp[35];
+    memcpy(temp ,&buf[0], 34);
     byte var=0;
     if (temp[0]=='1')
       var=1;
