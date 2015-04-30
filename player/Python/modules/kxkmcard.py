@@ -10,7 +10,6 @@ from engine.log import init_log
 from engine.setting import settings
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
-from engine.tools import search_in_or_default
 import json
 import subprocess
 
@@ -77,9 +76,9 @@ class KxkmCard(ExternalProcess):
 
     def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None, fade=None):
         cmd = 'setlight'
-        if strob is not None:
+        if strob is not None and strob != '' and int(strob) > 0:
             cmd += ' -strob {0}'.format(int(strob))
-        if fade is not None:
+        if fade is not None and fade != '' and int(fade) > 0:
             cmd += ' -fade {0}'.format(int(fade))
         if rgb is not None:
             rgb = re.split('\W+', rgb)
@@ -107,7 +106,7 @@ class KxkmCard(ExternalProcess):
             cmd += ' -mode {0}'.format(mode)
         self.say(cmd)
 
-    def popUpTeleco(self, line1=None, line2=None):
+    def popUpTeleco(self,line1=None, line2=None, page=0):
         """
         send message on menu popup teleco
         :param line1:
@@ -115,6 +114,8 @@ class KxkmCard(ExternalProcess):
         :return:
         """
         cmd = 'popup'
+        if page is not None:
+            cmd += ' -n {0}' + page.__format__(int(page))
         if line1 is not None:
             if line1 == "":
                 log.warning("Line 1 empty : does teleco prompt it ?")
@@ -248,6 +249,7 @@ def kxkm_card_lights(flag, **kwargs):
     params = search_in_or_default(("rgb", "led10w1", "led10w2", "strob", "fade"),
                                   flag.args, setting=("values", "lights"))
     kwargs["_fsm"].vars["kxkmcard"].setLight(**params)
+    kwargs["_etape"].preemptible.set()
 
 
 @link({None: "kxkm_card"})
@@ -263,7 +265,9 @@ def kxkm_card_titreur_message(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_popup_teleco(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"])
+    if "page" not in flag.args.keys():
+        flag.args["page"]=2
+    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"],flag.args["page"])
 
 
 @link({None: "kxkm_card"})

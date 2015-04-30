@@ -6,7 +6,14 @@ initconfig -titreurNbr (int) -carteVolt (int) -name (string) -ip (string) -versi
 
 info -status (string)
 
-popup [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-clear]
+popup [-n int][-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-clear]
+//page de la popup 0,1,2 // texte première ligne 33char // texte 2eme ligne 33char
+buttonstring [-line (stringespace=underscore)] [-media] [-clear]
+//set texte deuxième ligne autres menus pour indication bouton// set medi par défaut // effacer ce set
+
+setledtelecook [-on] [-off]
+setledcarteok [-on] [-off]
+settelecolock [-lock] [-unlock] [-sleep] [-powerdown] [-read]
 
 texttitreur [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-scroll]
 
@@ -46,7 +53,10 @@ from teleco :
 "#TELECO_MESSAGE_PREVIOUSSCENE" 
 "#TELECO_MESSAGE_RESTARTSCENE" 
 "#TELECO_MESSAGE_NEXTSCENE" 
-"#TELECO_MESSAGE_BLINKGROUP" 
+"#TELECO_MESSAGE_BLINKGROUP"
+"#TELECO_MESSAGE_RESTARTPY"
+"#TELECO_MESSAGE_RESTARTWIFI"
+"#TELECO_MESSAGE_UPDATESYS"
 "#TELECO_MESSAGE_POWEROFF" 
 "#TELECO_MESSAGE_REBOOT" 
 "#TELECO_MESSAGE_TESTROUTINE"

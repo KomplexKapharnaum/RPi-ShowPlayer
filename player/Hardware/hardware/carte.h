@@ -44,9 +44,10 @@
 #define INIT 21
 #define VOLTAGEMODE 22
 #define BOARDCHECKFLOAT 23
+#define POWERDOWN 24
 
 //size of table
-#define REGISTERSIZE 24
+#define REGISTERSIZE 25
 
 #define READCOMMAND 0x40
 #define WRITECOMMANDVALUE 0xc0
@@ -63,6 +64,7 @@
 
 #define PWM_LEDB 1 //1 = pwm sur led B ; 0 = pwm sur 2eme led 10w
 #define PWM_10W2 0
+
 
 
 class Carte{

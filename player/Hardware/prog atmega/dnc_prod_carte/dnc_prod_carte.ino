@@ -1,4 +1,6 @@
 #include "pins_arduino.h"
+#include <avr/sleep.h>
+
 
 // what to do with incoming data
 byte command = 0;
@@ -36,9 +38,10 @@ byte adress = 0;
 #define INIT 21
 #define VOLTAGEMODE 22
 #define BOARDCHECKFLOAT 23
+#define POWERDOWN 24
 
 //size of table
-#define REGISTERSIZE 24
+#define REGISTERSIZE 25
 
 #define READCOMMAND 0x40
 #define WRITECOMMANDVALUE 0xc0
@@ -89,6 +92,19 @@ void setup (void) {
   Serial.println("hello");
   newValue[UBATT] = 1;
   checkInputPeriod = 100;
+}
+
+void poweroff(){
+  // disable ADC
+  for (byte i = 0; i <= A5; i++)
+  {
+    pinMode (i, OUTPUT);    // changed as per below
+    digitalWrite (i, LOW);  //     ditto
+  }
+  ADCSRA = 0;
+  set_sleep_mode (SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  while(1)sleep_cpu ();
 }
 
 void initpin() {
@@ -221,6 +237,7 @@ void loop (void) {
           if (i == LEDRVBSTROBSPEED && Value[i] == 0) strobRoutine(1);
           if (i == LED10W1STROBSPEED)last10wStrob = millis();
           if (i == LED10W1STROBSPEED && Value[i] == 0) strob10wRoutine(1);
+          if (i == POWERDOWN && Value[i] == 100) poweroff();
           if (i == GYROSTROBSPEED) {
             newValue[GYROMODE] = 0;
             Value[GYROMODE] = 0;
@@ -400,13 +417,11 @@ void gyroUpdate() {
 
 void readTensionBatt() {
   int batt = analogRead(inpinanalog[UBATT - DECALALOGPIN]);
-  if (Value[VOLTAGEMODE] == 0) {
-    if (batt < 320) newValue[VOLTAGEMODE] = 12;
-    else newValue[VOLTAGEMODE] = 24;
-  }
   long voltage;
-  if (batt <= 438) voltage = (long)batt * 54 + 206;
-  else  voltage = (long)batt * 765 - 312500;
+  //if (batt <= 438) voltage = (long)batt * 54 + 206;
+  //else  voltage = (long)batt * 765 - 312500;
+  voltage = (long)batt * 54 + 206;
+  if(voltage>24600)voltage += (((long)batt)*732 - 328902);
   newValue[UBATT] = (byte) ((voltage - 5000) / 100);
   Value[UBATT] = newValue[UBATT];
   Serial.print("bat ");

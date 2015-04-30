@@ -9,6 +9,7 @@ from engine.setting import settings
 from engine.log import set_default_log_by_settings
 set_default_log_by_settings(settings)                   # Set default log level and output via settings
 
+import sys
 import engine
 from engine import fsm
 import scenario
@@ -24,7 +25,7 @@ POWEROFF = 0    # 1: STOP PROGRAM   2: POWEROFF AFTER STOP  3: REBOOT AFTER STOP
 
 def init(autoload=True):
     # LOAD INPUT KEYBOARD THREAD
-    k = keyboardThread()
+    k = inputThread()
     k.start()
     # INIT THREAD
     engine.threads.init()
@@ -73,7 +74,7 @@ def restart():
     start()
 
 
-class keyboardThread(threading.Thread):
+class inputThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         engine.tools.register_thread(self)
@@ -265,3 +266,54 @@ class keyboardThread(threading.Thread):
         time.sleep(5)
         log.log("debug", "Exit by backupexit, should not be that")
         os._exit(POWEROFF)
+
+        # import os, stat
+        # mode = os.fstat(0).st_mode
+        # if stat.S_ISFIFO(mode):
+        #      print "stdin is piped"
+        # elif stat.S_ISREG(mode):
+        #      print "stdin is redirected"
+        # else:
+        #      print "stdin is terminal"
+	# while True:
+        #     try:
+        #         c = raw_input("")
+        #     except:      # For no shell env
+        #         time.sleep(10)
+        #         continue
+        #     if c in ("q", "Q", "quit", "exit"):
+        #         POWEROFF = 1
+        #     if c == "":
+        #         continue
+        #     cmd = c.split()
+        #     if cmd[0] == "settings":
+        #         log.info(settings)
+        #     if cmd[0] == "pw":
+        #         log.info(str(POWEROFF))
+        #     if cmd[0] == "info":
+        #         if scenario.SCENARIO_FSM is not None:
+        #             log.info(scenario.SCENARIO_FSM.current_state)
+        #         log.info(oscack.protocol.discover.machine.current_state)
+        #         log.info(oscack.protocol.scenariosync.machine.current_state)
+        #         log.info(oscack.protocol.mediasync.machine.current_state)
+        #         log.info("Needed media : {0}".format(oscack.protocol.mediasync.needed_media_list))
+        #         log.info("Uneeded media : {0}".format(oscack.protocol.mediasync.unwanted_media_list))
+        #         for f in scenario.FSM:
+        #             log.info(f.current_state)
+        #             log.info(f._flag_stack)
+        #         for f in scenario.DEVICE_FSM:
+        #             log.info(f.current_state)
+        #             log.info(f._flag_stack)
+        #         log.info(" = oscack.DNCServer.networkmap : ")
+        #         log.info(oscack.DNCserver.networkmap)
+        #         log.info(" = oscack.timetag : ")
+        #         log.info(oscack.timetag)
+        #         log.info(" = oscack.accuracy : ")
+        #         log.info(oscack.accuracy)
+        #     if cmd[0] == "signal":
+        #         if len(cmd) > 1:
+        #             if cmd[1] == "testall":
+        #                 engine.threads.patcher.patch(flag_all.get())
+        #             if cmd[1] == "testgroup":
+        #                 engine.threads.patcher.patch(flag_group.get())
+

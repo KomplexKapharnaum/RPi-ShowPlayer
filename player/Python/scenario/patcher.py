@@ -20,7 +20,7 @@ from engine.setting import settings
 from engine.tools import register_thread, unregister_thread
 import scenario
 from engine.log import init_log
-log = init_log("patcher")
+log = init_log("patcher", log_lvl="raw")
 
 class ThreadPatcher(threading.Thread):
     """
@@ -80,51 +80,72 @@ class ThreadPatcher(threading.Thread):
                 ThreadPatcher.serve(signal)
 
     def _dispatch(self, signal):
-        # envoyer au destinataire via 
-        # sendto = copy(signal.args["dest"])
-        # del signal.args["dest"]
-        log.log("debug", "dispatch to : {0}".format(signal))
-
+        # Extract DEST and clear the signal Dests
         sendto = deepcopy(signal.args["dest"])
         signal.args["dest"] = list()
-        if "abs_time_sync" not in signal.args.keys():
-            s, ns = rtplib.get_time()
-            signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
-        if settings.get("scenario", "dest_all") in sendto:
-            log.log("raw", "dispatch to all dest")
-            msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=False)
-            message.send(message.Address("255.255.255.255"), msg_to_send)
-        else:
-            msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
-            if settings.get("scenario", "dest_group") in sendto:
-                log.log("raw", "add group in dispatch list")
-                sendto.remove(settings.get("scenario", "dest_group"))
-                sendto += [x for x in scenario.CURRENT_SCENE.cartes if x not in sendto]
-            for dest in sendto:
-                if dest in libs.oscack.DNCserver.networkmap.keys():
-                    if dest != settings["uName"] or settings.get("scenario", "dest_self") not in sendto:     # Avoid multiple self send
-                        message.send(libs.oscack.DNCserver.networkmap[dest].target, msg_to_send)
-                elif dest != settings.get("scenario", "dest_self"):
-                    log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
+        # Replace SELF in DEST list by uName
+        if settings.get("scenario", "dest_self") in sendto:
+            sendto.remove(settings.get("scenario", "dest_self"))
+            if settings["uName"] not in sendto:
+                sendto.append(settings["uName"])
 
-            # reposer dans la pile si _self_
-            if settings.get("scenario", "dest_self") in sendto:
-                self._queue.put(signal)
+        # Replace GROUP in DEST list by uNames
+        if settings.get("scenario", "dest_group") in signal.args["dest"]:
+            log.log("raw", "add GROUP in dispatch list")
+            sendto.remove(settings.get("scenario", "dest_group"))
+            sendto += [x for x in scenario.CURRENT_SCENE.cartes if x not in sendto]
+
+        # Replace GROUP in DEST list by uNames
+        if settings.get("scenario", "dest_all") in signal.args["dest"]:
+            log.log("raw", "add ALL in dispatch list")
+            sendto = scenario.pool.Cartes.keys()
+
+        # Add SYNC timestamp for multiple DEST
+        if len(sendto) > 1: #or settings.get("scenario", "dest_all") in sendto:
+            if "abs_time_sync" not in signal.args.keys():
+                s, ns = rtplib.get_time()
+                signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
+
+        log.log("debug", "dispatch {0} to {1}".format(signal.uid, sendto))
+
+        # Send to ALL - Broadcast
+        # if settings.get("scenario", "dest_all") in sendto:
+        #     log.log("raw", "dispatch to all dest")
+        #     msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=False)
+        #     message.send(message.Address("255.255.255.255"), msg_to_send)
+
+        # # Send to each DEST
+        # else:
+
+        # Send to Himself (via local pacther)
+        if settings["uName"] in sendto:
+            self._queue.put(signal)
+            sendto.remove(settings["uName"])
+
+        # Send to Others
+        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
+        for dest in sendto:
+            if dest in libs.oscack.DNCserver.networkmap.keys():
+                    message.send(libs.oscack.DNCserver.networkmap[dest].target, msg_to_send)
+            elif dest != settings.get("scenario", "dest_self"):
+                log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
     def run(self):
         while not self._stop.is_set() or not self._queue.empty():
-            signal = self._queue.get() 
+            signal = self._queue.get()
             if signal is None:
                 continue
-            log.log('raw', '{0}'.format(signal))
+
             if "dest" not in signal.args.keys():
                 signal.args["dest"] = list()
-            if len(signal.args["dest"]) > 0 and settings.get("scenario", "dest_self") not in signal.args["dest"]:
+
+            if len(signal.args["dest"]) > 0:
                 self._dispatch(signal)
             elif signal.uid in self._patchs.keys():
                 ThreadPatcher._patch(signal, self._patchs[signal.uid])
             else:
                 ThreadPatcher.serve(signal)
+
         log.log("raw", "Exiting thread patcher")
 
     def stop(self):

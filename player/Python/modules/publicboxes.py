@@ -57,5 +57,3 @@ def delay(flag, **kwargs):
     """
     duration = search_in_or_default("duration", kwargs['args'], default=0)
     time.sleep(float(duration))
-
-

@@ -21,6 +21,7 @@ scenario/__active/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*.o
 
 # C extensions
 *.so

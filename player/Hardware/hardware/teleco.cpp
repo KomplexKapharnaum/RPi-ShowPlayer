@@ -76,18 +76,42 @@ void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
 
 void Teleco::sendPopUp(char Str1[], char Str2[]){
   setLedWarning(1);
-  unsigned char buff[35];
+  unsigned char buff[66];
   buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
+  for(int i=0;i<32;i++){
+    buff[i+1]= *(Str1+i);
+  }
+  for(int i=0;i<32;i++){
+    buff[i+33]= *(Str2+i);
+  }
+  fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
+  SPIcarte.send(0,buff,66);
+  setLedWarning(0);
+}
+
+void Teleco::sendButtonString(char Str1[]){
+  
+  unsigned char buff[19];
+  buff[0]= (char)(WRITECOMMANDVALUE+T_BUTON_STRING);
   for(int i=0;i<16;i++){
     buff[i+1]= *(Str1+i);
   }
-  for(int i=0;i<16;i++){
-    buff[i+17]= *(Str2+i);
-  }
-  fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
-  SPIcarte.send(0,buff,34);
-  setLedWarning(0);
+  fprintf(stderr, "teleco - teleco send button string : %s\n",buff);
+  SPIcarte.send(0,buff,19);
+
 }
+
+int Teleco::readOrSetTelecoLock(int val){
+  int state = readValue(T_LOCK);
+  if (val!=-1 && state != val){
+    writeValue(T_LOCK,val);
+    delay(1);
+    return readValue(T_LOCK);
+  }
+  return state;
+  
+}
+
 
 
 int Teleco::readInterrupt(){
@@ -129,16 +153,25 @@ int Teleco::readInterrupt(){
           std::cout << "#TELECO_MESSAGE_BLINKGROUP" << std::endl;
           break;
         case 5:
+          std::cout << "#TELECO_MESSAGE_RESTARTPY" << std::endl;
+          break;
+        case 6:
+          std::cout << "#TELECO_MESSAGE_RESTARTWIFI" << std::endl;
+          break;
+        case 7:
+          std::cout << "#TELECO_MESSAGE_UPDATESYS" << std::endl;
+          break;
+        case 8:
           std::cout << "#TELECO_MESSAGE_POWEROFF" << std::endl;
           if(localpoweroff==1){
             
             system ("sudo shutdown -h now");
           }
           break;
-        case 6:
+        case 9:
           std::cout << "#TELECO_MESSAGE_REBOOT" << std::endl;
           break;
-        case 7:
+        case 10:
           std::cout << "#TELECO_MESSAGE_TESTROUTINE" << std::endl;
           break;
       }

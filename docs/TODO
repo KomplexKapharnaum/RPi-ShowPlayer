@@ -1,32 +1,32 @@
+HOT !
+//////////////////
+-> auto update wifi profile : check ip static // add new profiles (gited)
 
-=> Parsing des scenes
-=> Scenario distinct sur différent groupe
+TELECO:
+-> restart netctrl
+-> git update
+
+-> BROKEN osc direct commands
+
+-> Destroy external processes on reload !
+
+-> SCP media copy bordelique... à découpler du scenario RUN (in teleco ?)
+
+/////////////////
+
+INTERFACE:
+- sort Libs
+
 => Scene commander
-
-=> Synchro scènes // Key frames ?
+=> Synchro scènes w/ Key frames
 
 Module
-=> Carte [Mercredi]
-=> Alsa mixer / Alsaequal [Mardi]
-=> Video [Mardi]
-=> Son [Mardi]
+=> Alsa mixer / Alsaequal
+=> Video
+=> Son
 => Synchro media
-=> Telecommande
 
 
-Interface [Jeudi]
-=> Liste des modules pour librairie de fonctions
-=> Parser 
-	les étapes (les ID sont pas interessant, car 1 Etape = 1 Fonction)
-	les transitions après
-
-
-
-Architecture
-=> Synchro horloges
-=> Communication inter devices
-=> Synchro ordres
-=> Synchro scenario
 
 
 
