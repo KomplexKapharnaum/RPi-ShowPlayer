@@ -82,7 +82,7 @@ void beforekill(int signum)
   mytitreur.allLedOff();
   mytitreur.powerdown();
   status="noC";
-  myteleco.reset();
+  //myteleco.reset();
   delay(5);
   mycarte.writeValue(POWERDOWN,100);
   myteleco.readOrSetTelecoLock(T_POWEROFF);
