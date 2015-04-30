@@ -11,7 +11,7 @@ from _classes import module
 from engine import tools
 from engine.log import init_log
 from engine.setting import settings
-from engine.media import load_scenario_from_fs, restart_netctl
+from engine.media import load_scenario_from_fs
 log = init_log("devicecontrol")
 
 
@@ -48,7 +48,7 @@ def device_reboot(flag, **kwargs):
 
 @link({None: "device_control"})
 def device_restartwifi(flag, **kwargs):
-    restart_netctl()
+    tools.restart_netctl()
 
 @link({None: "device_control"})
 def device_updatesys(flag, **kwargs):

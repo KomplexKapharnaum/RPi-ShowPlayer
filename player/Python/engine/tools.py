@@ -133,3 +133,18 @@ def update_system():
     log.log("important", "UPDATE: {0}".format(git))
     git = subprocess32.check_output(['git', 'pull']).strip()
     log.log("important", "UPDATE: {0}".format(git))
+
+
+def restart_netctl():
+    """
+    This function restart netctl
+    :return:
+    """
+    if settings.get("sys", "raspi"):
+        log.info("Restarting NETCTL auto-wifi ...")
+        log.debug("Restart netctl return {0}".format(
+            subprocess.check_call(
+                shlex.split(settings.get("path", "systemctl") + " restart netctl-auto@wlan0.service"))))
+        tools.log_teleco(ligne1="Le réseau a redémarré")
+    else:
+        log.debug("Don't restart netctl because we are not on a raspi")
