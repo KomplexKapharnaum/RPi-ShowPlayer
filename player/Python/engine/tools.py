@@ -226,6 +226,7 @@ class ThreadTeleco(threading.Thread):
         :return:
         """
         message = ThreadTeleco.prepare_message(message)
+        log.warning("Blocs to display : {0}".format(message))
         for n, bloc in enumerate(message):
             args = dict()
             log.log("warning", "Bloc to display : {0}".format(bloc))
