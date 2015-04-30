@@ -191,6 +191,8 @@ class KxkmCard(ExternalProcess):
         'CARTE_PUSH_3': ['btnDown', True],
         'CARTE_FLOAT': ['btnDown', True],
 
+        'CARTE_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
+
         'TELECO_PUSH_A': ['btnDown', True],
         'TELECO_PUSH_B': ['btnDown', True],
         'TELECO_PUSH_OK': ['btnDown', True],
