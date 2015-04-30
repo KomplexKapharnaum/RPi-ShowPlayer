@@ -290,7 +290,7 @@ class BaseLog:
         :param msg: type(str) msg to log
         :return:
         """
-        if LEVELS["dev"] >= LEVELS[self.teleco_level]:
+        if LEVELS["warning"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.warning('{0}'.format(msg))
 
@@ -302,7 +302,7 @@ class BaseLog:
         @param  msg: The message to pass
 
         """
-        if LEVELS["exception"] >= LEVELS[self.teleco_level]:
+        if LEVELS["warning"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, 0)
         self.logger.exception(msg)
 
@@ -314,6 +314,8 @@ class BaseLog:
         @type exc_info: (type, value, traceback)
         @param exc_info: exception info
         """
+        if LEVELS["debug"] >= LEVELS[self.teleco_level]:
+            log_teleco(msg, 0)
         self.logger.debug(msg, exc_info=exc_info)
 
     def set_handler(self, handler, format=DEFAULT_FORMAT):
