@@ -14,6 +14,7 @@ log = init_log("threads")
 network_scheduler = ThreadScheduler()
 scenario_scheduler = ThreadScheduler()
 patcher = ThreadPatcher()
+log_teleco = tools.ThreadTeleco()
 
 
 def init():
