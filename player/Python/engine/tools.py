@@ -16,6 +16,7 @@ from libs.unidecode import unidecode
 from setting import settings
 import engine
 from engine.log import init_log
+from libs import subprocess32
 
 log = init_log("tools")
 
@@ -124,3 +125,11 @@ def log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
     engine.threads.patcher.patch(flag_popup.get(args={"ligne1": ligne1, "ligne2": ligne2}))
     if error:
         time.sleep(settings.get("log", "teleco", "error_delay"))
+
+
+def update_system():
+    log.log("important", "UPDATE: start system update")
+    git = subprocess32.check_output(['git', 'stash']).strip()
+    log.log("important", "UPDATE: {0}".format(git))
+    git = subprocess32.check_output(['git', 'pull']).strip()
+    log.log("important", "UPDATE: {0}".format(git))

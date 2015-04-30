@@ -9,7 +9,6 @@ from engine.setting import settings
 from engine.log import set_default_log_by_settings
 set_default_log_by_settings(settings)                   # Set default log level and output via settings
 
-import sys
 import engine
 from engine import fsm
 import scenario
