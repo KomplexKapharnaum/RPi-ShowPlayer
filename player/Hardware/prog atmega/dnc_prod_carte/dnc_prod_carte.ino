@@ -195,7 +195,7 @@ ISR (SPI_STC_vect)
   if (command == READCOMMAND) {
     SPDR = Value[adress];
     command = 1;
-    if (inputRange(adress)) {
+    if (inputRange(adress) || adress==UBATT) {
       newValue[INTERRUPT] = 0;
       Value[INTERRUPT] = newValue[INTERRUPT];
       digitalWrite(outpin[INTERRUPT], LOW);
@@ -258,6 +258,7 @@ void loop (void) {
   if (Value[GYROSTROBSPEED] > 0) strobGyroRoutine();
 
   checkInput();
+  checkTension();
 
 }  // end of loop
 
@@ -298,7 +299,7 @@ void checkInput() {
 }
 
 void checkTension() {
-  if (millis() > lastCheckTension + checkTensionPeriod  && Value[INTERRUPT] == 0) {
+  if ((millis() > lastCheckTension + checkTensionPeriod)  && Value[INTERRUPT] == 0) {
     newValue[INTERRUPT]=UBATT;
     Value[INTERRUPT] = newValue[INTERRUPT];
     Serial.println("interupt tension");

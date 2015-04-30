@@ -157,13 +157,13 @@ int parseInput(){
         if ("-carteVolt"==parsedInput){
           ss>>parsedInput;
           voltage=parsedInput;
-          if(voltage=="life12")mycarte.initCarte(PWM_LEDB,13);
-          else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,11);
-          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,11);
-          else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,27);
-          else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,26);
-          else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,24);
-          else mycarte.initCarte(PWM_LEDB,0);
+          if(voltage=="life12")mycarte.initCarte(PWM_LEDB,LIFE12);
+          else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,LIPO12);
+          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,PB12);
+          else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,LIPO24);
+          else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,LIFE24);
+          else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,PB24);
+          else mycarte.initCarte(PWM_LEDB,VOLTAGENONE);
         }
         if ("-name"==parsedInput){
           ss>>parsedInput;
@@ -196,7 +196,7 @@ int parseInput(){
     if ("S"==parsedInput) {
       fprintf(stderr, "main - overpass standard debug init\n");
       mytitreur.initTitreur(6,MODULE_24x16);
-      mycarte.initCarte(PWM_LEDB,12);
+      mycarte.initCarte(PWM_LEDB,LIPO12);
       carte_name="TEST STAND";
       carte_ip="2.0.2.XXX";
       init=1;
