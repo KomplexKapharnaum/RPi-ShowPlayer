@@ -217,6 +217,7 @@ class ThreadTeleco(threading.Thread):
         with self._pages_lock:
             log.warning("Add meesage : {0}".format(message))
             self._pages[page].append(message)
+            self._something_new.set()
 
     def _display_message(self, messages, page):
         """
@@ -227,15 +228,11 @@ class ThreadTeleco(threading.Thread):
         """
         for message in messages:
             message = ThreadTeleco.prepare_message(message)
-            log.warning("Blocs to display : {0}".format(message))
             for n, bloc in enumerate(message):
                 args = dict()
-                log.log("warning", "Bloc to display : {0}".format(bloc))
                 args["ligne1"] = str(bloc[0])
-                log.log("warning", "Line1 to display : {0}".format(bloc[0]))
                 if len(bloc) > 1:
                     args["ligne2"] = str(bloc[1])
-                    log.log("warning", "Line2 to display : {0}".format(bloc[1]))
                 else:
                     args["ligne2"] = ""
                 args["page"] = page
@@ -254,17 +251,12 @@ class ThreadTeleco(threading.Thread):
         lines = list()
         blocs = list()
         blocs.append(list())
-        log.warning("Message before : {0}".format(message))
         for line in message:
-            log.warning("lines const (line: {1}) .. {0}".format(lines, line))
             while len(line) > linelength:
-                log.warning("lines loop const .. {0}".format(lines))
                 lines.append(line[:linelength])
                 line = line[linelength:]
             lines.append(line)
-        log.warning("lines : {0}".format(lines))
         for line in lines:
-            log.warning("bloc const .. {0}".format(blocs))
             if len(blocs[-1]) == 2:
                 log.warning("append bloc")
                 blocs.append(list())    # New block
