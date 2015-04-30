@@ -227,6 +227,7 @@ class ThreadTeleco(threading.Thread):
         message = ThreadTeleco.prepare_message(message)
         for n, bloc in enumerate(message):
             args = dict()
+            log.log("warning", "Bloc to display : {0}".format(bloc))
             args["ligne1"] = bloc[0]
             if len(bloc) > 1:
                 args["ligne2"] = bloc[1]
