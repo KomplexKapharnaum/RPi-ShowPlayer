@@ -180,7 +180,7 @@ class ThreadTeleco(threading.Thread):
     """
     def __init__(self):
         threading.Thread.__init__(self)
-        _to_stop_thread["teleco"] = weakref.ref(self)
+        register_thread(self)
         self._stop = threading.Event()
         self._pages = Queue.Queue()
         # self._pages = list()
