@@ -7,7 +7,7 @@ import os
 
 from engine import log
 log = log.init_log("main")
-log.log('info', '=== KXKM - DNC PLAYER ===')
+log.important('=== KXKM - DNC PLAYER ===')
 
 def set_python_path(depth=0):
     f = sys._getframe(1)
@@ -42,5 +42,5 @@ except Exception as e:
 
 application.stop()
 
-log.log('info', '=== EXIT : '+str(application.POWEROFF)+' ===' )
+log.important('=== EXIT : '+str(application.POWEROFF)+' ===' )
 os._exit(application.POWEROFF)

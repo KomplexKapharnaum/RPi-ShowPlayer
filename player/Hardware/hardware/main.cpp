@@ -221,6 +221,8 @@ int parseInput(){
     
     if ("popup"==parsedInput) {
       int n=0;
+      popup1=" ";
+      popup2=" ";
       while (ss>>parsedInput){
         if ("-n"==parsedInput){
             ss>>n;
@@ -234,10 +236,6 @@ int parseInput(){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
           popup2=parsedInput;
-        }
-        if ("-clear"==parsedInput){
-          popup1=" ";
-          popup2=" ";
         }
       }
       char mess1[18];

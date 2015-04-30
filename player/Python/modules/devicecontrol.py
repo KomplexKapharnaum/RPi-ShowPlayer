@@ -20,11 +20,8 @@ log = init_log("devicecontrol")
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
         "/device/restart": "device_restart",
-        "/device/updatesys": "device_updatesys",
-        "/device/wifi/restart": "device_restartwifi",
-        "/scene/previous": "device_scene_prev",
-        "/scene/next": "device_scene_next",
-        "/scene/restart": "device_scene_restart",
+        "/device/updatesys": "device_update_system",
+        "/device/wifi/restart": "device_restart_wifi",
         "FS_TIMELINE_UPDATED": "device_update_timeline"})
 def device_control(flag, **kwargs):
     pass
@@ -47,29 +44,17 @@ def device_reboot(flag, **kwargs):
     application.POWEROFF = 3
 
 @link({None: "device_control"})
-def device_restartwifi(flag, **kwargs):
+def device_restart_wifi(flag, **kwargs):
     tools.restart_netctl()
 
 @link({None: "device_control"})
-def device_updatesys(flag, **kwargs):
+def device_update_system(flag, **kwargs):
     tools.update_system()
 
 @link({None: "device_reload"})
 def device_update_timeline(flag, **kwargs):
     load_scenario_from_fs(settings["current_timeline"])
 
-@link({None: "device_control"})
-def device_scene_prev(flag, **kwargs):
-    pass
-
-@link({None: "device_control"})
-def device_scene_next(flag, **kwargs):
-    pass
-
-
-@link({None: "device_control"})
-def device_scene_restart(flag, **kwargs):
-    pass
 
 
 

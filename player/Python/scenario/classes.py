@@ -173,15 +173,6 @@ class Scene:
         self.uid = uid
         self.cartes = cartes
 
-    def start(self):
-        """
-        This function is called by the Manager to start the new scene
-        """
-        for etape in self.cartes[settings["uName"]]:
-            fsm = ScenarioFSM(etape.uid)
-            fsm.start(etape)
-            scenario.FSM.append(fsm)
-
     def __str__(self):
         return "Scene : {0}".format(self.uid)
 

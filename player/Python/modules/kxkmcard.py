@@ -196,8 +196,9 @@ class KxkmCard(ExternalProcess):
         'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
 
         'TELECO_MESSAGE_PREVIOUSSCENE': ['transTo /scene/previous', True],
-        'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/restart', True],
+        'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/start', True],
         'TELECO_MESSAGE_NEXTSCENE': ['transTo /scene/next', True],
+
         'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
         'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
 

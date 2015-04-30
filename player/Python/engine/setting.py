@@ -95,8 +95,7 @@ DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 15 sec before restart 
 DEFAULT_SETTING["sync"]["timeout_media_version"] = 180  # 180 sec between each send media list version
 DEFAULT_SETTING["sync"]["scp_options"] = "-p -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"   # -p useless
 
-
-DEFAULT_SETTING["managers"] = ['WebInterface', 'DeviceControl', 'KxkmCard']
+DEFAULT_SETTING["managers"] = ['DeviceControl', 'SceneControl', 'WebInterface', 'KxkmCard']
 
 DEFAULT_SETTING["scenario"] = dict()
 DEFAULT_SETTING["scenario"]["date_format"] = "%Y-%m-%d_%H:%M:%S"
