@@ -12,6 +12,7 @@ import unicodedata
 import subprocess
 import shlex
 import threading
+import Queue
 
 
 from libs.unidecode import unidecode
@@ -181,12 +182,13 @@ class ThreadTeleco(threading.Thread):
         threading.Thread.__init__(self)
         _to_stop_thread["teleco"] = weakref.ref(self)
         self._stop = threading.Event()
-        self._pages = list()
-        self._pages.append(list())  # Page 0
-        self._pages.append(list())  # Page 1
-        self._pages.append(list())  # Page 2
-        self._pages_lock = threading.Lock()
-        self._something_new = threading.Event()
+        self._pages = Queue.Queue()
+        # self._pages = list()
+        # self._pages.append(list())  # Page 0
+        # self._pages.append(list())  # Page 1
+        # self._pages.append(list())  # Page 2
+        # self._pages_lock = threading.Lock()
+        # self._something_new = threading.Event()
 
     def stop(self):
         self._stop.set()
@@ -194,18 +196,16 @@ class ThreadTeleco(threading.Thread):
     def run(self):
         while not self._stop.is_set():
             try:
-                self._something_new.wait(timeout=2)
+                to_display = self._pages.get(timeout=2)
             except Exception:
                 continue
-            to_display = None
-            with self._pages_lock:
-                for n, page in enumerate(self._pages):
-                    if len(page) < 1:       # There is nothing to display
-                        continue
-                    to_display = self._pages.pop(n), n
-                    break
-            if to_display is not None:  # There is something to display
-                self._display_message(*to_display)
+            # with self._pages_lock:
+            #     for n, page in enumerate(self._pages):
+            #         if len(page) < 1:       # There is nothing to display
+            #             continue
+            #         to_display = self._pages.pop(n), n
+            #         break
+            self._display_message(*to_display)
 
     def add_message(self, message, page=0):
         """
@@ -216,8 +216,7 @@ class ThreadTeleco(threading.Thread):
         """
         with self._pages_lock:
             log.warning("Add meesage : {0}".format(message))
-            self._pages[page].append(message)
-            self._something_new.set()
+            self._pages[page].append((message, page))
 
     def _display_message(self, messages, page):
         """
