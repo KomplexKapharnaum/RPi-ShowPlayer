@@ -82,7 +82,7 @@ void Teleco::sendPopUp(char Str1[], char Str2[]){
     buff[i+1]= *(Str1+i);
   }
   for(int i=0;i<18;i++){
-    buff[i+17]= *(Str2+i);
+    buff[i+18]= *(Str2+i);
   }
   fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
   SPIcarte.send(0,buff,38);

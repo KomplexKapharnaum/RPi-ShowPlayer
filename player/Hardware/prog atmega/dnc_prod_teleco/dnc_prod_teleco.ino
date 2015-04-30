@@ -341,6 +341,11 @@ void checkStringReceive() {
     pos = 0;
     adress = 0;
   }
+  if(pos==0 && adress==0){
+    for (byte i=0; i<68; i++) {
+      buf[i]=' ';
+    }
+  }
 }
 
 
