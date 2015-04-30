@@ -173,6 +173,9 @@ class FiniteStateMachine:
         self._event_stop.set()
         self.main_thread = None
         self.process = None
+        self._perf_ref = None  # Ref to the perf FSM object
+        if is_perf_enabled:
+            self._perf_ref = perf.declare_fsm(self, fsmtype, source=source)
 
     def stop(self):
         log.log("raw", "Asking {0} FiniteStateMachine to stop".format(self.name))
