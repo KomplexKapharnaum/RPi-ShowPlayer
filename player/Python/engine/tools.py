@@ -179,7 +179,7 @@ class ThreadTeleco(threading.Thread):
     """
     def __init__(self):
         threading.Thread.__init__(self)
-        _to_stop_thread.append(self)
+        _to_stop_thread["teleco"] = self
         self._stop = threading.Event()
         self._pages = list()
         self._pages.append(list())  # Page 0
