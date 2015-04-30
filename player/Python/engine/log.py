@@ -36,18 +36,20 @@ def add_coloring_to_emit_ansi(fn):
     def new(*args):
         levelno = args[1].levelno
         if(levelno>=50):
-            color = '\x1b[31m' # red
+            color = '\x1b[31m' # red :: CRITICAL
         elif(levelno>=40):
-            color = '\x1b[31m' # red
+            color = '\x1b[31m' # red :: ERROR
         elif(levelno>=30):
-            color = '\x1b[33m' # yellow
+            color = '\x1b[33m' # yellow :: WARNING
+        elif(levelno>=21):
+            color = '\x1b[34m' # blue :: IMPORTANT
         elif(levelno>=20):
-            color = '\x1b[32m' # green 
+            color = '\x1b[32m' # green :: INFO
         elif(levelno>=10):
-            color = '\x1b[35m' # pink
+            color = '\x1b[35m' # purple :: DEBUG
         else:
-            color = '\x1b[0m' # normal
-        args[1].msg = color + '{0}'.format(args[1].msg) +  '\x1b[0m'  # normal
+            color = '\x1b[0m' # normal :: RAW
+        args[1].msg = color + '{0}'.format(args[1].msg) +  '\x1b[0m'
         #print "after"
         return fn(*args)
     return new
@@ -61,6 +63,7 @@ LEVELS = {
     "net_info": logging.DEBUG - 1,
     "debug": logging.DEBUG,
     "info": logging.INFO,
+    "important": logging.INFO+1,
     "warning": logging.WARNING,
     "error": logging.ERROR,
     "critical": logging.CRITICAL,

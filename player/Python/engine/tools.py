@@ -9,6 +9,7 @@ import sys
 import os
 from setting import settings
 from engine.log import init_log
+from libs import subprocess32
 
 log = init_log("tools")
 
@@ -88,3 +89,11 @@ def search_in_or_default(key, indict, setting=False, default=None):
         except AttributeError, KeyError:
             log.log("raw", "Search for a setting value which doesn't exist")
     return default
+
+
+def update_system():
+    log.log("important", "UPDATE: start system update")
+    git = subprocess32.check_output(['git', 'stash']).strip()
+    log.log("important", "UPDATE: {0}".format(git))
+    git = subprocess32.check_output(['git', 'pull']).strip()
+    log.log("important", "UPDATE: {0}".format(git))

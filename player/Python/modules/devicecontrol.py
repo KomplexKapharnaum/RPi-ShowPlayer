@@ -8,9 +8,10 @@
 import application
 from modules import link
 from _classes import module
+from engine import tools
 from engine.log import init_log
 from engine.setting import settings
-from engine.media import load_scenario_from_fs
+from engine.media import load_scenario_from_fs, restart_netctl
 log = init_log("devicecontrol")
 
 
@@ -19,6 +20,8 @@ log = init_log("devicecontrol")
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
         "/device/restart": "device_restart",
+        "/device/updatesys": "device_updatesys",
+        "/device/wifi/restart": "device_restartwifi",
         "/scene/previous": "device_scene_prev",
         "/scene/next": "device_scene_next",
         "/scene/restart": "device_scene_restart",
@@ -43,15 +46,21 @@ def device_poweroff(flag, **kwargs):
 def device_reboot(flag, **kwargs):
     application.POWEROFF = 3
 
+@link({None: "device_control"})
+def device_restartwifi(flag, **kwargs):
+    restart_netctl()
+
+@link({None: "device_control"})
+def device_updatesys(flag, **kwargs):
+    tools.update_system()
+
 @link({None: "device_reload"})
 def device_update_timeline(flag, **kwargs):
     load_scenario_from_fs(settings["current_timeline"])
 
-
 @link({None: "device_control"})
 def device_scene_prev(flag, **kwargs):
     pass
-
 
 @link({None: "device_control"})
 def device_scene_next(flag, **kwargs):
