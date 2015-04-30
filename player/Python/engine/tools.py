@@ -230,6 +230,8 @@ class ThreadTeleco(threading.Thread):
             args["ligne1"] = bloc[0]
             if len(bloc) > 1:
                 args["ligne2"] = bloc[1]
+            else:
+                args["ligne2"] = ""
             args["page"] = page
             engine.threads.patcher.patch(flag_popup.get(args=args))
             if len(message) >= n + 1:
