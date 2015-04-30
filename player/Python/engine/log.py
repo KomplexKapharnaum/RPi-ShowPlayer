@@ -78,7 +78,7 @@ for _level, _lvl_value in LEVELS.items():
 
 DEFAULT_LEVEL = "debug"
 DEFAULT_LOG_TYPE = "Console"
-DEFAULT_TELECO_LEVEL = -1
+DEFAULT_TELECO_LEVEL = "critical"
 LOG_PATH = os.path.join("/tmp/", "DNC_Python.log")
 
 
