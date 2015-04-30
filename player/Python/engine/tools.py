@@ -9,6 +9,8 @@ import sys
 import os
 import time
 import unicodedata
+import subprocess
+import shlex
 
 
 from libs.unidecode import unidecode
@@ -145,6 +147,6 @@ def restart_netctl():
         log.debug("Restart netctl return {0}".format(
             subprocess.check_call(
                 shlex.split(settings.get("path", "systemctl") + " restart netctl-auto@wlan0.service"))))
-        tools.log_teleco(ligne1="Le réseau a redémarré")
+        log_teleco(ligne1="Le réseau a redémarré")
     else:
         log.debug("Don't restart netctl because we are not on a raspi")
