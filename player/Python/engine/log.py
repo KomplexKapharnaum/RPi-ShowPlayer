@@ -257,6 +257,14 @@ class BaseLog:
 
         self.logger.critical(msg)
 
+    def dev(self, msg):
+        """
+        Emit a warning message auto formated
+        :param msg: type(str) msg to log
+        :return:
+        """
+        self.logger.warning('{0}'.format(msg))
+
     def exception(self, msg=""):
         """
         Pass a exception level log message (Numeric value: 50)

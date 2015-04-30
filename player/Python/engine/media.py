@@ -410,21 +410,6 @@ def umount_partitions():
     return sucess
 
 
-def restart_netctl():
-    """
-    This function restart netctl
-    :return:
-    """
-    if settings.get("sys", "raspi"):
-        log.info("Restarting NETCTL auto-wifi ...")
-        log.debug("Restart netctl return {0}".format(
-            subprocess.check_call(
-                shlex.split(settings.get("path", "systemctl") + " restart netctl-auto@wlan0.service"))))
-        tools.log_teleco(ligne1="Le réseau a redémarré")
-    else:
-        log.debug("Don't restart netctl because we are not on a raspi")
-
-
 class UdevThreadMonitor(threading.Thread):
     """
     This class is a thread wich wait on new block plug event and try to mount it
@@ -456,7 +441,7 @@ class UdevThreadMonitor(threading.Thread):
                 if settings.get("sys", "raspi") and settings.get("sync", "netctl_autorestart"):
                     log.log("info",
                             "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
-                    network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), restart_netctl)
+                    network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), tools.restart_netctl)
                     tools.log_teleco(ligne1="Le réseau va redémarrer", ligne2="dans {0} sec".format(settings.get("sync", "timeout_restart_netctl")))
                     time.sleep(settings.get("log", "teleco", "error_delay"))        # Not an error but..
                 continue

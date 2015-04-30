@@ -322,7 +322,7 @@ def undeclare_fsm(fsm):
     if fsm_to_remove is not None:
         old_fsm_declared.append(fsm_to_remove)
     else:
-        log.warning("Try to undeclared an FSM {0} which doesn't exit or have already died".format(fsm))
+        log.debug("Try to undeclare an FSM which is already gone {0} ".format(fsm))
 
 
 def list_fsm(list_all=True):
