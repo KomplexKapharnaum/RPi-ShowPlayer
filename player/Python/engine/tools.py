@@ -261,7 +261,4 @@ class ThreadTeleco(threading.Thread):
         return blocs
 
 
-
-
-
-
+engine.log.log_teleco = log_teleco      # This add log_teleco real function to log to avoid circular import
