@@ -6,9 +6,10 @@ TELECO:
 -> restart netctrl
 -> git update
 
--> BROKEN osc direct commands
+-> initial discover timing is slow
 
 -> Destroy external processes on reload !
+make common re-init function for all modules
 
 -> SCP media copy bordelique... à découpler du scenario RUN (in teleco ?)
 

@@ -172,12 +172,17 @@ class FiniteStateMachine:
         self._event_stop = threading.Event()
         self._event_stop.set()
         self.main_thread = None
+        self.process = None
 
     def stop(self):
         log.log("raw", "Asking {0} FiniteStateMachine to stop".format(self.name))
         self._event_stop.set()
         self._event_flag_stack_new.set()  # To directly stop the FSM if it waits for flag
         # self._event_flag_stack_not_empty.set()
+
+        # Perform ExternalProcess STOP
+        if self.process is not None:
+            self.process.stop()
 
     def join(self):
         if self.main_thread is None:
@@ -306,7 +311,8 @@ class FiniteStateMachine:
                     log.log("warning", "- FSM ({0}) : Don't consume {0} flag cause return False".format(self, flag))
             else:  # There isn't any interesting flag !
                 self._event_flag_stack_new.clear()
-        log.log("debug", "{0} Finite state machine stop".format(self.name))
+
+        log.log("raw", "{0} Finite state machine stop".format(self.name))
 
     def start(self, init_state):
         """

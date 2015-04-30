@@ -213,28 +213,16 @@ class Device:
     """
     This class describe a Device
     """
-    def __init__(self, uid, modules, patchs, managers):
+    def __init__(self, uid, patchs, modules=dict()):
         """
         :param uid: Unique ID
-        :param modules: list of modules used by the Device
         :param patchs: list of patchs wich must be run
-        :param managers: list of etapes which must be run in a FSM to manage the device
+        :param modules: list of modules to load for this specific device
         :return:
         """
         self.uid = uid
-        self.modules = modules
         self.patchs = patchs
-        self.managers = managers
-
-    def launch_manager(self):
-        """
-        This function is launch at startup and init device managers fsm
-        """
-        log.log("raw", "Launching manager devices")
-        for manager in self.managers.values():
-            log.log("raw", "--  manager devices {0} launch..".format(manager.uid))
-            scenario.DEVICE_FSM.append(ScenarioFSM(manager.uid))
-            scenario.DEVICE_FSM[-1].start(manager)
+        self.modules = modules
 
     def __str__(self):
         return "Device : {0}".format(self.uid)

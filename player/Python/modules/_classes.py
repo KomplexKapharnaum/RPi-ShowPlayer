@@ -14,20 +14,19 @@ from engine.tools import register_thread, unregister_thread
 from engine.fsm import Flag
 from engine.setting import settings
 from engine.log import init_log
-log = init_log("modules")
+log = init_log("modulesClass")
 
 
 class module(object):
-    def __init__(self, name=None, autoload=False):
-        self.autoload = autoload
+    def __init__(self, name=None, process=None):
         self.name = name
+        self.process = process
 
-    def __call__(self, etape_uid):
+    def __call__(self, etape):
         if self.name is None:
-            self.name = etape_uid
-        MODULES[self.name] = {'autoload': self.autoload,
-                              'init_etape': etape_uid}
-        return etape_uid
+            self.name = etape.uid
+        MODULES[self.name] = etape
+        return etape
 
 
 # GENERIC THREAD TO HANDLE EXTERNAL PROCESS

@@ -45,10 +45,15 @@ class VlcPlayer(ExternalProcess):
             #self.say("play")
             self.say("repeat {switch}".format(switch=self.repeat))
 
+    def pause(self):
+        self.say("pause")
+
+    def stop(self):
+        self.say("stop")
+
     Filters = {
         'VIDEO_END': [True]
     }
-
 
 
 class VlcPlayerOneShot(VlcPlayer):
@@ -58,7 +63,7 @@ class VlcPlayerOneShot(VlcPlayer):
 
     def play(self, filename=None, repeat=None):
         if self.preload(filename, repeat):
-            self.command = self.executable+' --play-and-exit '+self.media 
+            self.command = self.executable+' --play-and-exit '+self.media
             self.start()
 
 exposesignals(VlcPlayer.Filters)
@@ -71,40 +76,37 @@ exposesignals(VlcPlayer.Filters)
         "/video/pause": "video_pause",
         "/video/stop": "video_stop"})
 def video_player(flag, **kwargs):
-    pass
+    if kwargs["_fsm"].process is None:
+        kwargs["_fsm"].process = VlcPlayerOneShot()
 
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
-    # log.debug('+++ {0}'.format(flag.args['abs_time_sync']))
-    # flag.args['media']
-    # flag.args["args"][0]
-    if 'video' in kwargs["_fsm"].vars:
-        kwargs["_fsm"].vars["video"].stop()
-    kwargs["_fsm"].vars["video"] = VlcPlayerOneShot()
+    kwargs["_fsm"].process.stop()
+    kwargs["_fsm"].process = VlcPlayerOneShot()
 
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
-        kwargs["_fsm"].vars["video"].preload(media, repeat)
+        kwargs["_fsm"].process.preload(media, repeat)
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        kwargs["_fsm"].vars["video"].play()
+        kwargs["_fsm"].process.play()
         log.debug('+++ SYNC PLAY')
     else:
-        kwargs["_fsm"].vars["video"].play(media, repeat)
+        kwargs["_fsm"].process.play(media, repeat)
 
     kwargs["_etape"].preemptible.set()
 
 
 @link({None: "video_player"})
 def video_stop(flag, **kwargs):
-    kwargs["_fsm"].vars["video"].say("stop")
+    kwargs["_fsm"].process.stop()
 
 
 @link({None: "video_player"})
 def video_pause(flag, **kwargs):
-    kwargs["_fsm"].vars["video"].say("pause")
+    kwargs["_fsm"].process.pause()
 
 
 

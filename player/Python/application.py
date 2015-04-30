@@ -46,10 +46,10 @@ def reload():
 def start():
     # OSC START
     oscack.start_protocol()
+    # ENGINE START
+    engine.start()
     # START POOL
     scenario.start()
-    # MODULES START
-    engine.start_modules()
 
 
 def stop():
@@ -57,8 +57,8 @@ def stop():
     scenario.stop()
     log.info("Stop OscAck")
     oscack.stop_protocol()
-    log.info("Stop Modules")
-    engine.stop_modules()
+    log.info("Stop Engine")
+    engine.stop()
     log.info("Stop Threads")
     engine.threads.stop()
 
@@ -81,7 +81,7 @@ class inputThread(threading.Thread):
         flag_all = engine.fsm.Flag("TEST_ALL").get()
         flag_all.args["dest"] = [settings.get("scenario", "dest_all"), ]
         global POWEROFF
-        
+       
         # import os, stat
         # mode = os.fstat(0).st_mode
         # if stat.S_ISFIFO(mode):

@@ -5,6 +5,10 @@
 import sys
 import os
 
+from engine import log
+log = log.init_log("main")
+log.log('info', '=== KXKM - DNC PLAYER ===')
+
 def set_python_path(depth=0):
     f = sys._getframe(1)
     fname = f.f_code.co_filename
@@ -19,9 +23,6 @@ import application
 from engine.setting import settings
 from engine.log import set_default_log_by_settings
 set_default_log_by_settings(settings)                   # Set default log level and output via settings
-from engine import log
-log = log.init_log("main")
-
 
 try:
     application.init()
@@ -36,5 +37,5 @@ except Exception as e:
 
 application.stop()
 
-log.log('info', 'PowerOff : '+str(application.POWEROFF) )
+log.log('info', '=== EXIT : '+str(application.POWEROFF)+' ===' )
 os._exit(application.POWEROFF)
