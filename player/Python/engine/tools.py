@@ -205,7 +205,7 @@ class ThreadTeleco(threading.Thread):
             #             continue
             #         to_display = self._pages.pop(n), n
             #         break
-            self._display_message(*to_display)
+            ThreadTeleco._display_message(*to_display)
 
     def add_message(self, message, page=0):
         """
@@ -214,30 +214,30 @@ class ThreadTeleco(threading.Thread):
         :param page: page where the message must be displayed
         :return:
         """
-        with self._pages_lock:
-            log.warning("Add meesage : {0}".format(message))
-            self._pages[page].append((message, page))
+        log.warning("Add meesage : {0}".format(message))
+        self._pages.put((message, page))
 
-    def _display_message(self, messages, page):
+    @staticmethod
+    def _display_message(message, page):
         """
         This function display a message in a page
         :param message: message to display
         :param page: page where the message must be displayed
         :return:
         """
-        for message in messages:
-            message = ThreadTeleco.prepare_message(message)
-            for n, bloc in enumerate(message):
-                args = dict()
-                args["ligne1"] = str(bloc[0])
-                if len(bloc) > 1:
-                    args["ligne2"] = str(bloc[1])
-                else:
-                    args["ligne2"] = ""
-                args["page"] = page
-                engine.threads.patcher.patch(flag_popup.get(args=args))
-                if len(message) >= n + 1:
-                    time.sleep(settings.get("log", "teleco", "autoscroll"))
+        message = ThreadTeleco.prepare_message(message)
+        for n, bloc in enumerate(message):
+            args = dict()
+            args["ligne1"] = str(bloc[0])
+            if len(bloc) > 1:
+                args["ligne2"] = str(bloc[1])
+            else:
+                args["ligne2"] = ""
+            args["page"] = page
+            engine.threads.patcher.patch(flag_popup.get(args=args))
+            if len(message) >= n + 1:
+                time.sleep(settings.get("log", "teleco", "autoscroll"))
+
 
     @staticmethod
     def prepare_message(message):
