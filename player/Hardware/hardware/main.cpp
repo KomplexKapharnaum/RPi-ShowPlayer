@@ -49,14 +49,6 @@ Carte mycarte;
 Teleco myteleco;
 Titreur mytitreur;
 
-
-
-void myInterruptCARTE (void) {
-  fprintf(stderr, "main - interrupt from carte\n");
-  mycarte.readInterrupt();
-  if(mycarte.needStatusUpdate)sendStatusTeleco();
-}
-
 void sendStatusTeleco(){
   float tension = mycarte.checkTension();
   char mess1[17];
@@ -70,6 +62,14 @@ void sendStatusTeleco(){
   sprintf(mess4,"%s %.1fV",carte_ip.c_str(),tension);
   myteleco.sendInfo(mess1,mess2,mess3,mess4);
 }
+
+void myInterruptCARTE (void) {
+  fprintf(stderr, "main - interrupt from carte\n");
+  mycarte.readInterrupt();
+  if(mycarte.needStatusUpdate)sendStatusTeleco();
+}
+
+
 
 void beforekill(int signum)
 {
