@@ -6,10 +6,8 @@ initconfig -titreurNbr (int) -carteVolt (int) -name (string) -ip (string) -versi
 
 info -status (string)
 
-popup [-n int][-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-clear]
-//page de la popup 0,1,2 // texte première ligne 33char // texte 2eme ligne 33char
-buttonstring [-line (stringespace=underscore)] [-media] [-clear]
-//set texte deuxième ligne autres menus pour indication bouton// set medi par défaut // effacer ce set
+popup -type string [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)]
+//type de popup "log" "scenario" "usb" "media" "sync" "user" "8"  // texte première ligne 16 caracteres // texte 2eme ligne 16 caracteres
 
 setledtelecook [-on] [-off]
 setledcarteok [-on] [-off]

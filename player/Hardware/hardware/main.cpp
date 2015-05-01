@@ -38,11 +38,12 @@ using namespace std;
 
 string carte_name;
 string carte_ip;
+string scene="-";
 string version_py="-";
-string version_c="0.3";
+string version_c="0.9";
 string status="-";
-string popup1,popup2,buttonString;
 string voltage="-";
+string buttonline="OK   B   A";
 int init=0;
 
 Carte mycarte;
@@ -53,14 +54,18 @@ void sendStatusTeleco(){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
-  char mess3[17];
-  char mess4[17];
   delay(10);
-  sprintf(mess1,"stat=%s",status.c_str());
-  sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_c.c_str());
-  sprintf(mess3,"%s",carte_name.c_str());
-  sprintf(mess4,"%s %.1fV",carte_ip.c_str(),tension);
-  myteleco.sendInfo(mess1,mess2,mess3,mess4);
+  sprintf(mess1,"git %s",status.c_str());
+  sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
+  teleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
+  
+  sprintf(mess1,"%s",carte_name.c_str());
+  sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
+  teleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
+  
+  sprintf(mess1,"%.1fV %s",tension,scene.c_str());
+  sprintf(mess2,"%s",buttonline.c_str());
+  teleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
 }
 
 void myInterruptCARTE (void) {
@@ -221,11 +226,19 @@ int parseInput(){
     
     if ("popup"==parsedInput) {
       int n=0;
-      popup1=" ";
-      popup2=" ";
+      string popup1;
+      string popup2;
+      int type=0;
       while (ss>>parsedInput){
-        if ("-n"==parsedInput){
-            ss>>n;
+        if ("-type"==parsedInput){
+          ss>>parsedInput;
+          if (parsedInput=="log") type = T_MENU_ID_LOG_0;
+          if (parsedInput=="scenario") type = T_MENU_ID_STATUS_SCENE;
+          if (parsedInput=="usb") type = T_MENU_ID_STATUS_USB;
+          if (parsedInput=="media") type = T_MENU_ID_STATUS_MEDIA;
+          if (parsedInput=="sync") type = T_MENU_ID_STATUS_SYNC;
+          if (parsedInput=="user") type = T_MENU_ID_STATUS_USER;
+          if (parsedInput=="error") type = T_MENU_ID_STATUS_ERROR;
         }
         if ("-line1"==parsedInput){
           ss>>parsedInput;
@@ -236,32 +249,17 @@ int parseInput(){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
           popup2=parsedInput;
+          if (type==T_MENU_ID_STATUS_SCENE) {
+            scene=popup2;
+            sendStatusTeleco();
+          }
         }
       }
       char mess1[18];
       char mess2[18];
-      sprintf(mess1,"%u%s",n,popup1.c_str());
-      sprintf(mess2,"%u%s",n,popup2.c_str());
-      myteleco.sendPopUp(mess1,mess2);
-    }
-    
-    if ("buttonstring"==parsedInput) {
-      while (ss>>parsedInput){
-        if ("-line"==parsedInput){
-          ss>>parsedInput;
-          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          buttonString=parsedInput;
-        }
-        if ("-media"==parsedInput){
-          buttonString="32  0/4  01  all";
-        }
-        if ("-clear"==parsedInput){
-          buttonString=" ";
-        }
-      }
-      char mess1[17];
-      sprintf(mess1,"%s",buttonString.c_str());
-      myteleco.sendButtonString(mess1);
+      sprintf(mess1,"%s",n,popup1.c_str());
+      sprintf(mess2,"%s",n,popup2.c_str());
+      if(type!=0)myteleco.sendString(mess1,mess2,type);
     }
 
 

@@ -1,36 +1,64 @@
+#include <avr/pgmspace.h>
 #include "pins_arduino.h"
 #include "pins_arduino.h"
 #include <LiquidCrystal595.h>
 #include <Encoder.h>
 #include <avr/sleep.h>
 
-char buf [68];
-char line1 [17];
-char line2 [17];
-char line3 [17];
-char line4 [17];
-char popline1 [3][17];
-char popline2 [3][17];
-char buttonline [17];
-int nbmenuinfo =5;
-bool scroll=false;
-long timescroll=millis();
-long timescrollinterval=400;
+//function for reset
+void(* resetFunc) (void) = 0;
 
 
+//------------------------------------ROTARY
+
+//declare encoder
 Encoder rotary(2, 3);
 long positionLeft  = -999;
 
 
+//------------------------------------LCD
+
+//declare lcd
 LiquidCrystal595 lcd(6, 7, 8);
+
+#define LCD_PLAY 0
+#define LCD_NEXT 1
+#define LCD_REWIND 2
+#define LCD_BACK 3
+#define LCD_PAUSE 4
+#define LCD_RELOAD 5
+#define LCD_SYMBOL_DISCONNECT 6
+#define LCD_SYMBOL_MINTIME 7
+
+const byte character_data[8][8] PROGMEM= {
+  { B00000,B10000,B11000,B11100,B11110,B11100,B11000,B10000},//play
+  { B00000,B10001,B11001,B11101,B11111,B11101,B11001,B10001},//next
+  { B00000,B00001,B00011,B00111,B01111,B00111,B00011,B00001},//rewind
+  { B00000,B10001,B10011,B10111,B11111,B10111,B10011,B10001},//back
+  { B00000,B00000,B11011,B11011,B11011,B11011,B11011,B00000},//pause
+  { B00100,B00110,B11111,B10110,B10100,B10000,B10001,B01110},//reload
+  { B00000, B01010, B11111, B11100, B10001, B00111, B01110, B00100 },
+  { B10101, B00000, B00100, B01110, B10011, B10101, B10001, B01110 }
+};
+
+void initlcd(){
+  lcd.begin(16, 2);
+  byte my_character_data[8];
+  for (byte i=0;i<8;i++) {
+    memcpy_P (&my_character_data, &character_data[i], sizeof(my_character_data));
+    lcd.createChar(i,my_character_data);
+  }
+  delay(5);
+}
+
+//-------------------------------REGISTER AND BUFFER
 
 
 // what to do with incoming data
-volatile byte pos;
-volatile byte command = 0;
-volatile byte adress = 0;
-
-
+char buf [38];  // buffer for receive string over spi
+volatile byte pos;    //pos in the buffer
+volatile byte command = 0;  // 2 bits command
+volatile byte adress = 0;   // 6 bits adress
 
 //VALUE FOR PINOUT
 #define T_LEDRVALUE 0
@@ -64,61 +92,35 @@ volatile byte adress = 0;
 
 //size of table
 #define T_REGISTERSIZE 21
-//size of menu
-#define T_NBMENU 10
 
 #define READCOMMAND 0x40
 #define WRITECOMMANDVALUE 0xc0
 #define WRITECOMMANDFADE 0x80
 #define COMMANDMASK 0xC0
 
-#define T_DECINPIN 4
-#define T_DECALALOGPIN 9
-
 #define T_MODEBASE 1
 
-#define T_ISOPEN 0
-#define T_ISLOCK 1
-#define T_ISLOCKWITHSLEEP 2
-#define T_POWEROFF 10
-
-
-
-char menu[T_NBMENU][16] = {"previous scene","restart scene","next scene","blink group","restart py","restart wifi","update sys","poweroff","reboot","test routine"};
-
+//define two register
 byte Value[T_REGISTERSIZE];
 byte newValue[T_REGISTERSIZE];
 
+//define PIN for each register
 byte outpin[4] = {A5, A7, A0, 4};
-
+#define T_DECINPIN 4
 byte inpin[5] = {A2, A3, 5, A4, A1};
-
+#define T_DECALALOGPIN 9
 byte inpinanalog[1] = {A6};
 
+//for timing purpose
 long unsigned lastLRStrob;
 byte strobLRStep;
 long unsigned lastLVStrob;
 byte strobLVStep;
 long unsigned lastLOKStrob;
 byte strobLOKStep;
-
-
+// define checkinput cycle
 long unsigned lastCheckInput;
 int checkInputPeriod;
-
-void(* resetFunc) (void) = 0;
-
-void setup (void) {
-  Serial.begin(19200);
-  clearRegister();
-  initpin();
-  initSPIslave();
-  Serial.println("telec");
-  checkInputPeriod = 100;
-  waitforinit();
-  positionLeft = rotary.read();
-  Serial.println("init");
-}
 
 void initpin() {
   byte i = 0;
@@ -126,54 +128,21 @@ void initpin() {
     pinMode(outpin[i], OUTPUT);
     updateValue(i);
   }
-  
   for (i = T_DECINPIN; i < T_DECALALOGPIN; i++) {
     pinMode(inpin[i - T_DECINPIN], INPUT);
   }
-  
   strobLRStep = 0;
   strobLVStep = 0;
   strobLOKStep = 0;
-  
-  pos = 0;   // buffer empty
-  lcd.begin(16, 2);
-#define LCD_PLAY 0
-#define LCD_NEXT 1
-#define LCD_REWIND 2
-#define LCD_BACK 3
-#define LCD_PAUSE 4
-#define LCD_RELOAD 5
-#define LCD_SYMBOL_DISCONNECT 6
-#define LCD_SYMBOL_MINTIME 7
-  byte character_data[8][8] = {
-    { B00000,B10000,B11000,B11100,B11110,B11100,B11000,B10000},//play
-    { B00000,B10001,B11001,B11101,B11111,B11101,B11001,B10001},//next
-    { B00000,B00001,B00011,B00111,B01111,B00111,B00011,B00001},//rewind
-    { B00000,B10001,B10011,B10111,B11111,B10111,B10011,B10001},//back
-    { B00000,B00000,B11011,B11011,B11011,B11011,B11011,B00000},//pause
-    { B00100,B00110,B11111,B10110,B10100,B10000,B10001,B01110},//reload
-    { B00000, B01010, B11111, B11100, B10001, B00111, B01110, B00100 },
-    { B10101, B00000, B00100, B01110, B10011, B10101, B10001, B01110 }
-  };
-  for (byte i=0;i<8;i++) {
-    lcd.createChar(i,character_data[i]);
-  }
-  lcd.setCursor(0, 0);
-  lcd.write(LCD_PLAY);
-  lcd.print(" do not clean ");
-  lcd.write(LCD_REWIND);
-  lcd.setCursor(0, 1);
-  lcd.print("      V0.6      ");
-  lcd.setBackLight(1);
 }
 
-void scrollteleco(){
-  if(scroll){
-    if(millis()-timescrollinterval>timescroll){
-      lcd.scrollDisplayLeft();
-      timescroll=millis();
-    }
+
+//flush buffer
+void flushbuf(){
+  for (byte i=0; i<68; i++) {
+    buf[i]=' ';
   }
+  pos = 0;
 }
 
 void clearRegister() {
@@ -183,171 +152,6 @@ void clearRegister() {
   }
   
 }
-
-void initSPIslave() {
-  // have to send on master in, *slave out*
-  pinMode(MISO, OUTPUT);
-  // turn on SPI in slave mode
-  SPCR |= _BV(SPE);
-  // turn on interrupts
-  SPCR |= _BV(SPIE);
-  SPDR = 0;
-}
-
-void waitforinit(){
-  delay(500);
-  SPDR = 0;
-  digitalWrite(outpin[T_INTERRUPT], HIGH);
-  while(command==0)scrollteleco();
-  digitalWrite(outpin[T_INTERRUPT], LOW);
-  Value[T_INIT]=1;
-  newValue[T_INIT]=1;
-}
-
-
-// SPI interrupt routine
-ISR (SPI_STC_vect)
-{
-  byte c = SPDR;
-  //Serial.println(c, HEX);
-  
-  if (command < 10) {
-    //Serial.print("R add");
-    adress = c & ~COMMANDMASK;
-    //Serial.print(adress, HEX);
-    //Serial.print(" com");
-    command = c & COMMANDMASK;
-    //Serial.println(command, HEX);
-  } else {
-    //valeur
-    if (command == WRITECOMMANDVALUE) {
-      //Serial.println ("wv");
-      if (adress < T_STRING) {
-        newValue[adress] = c;
-        command = 1;
-        SPDR = 0;
-      } else {//case string received
-        if (pos < sizeof buf) {
-          buf [pos++] = c;
-        }
-        return;
-      }
-    }
-  }
-  
-  //renvoie la valeur enregistree
-  if (command == READCOMMAND) {
-    SPDR = Value[adress];
-    command = 1;
-    if (inputRange(adress)) {
-      newValue[T_INTERRUPT] = 0;
-      Value[T_INTERRUPT] = newValue[T_INTERRUPT];
-      digitalWrite(outpin[T_INTERRUPT], LOW);
-    }
-    Serial.print("r ");
-    Serial.println (Value[adress],DEC);
-  }
-  
-  
-  
-  
-}  // end of interrupt service routine (ISR) SPI_STC_vect
-
-
-//boucle principale
-
-void loop (void) {
-  
-  // if SPI not active, clear current command
-  if (digitalRead (SS) == HIGH) command = 0;
-  
-  //verification changement de valeur
-  if (command == 0 && adress < T_STRING) {
-    for (byte i = 0; i < T_REGISTERSIZE; i++) {
-      if (Value[i] != newValue[i]) {
-        if(newValue[T_INIT]==0) resetFunc();
-        if (outputRange(i)) updateValue(i); //cas led output
-        if (inputRange(i)) updateInput(i);
-        else {
-          //cas autre valeur (sans fade)
-          Value[i] = newValue[i];
-          Serial.print(millis(), DEC);
-          Serial.print(" new ");
-          Serial.print(i, DEC);
-          Serial.print(" - v ");
-          Serial.println(Value[i], DEC);
-          
-          
-          //cas particulier
-          if (i == T_STROBLRSPEED)lastLRStrob = millis();
-          if (i == T_STROBLRSPEED && Value[i] == 0) strobLRRoutine(1);
-          if (i == T_STROBLVSPEED)lastLVStrob = millis();
-          if (i == T_STROBLVSPEED && Value[i] == 0) strobLVRoutine(1);
-          if (i == T_LOCK) switchLock(Value[i]);
-          
-          
-        }
-      }
-    }
-  }
-  
-  
-  if (Value[T_STROBLRSPEED] > 0) strobLRRoutine(0);
-  if (Value[T_STROBLVSPEED] > 0) strobLVRoutine(0);
-  //if (Value[T_STROBLVSPEED] > 0) strobLVRoutine();
-  checkStringReceive();
-  checkInput();
-  scrollteleco();
-  
-}  // end of loop
-
-void checkStringReceive() {
-  if (command == 0 && adress == T_STRING) {
-    buf [pos] = 0;
-    Serial.println (buf);
-    memcpy( line1, &buf[0], 16 );
-    memcpy( line2, &buf[16], 16 );
-    memcpy( line3, &buf[32], 16 );
-    memcpy( line4, &buf[48], 16 );
-    pos = 0;
-    adress = 0;
-  }
-  if (command == 0 && adress == T_POPUP) {
-    buf [pos] = 0;
-    Serial.println (buf);
-    lcd.clear();
-    char temp[35];
-    memcpy(temp ,&buf[0], 34);
-    byte var=0;
-    if (temp[0]=='1')
-      var=1;
-    if (temp[0]=='2')
-      var=2;
-      
-    memcpy(popline1[var], &buf[1], 16 );
-    memcpy(popline2[var], &buf[18], 16 );
-    lcd.setCursor(0, 0);
-    lcd.print(popline1[var]);
-    lcd.setCursor(0, 1);
-    lcd.print(popline2[var]);
-    pos = 0;
-    adress = 0;
-    checkscroll(var);
-  }
-  if (command == 0 && adress == T_BUTON_STRING) {
-    buf [pos] = 0;
-    Serial.println (buf);
-    memcpy(buttonline, &buf[0], 16 );
-    pos = 0;
-    adress = 0;
-  }
-  if(pos==0 && adress==0){
-    for (byte i=0; i<68; i++) {
-      buf[i]=' ';
-    }
-  }
-}
-
 
 
 bool inputRange(byte i) {
@@ -360,164 +164,6 @@ bool outputRange(byte i) {
   return false;
 }
 
-
-//fonction pour generer une interuption sur le rpi
-void updateInput(byte i) {
-  if (Value[T_INTERRUPT] == 0) {
-    if(i==T_REED && newValue[i]==1) switchLock(255);
-    Value[i] = newValue[i];
-    newValue[T_INTERRUPT] = i;
-    Value[T_INTERRUPT] = newValue[T_INTERRUPT];
-    Serial.print ("interupt ");
-    Serial.println(Value[T_INTERRUPT]);
-    digitalWrite(outpin[T_INTERRUPT], HIGH);
-    SPDR = i;
-  }
-}
-
-void switchLock(byte force){
-  if (Value[T_LOCK]==T_ISOPEN || force==T_ISLOCK){
-    Value[T_LOCK]=T_ISLOCK; newValue[T_LOCK]=T_ISLOCK;
-    pinMode(outpin[T_LEDRVALUE], INPUT);
-    Serial.println ("lock");
-    return;
-  }
-  if (Value[T_LOCK]==T_ISLOCK || force==T_ISLOCKWITHSLEEP){
-    Value[T_LOCK]=T_ISLOCKWITHSLEEP; newValue[T_LOCK]=T_ISLOCKWITHSLEEP;
-    pinMode(outpin[T_LEDRVALUE], INPUT);
-    lcd.noDisplay();
-    lcd.setBackLight(0);
-    Serial.println ("lock and sleep");
-    return;
-  }
-  if (Value[T_LOCK]==T_ISLOCKWITHSLEEP || force==T_ISOPEN){
-    Value[T_LOCK]=T_ISOPEN; newValue[T_LOCK]=T_ISOPEN;
-    pinMode(outpin[T_LEDRVALUE], OUTPUT);
-    updateValue(T_LEDRVALUE);
-    lcd.display();
-    lcd.setBackLight(1);
-    Serial.println ("unlock");
-    return;
-  }
-  if (force==T_POWEROFF){
-    Value[T_LOCK]=T_POWEROFF; newValue[T_LOCK]=T_POWEROFF;
-    lcd.noDisplay();
-    lcd.setBackLight(0);
-    Serial.println ("poweroff");
-    poweroff();
-    return;
-  }
-}
-
-void poweroff(){
-  pinMode(outpin[T_LEDRVALUE], INPUT);
-  // disable ADC
-  ADCSRA = 0;
-  set_sleep_mode (SLEEP_MODE_PWR_DOWN);
-  sleep_enable();
-  while(1)sleep_cpu ();
-}
-
-
-
-void checkInput() {
-  if (millis() > lastCheckInput + checkInputPeriod) {
-    //boutons
-    for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
-      if(Value[T_LOCK]==T_ISOPEN || T_DECINPIN+i==T_REED){
-        if(T_DECINPIN+i==T_PUSHROTARY){
-          if( 1-digitalRead(inpin[i])==1) {
-            if (abs(positionLeft)%(T_NBMENU+nbmenuinfo)<T_NBMENU){
-              newValue[T_DECINPIN + i] = abs(positionLeft)%(T_NBMENU+nbmenuinfo)+1;
-            }else {
-              newValue[T_DECINPIN + i] =250;
-            }
-          }else {
-            newValue[T_DECINPIN + i] =0;
-          }
-        }else{
-          newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
-          //Serial.print("b");
-          //Serial.println(i, DEC);
-        }
-      }else{
-         if(Value[T_LOCK]==T_ISOPEN) newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
-        }
-      }
-    
-    //if (Value[T_BOARDCHECKFLOAT] == 1) newValue[T_FLOAT] = map(analogRead(inpinanalog[T_FLOAT - T_DECALALOGPIN]), 0, 1024, 0, 255);
-    
-    if(Value[T_LOCK]==T_ISOPEN){
-      long newLeft;
-      newLeft = (long)rotary.read()*1.0/2;
-      if (newLeft > T_NBMENU+nbmenuinfo-1 || newLeft < 0) {
-        newLeft=positionLeft;
-        rotary.write(positionLeft*2);
-      }
-      if (newLeft != positionLeft) {
-        scroll=false;
-        lcd.clear();
-        if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU){
-          lcd.setCursor(0, 0);
-          lcd.print(line1);
-          lcd.setCursor(0, 1);
-          lcd.print(line2);
-        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU+1){
-          lcd.setCursor(0, 0);
-          lcd.print(line3);
-          lcd.setCursor(0, 1);
-          lcd.print(line4);
-        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU+2){
-          lcd.setCursor(0, 0);
-          lcd.print(popline1[0]);
-          lcd.setCursor(0, 1);
-          lcd.print(popline2[0]);
-          checkscroll(0);
-        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU+3){
-          lcd.setCursor(0, 0);
-          lcd.print(popline1[1]);
-          lcd.setCursor(0, 1);
-          lcd.print(popline2[1]);
-          checkscroll(1);
-        }else if(abs(newLeft)%(T_NBMENU+nbmenuinfo) == T_NBMENU+4){
-          lcd.setCursor(0, 0);
-          lcd.print(popline1[2]);
-          lcd.setCursor(0, 1);
-          lcd.print(popline2[2]);
-          checkscroll(2);
-        }else{
-          lcd.setCursor(0, 0);
-          lcd.print(menu[abs(newLeft)%(T_NBMENU+2)]);
-          lcd.setCursor(0, 1);
-          for(byte i=0;i<16;i++){
-            if (buttonline[i]<'0' || buttonline[i]>'9') {
-              lcd.print(buttonline[i]);
-            }else{
-              lcd.write(buttonline[i]-48);
-            }
-          }
-        }
-        positionLeft = newLeft;
-      }
-    }
-    
-    lastCheckInput = millis();
-  }
-  
-}
-
-void checkscroll(byte page){
-  /*for (byte i=17; i<32; i++) {
-    if (popline1[page][i]>33 || popline2[page][i]>33) {
-      scroll=true;
-      return;
-    }
-  }*/
-  scroll=false;
-}
-
-
-
 //courbe pour adapter la luminosite
 
 byte lightfunc(byte v) {
@@ -529,12 +175,21 @@ byte lightfunc(byte v) {
 
 void updateValue(byte i) {
   Value[i] = newValue[i];
-  /*Serial.print(millis(), DEC);
-   Serial.print(" new ");
-   Serial.print(i, DEC);
-   Serial.print(" - v ");
-   Serial.println(Value[i], DEC);*/
   digitalWrite(outpin[i], lightfunc(Value[i]));
+}
+
+//fonction pour generer une interuption sur le rpi
+void updateInput(byte i) {
+  if (Value[T_INTERRUPT] == 0) {
+    if(i==T_REED && newValue[i]==1) switchLock(255);
+    Value[i] = newValue[i];
+    newValue[T_INTERRUPT] = i;
+    Value[T_INTERRUPT] = newValue[T_INTERRUPT];
+    Serial.print(PSTR("interupt "));
+    Serial.println(Value[T_INTERRUPT]);
+    digitalWrite(outpin[T_INTERRUPT], HIGH);
+    SPDR = i;
+  }
 }
 
 
@@ -557,6 +212,453 @@ void strobLVRoutine(byte force) {
     lastLVStrob += 10L * Value[T_STROBLVSPEED];
   }
 }
+
+
+//-------------------------------------------------lock teleco
+
+#define T_ISOPEN 0
+#define T_ISLOCK 1
+#define T_ISLOCKWITHSLEEP 2
+#define T_POWEROFF 10
+
+void switchLock(byte force){
+  if (Value[T_LOCK]==T_ISOPEN || force==T_ISLOCK){
+    Value[T_LOCK]=T_ISLOCK; newValue[T_LOCK]=T_ISLOCK;
+    pinMode(outpin[T_LEDRVALUE], INPUT);
+    Serial.println(PSTR("lock"));
+    return;
+  }
+  if (Value[T_LOCK]==T_ISLOCK || force==T_ISLOCKWITHSLEEP){
+    Value[T_LOCK]=T_ISLOCKWITHSLEEP; newValue[T_LOCK]=T_ISLOCKWITHSLEEP;
+    pinMode(outpin[T_LEDRVALUE], INPUT);
+    lcd.noDisplay();
+    lcd.setBackLight(0);
+    Serial.println(PSTR("lock and sleep"));
+    return;
+  }
+  if (Value[T_LOCK]==T_ISLOCKWITHSLEEP || force==T_ISOPEN){
+    Value[T_LOCK]=T_ISOPEN; newValue[T_LOCK]=T_ISOPEN;
+    pinMode(outpin[T_LEDRVALUE], OUTPUT);
+    updateValue(T_LEDRVALUE);
+    lcd.display();
+    lcd.setBackLight(1);
+    Serial.println(PSTR("unlock"));
+    return;
+  }
+  if (force==T_POWEROFF){
+    Value[T_LOCK]=T_POWEROFF; newValue[T_LOCK]=T_POWEROFF;
+    lcd.noDisplay();
+    lcd.setBackLight(0);
+    Serial.println(PSTR("poweroff"));
+    poweroff();
+    return;
+  }
+}
+
+
+//-------------------------------------------------new menu system
+
+byte currentMenu=0;
+byte displayNeedUpdate=0;
+
+//menu struct saved in PROGMEM
+typedef struct {
+  char line1 [17]; //will be the same for all on the same hc595
+  char line2 [17];
+  byte behaviour;
+  byte id;
+  byte a;
+  byte b;
+  byte ok;
+} menutype;
+
+#define T_MENU_BEHAVIOUR_MASTER 0
+#define T_MENU_BEHAVIOUR_SHOW 1
+#define T_MENU_BEHAVIOUR_LOG 2
+#define T_MENU_BEHAVIOR_SELECT 3
+#define T_MENU_BEHAVIOR_STATUTS 4
+
+#define T_MENU_LENGTH 37
+
+//two variable objet to handle operation
+menutype menu;
+menutype temp;
+
+//two line struct for saving string from pyton program
+typedef struct {
+  char line1 [17]; //will be the same for all on the same hc595
+  char line2 [17];
+} variableMenu;
+
+#define T_MENU_ID_SHOW_STATUS 1
+#define T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE 2
+#define T_MENU_ID_STATUS_GIT_VERSION 3
+#define T_MENU_ID_STATUS_SCENE 4
+#define T_MENU_ID_STATUS_USB 5
+#define T_MENU_ID_STATUS_MEDIA 6
+#define T_MENU_ID_STATUS_SYNC 7
+#define T_MENU_ID_STATUS_USER 8
+#define T_MENU_ID_STATUS_ERROR 9
+
+#define T_MENU_ID_LOG_0 10
+
+#define T_MENU_NB_LOG 15
+
+#define T_MENU_VARIABLE_LENGTH 25
+
+const menutype menulist[T_MENU_LENGTH] PROGMEM {
+  {"  do not clean  ","      V1.0      ",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0},
+  {"commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"scene","back res next",T_MENU_BEHAVIOR_SELECT,0,1,2,3},
+  {"media","play pause ",T_MENU_BEHAVIOR_SELECT,0,1,2,3},
+  {"mute","video audio ",T_MENU_BEHAVIOR_SELECT,0,1,2,3},
+  {"commande","syteme",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"restart","PY wifi reboot",T_MENU_BEHAVIOR_SELECT,0,5,6,9},
+  {"system","update  poweroff",T_MENU_BEHAVIOR_SELECT,0,7,0,8},
+  {"test","routine  ",T_MENU_BEHAVIOR_SELECT,0,10,0,9},
+  {"statuts","view info",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"statuts","view info",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"need_stat","name ip v",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE,0,0,0},
+  {"need_stat","git version",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_GIT_VERSION,0,0,0},
+  {"need_stat","scene",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_SCENE,0,0,0},
+  {"need_stat","usb",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USB,0,0,0},
+  {"need_stat","media",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_MEDIA,0,0,0},
+  {"need_stat","sync",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_SYNC,0,0,0},
+  {"need_stat","7",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USER,0,0,0},
+  {"need_stat","8",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_8,0,0,0},
+  {"logs","view history",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"log","1",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0,0,0,0},
+  {"log","2",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+1,0,0,0},
+  {"log","3",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+2,0,0,0},
+  {"log","4",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+3,0,0,0},
+  {"log","5",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+4,0,0,0},
+  {"log","6",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+5,0,0,0},
+  {"log","7",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+6,0,0,0},
+  {"log","8",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+7,0,0,0},
+  {"log","9",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+8,0,0,0},
+  {"log","10",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+9,0,0,0},
+  {"log","11",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+10,0,0,0},
+  {"log","12",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+11,0,0,0},
+  {"log","13",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+12,0,0,0},
+  {"log","14",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+13,0,0,0},
+  {"log","15",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+14,0,0,0}
+};
+
+variableMenu variableMenulist[T_MENU_VARIABLE_LENGTH];
+
+//fill the string with initial string from PROGMEM
+void initmenu(){
+  for (byte i=0;i<T_MENU_LENGTH;i++){
+    memcpy_P (&temp, &menulist[currentMenu], sizeof(menutype));
+    if (temp.id!=0) {
+      memcpy(variableMenulist[temp.id].line1, &temp.line1, 16 );
+      memcpy(variableMenulist[temp.id].line2, &temp.line2, 16 );
+    }
+  }
+}
+
+//display menu
+void displayMenu(byte need=0){
+  if(displayNeedUpdate || need){
+    memcpy_P (&menu, &menulist[currentMenu], sizeof(menutype));
+    lcd.setCursor(0, 0);
+    if(menu.id!=0) lcd.print(variableMenulist[menu.id].line1); else lcd.print(menu.line1);
+    lcd.setCursor(0, 1);
+    if(menu.id!=0) lcd.print(variableMenulist[menu.id].line2); else lcd.print(menu.line2);
+    displayNeedUpdate=0;
+  }
+}
+
+//return to previous master menu
+void goprevMasterMenu(){
+  for (byte i=currentMenu-1; i>=0; i--) {
+    memcpy_P (&temp, &menulist [i], sizeof(menutype));
+    if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0){
+      currentMenu=i;
+      displayNeedUpdate=1;
+    }
+  }
+}
+
+//go to next master menu
+void gonextMasterMenu(){
+  for (byte i=currentMenu+1; i<T_MENU_LENGTH; i++) {
+    memcpy_P (&temp, &menulist [i], sizeof(menutype));
+    if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0){
+      currentMenu=i;
+      displayNeedUpdate=1;
+    }
+  }
+}
+
+
+//checkinput and do something function the menu we are
+void newcheckInput(){
+  if (millis() > lastCheckInput + checkInputPeriod) {
+    for (byte i = 0; i < T_DECALALOGPIN - T_DECINPIN; i++) {
+      if(Value[T_LOCK]==T_ISOPEN || T_DECINPIN+i==T_REED){
+        //if teleco is not lock
+        switch (T_DECINPIN+i) {
+            //push on rotary
+          case T_PUSHROTARY:
+            if( 1-digitalRead(inpin[i])==1){
+              switch (menu.behaviour) {
+                case T_MENU_BEHAVIOUR_MASTER:
+                  currentMenu++;
+                  displayNeedUpdate=1;
+                  break;
+                default:
+                  goprevMasterMenu();
+                  break;
+              }
+            }
+            break;
+            //push A
+          case T_PUSHA:
+            switch (menu.behaviour) {
+              case T_MENU_BEHAVIOUR_SHOW:
+                newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+                break;
+              case T_MENU_BEHAVIOR_SELECT:
+                newValue[T_PUSHROTARY]=menu.a;
+                break;
+              default:
+                break;
+            }
+            break;
+            //push b
+          case T_PUSHB:
+            switch (menu.behaviour) {
+              case T_MENU_BEHAVIOUR_SHOW:
+                newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+                break;
+              case T_MENU_BEHAVIOR_SELECT:
+                newValue[T_PUSHROTARY]=menu.b;
+                break;
+              default:
+                break;
+            }
+            break;
+            //push ok
+          case T_PUSHOK:
+            switch (menu.behaviour) {
+              case T_MENU_BEHAVIOUR_SHOW:
+                newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+                break;
+              case T_MENU_BEHAVIOR_SELECT:
+                newValue[T_PUSHROTARY]=menu.ok;
+                break;
+              default:
+                break;
+            }
+            break;
+            //reed
+          case T_REED:
+            newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+            break;
+        }
+      }
+    }
+    //check analog
+    if (Value[T_BOARDCHECKFLOAT] == 1) newValue[T_FLOAT] = map(analogRead(inpinanalog[T_FLOAT - T_DECALALOGPIN]), 0, 1024, 0, 255);
+    
+    //check rotary
+    if(Value[T_LOCK]==T_ISOPEN){
+      long newLeft;
+      newLeft = (long)rotary.read()*1.0/2;
+      if (menu.behaviour==T_MENU_BEHAVIOUR_MASTER) {
+        if (newLeft<positionLeft) goprevMasterMenu();
+        else gonextMasterMenu();
+      } else {
+        memcpy_P (&temp, &menulist [currentMenu-1], sizeof(menutype));
+        if (newLeft<positionLeft && temp.behaviour!=T_MENU_BEHAVIOUR_MASTER) {
+          currentMenu--;
+          displayNeedUpdate=1;
+        }
+        memcpy_P (&temp, &menulist [currentMenu+1], sizeof(menutype));
+        if (newLeft<positionLeft && temp.behaviour!=T_MENU_BEHAVIOUR_MASTER) {
+          currentMenu++;
+          displayNeedUpdate=1;
+        }
+        positionLeft=newLeft;
+      }
+    }
+    lastCheckInput = millis();
+  }
+}
+
+
+//checkstring receive
+void newcheckStringReceive() {
+  if (command == 0 && adress == T_STRING) {
+    buf [pos] = 0;
+    Serial.println(buf);
+    pos = 0;
+    adress = 0;
+    byte id = buf[0];
+    if (id==T_MENU_ID_LOG_0) {
+      for (byte n=T_MENU_ID_LOG_0+T_MENU_NB_LOG-1; n>T_MENU_ID_LOG_0; n--) {
+        memcpy(variableMenulist[n].line1, variableMenulist[n-1].line1, 16 );
+        memcpy(variableMenulist[n].line2, variableMenulist[n-1].line2, 16 );
+      }
+    }
+    memcpy(variableMenulist[id].line1, &buf[1], 16 );
+    memcpy(variableMenulist[id].line2, &buf[1], 16 );
+    if (menu.id==id) displayNeedUpdate=1;
+    flushbuf();
+  }
+}
+
+
+
+//-------------------------------SPI
+
+void initSPIslave() {
+  // have to send on master in, *slave out*
+  pinMode(MISO, OUTPUT);
+  // turn on SPI in slave mode
+  SPCR |= _BV(SPE);
+  // turn on interrupts
+  SPCR |= _BV(SPIE);
+  SPDR = 0;
+}
+
+// SPI interrupt routine
+ISR (SPI_STC_vect)
+{
+  byte c = SPDR;
+  //Serial.println(c, HEX);
+  
+  if (command < 10) {
+    //Serial.print(PSTR("R add"));
+    adress = c & ~COMMANDMASK;
+    //Serial.print(adress, HEX);
+    //Serial.print(PSTR(" com"));
+    command = c & COMMANDMASK;
+    //Serial.println(command, HEX);
+  } else {
+    //valeur
+    if (command == WRITECOMMANDVALUE) {
+      //Serial.println(PSTR("wv"));
+      if (adress < T_STRING) {
+        newValue[adress] = c;
+        command = 1;
+        SPDR = 0;
+      } else {//case string received
+        if (pos < sizeof buf) {
+          buf [pos++] = c;
+        }
+        return;
+      }
+    }
+  }
+  
+  //renvoie la valeur enregistree
+  if (command == READCOMMAND) {
+    SPDR = Value[adress];
+    command = 1;
+    if (inputRange(adress)) {
+      newValue[T_INTERRUPT] = 0;
+      Value[T_INTERRUPT] = newValue[T_INTERRUPT];
+      digitalWrite(outpin[T_INTERRUPT], LOW);
+    }
+    Serial.print(PSTR("r "));
+    Serial.println(Value[adress],DEC);
+  }
+}  // end of interrupt service routine (ISR) SPI_STC_vect
+
+
+
+
+//-------------------------------main program
+
+void setup (void) {
+  Serial.begin(19200);
+  clearRegister();
+  initpin();
+  initSPIslave();
+  Serial.println(PSTR("teleco"));
+  checkInputPeriod = 100;
+  flushbuf();
+  initmenu();
+  displayMenu(1);
+  waitforinit();
+  positionLeft = rotary.read();
+  Serial.println(PSTR("init"));
+}
+
+
+
+void waitforinit(){
+  delay(100);
+  SPDR = 0;
+  digitalWrite(outpin[T_INTERRUPT], HIGH);
+  while(command==0);
+  digitalWrite(outpin[T_INTERRUPT], LOW);
+  Value[T_INIT]=1;
+  newValue[T_INIT]=1;
+}
+
+
+
+//boucle principale
+void loop (void) {
+  
+  // if SPI not active, clear current command
+  if (digitalRead (SS) == HIGH) command = 0;
+  
+  //verification changement de valeur
+  if (command == 0 && adress < T_STRING) {
+    for (byte i = 0; i < T_REGISTERSIZE; i++) {
+      if (Value[i] != newValue[i]) {
+        if(newValue[T_INIT]==0) resetFunc();
+        if (outputRange(i)) updateValue(i); //cas led output
+        if (inputRange(i)) updateInput(i);
+        else {
+          //cas autre valeur (sans fade)
+          Value[i] = newValue[i];
+          
+          //cas particulier
+          if (i == T_STROBLRSPEED)lastLRStrob = millis();
+          if (i == T_STROBLRSPEED && Value[i] == 0) strobLRRoutine(1);
+          if (i == T_STROBLVSPEED)lastLVStrob = millis();
+          if (i == T_STROBLVSPEED && Value[i] == 0) strobLVRoutine(1);
+          if (i == T_LOCK) switchLock(Value[i]);
+          
+        }
+      }
+    }
+  }
+  
+  
+  if (Value[T_STROBLRSPEED] > 0) strobLRRoutine(0);
+  if (Value[T_STROBLVSPEED] > 0) strobLVRoutine(0);
+  
+  newcheckStringReceive();
+  newcheckInput();
+  displayMenu();
+  
+}  // end of loop
+
+
+//go deep sleep
+void poweroff(){
+  pinMode(outpin[T_LEDRVALUE], INPUT);
+  // disable ADC
+  ADCSRA = 0;
+  set_sleep_mode (SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  while(1)sleep_cpu ();
+}
+
+
+
+
+
+
+
 
 
 

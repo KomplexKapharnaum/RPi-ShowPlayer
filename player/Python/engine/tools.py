@@ -14,7 +14,6 @@ import shlex
 import threading
 import Queue
 
-
 from libs.unidecode import unidecode
 
 from setting import settings
@@ -23,7 +22,6 @@ from engine.log import init_log
 from libs import subprocess32
 
 log = init_log("tools")
-
 
 _to_stop_thread = dict()
 
@@ -64,7 +62,7 @@ def get_smallest_difference(elements, n):
         tmp_elements.remove(elem)
         final_list = list()
         for i in xrange(n):
-            a = min(tmp_elements, key=lambda x:abs(x-elem))
+            a = min(tmp_elements, key=lambda x: abs(x - elem))
             tmp_elements.remove(a)
             final_list.append(a)
         if min_value > (max(final_list) - min(final_list)) or min_value is None:
@@ -81,7 +79,7 @@ def set_python_path(depth=0):
     f = sys._getframe(1)
     fname = f.f_code.co_filename
     fpath = os.path.dirname(fname)
-    PythonPath = os.path.join(fpath, "../".join(["" for x in xrange(depth+1)]))
+    PythonPath = os.path.join(fpath, "../".join(["" for x in xrange(depth + 1)]))
     sys.path.append(PythonPath)
 
 
@@ -131,7 +129,7 @@ def old_log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
         time.sleep(settings.get("log", "teleco", "error_delay"))
 
 
-def log_teleco(lines, page=0, encode="utf-8"):
+def log_teleco(lines, page="log", encode="utf-8"):
     """
     This function log a message to the teleco
     :param lines: Lines to display
@@ -148,6 +146,8 @@ def log_teleco(lines, page=0, encode="utf-8"):
     else:
         encoded_lines = lines
     engine.threads.log_teleco.add_message(encoded_lines, page)
+    if page is not "log"
+        engine.threads.log_teleco.add_message(encoded_lines, "log")
 
 
 def update_system():
@@ -168,7 +168,7 @@ def restart_netctl():
         log.debug("Restart netctl return {0}".format(
             subprocess.check_call(
                 shlex.split(settings.get("path", "systemctl") + " restart netctl-auto@wlan0.service"))))
-        log_teleco(ligne1="Le réseau a redémarré")
+        log_teleco(("network restart", "succes"), "sync")
     else:
         log.debug("Don't restart netctl because we are not on a raspi")
 
@@ -178,6 +178,7 @@ class ThreadTeleco(threading.Thread):
     This thread is here to display messages in teleco. If the given message his too large it will be cut in smaller
     parts and displayed parts by parts
     """
+
     def __init__(self):
         threading.Thread.__init__(self)
         register_thread(self)
@@ -200,7 +201,7 @@ class ThreadTeleco(threading.Thread):
             except Exception:
                 continue
             # with self._pages_lock:
-            #     for n, page in enumerate(self._pages):
+            # for n, page in enumerate(self._pages):
             #         if len(page) < 1:       # There is nothing to display
             #             continue
             #         to_display = self._pages.pop(n), n
@@ -256,9 +257,9 @@ class ThreadTeleco(threading.Thread):
             lines.append(line)
         for line in lines:
             if len(blocs[-1]) == 2:
-                blocs.append(list())    # New block
+                blocs.append(list())  # New block
             blocs[-1].append(line)
         return blocs
 
 
-engine.log.log_teleco = log_teleco      # This add log_teleco real function to log to avoid circular import
+engine.log.log_teleco = log_teleco  # This add log_teleco real function to log to avoid circular import

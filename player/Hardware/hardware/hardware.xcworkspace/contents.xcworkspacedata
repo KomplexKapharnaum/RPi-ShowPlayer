@@ -2,6 +2,13 @@
 <Workspace
    version = "1.0">
    <Group
+      location = "container:"
+      name = "gsm">
+      <FileRef
+         location = "group:../GPRS_com/main.c">
+      </FileRef>
+   </Group>
+   <Group
       location = "group:../prog atmega"
       name = "prog atmega">
       <Group

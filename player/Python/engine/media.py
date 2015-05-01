@@ -269,7 +269,7 @@ class Media:
         if self.source == "scenario":
             log.warning("Ask to get a file from the scenario... do nothing")
             return False
-        tools.log_teleco(ligne1=os.path.basename(self.rel_path), ligne2="Copie depuis {0}".format(self.source.upper()))
+        tools.log_teleco((os.path.basename(self.rel_path), ligne2="copy from {0}".format(self.source.upper())),"sync")
         if self.source == "usb":
             dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
@@ -287,11 +287,9 @@ class Media:
                 # if error_fnct is not None:
                 # error_fnct(self, e)
                 cp.stop()
-                tools.log_teleco(ligne1=os.path.basename(self.rel_path),
-                                 ligne2="ERREUR COPIE {0}".format(self.source.upper()), error=True)
+                tools.log_teleco((os.path.basename(self.rel_path),"fail copy {0}".format(self.source.upper())),"error")
                 return self, e
-            tools.log_teleco(ligne1=os.path.basename(self.rel_path),
-                             ligne2="Copie {0} : OK".format(self.source.upper()))
+            tools.log_teleco((os.path.basename(self.rel_path),"copy {0} : OK".format(self.source.upper())),"usb")
             cp.stop()
             return True
         elif self.source == "osc":
@@ -313,13 +311,11 @@ class Media:
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 scp.stop()
-                tools.log_teleco(ligne1=os.path.basename(self.rel_path),
-                                 ligne2="ERREUR COPIE {0}".format(self.source.upper()), error=True)
+                tools.log_teleco((os.path.basename(self.rel_path),"fail copy {0}".format(self.source.upper())),"error")
                 return self, e
             log.log("raw", "Force mtime to {0}".format(self.mtime))
             os.utime(dest_path, (-1, self.mtime))  # Force setting new time on file to avoid scp loop (-p dosen't work)
-            tools.log_teleco(ligne1=os.path.basename(self.rel_path),
-                             ligne2="Copie {0} : OK".format(self.source.upper()))
+            tools.log_teleco((os.path.basename(self.rel_path),"copy {0} : OK".format(self.source.upper())),"sync")
             scp.stop()
             return True
         else:
@@ -369,10 +365,10 @@ def mount_partition(block_path, mount_path):
     except RuntimeError as e:
         log.exception(log.show_exception(e))
         log.warning("Unable to mount  {0} on {1} ".format(block_path, mount_path))
-        tools.log_teleco(ligne1="!USB! : Impossible de", ligne2="monter la clé", error=True)
+        tools.log_teleco(("!USB! : error", "mount fail"), "error")
         mount_cmd.stop()
         return False
-    tools.log_teleco(ligne1="USB : La clé a été", ligne2="correctement montée")
+    tools.log_teleco(("USB : stick","mount ok"),"usb")
     mount_cmd.stop()
     return True
 
@@ -398,12 +394,12 @@ def umount_partitions():
                 time.sleep(settings.get("sync", "timeout_rm_mountpoint"))
                 os.rmdir(path)
                 log.log("raw", "Correctly remove after umount {0}".format(path))
-                tools.log_teleco(ligne1="USB : La clé a été", ligne2="correctement démontée")
+                tools.log_teleco(("USB : unmount","succes"),"usb")
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 log.warning("Unable to umount {0}".format(path))
                 umount_cmd.stop()
-                tools.log_teleco(ligne1="!USB! : Erreur de", ligne2="démontage", error=True)
+                tools.log_teleco(("!USB! : error","unmount fail"), "error")
                 sucess = False
                 continue
             umount_cmd.stop()
@@ -442,7 +438,7 @@ class UdevThreadMonitor(threading.Thread):
                     log.log("info",
                             "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
                     network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), tools.restart_netctl)
-                    tools.log_teleco(ligne1="Le réseau va redémarrer", ligne2="dans {0} sec".format(settings.get("sync", "timeout_restart_netctl")))
+                    tools.log_teleco(("network restart","in {0} sec".format(settings.get("sync", "timeout_restart_netctl"))),"usb")
                     time.sleep(settings.get("log", "teleco", "error_delay"))        # Not an error but..
                 continue
             elif device.action not in ("add", "change"):

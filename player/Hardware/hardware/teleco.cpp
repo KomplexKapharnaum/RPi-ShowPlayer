@@ -54,43 +54,23 @@ void Teleco::setLedWarning(int val){
 }
 
 
-void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
-  //fprintf(stderr, "teleco send infos : %s / %s / %s / %s\n",Str1,Str2, Str3, Str4);
-  unsigned char buff[68];
-  buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
-  for(int i=0;i<16;i++){
-    buff[i+1]= *(Str1+i);
-  }
-  for(int i=0;i<16;i++){
-    buff[i+17]= *(Str2+i);
-  }
-  for(int i=0;i<16;i++){
-    buff[i+33]= *(Str3+i);
-  }
-  for(int i=0;i<16;i++){
-    buff[i+49]= *(Str4+i);
-  }
-  fprintf(stderr, "teleco - teleco send infos : %s\n",buff);
-  SPIcarte.send(0,buff,68);
-}
-
-void Teleco::sendPopUp(char Str1[], char Str2[]){
+void Teleco::sendString(char Str1[], char Str2[], int val){
   setLedWarning(1);
   unsigned char buff[38];
   buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
-  for(int i=0;i<18;i++){
-    buff[i+1]= *(Str1+i);
+  buff[1]= (char)val;
+  for(int i=0;i<17;i++){
+    buff[i+2]= *(Str1+i);
   }
-  for(int i=0;i<18;i++){
-    buff[i+18]= *(Str2+i);
+  for(int i=0;i<17;i++){
+    buff[i+2+16]= *(Str2+i);
   }
-  fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
+  fprintf(stderr, "teleco - teleco send string : %s\n",buff);
   SPIcarte.send(0,buff,38);
   setLedWarning(0);
 }
 
 void Teleco::sendButtonString(char Str1[]){
-  
   unsigned char buff[19];
   buff[0]= (char)(WRITECOMMANDVALUE+T_BUTON_STRING);
   for(int i=0;i<16;i++){
@@ -109,7 +89,6 @@ int Teleco::readOrSetTelecoLock(int val){
     return readValue(T_LOCK);
   }
   return state;
-  
 }
 
 
@@ -137,8 +116,8 @@ int Teleco::readInterrupt(){
       break;
     case T_PUSHROTARY:
       switch (valeur){
-        case 250:
-          std::cout << "#TELECO_GET_INFO" << std::endl;
+        case 0:
+          std::cout << "#TELECO_MESSAGE_UNKNOW" << std::endl;
           break;
         case 1:
           std::cout << "#TELECO_MESSAGE_PREVIOUSSCENE" << std::endl;
