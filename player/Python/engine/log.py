@@ -33,7 +33,7 @@ import logging.handlers
 
 
 def log_teleco(*args, **kwargs):
-    pass
+    print("ERROOOOORRR : Should not be launched !")
 
 
 def add_coloring_to_emit_ansi(fn):
@@ -78,7 +78,7 @@ for _level, _lvl_value in LEVELS.items():
 
 DEFAULT_LEVEL = "debug"
 DEFAULT_LOG_TYPE = "Console"
-DEFAULT_TELECO_LEVEL = "critical"
+DEFAULT_TELECO_LEVEL = "error"
 LOG_PATH = os.path.join("/tmp/", "DNC_Python.log")
 
 
@@ -206,6 +206,7 @@ class BaseLog:
         try:
             self.logger.log(LEVELS[lvl], msg)
             if LEVELS[lvl] >= LEVELS[self.teleco_level]:
+                print("log_succes_teleco")
                 log_teleco(msg, "log")
         except KeyError:
             self.debug("Level name " + str(lvl) + " unknown. Message : " + str(msg))

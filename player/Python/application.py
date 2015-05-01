@@ -222,9 +222,9 @@ class inputThread(threading.Thread):
                     engine.perf.prompt_history()
                 elif cmd[0] == "mhistory":
                     engine.perf.multiplex_history(cmd[1:])
-                elif cmd[0] == "log":
+                elif cmd[0] == "_log":
                     if len(cmd) > 1:
-                        engine.tools.log_teleco(ligne1=" ".join(cmd[1:]))
+                        engine.tools.log_teleco(" ".join(cmd[1:]))
                 elif cmd[0] == "settings":
                     log.info()
                     log.info("=== SETTINGS ===")
