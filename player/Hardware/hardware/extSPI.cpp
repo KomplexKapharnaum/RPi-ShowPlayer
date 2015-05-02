@@ -228,13 +228,13 @@ void extSPI::releaseSelect(){
   inactiveCS();
 }
 
-int extSPI::wiringPiSPISetupSpeed (int speed)
+int extSPI::wiringPiSPISetupSpeed (int channel,int speed)
 {
-
-  if (ioctl (fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed)   < 0)
+  
+  if (ioctl (spiFds[channel], SPI_IOC_WR_MAX_SPEED_HZ, &speed)   < 0)
     return wiringPiFailure (WPI_ALMOST, "SPI Speed Change failure: %s\n", strerror (errno)) ;
   
-  return fd ;
+  return spiFds[channel] ;
 }
 
 
