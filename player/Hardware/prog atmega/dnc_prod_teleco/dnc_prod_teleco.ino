@@ -158,9 +158,10 @@ void initpin() {
 //flush buffer
 void flushbuf(){
   printf_P(PSTR("flush buff\n"));
-  for (byte i=0; i<T_BUFFER_SIZE; i++) {
+  for (byte i=0; i<T_BUFFER_SIZE-1; i++) {
     buf[i]=' ';
   }
+  buf[T_BUFFER_SIZE-1]=0;
   pos = 0;
 }
 
@@ -391,7 +392,10 @@ void initmenu(){
 
 //display menu
 void displayMenu(byte need=0){
-  if(displayNeedUpdate || need){
+  if((displayNeedUpdate>0 && command == 0) || need){
+    if (displayNeedUpdate>1) {
+      displayNeedUpdate--;
+    }else{
     printf_P(PSTR("update menu %u"),currentMenu);
     memcpy_P (&menu, &menulist[currentMenu], sizeof(menutype));
     //printf_P(PSTR("get behaviour =%u\n"),menu.behaviour);
@@ -416,6 +420,7 @@ void displayMenu(byte need=0){
     }
     printf_P(PSTR(" done\n"));
     displayNeedUpdate=0;
+  }
   }
 }
 
@@ -554,11 +559,7 @@ void newcheckInput(){
             break;
             //reed
           case T_REED:
-            /*
-            if(menu.behaviour==T_MENU_BEHAVIOUR_SHOW){
-              newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
-              printf_P(PSTR("check reed\n"));
-            }*/
+                newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);            
             break;
         }
       }
@@ -598,21 +599,26 @@ void newcheckInput(){
 //checkstring receive
 void newcheckStringReceive() {
   if (command == 0 && adress == T_STRING) {
-    printf_P(PSTR("get new string\n"));
     buf [pos] = 0;
-    printf_P(buf);
+    printf_P(PSTR("get new string %s\n"),buf);
     pos = 0;
     adress = 0;
     byte id = buf[0];
+    //for log only
     if (id==T_MENU_ID_LOG_0) {
+      printf_P(PSTR("shift logs\n"));
       for (byte n=T_MENU_ID_LOG_0+T_MENU_NB_LOG-1; n>T_MENU_ID_LOG_0; n--) {
         memcpy(variableMenulist[n].line1, variableMenulist[n-1].line1, 16 );
         memcpy(variableMenulist[n].line2, variableMenulist[n-1].line2, 16 );
       }
     }
-    memcpy(variableMenulist[id].line1, &buf[1], 16 );
-    memcpy(variableMenulist[id].line2, &buf[16], 16 );
-    if (menu.id==id) displayNeedUpdate=1;
+    //fil menu with string
+    memcpy(&variableMenulist[id].line1[0], &buf[1], 16 );
+    memcpy(&variableMenulist[id].line2[0], &buf[17], 16 );
+    if (menu.id==id) {
+      printf_P(PSTR("same menu %u, need update\n"),id);
+      displayNeedUpdate=100;
+    }
     flushbuf();
   }
 }

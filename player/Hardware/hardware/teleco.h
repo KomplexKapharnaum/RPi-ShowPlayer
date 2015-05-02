@@ -97,6 +97,7 @@ public:
   void setLedOk(int val);
   void setLedWarning(int val);
   int readOrSetTelecoLock(int val=-1);
+  int needtestroutine;
 };
 
 

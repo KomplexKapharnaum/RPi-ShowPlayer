@@ -44,6 +44,8 @@ string version_c="0.9";
 string status="-";
 string voltage="-";
 string buttonline="OK   B   A";
+string popup1;
+string popup2;
 int init=0;
 
 Carte mycarte;
@@ -108,6 +110,10 @@ void myInterruptTELECO(void) {
   }else{
     fprintf(stderr, "main - reel interrupt\n");
     myteleco.readInterrupt();
+  }
+  if(myteleco.needtestroutine){
+    myteleco.needtestroutine=0;
+    testRoutine(1);
   }
 }
 
@@ -226,8 +232,10 @@ int parseInput(){
     
     if ("popup"==parsedInput) {
       int n=0;
-      string popup1;
-      string popup2;
+      popup1="";
+      popup2="";
+      char mess1[17];
+      char mess2[17];
       int type=0;
       while (ss>>parsedInput){
         if ("-type"==parsedInput){
@@ -243,22 +251,18 @@ int parseInput(){
         if ("-line1"==parsedInput){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          popup1=parsedInput;
+          strncpy(mess1, parsedInput.c_str(), sizeof(mess1));
         }
         if ("-line2"==parsedInput){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          popup2=parsedInput;
+          strncpy(mess2, parsedInput.c_str(), sizeof(mess2));
           if (type==T_MENU_ID_STATUS_SCENE) {
-            scene=popup2;
+            scene=parsedInput;
             sendStatusTeleco();
           }
         }
       }
-      char mess1[18];
-      char mess2[18];
-      sprintf(mess1,"%s",n,popup1.c_str());
-      sprintf(mess2,"%s",n,popup2.c_str());
       if(type!=0)myteleco.sendString(mess1,mess2,type);
     }
 

@@ -27,6 +27,7 @@ void Teleco::initCarte(char pow){
   fprintf(stderr, "teleco - add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
+  needtestroutine=0;
 }
 
 int Teleco::fisrtView(){
@@ -151,6 +152,7 @@ int Teleco::readInterrupt(){
           break;
         case 10:
           std::cout << "#TELECO_MESSAGE_TESTROUTINE" << std::endl;
+          needtestroutine=1;
           break;
       }
       break;
