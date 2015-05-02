@@ -15,14 +15,16 @@
          location = "group:dnc_prod_carte"
          name = "dnc_prod_carte">
          <FileRef
-            location = "group:dnc_prod_carte.ino">
+            location = "group:dnc_prod_carte.ino"
+            assignedFileDataType = "public.c-plus-plus-source">
          </FileRef>
       </Group>
       <Group
          location = "group:dnc_prod_teleco"
          name = "dnc_prod_teleco">
          <FileRef
-            location = "group:dnc_prod_teleco.ino">
+            location = "group:dnc_prod_teleco.ino"
+            assignedFileDataType = "public.c-plus-plus-source">
          </FileRef>
       </Group>
    </Group>

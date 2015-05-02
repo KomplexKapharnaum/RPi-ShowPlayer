@@ -7,7 +7,10 @@
 //
 
 #include "extSPI.h"
-
+#include <stdint.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
