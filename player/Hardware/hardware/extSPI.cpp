@@ -228,7 +228,7 @@ void extSPI::releaseSelect(){
   inactiveCS();
 }
 
-int extSPI::wiringPiSPISetupSpeed (int speed)
+int wiringPiSPISetupSpeed (int speed)
 {
 
   if (ioctl (fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed)   < 0)
