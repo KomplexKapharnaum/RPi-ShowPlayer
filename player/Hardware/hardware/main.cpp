@@ -96,28 +96,6 @@ void beforekill(int signum)
   exit(signum);
 }
 
-void myInterruptTELECO(void) {
-  fprintf(stderr, "main - interrupt from teleco\n");
-  if (myteleco.fisrtView()){
-    delay(200);
-    fprintf(stderr, "main - delaypass\n");
-    if (digitalRead(21)==HIGH) {
-      fprintf(stderr, "main - reel interrupt\n");
-      myteleco.readInterrupt();
-      myteleco.start();
-      sendStatusTeleco();
-    }
-  }else{
-    fprintf(stderr, "main - reel interrupt\n");
-    myteleco.readInterrupt();
-  }
-  if(myteleco.needtestroutine){
-    myteleco.needtestroutine=0;
-    testRoutine(1);
-  }
-}
-
-
 
 void testRoutine(int n){
   string msg;
@@ -148,6 +126,30 @@ void testRoutine(int n){
   mytitreur.text(0,0,buff);
   
 }
+
+void myInterruptTELECO(void) {
+  fprintf(stderr, "main - interrupt from teleco\n");
+  if (myteleco.fisrtView()){
+    delay(200);
+    fprintf(stderr, "main - delaypass\n");
+    if (digitalRead(21)==HIGH) {
+      fprintf(stderr, "main - reel interrupt\n");
+      myteleco.readInterrupt();
+      myteleco.start();
+      sendStatusTeleco();
+    }
+  }else{
+    fprintf(stderr, "main - reel interrupt\n");
+    myteleco.readInterrupt();
+  }
+  if(myteleco.needtestroutine){
+    myteleco.needtestroutine=0;
+    testRoutine(1);
+  }
+}
+
+
+
 
 
 int parseInput(){
