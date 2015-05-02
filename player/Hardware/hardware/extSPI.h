@@ -74,6 +74,7 @@ private:
   
   int keepSelect;
   
+  int wiringPiSPISetupSpeed(int speed);
 
   
 
