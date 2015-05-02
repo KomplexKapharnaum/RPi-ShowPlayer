@@ -15,6 +15,7 @@
 #include <sys/ioctl.h>
 #include <time.h>
 #include <sys/times.h>
+#include <sys/ioctl.h>
 
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
