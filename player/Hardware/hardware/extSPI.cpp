@@ -49,7 +49,7 @@ void extSPI::commonInit(int _spiSpeed){
   spiWRMode = 0;
   spiRDMode = 0;
   spiBitsPerWord = 8;
-  wiringPiSPISetup(0,_spiSpeed);
+  spifile=wiringPiSPISetup(0,_spiSpeed);
   //define 244
   wiringPiSetupGpio();
   GPIO_LED=12;
@@ -191,7 +191,7 @@ void extSPI::selectHC595csline(int _selectedCSofHC595){
 void extSPI::activeCS(){
   fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
   //try only change speed
-  wiringPiSPISetupSpeed(0,chipSelect[selectedChip].speed);
+  spifile=wiringPiSPISetupSpeed(spifile,chipSelect[selectedChip].speed);
   //wiringPiSPISetup(0,chipSelect[selectedChip].speed);
   //this do not work beacause open file each time
   if(chipSelect[selectedChip].GPIO!=csactivated || hc595activated!=chipSelect[selectedChip].HC595 || keepSelect==0){
@@ -228,13 +228,13 @@ void extSPI::releaseSelect(){
   inactiveCS();
 }
 
-int extSPI::wiringPiSPISetupSpeed (int channel,int speed)
+int extSPI::wiringPiSPISetupSpeed (int fd,int speed)
 {
   
-  if (ioctl (spiFds[channel], SPI_IOC_WR_MAX_SPEED_HZ, &speed)   < 0)
+  if (ioctl (fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed)   < 0)
     return wiringPiFailure (WPI_ALMOST, "SPI Speed Change failure: %s\n", strerror (errno)) ;
   
-  return spiFds[channel] ;
+  return fd ;
 }
 
 

@@ -46,6 +46,8 @@ struct ChipSelect{
 class extSPI{
 
 private:
+  int spifile;
+  
   int init;
   int spiWRMode;
   int spiRDMode;
