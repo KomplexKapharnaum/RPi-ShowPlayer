@@ -1,9 +1,11 @@
 #include <avr/pgmspace.h>
 #include "pins_arduino.h"
-#include "pins_arduino.h"
 #include <LiquidCrystal595.h>
 #include <Encoder.h>
 #include <avr/sleep.h>
+#include "printf.h"
+#include "MemoryFree.h"
+
 
 //function for reset
 void(* resetFunc) (void) = 0;
@@ -42,6 +44,7 @@ const byte character_data[8][8] PROGMEM= {
 };
 
 void initlcd(){
+  printf_P(PSTR("init lcd"));
   lcd.begin(16, 2);
   byte my_character_data[8];
   for (byte i=0;i<8;i++) {
@@ -49,13 +52,21 @@ void initlcd(){
     lcd.createChar(i,my_character_data);
   }
   delay(5);
+  lcd.display();
+  lcd.setBackLight(1);
+  lcd.setCursor(0, 0);
+  lcd.print("hello");
+  lcd.setCursor(0, 1);
+  printf_P(PSTR(" ok\n"));
+  //printf_P(PSTR("free memory = %u \n"),freeMemory());
 }
 
 //-------------------------------REGISTER AND BUFFER
 
 
 // what to do with incoming data
-char buf [38];  // buffer for receive string over spi
+#define T_BUFFER_SIZE 38
+char buf [T_BUFFER_SIZE];  // buffer for receive string over spi
 volatile byte pos;    //pos in the buffer
 volatile byte command = 0;  // 2 bits command
 volatile byte adress = 0;   // 6 bits adress
@@ -121,8 +132,13 @@ byte strobLOKStep;
 // define checkinput cycle
 long unsigned lastCheckInput;
 int checkInputPeriod;
+byte onePushRotary;
+byte onePushA;
+byte onePushB;
+byte onePushOK;
 
 void initpin() {
+  printf_P(PSTR("init pin"));
   byte i = 0;
   for (i = 0; i < T_DECINPIN; i++) {
     pinMode(outpin[i], OUTPUT);
@@ -134,18 +150,22 @@ void initpin() {
   strobLRStep = 0;
   strobLVStep = 0;
   strobLOKStep = 0;
+  printf_P(PSTR(" ok\n"));
+  //printf_P(PSTR("free memory = %u \n"),freeMemory());
 }
 
 
 //flush buffer
 void flushbuf(){
-  for (byte i=0; i<68; i++) {
+  printf_P(PSTR("flush buff\n"));
+  for (byte i=0; i<T_BUFFER_SIZE; i++) {
     buf[i]=' ';
   }
   pos = 0;
 }
 
 void clearRegister() {
+  printf_P(PSTR("clear register\n"));
   for (byte i = 0; i < T_REGISTERSIZE; i++) {
     Value[i] = 0;
     newValue[i] = 0;
@@ -185,8 +205,7 @@ void updateInput(byte i) {
     Value[i] = newValue[i];
     newValue[T_INTERRUPT] = i;
     Value[T_INTERRUPT] = newValue[T_INTERRUPT];
-    Serial.print(PSTR("interupt "));
-    Serial.println(Value[T_INTERRUPT]);
+    printf_P(PSTR("interupt %u\n"),Value[T_INTERRUPT]);
     digitalWrite(outpin[T_INTERRUPT], HIGH);
     SPDR = i;
   }
@@ -222,10 +241,11 @@ void strobLVRoutine(byte force) {
 #define T_POWEROFF 10
 
 void switchLock(byte force){
+  printf_P(PSTR("switch lock (T_LOCK%u-%u) force %u - "),newValue[T_LOCK],Value[T_LOCK], force);
   if (Value[T_LOCK]==T_ISOPEN || force==T_ISLOCK){
     Value[T_LOCK]=T_ISLOCK; newValue[T_LOCK]=T_ISLOCK;
     pinMode(outpin[T_LEDRVALUE], INPUT);
-    Serial.println(PSTR("lock"));
+    printf_P(PSTR("lock\n"));
     return;
   }
   if (Value[T_LOCK]==T_ISLOCK || force==T_ISLOCKWITHSLEEP){
@@ -233,7 +253,7 @@ void switchLock(byte force){
     pinMode(outpin[T_LEDRVALUE], INPUT);
     lcd.noDisplay();
     lcd.setBackLight(0);
-    Serial.println(PSTR("lock and sleep"));
+    printf_P(PSTR("lock and sleep\n"));
     return;
   }
   if (Value[T_LOCK]==T_ISLOCKWITHSLEEP || force==T_ISOPEN){
@@ -242,14 +262,15 @@ void switchLock(byte force){
     updateValue(T_LEDRVALUE);
     lcd.display();
     lcd.setBackLight(1);
-    Serial.println(PSTR("unlock"));
+    printf_P(PSTR("unlock\n"));
     return;
   }
   if (force==T_POWEROFF){
     Value[T_LOCK]=T_POWEROFF; newValue[T_LOCK]=T_POWEROFF;
     lcd.noDisplay();
     lcd.setBackLight(0);
-    Serial.println(PSTR("poweroff"));
+    printf_P(PSTR("poweroff\n"));
+    delay(5);
     poweroff();
     return;
   }
@@ -267,12 +288,14 @@ typedef struct {
   char line2 [17];
   byte behaviour;
   byte id;
-  byte a;
-  byte b;
   byte ok;
+  byte b;
+  byte a;
+
+
 } menutype;
 
-#define T_MENU_BEHAVIOUR_MASTER 0
+#define T_MENU_BEHAVIOUR_MASTER 10
 #define T_MENU_BEHAVIOUR_SHOW 1
 #define T_MENU_BEHAVIOUR_LOG 2
 #define T_MENU_BEHAVIOR_SELECT 3
@@ -306,19 +329,19 @@ typedef struct {
 
 #define T_MENU_VARIABLE_LENGTH 25
 
-const menutype menulist[T_MENU_LENGTH] PROGMEM {
-  {"  do not clean  ","      V1.0      ",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+const menutype menulist[T_MENU_LENGTH] PROGMEM = {
+  {"  do not clean  ","     V1.0",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0},
   {"commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"scene","back res next",T_MENU_BEHAVIOR_SELECT,0,1,2,3},
-  {"media","play pause ",T_MENU_BEHAVIOR_SELECT,0,1,2,3},
-  {"mute","video audio ",T_MENU_BEHAVIOR_SELECT,0,1,2,3},
+  {"media","play pause ",T_MENU_BEHAVIOR_SELECT,0,0,0,0},
+  {"mute","video audio ",T_MENU_BEHAVIOR_SELECT,0,0,0,0},
   {"commande","syteme",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"restart","PY wifi reboot",T_MENU_BEHAVIOR_SELECT,0,5,6,9},
   {"system","update  poweroff",T_MENU_BEHAVIOR_SELECT,0,7,0,8},
-  {"test","routine  ",T_MENU_BEHAVIOR_SELECT,0,10,0,9},
-  {"statuts","view info",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"test","routine  ",T_MENU_BEHAVIOR_SELECT,0,10,0,0},
+  {"settings","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"statuts","view info",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"need_stat","name ip v",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE,0,0,0},
   {"need_stat","git version",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_GIT_VERSION,0,0,0},
@@ -326,8 +349,8 @@ const menutype menulist[T_MENU_LENGTH] PROGMEM {
   {"need_stat","usb",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USB,0,0,0},
   {"need_stat","media",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_MEDIA,0,0,0},
   {"need_stat","sync",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_SYNC,0,0,0},
-  {"need_stat","7",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USER,0,0,0},
-  {"need_stat","8",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_8,0,0,0},
+  {"need_stat","user",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USER,0,0,0},
+  {"need_stat","error",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_ERROR,0,0,0},
   {"logs","view history",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"log","1",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0,0,0,0},
   {"log","2",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+1,0,0,0},
@@ -350,46 +373,87 @@ variableMenu variableMenulist[T_MENU_VARIABLE_LENGTH];
 
 //fill the string with initial string from PROGMEM
 void initmenu(){
+  printf_P(PSTR("init menu \n"));
   for (byte i=0;i<T_MENU_LENGTH;i++){
-    memcpy_P (&temp, &menulist[currentMenu], sizeof(menutype));
-    if (temp.id!=0) {
-      memcpy(variableMenulist[temp.id].line1, &temp.line1, 16 );
-      memcpy(variableMenulist[temp.id].line2, &temp.line2, 16 );
+    memcpy_P (&menu, &menulist[i], sizeof(menutype));
+    //printf_P(PSTR("menu %u"),i);
+    //printf_P(PSTR(" id=%u "),menu.id);
+    //printf_P(PSTR(" line1=%s"),menu.line1);
+    //printf_P(PSTR(" line2=%s\n"),menu.line2);
+    if (menu.id!=0) {
+      memcpy(variableMenulist[menu.id].line1, &menu.line1, 16 );
+      memcpy(variableMenulist[menu.id].line2, &menu.line2, 16 );
     }
   }
+  printf_P(PSTR(" ok\n"));
+  //printf_P(PSTR("free memory = %u \n"),freeMemory());
 }
 
 //display menu
 void displayMenu(byte need=0){
   if(displayNeedUpdate || need){
+    printf_P(PSTR("update menu %u"),currentMenu);
     memcpy_P (&menu, &menulist[currentMenu], sizeof(menutype));
-    lcd.setCursor(0, 0);
-    if(menu.id!=0) lcd.print(variableMenulist[menu.id].line1); else lcd.print(menu.line1);
-    lcd.setCursor(0, 1);
-    if(menu.id!=0) lcd.print(variableMenulist[menu.id].line2); else lcd.print(menu.line2);
+    //printf_P(PSTR("get behaviour =%u\n"),menu.behaviour);
+    //printf_P(PSTR("get id =%u\n"),menu.id);
+    //printf_P(PSTR("free memory = %u \n"),freeMemory());
+    //printf_P(PSTR("get line1 =%s\n"),menu.line1);
+    //printf_P(PSTR("get line2 =%s\n"),menu.line2);
+    delay(20);
+    lcd.clear();
+    if(menu.id!=0){
+      printf_P(PSTR(" variable id=%u"),menu.id);
+      lcd.setCursor(0, 0);
+      lcd.print(variableMenulist[menu.id].line1);
+      lcd.setCursor(0, 1);
+      lcd.print(variableMenulist[menu.id].line2);
+    } else {
+      printf_P(PSTR(" fixe"));
+      lcd.setCursor(0, 0);
+      lcd.print(menu.line1);
+      lcd.setCursor(0, 1);
+      lcd.print(menu.line2);
+    }
+    printf_P(PSTR(" done\n"));
     displayNeedUpdate=0;
   }
 }
 
+
+
 //return to previous master menu
 void goprevMasterMenu(){
-  for (byte i=currentMenu-1; i>=0; i--) {
-    memcpy_P (&temp, &menulist [i], sizeof(menutype));
-    if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0){
-      currentMenu=i;
-      displayNeedUpdate=1;
+  if (currentMenu>0) {
+    printf_P(PSTR("find prev master"));
+    for (byte i=currentMenu-1; i>=0; i--) {
+      memcpy_P (&temp, &menulist [i], sizeof(menutype));
+      printf_P(PSTR(" - menu %u"),i);
+      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0){
+        printf_P(PSTR(" master\n"));
+        currentMenu=i;
+        displayNeedUpdate=1;
+        return;
+      }
     }
+          printf_P(PSTR("\n"));
   }
 }
 
 //go to next master menu
 void gonextMasterMenu(){
-  for (byte i=currentMenu+1; i<T_MENU_LENGTH; i++) {
-    memcpy_P (&temp, &menulist [i], sizeof(menutype));
-    if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0){
-      currentMenu=i;
-      displayNeedUpdate=1;
+  if (currentMenu<T_MENU_LENGTH-1){
+    printf_P(PSTR("find next master"));
+    for (byte i=currentMenu+1; i<T_MENU_LENGTH; i++) {
+      memcpy_P (&temp, &menulist [i], sizeof(menutype));
+      printf_P(PSTR(" - menu %u"),i);
+      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0){
+        printf_P(PSTR(" master\n"));
+        currentMenu=i;
+        displayNeedUpdate=1;
+        return;
+      }
     }
+          printf_P(PSTR("\n"));
   }
 }
 
@@ -403,17 +467,25 @@ void newcheckInput(){
         switch (T_DECINPIN+i) {
             //push on rotary
           case T_PUSHROTARY:
-            if( 1-digitalRead(inpin[i])==1){
-              switch (menu.behaviour) {
-                case T_MENU_BEHAVIOUR_MASTER:
-                  currentMenu++;
-                  displayNeedUpdate=1;
-                  break;
-                default:
-                  goprevMasterMenu();
-                  break;
+            
+            if(1-digitalRead(inpin[i])==1){
+              if (onePushRotary==0){
+                onePushRotary=1;
+                printf_P(PSTR("get push rotary\n"));
+                switch (menu.behaviour) {
+                  case T_MENU_BEHAVIOUR_MASTER:
+                    currentMenu++;
+                    displayNeedUpdate=1;
+                    break;
+                  default:
+                    goprevMasterMenu();
+                    break;
+                }
               }
+            }else{
+              onePushRotary=0;
             }
+            
             break;
             //push A
           case T_PUSHA:
@@ -422,7 +494,15 @@ void newcheckInput(){
                 newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
                 break;
               case T_MENU_BEHAVIOR_SELECT:
-                newValue[T_PUSHROTARY]=menu.a;
+                if(1-digitalRead(inpin[i])==1){
+                  if (onePushA==0){
+                    onePushA=1;
+                    printf_P(PSTR("get pushA select %u\n"),menu.a);
+                    newValue[T_PUSHROTARY]=menu.a;
+                  }
+                }else{
+                  onePushA=0;
+                }
                 break;
               default:
                 break;
@@ -430,12 +510,21 @@ void newcheckInput(){
             break;
             //push b
           case T_PUSHB:
+            //printf_P(PSTR("get pushB\n"));
             switch (menu.behaviour) {
               case T_MENU_BEHAVIOUR_SHOW:
                 newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
                 break;
               case T_MENU_BEHAVIOR_SELECT:
-                newValue[T_PUSHROTARY]=menu.b;
+                if(1-digitalRead(inpin[i])==1){
+                  if (onePushB==0){
+                    onePushB=1;
+                    printf_P(PSTR("get pushB select %u\n"),menu.b);
+                    newValue[T_PUSHROTARY]=menu.b;
+                  }
+                }else{
+                  onePushB=0;
+                }
                 break;
               default:
                 break;
@@ -443,12 +532,21 @@ void newcheckInput(){
             break;
             //push ok
           case T_PUSHOK:
+            //printf_P(PSTR("get pushOK\n"));
             switch (menu.behaviour) {
               case T_MENU_BEHAVIOUR_SHOW:
                 newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
                 break;
               case T_MENU_BEHAVIOR_SELECT:
-                newValue[T_PUSHROTARY]=menu.ok;
+                if(1-digitalRead(inpin[i])==1){
+                  if (onePushOK==0){
+                    onePushOK=1;
+                    printf_P(PSTR("get pushOK select %u\n"),menu.ok);
+                    newValue[T_PUSHROTARY]=menu.ok;
+                  }
+                }else{
+                  onePushOK=0;
+                }
                 break;
               default:
                 break;
@@ -456,7 +554,11 @@ void newcheckInput(){
             break;
             //reed
           case T_REED:
-            newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+            /*
+            if(menu.behaviour==T_MENU_BEHAVIOUR_SHOW){
+              newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
+              printf_P(PSTR("check reed\n"));
+            }*/
             break;
         }
       }
@@ -468,19 +570,22 @@ void newcheckInput(){
     if(Value[T_LOCK]==T_ISOPEN){
       long newLeft;
       newLeft = (long)rotary.read()*1.0/2;
-      if (menu.behaviour==T_MENU_BEHAVIOUR_MASTER) {
-        if (newLeft<positionLeft) goprevMasterMenu();
-        else gonextMasterMenu();
-      } else {
-        memcpy_P (&temp, &menulist [currentMenu-1], sizeof(menutype));
-        if (newLeft<positionLeft && temp.behaviour!=T_MENU_BEHAVIOUR_MASTER) {
-          currentMenu--;
-          displayNeedUpdate=1;
-        }
-        memcpy_P (&temp, &menulist [currentMenu+1], sizeof(menutype));
-        if (newLeft<positionLeft && temp.behaviour!=T_MENU_BEHAVIOUR_MASTER) {
-          currentMenu++;
-          displayNeedUpdate=1;
+      if (newLeft!=positionLeft) {
+         printf_P(PSTR("get rotary\n"));
+        if (menu.behaviour==T_MENU_BEHAVIOUR_MASTER) {
+          if (newLeft<positionLeft) goprevMasterMenu();
+          else gonextMasterMenu();
+        } else {
+          memcpy_P (&temp, &menulist[currentMenu-1], sizeof(menutype));
+          if (newLeft<positionLeft && temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu>0) {
+            currentMenu--;
+            displayNeedUpdate=1;
+          }
+          memcpy_P (&temp, &menulist [currentMenu+1], sizeof(menutype));
+          if (newLeft>positionLeft && temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu+1<T_MENU_LENGTH) {
+            currentMenu++;
+            displayNeedUpdate=1;
+          }
         }
         positionLeft=newLeft;
       }
@@ -493,8 +598,9 @@ void newcheckInput(){
 //checkstring receive
 void newcheckStringReceive() {
   if (command == 0 && adress == T_STRING) {
+    printf_P(PSTR("get new string\n"));
     buf [pos] = 0;
-    Serial.println(buf);
+    printf_P(buf);
     pos = 0;
     adress = 0;
     byte id = buf[0];
@@ -505,7 +611,7 @@ void newcheckStringReceive() {
       }
     }
     memcpy(variableMenulist[id].line1, &buf[1], 16 );
-    memcpy(variableMenulist[id].line2, &buf[1], 16 );
+    memcpy(variableMenulist[id].line2, &buf[16], 16 );
     if (menu.id==id) displayNeedUpdate=1;
     flushbuf();
   }
@@ -516,6 +622,7 @@ void newcheckStringReceive() {
 //-------------------------------SPI
 
 void initSPIslave() {
+  printf_P(PSTR("init spi"));
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
   // turn on SPI in slave mode
@@ -523,25 +630,28 @@ void initSPIslave() {
   // turn on interrupts
   SPCR |= _BV(SPIE);
   SPDR = 0;
+  printf_P(PSTR(" ok\n"));
+  //printf_P(PSTR("free memory = %u \n"),freeMemory());
+
 }
 
 // SPI interrupt routine
 ISR (SPI_STC_vect)
 {
   byte c = SPDR;
-  //Serial.println(c, HEX);
+  //printf_P(c, HEX);
   
   if (command < 10) {
-    //Serial.print(PSTR("R add"));
+    //printf_P(PSTR("R add"));
     adress = c & ~COMMANDMASK;
-    //Serial.print(adress, HEX);
-    //Serial.print(PSTR(" com"));
+    //printf_P(adress, HEX);
+    //printf_P(PSTR(" com"));
     command = c & COMMANDMASK;
-    //Serial.println(command, HEX);
+    //printf_P(command, HEX);
   } else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
-      //Serial.println(PSTR("wv"));
+      //printf_P(PSTR("wv"));
       if (adress < T_STRING) {
         newValue[adress] = c;
         command = 1;
@@ -564,8 +674,7 @@ ISR (SPI_STC_vect)
       Value[T_INTERRUPT] = newValue[T_INTERRUPT];
       digitalWrite(outpin[T_INTERRUPT], LOW);
     }
-    Serial.print(PSTR("r "));
-    Serial.println(Value[adress],DEC);
+    printf_P(PSTR("read %u\n"),Value[adress]);
   }
 }  // end of interrupt service routine (ISR) SPI_STC_vect
 
@@ -575,27 +684,30 @@ ISR (SPI_STC_vect)
 //-------------------------------main program
 
 void setup (void) {
-  Serial.begin(19200);
+  Serial.begin(115200);
+  printf_begin();
+  printf_P(PSTR("teleco start\n"));
   clearRegister();
   initpin();
+  initlcd();
   initSPIslave();
-  Serial.println(PSTR("teleco"));
   checkInputPeriod = 100;
   flushbuf();
   initmenu();
   displayMenu(1);
   waitforinit();
   positionLeft = rotary.read();
-  Serial.println(PSTR("init"));
+  printf_P(PSTR("init ok\n"));
 }
 
 
 
 void waitforinit(){
-  delay(100);
+  printf_P(PSTR("\n wait for init\n"));
+  delay(300);
   SPDR = 0;
   digitalWrite(outpin[T_INTERRUPT], HIGH);
-  while(command==0);
+  while(command==0); //comment for debug
   digitalWrite(outpin[T_INTERRUPT], LOW);
   Value[T_INIT]=1;
   newValue[T_INIT]=1;
@@ -615,17 +727,16 @@ void loop (void) {
       if (Value[i] != newValue[i]) {
         if(newValue[T_INIT]==0) resetFunc();
         if (outputRange(i)) updateValue(i); //cas led output
-        if (inputRange(i)) updateInput(i);
+        else if (inputRange(i)) {updateInput(i);}
         else {
           //cas autre valeur (sans fade)
           Value[i] = newValue[i];
-          
           //cas particulier
           if (i == T_STROBLRSPEED)lastLRStrob = millis();
           if (i == T_STROBLRSPEED && Value[i] == 0) strobLRRoutine(1);
           if (i == T_STROBLVSPEED)lastLVStrob = millis();
           if (i == T_STROBLVSPEED && Value[i] == 0) strobLVRoutine(1);
-          if (i == T_LOCK) switchLock(Value[i]);
+          if (i == T_LOCK) switchLock(newValue[i]);
           
         }
       }

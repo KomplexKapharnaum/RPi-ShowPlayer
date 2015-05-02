@@ -57,7 +57,7 @@ void Teleco::setLedWarning(int val){
 void Teleco::sendString(char Str1[], char Str2[], int val){
   setLedWarning(1);
   unsigned char buff[38];
-  buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
+  buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
   buff[1]= (char)val;
   for(int i=0;i<17;i++){
     buff[i+2]= *(Str1+i);
