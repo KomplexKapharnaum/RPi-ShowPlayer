@@ -88,8 +88,7 @@ class Teleco : public Carte {
 
 public:
   void initCarte(char pow);
-  void sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]);
-  void sendPopUp(char Str1[], char Str2[]);
+  void sendString(char Str1[], char Str2[],int val);
   void sendButtonString(char Str1[]);
   int fisrtView();
   void start();

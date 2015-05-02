@@ -57,15 +57,15 @@ void sendStatusTeleco(){
   delay(10);
   sprintf(mess1,"git %s",status.c_str());
   sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
-  teleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
+  myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
   
   sprintf(mess1,"%s",carte_name.c_str());
   sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
-  teleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
+  myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
   
   sprintf(mess1,"%.1fV %s",tension,scene.c_str());
   sprintf(mess2,"%s",buttonline.c_str());
-  teleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
+  myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
 }
 
 void myInterruptCARTE (void) {
