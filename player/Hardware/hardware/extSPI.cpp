@@ -190,7 +190,10 @@ void extSPI::selectHC595csline(int _selectedCSofHC595){
 //cs is active thru 74ACT244
 void extSPI::activeCS(){
   fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
-  wiringPiSPISetup(0,chipSelect[selectedChip].speed);
+  //try only change speed
+  wiringPiSPISetupSpeed(chipSelect[selectedChip].speed);
+  //wiringPiSPISetup(0,chipSelect[selectedChip].speed);
+  //this do not work beacause open file each time
   if(chipSelect[selectedChip].GPIO!=csactivated || hc595activated!=chipSelect[selectedChip].HC595 || keepSelect==0){
     fprintf(stderr, "extspi - active gpio %u, prev %u, keep=%u\n",chipSelect[selectedChip].GPIO,csactivated,keepSelect);
     csactivated=chipSelect[selectedChip].GPIO;
@@ -225,7 +228,14 @@ void extSPI::releaseSelect(){
   inactiveCS();
 }
 
+int extSPI::wiringPiSPISetupSpeed (int speed)
+{
 
+  if (ioctl (fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed)   < 0)
+    return wiringPiFailure (WPI_ALMOST, "SPI Speed Change failure: %s\n", strerror (errno)) ;
+  
+  return fd ;
+}
 
 
 
