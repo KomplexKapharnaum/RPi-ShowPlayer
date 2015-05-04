@@ -269,7 +269,7 @@ class Media:
         if self.source == "scenario":
             log.warning("Ask to get a file from the scenario... do nothing")
             return False
-        tools.log_teleco((os.path.basename(self.rel_path), ligne2="copy from {0}".format(self.source.upper())),"sync")
+        tools.log_teleco((os.path.basename(self.rel_path),"copy from {0}".format(self.source.upper())),"sync")
         if self.source == "usb":
             dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
