@@ -140,6 +140,7 @@ def log_teleco(lines, page="log", encode="utf-8"):
     if not isinstance(lines, (list, tuple)):
         lines = [lines, ]
     encoded_lines = list()
+    encode = None
     if encode is not None:
         for line in lines:
             encoded_lines.append(remove_nonspacing_marks(line.decode(encode)))
