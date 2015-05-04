@@ -108,7 +108,7 @@ def search_in_or_default(key, indict, setting=False, default=None):
     return default
 
 
-def old_log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
+'''def old_log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
     """
     This function log a message to the teleco
     :param ligne1:
@@ -126,7 +126,7 @@ def old_log_teleco(ligne1=" ", ligne2=" ", error=False, encode="utf-8"):
     ligne2 = remove_nonspacing_marks(ligne2)
     engine.threads.patcher.patch(flag_popup.get(args={"ligne1": ligne1, "ligne2": ligne2}))
     if error:
-        time.sleep(settings.get("log", "teleco", "error_delay"))
+        time.sleep(settings.get("log", "teleco", "error_delay"))'''
 
 
 def log_teleco(lines, page="log", encode="utf-8"):
@@ -168,7 +168,7 @@ def restart_netctl():
         log.debug("Restart netctl return {0}".format(
             subprocess.check_call(
                 shlex.split(settings.get("path", "systemctl") + " restart netctl-auto@wlan0.service"))))
-        log_teleco(("network restart", "succes"), "sync")
+        #log_teleco(("network restart", "succes"), "sync")
     else:
         log.debug("Don't restart netctl because we are not on a raspi")
 
