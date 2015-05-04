@@ -3,15 +3,21 @@
     /////////////////////////  GLOBAL  //////////////////////////////
 
     jsPlumb.registerConnectionType("selected", {
-      paintStyle:{ strokeStyle:"lawngreen", lineWidth:3  },
-      hoverPaintStyle:{ strokeStyle:"lawngreen", lineWidth:4 },
-      ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]]
+      paintStyle:{ strokeStyle:"lawngreen", lineWidth:2 },
+      hoverPaintStyle:{ strokeStyle:"lawngreen", lineWidth:3 },
+      ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]],
+			overlays:[
+                    ["Arrow" , { width:8, length:8, foldback: 1, location:1 }]
+                ]
     });
 
     jsPlumb.registerConnectionType("generic", {
-      paintStyle:{ strokeStyle:"dimgray", lineWidth:3  },
-      hoverPaintStyle:{ strokeStyle:"dimgray", lineWidth:4 },
-      ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]]
+      paintStyle:{ strokeStyle:"dimgray", lineWidth:2  },
+      hoverPaintStyle:{ strokeStyle:"dimgray", lineWidth:3 },
+      ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label",location:[0.5, 0.5], cssClass: "aLabel" }]],
+			overlays:[
+                    ["Arrow" , { width:8, length:8, foldback: 1, location:1 }]
+                ]
     });
 
 	  jsPlumb.setContainer($('#container'));
@@ -365,9 +371,9 @@
 
 
     ////////////////////////// MEDIAS ////////////////////////////////
-		audioFiles = ['select...','son1','son2','son3','son4'];
-		videoFiles = ['select...','vid1','vid2','vid3','vid4'];
-		txtFiles = ['select...','text1','text2','text3','text4'];
+		audioFiles = ['Selectionner Media','son1','son2','son3','son4'];
+		videoFiles = ['Selectionner Media','vid1','vid2','vid3','vid4'];
+		txtFiles = ['Selectionner Media','text1','text2','text3','text4'];
 		$.ajax({
 			type: 'GET',
 			timeout: 1000,
@@ -375,11 +381,11 @@
 			dataType: "jsonp"
 		}).done(function(data) {
 			audioFiles = data.audio;
-			audioFiles.unshift('Select...');
+			audioFiles.unshift('Selectionner Media');
 			videoFiles = data.video;
-			videoFiles.unshift('Select...');
+			videoFiles.unshift('Selectionner Media');
 			txtFiles = data.txt;
-			txtFiles.unshift('Select...');
+			txtFiles.unshift('Selectionner Media');
 		});
 
 
@@ -479,15 +485,16 @@
         this.box.append(this.disposList);
       }
       if(mediaBOO == true){
-        this.media = 'Select...';
-        this.mediasList = $('<select>').attr('id', this.name+'Medias').addClass('dropdownMedias')
+        this.media = 'Select';
+        this.mediasList = $('<select>').attr('id', this.name+'Medias').addClass('dropdownMedias');//.attr('dir','rtl');
         this.box.append(this.mediasList);
         var files = new Array();
         if(category == 'AUDIO') {files=audioFiles;}
         if(category == 'VIDEO') {files=videoFiles;}
 				if(category == 'TITREUR') {files=txtFiles;}
         $.each(files, function(index,file){
-         $(thisState.mediasList).append(('<option value="'+file+'">'+file+'</option>'));
+					var shortFile = file.split(".")[0]
+         $(thisState.mediasList).append(('<option value="'+file+'">'+shortFile+'</option>'));
         });
       }
       if(this.argumentsList[0]){
@@ -557,7 +564,8 @@
     		jsPlumb.makeTarget(thisState.box, {
     		  anchor: 'Continuous',
           //connector:"Straight",
-                        endpoint:[ "Rectangle", { width:10, height:10 }],
+                        //endpoint:[ "Rectangle", { width:0.1, height:0.1 }],
+												endpoint:"Blank",
                         paintStyle:{ fillStyle:"dimgray", outlineColor:"dimgray", outlineWidth:2 },
                         hoverPaintStyle:{ fillStyle:"white" },
                         ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]]
@@ -566,10 +574,10 @@
     		  parent: thisState.box,
           anchor: "Continuous",
           //connector:"Straight",
-					connector: [ "Flowchart", { stub: [0, 6], gap: 2, cornerRadius: 0, alwaysRespectStubs: false } ],
+					connector: [ "Flowchart", { stub: [0, 6], gap: 0, cornerRadius: 0, alwaysRespectStubs: false } ],
 
                 endpoint:"Blank",
-                connectorStyle:{ strokeStyle:"dimgray", lineWidth:3 },
+                connectorStyle:{ strokeStyle:"dimgray", lineWidth:2 },
                 connectorHoverStyle:{ lineWidth:4 },
                 ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel", fillStyle: "white" }]]
     		});
@@ -647,7 +655,8 @@
       if(mediaBOO == true){
         $(thisState.mediasList).change(function(){
           var that = $(this);
-          thisState.media = $(this).find('option:selected').text();
+          thisState.media = $(this).find('option:selected').val();
+					thisState.mediasList.blur();
 					if (thisState.category == 'TITREUR'){ thisState.loadText();}
         });
       }
@@ -743,13 +752,14 @@
 
     jsPlumb.bind("connection", function (info) {
         //info.connection.setLabel(info.connection.id);
-				info.connection.setLabel('');
+				var Z = "dededede";
+				info.connection.setLabel(Z);
+				info.connection.setType("generic");
 
     });
 
 
     jsPlumb.bind("click", function(connection) {
-
 
 			selected = 'connection';
       connectionSelected = connection;
@@ -759,25 +769,22 @@
 			$('#editText').hide();
       var label = connectionSelected.getLabel();
 			$("#signalEdit").fadeIn(400);
-
 			$('#signalselector').val(
 				$('#signalselector option').filter(function(){ return $(this).html() == label; }).val()
 			);
-
 			$("#signalselector").change(function(){
 				var newval = $('#signalselector option:selected').text();
 				connectionSelected.setLabel(newval);
 			});
-
       $("#signalName").val('Enter New...');
 
       //Style
-      unselectConnections();
-      connection.setType("selected");
-      connection.setLabel(label);
       $.each(allStates, function(index, state){
         this.resetColor();
       });
+	    unselectConnections();
+      connection.setType("selected");
+      if (label !== null) connection.setLabel(label);
 
     });
 
@@ -791,7 +798,6 @@
 				$("#signalEdit").hide();
 				//Add new one ds la liste des signaux
 				allSignals.push(newval);
-				console.log(allSignals);
 				updateSignals();
 
 		  }
@@ -802,7 +808,7 @@
       $.each(jsPlumb.getAllConnections(), function(idx, connection) {
         var label = connection.getLabel();
         connection.setType("generic");
-        connection.setLabel(label);
+        if (label !== null) connection.setLabel(label);
       });
     }
 
