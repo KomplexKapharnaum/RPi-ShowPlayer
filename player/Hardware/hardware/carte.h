@@ -76,17 +76,17 @@
 class Carte{
   
 private:
-  int gamme_tension;
-  int pwm_ledb_or_10w2;
-  float tension;
+  int gamme_tension; //use for poweroff in low batt condition
+  int pwm_ledb_or_10w2; //?
+  float tension; //battery voltage
   int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT;
 
   
 protected:
-  extSPI SPIcarte;
+  extSPI SPIcarte; //SPI objct
   
 public :
-  int needStatusUpdate;
+  int needStatusUpdate; //carte want to check Tension
   void initCarte(int _pwm_ledb_or_10w2 = PWM_LEDB, int _gamme_tension = 0, int checkFloat = 0);
   void writeValue(int valueType,int value, int fadetime=0);
   int readValue(int valueType);

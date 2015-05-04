@@ -21,7 +21,7 @@
 #include <string>
 
 
-
+//init remote
 void Teleco::initCarte(char pow){
   localpoweroff=pow;
   fprintf(stderr, "teleco - add teleco dnc\n");
@@ -30,31 +30,35 @@ void Teleco::initCarte(char pow){
   needtestroutine=0;
 }
 
+//check if start
 int Teleco::fisrtView(){
   return uninit;
 }
 
+//start remote
 void Teleco::start(){
   fprintf(stderr, "teleco - teleco start\n");
   uninit=0;
   setLedWarning(0);
 }
 
+//reset remote
 void Teleco::reset(){
   fprintf(stderr, "teleco - teleco reset\n");
   setLedWarning(1);
   writeValue(T_INIT,0);
 }
 
+//acces to led status
 void Teleco::setLedOk(int val){
   writeValue(T_LEDOKVALUE,val);
 }
-
 void Teleco::setLedWarning(int val){
   writeValue(T_LEDRVALUE,(1-val));
 }
 
 
+//send info to the remote
 void Teleco::sendString(char Str1[], char Str2[], int val){
   setLedWarning(1);
   unsigned char buff[38];
@@ -71,6 +75,7 @@ void Teleco::sendString(char Str1[], char Str2[], int val){
   setLedWarning(0);
 }
 
+// no use
 void Teleco::sendButtonString(char Str1[]){
   unsigned char buff[19];
   buff[0]= (char)(WRITECOMMANDVALUE+T_BUTON_STRING);
@@ -82,6 +87,7 @@ void Teleco::sendButtonString(char Str1[]){
 
 }
 
+//send lock status
 int Teleco::readOrSetTelecoLock(int val){
   int state = readValue(T_LOCK);
   if (val!=-1 && state != val){
@@ -93,7 +99,7 @@ int Teleco::readOrSetTelecoLock(int val){
 }
 
 
-
+//read intterupt from teleco and out corresponding message
 int Teleco::readInterrupt(){
   setLedWarning(1);
   unsigned char buff[2];

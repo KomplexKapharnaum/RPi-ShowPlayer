@@ -21,7 +21,7 @@
 
 
 
-
+//init carte
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   fprintf(stderr, "carte - add extension card dnc\n");
   SPIcarte.initSPI();
@@ -52,6 +52,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
 }
 
 
+//write value in carte register
 void Carte::writeValue(int valueType,int value, int fadetime){
   fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
   int size;
@@ -66,6 +67,7 @@ void Carte::writeValue(int valueType,int value, int fadetime){
   SPIcarte.send(0,buff,size);
 }
 
+//read value from carte register
 int Carte::readValue(int valueType){
   fprintf(stderr, "carte - readValue %u = ", valueType);
   unsigned char buff[2];
@@ -76,6 +78,7 @@ int Carte::readValue(int valueType){
   return buff[1];
 }
 
+//read carte interrupt and out corresponding message
 int Carte::readInterrupt(){
   unsigned char buff[2];
   buff[0]= (char)(READCOMMAND+INTERRUPT);
@@ -111,8 +114,11 @@ int Carte::readInterrupt(){
   
 }
 
+//read tension from carte
 float Carte::checkTension(){
   fprintf(stderr, "carte - checktension gpio high\n");
+  //analog in from atmega is after a mosfet under rpi control
+  //not useless, change in V2
   digitalWrite (GPIO_READ_BATT, HIGH);
   delay(10);
   writeValue(UBATT,0);
@@ -153,7 +159,7 @@ float Carte::checkTension(){
   return tension;
 }
 
-
+//short for rgb led register
 void Carte::rgbValue(int r, int v, int b, int fadetime, int strob){
   if(strob!=0)fadetime=0; else writeValue(LEDRVBSTROBSPEED,0);
   writeValue(LEDRVALUE,r,fadetime);
@@ -165,6 +171,7 @@ void Carte::rgbValue(int r, int v, int b, int fadetime, int strob){
   }
 }
 
+//short for led10W register
 void Carte::led10WValue(int v, int fadetime, int strob){
   if(strob!=0)fadetime=0; else writeValue(LED10W1STROBSPEED,0);
   writeValue(LED10W1VALUE,v,fadetime);
@@ -174,6 +181,7 @@ void Carte::led10WValue(int v, int fadetime, int strob){
   }
 }
 
+//short for gyro flex led register
 void Carte::setGyro(int mode, int speed, int strob){
   if(strob==0){
     writeValue(GYROSTROBSPEED,0);
@@ -184,11 +192,13 @@ void Carte::setGyro(int mode, int speed, int strob){
   }
 }
 
+//short for relais rpi gpio
 void Carte::setRelais(int val){
   fprintf(stderr, "carte - set relais %u",val);
   digitalWrite (GPIO_RELAIS, val);
 }
 
+//short for led green rpi gpio
 void Carte::setledG(int val){
   fprintf(stderr, "carte - set led green %u",val);
   digitalWrite (GPIO_LED_GREEN, val);

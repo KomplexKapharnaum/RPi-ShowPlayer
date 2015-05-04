@@ -26,7 +26,7 @@
 
 
 
-
+//init titreur
 void Titreur::initTitreur(int _nb_module, int _typeModule){
   nb_module=_nb_module;
   typeModule=_typeModule;
@@ -68,9 +68,9 @@ void Titreur::initModule(int m){
   //mySPI.releaseSelect();
 }
 
+//low level sending routine
 void Titreur::ht1632_sendcmd (int chipNo, unsigned char command)
 {
-  
   int data=0;
   data = HT1632_ID_CMD;
   data <<= 8;
@@ -85,9 +85,9 @@ void Titreur::ht1632_sendcmd (int chipNo, unsigned char command)
   
    //mySPI.send(chipNo,(unsigned char *) &data,2);
   mySPI.send(chipNo,buff,2);
-
 }
 
+//turn on/off one led on matrix
 void Titreur::plot(int x,int y,int val){
   if (x>=0 && y>=0 && ((typeModule==MODULE_24x16 && y<16 && x<24*nb_module) || (typeModule==MODULE_32x8 && y<8 && x<32*nb_module))) {
     if (typeModule==MODULE_24x16) {
@@ -108,7 +108,7 @@ void Titreur::plot(int x,int y,int val){
   //else fprintf(stderr, "outside area plot\n");
 }
 
-
+//put a char in matrix
 void Titreur::putChar(int x, int y, char c){
   fprintf(stderr, "%c(%u)",c,c);
   c-=32;
@@ -121,6 +121,7 @@ void Titreur::putChar(int x, int y, char c){
   }
 }
 
+//text on matrix + print on screen
 void Titreur::text(int x, int y,char Str1[]){
   messageLength = cleanCharArray(Str1);
   fprintf(stderr,"titreur - drawtext %u -",messageLength);
@@ -131,6 +132,7 @@ void Titreur::text(int x, int y,char Str1[]){
   printScreen();
 }
 
+//do some trick with special char
 int Titreur::cleanCharArray(char Str1[]){
   messageLength = strlen(Str1);
   int j=0;
@@ -149,7 +151,7 @@ int Titreur::cleanCharArray(char Str1[]){
   return messageLength-j;
 }
 
-
+//light screen
 void Titreur::allLedOn(){
   for (int i=0; i<typeModule*nb_module; i++) {
     *(matrix+i)=0xff;
@@ -157,11 +159,11 @@ void Titreur::allLedOn(){
   printScreen();
 }
 
+//clear screen
 void Titreur::allLedOff(){
   flushMatrix();
   printScreen();
 }
-
 
 void Titreur::flushMatrix(){
   for (int i=0; i<typeModule*nb_module; i++) {
@@ -170,7 +172,7 @@ void Titreur::flushMatrix(){
 }
 
 
-
+//use for debug
 void Titreur::testScreen(){
   fprintf(stderr, "titreur - test titreur module\n");
   for (int i=0; i<typeModule*nb_module; i++) {
@@ -181,6 +183,8 @@ void Titreur::testScreen(){
     
 }
 
+
+//print matrix on screen
 void Titreur::printScreen(){
   fprintf(stderr, "titreur - print : ");
   for (int m=0; m<nb_module; m++) {
@@ -199,6 +203,7 @@ void Titreur::printScreen(){
   
 }
 
+//turn off ht1632
 void Titreur::powerdown(){
   for (int i=0; i<nb_module; i++) {
     fprintf(stderr, "titreur - power down titreur module %u\n",i);
@@ -206,12 +211,13 @@ void Titreur::powerdown(){
   }
 }
 
-
+//nb of char by line
 int Titreur::charbyline(){
   return nb_module*typeModule/6;
 }
 
 
+//dealloc memory
 Titreur::~Titreur(){
   free(matrix);
   free(output);
