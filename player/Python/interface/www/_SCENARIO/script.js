@@ -312,6 +312,7 @@
 				hardlib = data.functions;
 				mergeLibrary();
 				allSignals = data.signals;
+				console.log("loading signals");
 				updateSignals();
 			});
 		}
@@ -745,6 +746,8 @@
 
 
     jsPlumb.bind("click", function(connection) {
+
+
 			selected = 'connection';
       connectionSelected = connection;
       $.each(allStates, function(index, state){
@@ -761,23 +764,10 @@
 			$("#signalselector").change(function(){
 				var newval = $('#signalselector option:selected').text();
 				connectionSelected.setLabel(newval);
-				//connectionSelected.id=newval;
 			});
 
       $("#signalName").val('Enter New...');
-			//$("#signalName").focus();
 
-      $("#signalName").keyup(function(e) {
-			//$("#signalName").focusout(function(e) {
-        listening = false;
-  		  if (e.keyCode == 13) {
-					var newval = $("#signalName").val();
-    			connectionSelected.setLabel(newval);
-          connectionSelected.id=newval;
-          listening = true;
-					$("#signalEdit").hide();
-  		  }
-  		});
       //Style
       unselectConnections();
       connection.setType("selected");
@@ -787,6 +777,22 @@
       });
 
     });
+
+    $("#signalName").keyup(function(e) {
+      listening = false;
+		  if (e.keyCode == 13) {
+				var newval = $("#signalName").val();
+  			connectionSelected.setLabel(newval);
+        connectionSelected.id=newval;
+        listening = true;
+				$("#signalEdit").hide();
+				//Add new one ds la liste des signaux
+				allSignals.push(newval);
+				console.log(allSignals);
+				updateSignals();
+
+		  }
+		});
 
 
     function unselectConnections(){
@@ -972,34 +978,35 @@
     });
 
     function loadScenario() {
-        $.ajax({
-            url: "data/load.php",
-            dataType: "json",
-            type: "POST",
-            data: {
-                filename: scenarioName,
-								type: 'scenario'
-            }
-        })
-        .done(function(reponse) {
-            if (reponse.status == 'success')
-            {
-                $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
-                Graphique = JSON.parse(reponse.contents);
-								if (loadGraphAfter == true) { loadGraphique(); }
-            }
-            else if (reponse.status == 'error')
-            { $('#serverDisplay').html( 'Erreur côté serveur: '+reponse.message ); }
-        })
-        .fail(function() {
-            $('#serverDisplay').html( 'Impossible de joindre le serveur...' );
-        });
+			console.log("loading Scenario");
+	    $.ajax({
+	        url: "data/load.php",
+	        dataType: "json",
+	        type: "POST",
+	        data: {
+	            filename: scenarioName,
+							type: 'scenario'
+	        }
+	    })
+	    .done(function(reponse) {
+	        if (reponse.status == 'success')
+	        {
+	            $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
+	            Graphique = JSON.parse(reponse.contents);
+							if (loadGraphAfter == true) { loadGraphique(); }
+	        }
+	        else if (reponse.status == 'error')
+	        { $('#serverDisplay').html( 'Erreur côté serveur: '+reponse.message ); }
+	    })
+	    .fail(function() {
+	        $('#serverDisplay').html( 'Impossible de joindre le serveur...' );
+	    });
     }
 
     function loadGraphique(){
       clearAll();
 			//jsPlumb.reset();
-
+			console.log("loading Graph");
 
       var boxes = Graphique.boxes;
       $.each(boxes, function( index, box ) {
@@ -1115,8 +1122,12 @@
 
 		loadGraphAfter = true;
 
+    $(".textarea").on("click", function () {
+      $(this).select();
+    });
 
-		if (scenarioName !== 'noscenario') { setTimeout(loadGraphique, 200); }
+
+		if (scenarioName !== 'noscenario') { console.log(scenarioName); setTimeout(loadGraphique, 200); }
 
 		// $(document).ajaxStop(function(){
 		// 	if (scenarioName !== 'noscenario') { loadGraphique(); }
