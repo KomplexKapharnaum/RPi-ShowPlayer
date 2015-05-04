@@ -14,13 +14,13 @@ log = init_log("threads")
 network_scheduler = ThreadScheduler()
 scenario_scheduler = ThreadScheduler()
 patcher = ThreadPatcher()
-#log_teleco = tools.ThreadTeleco()
+log_teleco = tools.ThreadTeleco()
 
 
 def init():
     global patcher
-    #global log_teleco
-    #log_teleco.start()
+    global log_teleco
+    log_teleco.start()
     if not isinstance(patcher, ThreadPatcher):
         patcher = ThreadPatcher()
     if not patcher.is_alive():

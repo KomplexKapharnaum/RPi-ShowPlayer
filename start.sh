@@ -19,6 +19,8 @@ kill_zombies()
 {
 	fuser -k 1781/udp
 	fuser -k 1782/udp
+	fuser -k 8080/tcp
+	fuser -k 8080/udp
 	pkill vlc
 	pkill hardware-arm6
 	pkill hardware-arm7

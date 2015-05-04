@@ -224,7 +224,7 @@ class inputThread(threading.Thread):
                     engine.perf.multiplex_history(cmd[1:])
                 elif cmd[0] == "_log":
                     if len(cmd) > 1:
-                        #engine.tools.log_teleco(" ".join(cmd[1:]))
+                        engine.tools.log_teleco(" ".join(cmd[1:]))
                 elif cmd[0] == "settings":
                     log.info()
                     log.info("=== SETTINGS ===")
@@ -265,7 +265,7 @@ class inputThread(threading.Thread):
                     if len(cmd) < 3:
                         log.warning("Need at least a page number an a message")
                         continue
-                    #engine.tools.log_teleco(cmd[2:], int(cmd[1]))
+                    engine.tools.log_teleco(cmd[2:], int(cmd[1]))
                 elif cmd[0] == "log":
                     if len(cmd) < 3:
                         log.warning("Need at least a page number an a message")

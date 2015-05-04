@@ -207,7 +207,7 @@ class BaseLog:
             self.logger.log(LEVELS[lvl], msg)
             if LEVELS[lvl] >= LEVELS[self.teleco_level]:
                 print("log_succes_teleco")
-                #log_teleco(msg, "log")
+                log_teleco(msg, "log")
         except KeyError:
             self.debug("Level name " + str(lvl) + " unknown. Message : " + str(msg))
 
@@ -220,7 +220,7 @@ class BaseLog:
 
         """
         if LEVELS["debug"] >= LEVELS[self.teleco_level]:
-            #log_teleco(msg, "log")
+            log_teleco(msg, "log")
         self.logger.debug(msg)
 
     def info(self, msg=""):
@@ -232,7 +232,7 @@ class BaseLog:
 
         """
         if LEVELS["info"] >= LEVELS[self.teleco_level]:
-            #log_teleco(msg, "log")
+            log_teleco(msg, "log")
         self.logger.info(msg)
 
     def important(self, msg=""):
@@ -258,7 +258,7 @@ class BaseLog:
 
         """
         if LEVELS["warning"] >= LEVELS[self.teleco_level]:
-            #log_teleco(msg, "log")
+            log_teleco(msg, "log")
         self.logger.warning(msg)
 
     def error(self, msg=""):
@@ -270,7 +270,7 @@ class BaseLog:
 
         """
         if LEVELS["error"] >= LEVELS[self.teleco_level]:
-            #log_teleco(msg, "log")
+            log_teleco(msg, "log")
         self.logger.error(msg)
 
     def critical(self, msg=""):
@@ -282,7 +282,7 @@ class BaseLog:
 
         """
         if LEVELS["critical"] >= LEVELS[self.teleco_level]:
-            #log_teleco(msg, "log")
+            log_teleco(msg, "log")
         self.logger.critical(msg)
 
     def dev(self, msg):
@@ -292,7 +292,7 @@ class BaseLog:
         :return:
         """
         if LEVELS["warning"] >= LEVELS[self.teleco_level]:
-            #log_teleco(msg, "log")
+            log_teleco(msg, "log")
         self.logger.warning('{0}'.format(msg))
 
     def exception(self, msg=""):
@@ -304,7 +304,7 @@ class BaseLog:
 
         """
         if LEVELS["warning"] >= LEVELS[self.teleco_level]:
-            #log_teleco(msg, "log")
+            log_teleco(msg, "log")
         self.logger.exception(msg)
 
     def exception_info(self, msg, exc_info):
@@ -316,7 +316,7 @@ class BaseLog:
         @param exc_info: exception info
         """
         if LEVELS["debug"] >= LEVELS[self.teleco_level]:
-            #log_teleco(msg, "log")
+            log_teleco(msg, "log")
         self.logger.debug(msg, exc_info=exc_info)
 
     def set_handler(self, handler, format=DEFAULT_FORMAT):
