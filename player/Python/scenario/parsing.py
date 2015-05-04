@@ -215,7 +215,7 @@ def parse_timeline(timeline):
         startEtapes = dict()
         for device in timeline['pool']:
             for block in device["blocks"]:
-                if block["keyframe"] == scene['keyframe']:      # Match device blocks for this scene only      
+                if block["keyframe"] == scene.get('keyframe',None):      # Match device blocks for this scene only
                     if device["name"] not in startEtapes:
                         startEtapes[ device["name"] ] = list()
                     for scenario in block['scenarios']:
