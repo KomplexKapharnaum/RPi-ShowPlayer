@@ -146,8 +146,6 @@ def log_teleco(lines, page="log", encode="utf-8"):
     else:
         encoded_lines = lines
     engine.threads.log_teleco.add_message(encoded_lines, page)
-    if page is not "log"
-        engine.threads.log_teleco.add_message(encoded_lines, "log")
 
 
 def update_system():
@@ -211,6 +209,7 @@ class ThreadTeleco(threading.Thread):
     def add_message(self, message, page=0):
         """
         This function add a message to be displayed in a page
+        :rtype : object
         :param message: message to display : list of lines
         :param page: page where the message must be displayed
         :return:
@@ -237,6 +236,7 @@ class ThreadTeleco(threading.Thread):
             engine.threads.patcher.patch(flag_popup.get(args=args))
             if len(message) >= n + 1:
                 time.sleep(settings.get("log", "teleco", "autoscroll"))
+
 
 
     @staticmethod
