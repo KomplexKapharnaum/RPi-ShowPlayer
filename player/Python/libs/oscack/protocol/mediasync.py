@@ -287,6 +287,7 @@ def trans_need_media_in(flag):
                 return flag.args["trans_enough_place"]
     except KeyError as e:
         log.exception(log.show_exception(e))
+    check_media_presence()      # Update list of present media on fs
     return flag.args["trans_end"]
 
 
