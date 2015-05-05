@@ -35,7 +35,7 @@ while (( running )); do
     	./player/Python/main.py
     else
         echo "wait before start"
-        sleep 10
+        sleep 15
     	mkdir -p /tmp/dnc
     	# echo '' > /tmp/dnc/stdin
     	touch /tmp/dnc/main.log
