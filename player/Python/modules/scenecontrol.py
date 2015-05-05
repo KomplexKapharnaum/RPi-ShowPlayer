@@ -30,21 +30,24 @@ def scene_init(flag, **kwargs):
     scenario.CURRENT_FRAME = 0
     # Register Device Patchs
     # pool.Cartes[settings["uName"]].device.register_patchs()
-    for patch in scenario.pool.Cartes[settings["uName"]].device.patchs:
-        patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
+    if settings["uName"] in scenario.pool.Cartes:
+        for patch in scenario.pool.Cartes[settings["uName"]].device.patchs:
+            patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
 
-    # Register Global Patchs
-    for patch in DECLARED_PATCHER.values():
-        patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
-        # patcher.add_patch(patch)
-    # libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD
-    # libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD (SEKU)
-    if already_init.is_set():
-        log.log("debug", "First init manager : set wildcard")
-        libs.oscack.DNCserver.add_method(None, None, patch_msg)
-        already_init.set()
+        # Register Global Patchs
+        for patch in DECLARED_PATCHER.values():
+            patcher.add_patch(patch.signal, patch.treatment[0], patch.treatment[1])
+            # patcher.add_patch(patch)
+        # libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD
+        # libs.oscack.DNCserver.del_method(None, None)                # Remove WILD CARD (SEKU)
+        if already_init.is_set():
+            log.log("debug", "First init manager : set wildcard")
+            libs.oscack.DNCserver.add_method(None, None, patch_msg)
+            already_init.set()
+        else:
+            log.log("debug", "Omit wildcard because manager already been inited")
     else:
-        log.log("debug", "Omit wildcard because manager already been inited")
+        log.log("debug", "no device found in pool.Cartes")
 
 
 @link({ "/scene/init": "scene_init",
