@@ -49,6 +49,8 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   writeValue(BOARDCHECKFLOAT,checkFloat);
   writeValue(INTERRUPT,0);
   needStatusUpdate=0;
+  count_tensionbasse=0;
+  count_tensioncoupure=0;
 }
 
 
@@ -132,29 +134,35 @@ float Carte::checkTension(){
   needStatusUpdate=0;
   switch (gamme_tension) {
     case LIPO12:
-      if(tension<10.8)
-        std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
-      if(tension<10)
-        std::cout << "#CARTE_MESSAGE_POWEROFF"<< std::endl;
+      if(tension>=10.8) count_tensionbasse=0;
+      if(tension<10.8) count_tensionbasse++;
+      if(tension>=10) count_tensioncoupure=0;
+      if(tension<10) count_tensioncoupure++;
       break;
     case LIFE12:
-      if(tension<12.5)
-        std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
-      if(tension<12)
-        std::cout << "#CARTE_MESSAGE_POWEROFF"<< std::endl;
+      if(tension<12.5) count_tensionbasse++;
+      if(tension<12) count_tensioncoupure++;
+      if(tension>=12.5) count_tensionbasse=0;
+      if(tension>=12) count_tensioncoupure=0;
       break;
     case PB12:
-      if(tension<12)
-        std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
-      if(tension<11.5)
-        std::cout << "#CARTE_MESSAGE_POWEROFF"<< std::endl;
+      if(tension<12) count_tensionbasse++;
+      if(tension<11.5) count_tensioncoupure++;
+      if(tension>=12) count_tensionbasse=0;
+      if(tension>=11.5) count_tensioncoupure=0;
       break;
     case LIPO24:
-      if(tension<23.8)
-        std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
-      if(tension<23)
-        std::cout << "#CARTE_MESSAGE_POWEROFF"<< std::endl;
+      if(tension<23.8) count_tensionbasse++;
+      if(tension<23) count_tensioncoupure++;
+      if(tension>=23.8) count_tensionbasse=0;
+      if(tension>=23) count_tensioncoupure=0;
       break;
+  }
+  if (count_tensionbasse>2) {
+    std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
+  }
+  if (count_tensioncoupure>3) {
+    std::cout << "#CARTE_MESSAGE_POWEROFF"<< std::endl;
   }
   return tension;
 }
