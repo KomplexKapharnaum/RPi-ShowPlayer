@@ -22,34 +22,44 @@ class VlcPlayer(ExternalProcess):
         ExternalProcess.__init__(self, 'vlcvideo')
         self.onClose = "VIDEO_END"
         self.media = None
-        self.repeat = 'off'
+        self.repeat = False
+        self.preloaded = False
         if start:
             self.start()
 
-    def preload(self, filename=None, repeat=None):
+    def preload(self, filename=None, repeat=None, mediatype='video'):
         if filename is not None:
-            media = os.path.join(settings.get("path", "video"), filename)
+            media = os.path.join(settings.get_path("media", mediatype), filename)
             if os.path.isfile(media):
                 self.media = media
+
         if repeat is not None:
-            self.repeat = 'on' if repeat else 'off'
-        if not os.path.isfile(self.media):
+            self.repeat = True if repeat else False
+
+        if self.media is None or not os.path.isfile(self.media):
             log.warning("Media File not found {0}".format(self.media))
-            return False
-        return True
+            self.preloaded = False
+        else:
+            self.preloaded = True
 
     def play(self, filename=None, repeat=None):
-        if self.preload(filename, repeat):
+        if filename is not None:
+            self.preload(filename, repeat)
+        if self.preloaded:
             #self.say("clear")
             self.say("add {media}".format(media=self.media))
             #self.say("play")
-            self.say("repeat {switch}".format(switch=self.repeat))
+            repeat = 'on' if self.repeat else 'off'
+            self.say("repeat {switch}".format(switch=repeat))
 
     def pause(self):
         self.say("pause")
 
     def stop(self):
         self.say("stop")
+
+    def set_volume(self, value):
+        self.say("volume {0}".format(value))
 
     Filters = {
         'VIDEO_END': [True]
@@ -62,8 +72,13 @@ class VlcPlayerOneShot(VlcPlayer):
         VlcPlayer.__init__(self, start=False)
 
     def play(self, filename=None, repeat=None):
-        if self.preload(filename, repeat):
-            self.command = self.executable+' --play-and-exit '+self.media
+        if filename is not None:
+            self.preload(filename, repeat)
+        if self.preloaded:
+            self.command = self.executable+' --play-and-exit '
+            if repeat:
+                self.command += ' --repeat '
+            self.command += self.media
             self.start()
 
 exposesignals(VlcPlayer.Filters)
@@ -74,7 +89,8 @@ exposesignals(VlcPlayer.Filters)
 @module('VideoPlayer')
 @link({"/video/play [media] [repeat]": "video_play",
         "/video/pause": "video_pause",
-        "/video/stop": "video_stop"})
+        "/video/stop": "video_stop",
+        "/video/set_volume [volume]": "video_set_volume"})
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VlcPlayerOneShot()
@@ -84,6 +100,7 @@ def video_player(flag, **kwargs):
 def video_play(flag, **kwargs):
     kwargs["_fsm"].process.stop()
     kwargs["_fsm"].process = VlcPlayerOneShot()
+
 
     media = flag.args["media"] if 'media' in flag.args else None
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
@@ -107,6 +124,14 @@ def video_stop(flag, **kwargs):
 @link({None: "video_player"})
 def video_pause(flag, **kwargs):
     kwargs["_fsm"].process.pause()
+
+
+@link({None: "video_player"})
+def video_set_volume(flag, **kwargs):
+    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+        kwargs["_fsm"].process.set_volume(flag.args["volume"])
+    else:
+        log.warning("Ask to set volume on an unlauched process (VlcPlayer)")
 
 
 

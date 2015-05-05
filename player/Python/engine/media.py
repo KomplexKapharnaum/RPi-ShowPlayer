@@ -27,13 +27,25 @@ from engine.log import init_log
 log = init_log("media")
 
 
+def get_mtime(path):
+    """
+    Get the mtime of a file, if you change think to change osc repr in Media class
+    :param path: absolute path
+    :return:
+    """
+    if os.path.exists(path):
+        return float(os.path.getmtime(path))
+    else:
+        return float(0)
+
+
 def get_all_media_list():
     """
     This function return a MediaList for all media in scenario
     :return:
     """
     all_media = MediaList()
-    media_path = settings.get("path", "media")
+    media_path = settings.get_path("media")
     for path, dirs, files in os.walk(media_path):  # Retreived file list to check
         for f in files:
             abs_path = os.path.join(path, f)
@@ -49,7 +61,7 @@ def get_unwanted_media_list(needed_media_list):
     :return:
     """
     unwanted_media_list = MediaList()
-    media_path = settings.get("path", "media")
+    media_path = settings.get_path("media")
     for path, dirs, files in os.walk(media_path):  # Retreived file list to check
         for f in files:
             abs_path = os.path.join(path, f)
@@ -79,21 +91,38 @@ class MediaList(list):
         This function test if media_obj is wanted (present and newer) based on the NeededMediaList
         """
         log.log("raw", "Do this list need {0}".format(media_obj))
+        if media_obj.source == "osc" and not settings.get("sync", "video") and Media.get_root_dir(
+                media_obj.rel_path) == settings.get("path", "relative", "video"):
+            log.log("raw", "Ignore because it's a video and we ask to do not scp copy them")
+            log.log("raw", "Media : {0}, settings sync {1} settings video {2}".format(
+                media_obj, settings.get("sync", "video"), settings.get("path", "relative", "video")
+            ))
+            return False  # It's a video and we ask to do not scp copy them
         for elem in self:
             log.log("raw", "Test with : {0}".format(elem))
             if media_obj.rel_path == elem.rel_path and media_obj.mtime > elem.mtime:
-                log.log("raw", "Found !!  ")
+                log.log("raw", "NEED MEDIA Found !! our : {0}, update {1}  ".format(elem.mtime, media_obj.mtime))
                 return True
         return False
 
-    def get_smaller_media(self):    #, ignore=()):
+    def update(self):
+        """
+        This function update mtime information for all media from fs
+        """
+        # log.log("error", "Update {0}".format(self))
+        for elem in self:
+            if elem.source != "osc":
+                elem.mtime = get_mtime(elem.source_path)
+
+
+    def get_smaller_media(self):  # , ignore=()):
         """
         This function return the smaller media to delete in the MediaList
         # :param ignore: list of elem to ignore
         """
         smaller = self[0]
         for elem in self:
-            if elem.filesize < smaller.filesize: # and elem not in ignore:
+            if elem.filesize < smaller.filesize:  # and elem not in ignore:
                 smaller = elem
         return smaller
 
@@ -116,13 +145,12 @@ class MediaList(list):
     def __str__(self):
         return self.__repr__()
 
-    # def get_media_to_delete(self, needspace):
-    #     """
-    #     This function return a list of smaller media
-    #     """
-    #     freespace = 0
-    #     while freespace < needspace:
-
+        # def get_media_to_delete(self, needspace):
+        # """
+        # This function return a list of smaller media
+        # """
+        #     freespace = 0
+        #     while freespace < needspace:
 
 
 class Media:
@@ -143,7 +171,7 @@ class Media:
         self.source = source
         self.source_path = source_path
         self.filesize = filesize
-        log.log("raw", "Init {0}".format(self))
+        # log.log("raw", "Init {0}".format(self))
 
     @staticmethod
     def from_scenario(rel_path):
@@ -151,13 +179,13 @@ class Media:
         Create a Media from a rel path in scenario
         :param rel_path: rel_path of the media
         """
-        path = os.path.join(settings.get("path", "media"), rel_path)
+        path = os.path.join(settings.get_path("media"), rel_path)
         if not os.path.exists(path):
             log.log("raw", "Scenario media {0} not present in fs {1}".format(rel_path, path))
             # return False
             mtime = 0
         else:
-            mtime = os.path.getmtime(path)
+            mtime = get_mtime(path)
         return Media(rel_path=rel_path, mtime=mtime, source="scenario", source_path=path)
 
     @staticmethod
@@ -170,7 +198,7 @@ class Media:
         if not os.path.exists(abs_path):
             log.error("Usb media {0} not present in fs {1}".format(rel_path, abs_path))
             return False
-        mtime = os.path.getmtime(abs_path)
+        mtime = get_mtime(abs_path)
         filesize = Media.get_size(abs_path)  # In Ko
         return Media(rel_path=rel_path, mtime=mtime, source="usb", source_path=abs_path, filesize=filesize)
 
@@ -196,7 +224,7 @@ class Media:
         :param filesize: filesize in Ko of the media
         :return:
         """
-        return Media(rel_path=rel_path, mtime=os.path.getmtime(abs_path), source="fs", source_path=abs_path,
+        return Media(rel_path=rel_path, mtime=get_mtime(abs_path), source="fs", source_path=abs_path,
                      filesize=filesize)
 
     @staticmethod
@@ -208,14 +236,38 @@ class Media:
         """
         return int(os.path.getsize(abs_path) / 1000)
 
+    @staticmethod
+    def get_root_dir(path):
+        """
+        Return the first directory of a path
+        :param path: Absolute or relative path
+        :return:
+        """
+        path = os.path.split(path)
+        while path[0] != "":
+            path = os.path.split(path[0])
+        return path[1]
+
     def get_osc_repr(self):
         """
         This function return an OSC reprentation of the Media
         :return: path, mtime, filesize
         """
-        log.log("raw", "get_osc_rep for : {0}".format(self))
-        return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
+        # log.log("raw", "get_osc_rep for : {0}".format(self))
+        # return ('s', str(self.rel_path)), ('f', float(self.mtime)), ('i', int(self.filesize))
+        return ('s', str(self.rel_path)), ('f', get_mtime(os.path.join(settings.get_path("media"), self.rel_path))), (
+            'i', int(self.filesize))
         # return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
+
+    def check_on_fs(self):
+        """
+        This function test if the media is present on the fs
+        :return:
+        """
+        if os.path.exists(os.path.join(settings.get_path("media"), self.rel_path)):
+            return True
+        else:
+            return False
 
     def put_on_fs(self):  # , error_fnct=None
         """
@@ -227,8 +279,9 @@ class Media:
         if self.source == "scenario":
             log.warning("Ask to get a file from the scenario... do nothing")
             return False
+        tools.log_teleco((os.path.basename(self.rel_path),"copy from {0}".format(self.source.upper())),"sync")
         if self.source == "usb":
-            dest_path = os.path.join(settings.get("path", "media"), self.rel_path)
+            dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
             if not os.path.exists(dir_path):
                 log.log("raw", "Create directory to get file {0}".format(dest_path))
@@ -244,18 +297,23 @@ class Media:
                 # if error_fnct is not None:
                 # error_fnct(self, e)
                 cp.stop()
+                tools.log_teleco((os.path.basename(self.rel_path),"fail copy {0}".format(self.source.upper())),"error")
                 return self, e
+            tools.log_teleco((os.path.basename(self.rel_path),"copy {0} : OK".format(self.source.upper())),"usb")
             cp.stop()
             return True
         elif self.source == "osc":
-            log.info("Media to scp copy : {0} ".format(self))
-            dest_path = os.path.join(settings.get("path", "media"), self.rel_path)
+            log.info("Media to scp copy : {0}".format(self))
+            dest_path = os.path.join(settings.get_path("media"), self.rel_path)
             dir_path = os.path.dirname(dest_path)
             if not os.path.exists(dir_path):
                 log.log("raw", "Create directory to get file {0}".format(dest_path))
                 os.makedirs(dir_path)
+            # if os.path.exists(dest_path):
+            # os.remove(dest_path)        # Need to remove in order to get the correct date to avoid scp loop
             scp = ExternalProcess("scp")
-            scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path, options=settings.get("sync", "scp_options"))
+            scp.command += " {options} {scp_path} {path}".format(scp_path=self.source_path, path=dest_path,
+                                                                 options=settings.get("sync", "scp_options"))
             log.log("raw", "SCP : Try to get distant media {0} with {1}".format(self, scp.command))
             scp.start()
             try:
@@ -263,7 +321,11 @@ class Media:
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 scp.stop()
+                tools.log_teleco((os.path.basename(self.rel_path),"fail copy {0}".format(self.source.upper())),"error")
                 return self, e
+            log.log("raw", "Force mtime to {0}".format(self.mtime))
+            os.utime(dest_path, (-1, self.mtime))  # Force setting new time on file to avoid scp loop (-p dosen't work)
+            tools.log_teleco((os.path.basename(self.rel_path),"copy {0} : OK".format(self.source.upper())),"sync")
             scp.stop()
             return True
         else:
@@ -313,8 +375,10 @@ def mount_partition(block_path, mount_path):
     except RuntimeError as e:
         log.exception(log.show_exception(e))
         log.warning("Unable to mount  {0} on {1} ".format(block_path, mount_path))
+        tools.log_teleco(("!USB! : error", "mount fail"), "error")
         mount_cmd.stop()
         return False
+    tools.log_teleco(("USB : stick","mount ok"),"usb")
     mount_cmd.stop()
     return True
 
@@ -326,8 +390,8 @@ def umount_partitions():
     """
     log.log("raw", "Start to umount partitions")
     sucess = True
-    for f in os.listdir(settings.get("path", "usb")):
-        path = os.path.join(settings.get("path", "usb"), f)
+    for f in os.listdir(settings.get_path("usb")):
+        path = os.path.join(settings.get_path("usb"), f)
         log.log("raw", "found on usb dir : {0}".format(path))
         if os.path.ismount(path):
             log.log("raw", "Found directory to umount {0}".format(f))
@@ -340,24 +404,16 @@ def umount_partitions():
                 time.sleep(settings.get("sync", "timeout_rm_mountpoint"))
                 os.rmdir(path)
                 log.log("raw", "Correctly remove after umount {0}".format(path))
+                tools.log_teleco(("USB : unmount","succes"),"usb")
             except RuntimeError as e:
                 log.exception(log.show_exception(e))
                 log.warning("Unable to umount {0}".format(path))
                 umount_cmd.stop()
+                tools.log_teleco(("!USB! : error","unmount fail"), "error")
                 sucess = False
                 continue
             umount_cmd.stop()
     return sucess
-
-
-def restart_netctl():
-    """
-    This function restart netctl
-    :return:
-    """
-    log.info("Restarting NETCTL auto-wifi ...")
-    log.debug("Restart netctl return {0}".format(
-        subprocess.check_call(shlex.split(settings.get("path", "systemctl")+" restart netctl-auto@wlan0.service"))))
 
 
 class UdevThreadMonitor(threading.Thread):
@@ -388,9 +444,12 @@ class UdevThreadMonitor(threading.Thread):
             if device.action == "remove":
                 log.log("debug", "Remove block device {0}".format(device.device_node))
                 umount_partitions()
-                log.log("info",
-                        "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
-                network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), restart_netctl)
+                if settings.get("sys", "raspi") and settings.get("sync", "netctl_autorestart"):
+                    log.log("info",
+                            "We will restart netctl in {0} sec ".format(settings.get("sync", "timeout_restart_netctl")))
+                    network_scheduler.enter(settings.get("sync", "timeout_restart_netctl"), tools.restart_netctl)
+                    tools.log_teleco(("network restart","in {0} sec".format(settings.get("sync", "timeout_restart_netctl"))),"usb")
+                    time.sleep(settings.get("log", "teleco", "error_delay"))        # Not an error but..
                 continue
             elif device.action not in ("add", "change"):
                 log.log("raw", "Block device event {1} (not add) : {0}".format(device.device_node, device.action))
@@ -400,7 +459,7 @@ class UdevThreadMonitor(threading.Thread):
             mounted = 0
             for block in os.listdir(devdir):
                 if devname in block and devname != block:  # Found a partition
-                    mounted += mount_partition(os.path.join(devdir, block), os.path.join(settings.get("path", "usb"),
+                    mounted += mount_partition(os.path.join(devdir, block), os.path.join(settings.get_path("usb"),
                                                                                          "usb{0}".format(devname[:-1])))
             if mounted > 0:  # A partition has been mounted
                 log.debug("Correctly mount {0} usb device".format(mounted))
@@ -418,12 +477,12 @@ def save_scenario_on_fs(group, date_timestamp):
     :return:
     """
     edit_date = datetime.datetime.fromtimestamp(float(date_timestamp)).strftime(settings.get("scenario", "date_format"))
-    path = os.path.join(settings.get("path", "scenario"), group)
+    path = os.path.join(settings.get_path("scenario"), group)
     if not os.path.exists(path):
         os.makedirs(path)
     with tarfile.open(os.path.join(path, group + "@" + edit_date + ".tar"), "w") as tar:
-        tar.add(settings.get("path", "activescenario"),
-                arcname=os.path.basename(settings.get("path", "activescenario")))
+        tar.add(settings.get_path("scenario", "activescenario"),
+                arcname=os.path.basename(settings.get_path("scenario", "activescenario")))
     tar.close()
 
 
@@ -454,15 +513,15 @@ def load_scenario_from_fs(group, date_timestamp=None):
         if newer is None:  # Can't find scenario in fs
             log.error("Can't find scenario ({0}@{1}) in fs".format(group, edit_date))
             return False
-    path = os.path.join(settings.get("path", "scenario"), group)
+    path = os.path.join(settings.get_path("scenario"), group)
     tar_path = os.path.join(path, group + "@" + newer.date + ".tar")
     log.log("raw", "Ask to load {0} from fs to update scenario ".format(tar_path))
     with tarfile.open(tar_path, "r") as tar:
         # RM current scenario active directory ! #
-        if os.path.exists(settings.get("path", "activescenario")):
-            shutil.rmtree(settings.get("path", "activescenario"))
+        if os.path.exists(settings.get_path("scenario", "activescenario")):
+            shutil.rmtree(settings.get_path("scenario", "activescenario"))
         ##
-        tar.extractall(path=settings.get("path", "scenario"))  # path=settings.get("path", "scenario"))
+        tar.extractall(path=settings.get_path("scenario"))  # path=settings.get("path", "scenario"))
         return True
     # if here it's because we ca not open tar file
     log.warning("Error when opening scnario at {0}".format(os.path.join(path, group + "@" + newer.date + ".tar")))
@@ -474,14 +533,21 @@ class ScenarioFile:
         This class represent a scenario file in the fs
     """
 
-    def __init__(self, path, group, edit_date, dateobj):
+    def __init__(self, path, group, edit_date, dateobj, user_ip="", distant_path=""):
         """
             :param path: Absolute path of the scenario file
+            :param group: Work group of the scenario
+            :param edit_date: Edite date of the file
+            :param dateobj: Datetime object which represent edit date
+            :param distant_path: Distant path if received from OSC
+            :param user_ip: user@ip if received from OSC
         """
         self.path = path
         self.group = group
         self.date = edit_date
         self.dateobj = dateobj
+        self.distant_path = distant_path
+        self.user_ip = user_ip
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.group == other.group and self.date == other.date
@@ -489,18 +555,33 @@ class ScenarioFile:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def get_from_distant(self, ip):
+    def get_from_distant(self):
         """
             This function use scp to copy a distant scenario to the local filesystem
-            :param ip: Target ip of the distant client
             :return:
         """
+        # if settings.get("sys", "raspi"):
+        # scp = ExternalProcess("scp")
+        # scp.command += " {options} {ip}:{path} {path}".format(
+        # ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
+        #     log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
+        #     scp.start()
+        #     scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
+        # else:
+        #     log.warning("!! NOT IMPLEMENTED !!")
+        #     log.warning("Should copy distant scenario {0} with scp but we are not on a raspi")
+        log.log("raw", "path : {0}, distant_path {1}".format(self.path, self.distant_path))
         scp = ExternalProcess("scp")
-        scp.command += " {options} {ip}:{path} {path}".format(
-            ip=ip, path=self.path, options=settings.get("sync", "scp_options"))
+        scp.command += " {options} {ip}:{distant_path} {path}".format(
+            ip=self.user_ip,
+            distant_path=os.path.join(self.distant_path, os.path.relpath(self.path, settings.get_path("scenario"))),
+            path=self.path, options=settings.get("sync", "scp_options"))
         log.log("raw", "SCP : Try to get distant scenario {0} with {1}".format(self, scp.command))
         scp.start()
-        scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
+        try:
+            scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
+        except RuntimeError:
+            log.warning("Can't get scenario {0} with {1}".format(self, scp.command))
 
 
     @staticmethod
@@ -516,16 +597,18 @@ class ScenarioFile:
         return ScenarioFile(path, group, edit_date, dateobj)
 
     @staticmethod
-    def create_by_OSC(group, edit_date):
+    def create_by_OSC(group, edit_date, user_ip="", distant_path=""):
         """
             This function create a ScenarioFile by OSC
+            :param user_ip: user@ip of the sender
+            :param distant_path: Distant path of the scenario dir from the sender
             :param group: group recv by OSC
             :param edit_date: edit_date recv by OSC
         """
         filename = group + "@" + edit_date + ".tar"
-        path = os.path.join(settings.get("path", "scenario"), group, filename)
+        path = os.path.join(settings.get_path("scenario"), group, filename)
         dateobj = datetime.datetime.strptime(edit_date, settings.get("scenario", "date_format"))
-        return ScenarioFile(path, group, edit_date, dateobj)
+        return ScenarioFile(path, group, edit_date, dateobj, user_ip=user_ip, distant_path=distant_path)
 
     def __str__(self):
         return "ScenarioFile : {0}@{1}".format(self.group, self.date)
@@ -540,7 +623,7 @@ def get_scenario_by_group_in_fs():
     :return: dictionary with groups in keys and foreach a list of version
     """
     scenario_by_group = dict()
-    for path, dirs, files in os.walk(settings.get("path", "scenario")):
+    for path, dirs, files in os.walk(settings.get_path("scenario")):
         if os.path.split(path)[1][:len(settings.get("sync",
                                                     "escape_scenario_dir"))] == settings.get("sync",
                                                                                              "escape_scenario_dir"):
@@ -558,22 +641,26 @@ def get_scenario_by_group_in_fs():
     return scenario_by_group
 
 
-def get_scenario_by_group_in_osc(osc_args):
+def get_scenario_by_group_in_osc(osc_args, ip):
     """
     This function return a dictionary with groups in keys and foreach a list of version
     :param osc_args: OSC args
+    :param  ip: ip of the sender
     :return: dictionary with groups in keys and foreach a list of version
     """
     log.log("raw", "Recv osc_args : {0}".format(osc_args))
+    user_ip = osc_args.pop(0) + "@" + ip
+    distant_path = osc_args.pop(0)
     scenario_by_group = dict()
     if len(osc_args) % 2 != 0:
         log.critical("We must have n*2 arguments (one for group the other for date)")
         return []
     for i in range(len(osc_args) / 2):
-        scenario = ScenarioFile.create_by_OSC(osc_args[2 * i], osc_args[2 * i + 1])
-        log.log("raw", "[i={0}]Create scenario : {1}".format(i, scenario))
+        scenario = ScenarioFile.create_by_OSC(osc_args[2 * i], osc_args[2 * i + 1], user_ip=user_ip,
+                                              distant_path=distant_path)
+        # log.log("raw", "[i={0}]Create scenario : {1}".format(i, scenario))
         if scenario.group not in scenario_by_group.keys():
-            log.log("raw", "New group : {0}".format(scenario.group))
+            # log.log("raw", "New group : {0}".format(scenario.group))
             scenario_by_group[scenario.group] = list()
         scenario_by_group[scenario.group].append(scenario)
     log.log("raw", "Return : {0}".format(scenario_by_group))
@@ -589,104 +676,104 @@ def get_newer_scenario(group):
     if len(group) > 0:
         newer = group[0]
     else:
-        return None     # There is no file in group
+        return None  # There is no file in group
     for version in group:
         if version.dateobj > newer.dateobj:
             newer = version
     return newer
 
-
-class MediaMoved:
-    """
-    This class just represent the fact that the file as change his place
-    """
-
-    def __init__(self, old_path, new_path):
-        self.old_path = old_path
-        self.new_path = new_path
-
-
-class MediaChanged:
-    """
-    This class just represent the fact that the file as change his place
-    """
-
-    def __init__(self, path, current_checksum, new_checksum):
-        self.path = path
-        self.current_checksum = current_checksum
-        self.new_checksum = new_checksum
-
-
-class MediaUnknown:
-    """
-    This class just represent the fact that the file isn't in the filesystem at all
-    """
-
-    def __init__(self, path, checksum):
-        self.path = path
-        self.current = checksum
-
-
-def get_fs_checksum(path):
-    """
-    This function return the checksum of a file on the filesystem
-    :param path: Path to the file
-    :return:
-    """
-    with open(path, "rb") as ofile:
-        return pyhashxx.hashxx(ofile.read())
-
-
-def parse_media_dir():
-    """
-    This function parse the media directory to check current existing files
-    :return:
-    """
-    tree = dict()
-    for root, dirs, files in os.walk(settings.get("path", "media")):
-        for f in files:
-            tree[os.path.join(root, f)] = get_fs_checksum(os.path.join(root, f))
-    return tree
-
-
-def is_onfs(path, checksum, fs_tree):
-    """
-    This function search in the media directory if the media is in there
-    :param path: Media path
-    :param checksum: Checksum of the media
-    :param fs_tree: filesystem tree return by parse_media_dir
-    :return:
-    """
-    if path in fs_tree.keys():  # A file have the same name in the fs
-        if fs_tree[path] == checksum:  # The file is the same
-            return True
-        else:  # The file have changed
-            return MediaChanged(path, fs_tree[path], checksum)
-    elif checksum in fs_tree.values():
-        for old_path, cs in fs_tree.items():
-            if cs == checksum:
-                return MediaMoved(old_path, path)  # Old path of the file
-    else:
-        return MediaUnknown(path, checksum)  # The file is not present at all
-
-
-def do_move_file(old_path, new_path, retry=False):
-    """
-    This function move a file from a path to another
-    :param old_path:
-    :param new_path:
-    :param retry: If True, an erro will be fatal
-    :return:
-    """
-    try:
-        shutil.move(old_path, new_path)
-        return True
-    except Exception:
-        if retry is not True:
-            os.remove(new_path)
-            return do_move_file(old_path, new_path)
-        else:
-            return False
+#
+# class MediaMoved:
+# """
+# This class just represent the fact that the file as change his place
+# """
+#
+#     def __init__(self, old_path, new_path):
+#         self.old_path = old_path
+#         self.new_path = new_path
+#
+#
+# class MediaChanged:
+#     """
+#     This class just represent the fact that the file as change his place
+#     """
+#
+#     def __init__(self, path, current_checksum, new_checksum):
+#         self.path = path
+#         self.current_checksum = current_checksum
+#         self.new_checksum = new_checksum
+#
+#
+# class MediaUnknown:
+#     """
+#     This class just represent the fact that the file isn't in the filesystem at all
+#     """
+#
+#     def __init__(self, path, checksum):
+#         self.path = path
+#         self.current = checksum
+#
+#
+# def get_fs_checksum(path):
+#     """
+#     This function return the checksum of a file on the filesystem
+#     :param path: Path to the file
+#     :return:
+#     """
+#     with open(path, "rb") as ofile:
+#         return pyhashxx.hashxx(ofile.read())
+#
+#
+# def parse_media_dir():
+#     """
+#     This function parse the media directory to check current existing files
+#     :return:
+#     """
+#     tree = dict()
+#     for root, dirs, files in os.walk(settings.get("path", "media")):
+#         for f in files:
+#             tree[os.path.join(root, f)] = get_fs_checksum(os.path.join(root, f))
+#     return tree
+#
+#
+# def is_onfs(path, checksum, fs_tree):
+#     """
+#     This function search in the media directory if the media is in there
+#     :param path: Media path
+#     :param checksum: Checksum of the media
+#     :param fs_tree: filesystem tree return by parse_media_dir
+#     :return:
+#     """
+#     if path in fs_tree.keys():  # A file have the same name in the fs
+#         if fs_tree[path] == checksum:  # The file is the same
+#             return True
+#         else:  # The file have changed
+#             return MediaChanged(path, fs_tree[path], checksum)
+#     elif checksum in fs_tree.values():
+#         for old_path, cs in fs_tree.items():
+#             if cs == checksum:
+#                 return MediaMoved(old_path, path)  # Old path of the file
+#     else:
+#         return MediaUnknown(path, checksum)  # The file is not present at all
+#
+#
+# def do_move_file(old_path, new_path, retry=False):
+#     """
+#     This function move a file from a path to another
+#     :param old_path:
+#     :param new_path:
+#     :param retry: If True, an erro will be fatal
+#     :return:
+#     """
+#     try:
+#         shutil.move(old_path, new_path)
+#         return True
+#     except Exception:
+#         if retry is not True:
+#             os.remove(new_path)
+#             return do_move_file(old_path, new_path)
+#         else:
+#             return False
 
 
 

@@ -104,6 +104,7 @@ class SharedPageReader:
             try:
                 name, s_type, size = var.split(",")
             except ValueError:
+                log.debug("Value error occured")
                 break
             self._map[name] = (s_type, offset, offset+int(size))
             offset += int(size)

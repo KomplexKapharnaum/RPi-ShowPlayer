@@ -67,6 +67,18 @@
 #define T_ISLOCKWITHSLEEP 2
 #define T_POWEROFF 10
 
+#define T_MENU_ID_SHOW_STATUS 1
+#define T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE 2
+#define T_MENU_ID_STATUS_GIT_VERSION 3
+#define T_MENU_ID_STATUS_SCENE 4
+#define T_MENU_ID_STATUS_USB 5
+#define T_MENU_ID_STATUS_MEDIA 6
+#define T_MENU_ID_STATUS_SYNC 7
+#define T_MENU_ID_STATUS_USER 8
+#define T_MENU_ID_STATUS_ERROR 9
+
+#define T_MENU_ID_LOG_0 10
+
 
 
 
@@ -76,8 +88,7 @@ class Teleco : public Carte {
 
 public:
   void initCarte(char pow);
-  void sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]);
-  void sendPopUp(char Str1[], char Str2[]);
+  void sendString(char Str1[], char Str2[],int val);
   void sendButtonString(char Str1[]);
   int fisrtView();
   void start();
@@ -86,6 +97,7 @@ public:
   void setLedOk(int val);
   void setLedWarning(int val);
   int readOrSetTelecoLock(int val=-1);
+  int needtestroutine;
 };
 
 

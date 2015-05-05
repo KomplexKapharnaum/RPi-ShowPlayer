@@ -19,17 +19,17 @@ from libs.oscack import message, network
 from libs import rtplib
 from engine.setting import settings
 from engine.log import init_log
-from scenario import manager
+from modules import scenecontrol
 
 log = init_log("discov")
 
-machine = fsm.FiniteStateMachine()
+machine = fsm.FiniteStateMachine("RTP_FSM")
 
 msg_iamhere = network.UnifiedMessageInterpretation("/iamhere", values=(
     ('s', "uName"),
     ('i', "timetag")
-), flag_name="RECV_IAM_HERE")
-msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME")
+), flag_name="RECV_IAM_HERE", machine=machine)
+msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME", machine=machine)
 msg_ping = network.UnifiedMessageInterpretation("/rtp/ping", ACK=True, values=(
     ("i", "ping_1"),
     ("i", "ping_2"),
@@ -77,7 +77,7 @@ def add_method_before_patcher(path, types, fnct):
     libs.oscack.DNCserver.del_method(None, None)          # Remove wildcard
     libs.oscack.DNCserver.ackServer.del_method(path, types)         # Remove before add
     libs.oscack.DNCserver.ackServer.add_method(path, types, fnct)   # Add callback
-    libs.oscack.DNCserver.add_method(None, None, manager.patch_msg)  # Replug patcher
+    libs.oscack.DNCserver.add_method(None, None, scenecontrol.patch_msg)  # Replug patcher
 
 
 
@@ -166,7 +166,7 @@ def server_sync(flag):
                             flag_timeout_task_sync.get(
                                 TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))   # TODO check if work
     machine.current_state.preemptible.set()
-    time.sleep(3)     # Wait for the client to pass in the correct state
+    time.sleep(0.03)     # Wait for the client to pass in the correct state
     # BEGIN TIME CRITICAL #
     message.send(target, msg_ping.get(**kwargs_ping))
     t_start = rtplib.get_time()

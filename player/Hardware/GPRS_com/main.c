@@ -1,14 +1,5 @@
-//
-//  main.c
-//  GPRS_com
-//
-//  Created by SuperPierre on 21/01/2015.
-//
-//
-
 #include <stdio.h>
 #include <string.h>
-
 #include <wiringSerial.h>
 
 void readRX(int fd,int end){
@@ -69,10 +60,10 @@ int main (int argc, char * argv[]){
   
   char dest[5][13];
   strcpy(dest[0], "+33678517297");
-  strcpy(dest[1], "+33635318343");
-  strcpy(dest[2], "+33603435161");
-  strcpy(dest[3], "+33681961963");
-  strcpy(dest[4], "+33618017372");
+  strcpy(dest[1], "+33678517297");
+  strcpy(dest[2], "+33678517297");
+  strcpy(dest[3], "+33678517297");
+  strcpy(dest[4], "+33678517297");
   
   uart0_filestream = serialOpen ("/dev/ttyAMA0", 19200);
   //serialPrintf (uart0_filestream, "AT+CMGR=1\r\n") ;
@@ -112,15 +103,7 @@ int main (int argc, char * argv[]){
     
     }
     
-    
-    
-    
   }
-  
-  
-  
-  //printf("bisous\n");
-  
   
   serialClose(uart0_filestream);
   

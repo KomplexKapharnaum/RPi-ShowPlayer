@@ -6,12 +6,14 @@
 #
 
 import os
+import getpass
 
 from libs.oscack import message, network, DNCserver #, BroadcastAddress
 from engine.threads import network_scheduler, patcher
 
 from engine import media
 from engine import fsm
+from libs.oscack.utils import get_ip
 from engine.setting import settings
 from engine.log import init_log
 
@@ -20,17 +22,18 @@ from engine.log import init_log
 BroadcastAddress = None # libs.oscack.BroadcastAddress
 
 
+machine = fsm.FiniteStateMachine(name="SCENARIO_SYNC_FSM")
+
 log = init_log("ssync")
 
 OSC_PATH_SCENARIO_VERSION = "/sync/scenario/version"
 OSC_PATH_SCENARIO_ASK = "/sync/scenario/amiuptodate"
 
 msg_PATH_SCENARIO_VERSION = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_VERSION, values=None,
-                                                                 flag_name="RECV_SCENARIO_VERSION")
+                                                                 flag_name="RECV_SCENARIO_VERSION", machine=machine)
 msg_PATH_SCENARIO_ASK = network.UnifiedMessageInterpretation(OSC_PATH_SCENARIO_ASK, values=None,
-                                                             flag_name="RECV_SCENARIO_ASK")
+                                                             flag_name="RECV_SCENARIO_ASK", machine=machine)
 
-machine = fsm.FiniteStateMachine(name="syncscenario")
 
 flag_timeout = fsm.Flag("TIMEOUT_SEND_VERSION")
 
@@ -78,6 +81,8 @@ def send_version(flag):
     :return:
     """
     args = list()
+    args.append(('s', getpass.getuser()))                    # username
+    args.append(('s', settings.get_path("scenario")))        # media path
     groups = media.get_scenario_by_group_in_fs()
     for groupname, group in groups.items():
         group.sort(key=lambda r: r.dateobj, reverse=True)
@@ -95,8 +100,11 @@ def trans_must_i_get_scenario(flag):
     :return:
     """
     log.log("raw", "Transition..")
-    if flag.args["path"] != OSC_PATH_SCENARIO_VERSION or \
-                    flag.args["src"].get_hostname() == DNCserver.net_elem._ip:
+    if flag.args["src"].get_hostname() in get_ip():
+        # It's our message
+        log.log("raw", "Ignore because it's our message")
+        return None
+    if flag.args["path"] != OSC_PATH_SCENARIO_VERSION:
         log.log("raw", "Not a scenario/version msg")
         if flag.args["path"] == OSC_PATH_SCENARIO_ASK:  # We ask if someone is newer than me
             log.log("raw", "It's a newer asking {0}@{1}".format(flag.args["args"][0], flag.args["args"][1]))
@@ -109,14 +117,16 @@ def trans_must_i_get_scenario(flag):
                     log.log("raw", "His : {0}, us {1}".format(
                         media.ScenarioFile.create_by_OSC(flag.args["args"][0], flag.args["args"][1]), newer))
                     message.send(flag.args["src"], message.Message(OSC_PATH_SCENARIO_VERSION,
-                                                                                 ('s', flag.args["args"][0]),
-                                                                                 ('s', newer.date)))
+                                                                   ('s', getpass.getuser()),
+                                                                   ('s', settings.get_path("scenario")),
+                                                                   ('s', flag.args["args"][0]),
+                                                                   ('s', newer.date)))
                     # We send our newer version of scenario
         return None  # Not a distant OSC version message
     log.log("raw", ".. It's a OSC_PATH_SCENARIO_VERSION ")
     if "scenario" not in flag.args.keys():  # We just recv the OSC msg
         log.log("raw", "First iter on loop get_scenario")
-        flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"])
+        flag.args["scenario"] = media.get_scenario_by_group_in_osc(flag.args["args"], flag.args["src"].get_hostname())
         flag.args["local_scenario"] = media.get_scenario_by_group_in_fs()
         if settings.get("current_timeline") in flag.args["local_scenario"].keys():
             flag.args["local_newer"] = media.get_newer_scenario(
@@ -128,7 +138,7 @@ def trans_must_i_get_scenario(flag):
         new_group = False
         if groupname not in flag.args["local_scenario"]:
             new_group = True
-            group_path = os.path.join(settings.get("path", "scenario"), groupname)
+            group_path = os.path.join(settings.get_path("scenario"), groupname)
             try:
                 if not os.path.exists(group_path):
                     os.makedirs(group_path)
@@ -141,7 +151,7 @@ def trans_must_i_get_scenario(flag):
                 flag.args["to_get"] = scenario
                 return step_get_scenario
     if "reload" in flag.args.keys():
-        log.log("debug", "There is a new timeline to reload : Emit signal ")
+        log.log("info", "There is a new timeline to reload : Emit signal ")
         patcher.patch(fsm.Flag("FS_TIMELINE_UPDATED").get())   # Emit signal to warn somewhere there is new T.L.
     return step_main_wait  # End treatment
 
@@ -153,8 +163,8 @@ def get_scenario(flag):
     :return:
     """
     to_get = flag.args["to_get"]
-    log.log("debug", "Try to get wia scp : {0}".format(to_get))
-    to_get.get_from_distant(flag.args["src"].get_hostname())
+    log.log("raw", "Try to get wia scp : {0}".format(to_get))
+    to_get.get_from_distant()
     if flag.args["local_newer"] is not None:
         log.log("raw", "Check is distant group : {0} is same as us {1}".format(to_get.group, flag.args["local_newer"].group))
         log.log("raw", "Flag args keys : {0}".format(flag.args.keys()))

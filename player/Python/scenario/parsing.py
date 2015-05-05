@@ -21,6 +21,8 @@ import libs.simplejson as json
 from engine.log import init_log
 log = init_log("parse")
 
+IS_THERE_SCENARIO_ERROR = False
+
 SCENARIO = dict()
 TIMELINE = dict()
 LIBRARY = dict()
@@ -43,7 +45,7 @@ def load(use_archived_scenario=False):
 
 
 def load_files():
-    path = settings.get("path", "activescenario")
+    path = settings.get_path("scenario", "activescenario")
     if not os.path.exists(path):
         log.warning("There is no {0} path for load scenario.. aborting".format(path))
         return False
@@ -60,7 +62,7 @@ def load_files():
                 log.log('raw', "Load {0}".format(join(path, f)))
             elif f.startswith('timeline_'):
                 name = f.replace('timeline_', '').replace('.json', '')
-                TIMELINE[name] = parse_file(join(path, f))['pool']
+                TIMELINE[name] = parse_file(join(path, f))
                 log.log('raw', "Load {0}".format(join(path, f)))
     except Exception as e:
         log.exception("Error while loading scenario file : ")
@@ -92,9 +94,9 @@ def boxname(scenarioname, box):
     return (scenarioname+'_'+box['boxname']).upper()
 
 # 1: DEVICES
-def parse_devices(parsepool):
+def parse_devices(timeline):
     # DEVICES // CARTES
-    for device in parsepool:
+    for device in timeline['pool']:
         patchs = list()
         # for patch in importDevice["OTHER_PATCH"]:
         #     patchs.append(pool.Patchs[patch])
@@ -205,87 +207,134 @@ def parse_scenario(parsepool, name):
 
 
 # 4: TIMELINE
-def parse_timeline(parsepool):
+def parse_timeline(timeline):
     Sceno = dict()
-    # PROCESS SCENES
-    for device in parsepool:
-        for block in device["blocks"]:
-            SC = {
-                    "carte": device['name'],
-                    "scenarios": block['scenarios'],
-                    "etapes": [],
-                    "start": block['start'],
-                    "end": block['end']
-                }
-            #FIND START ETAPE FOR EACH ACTIVATED SCENARIO IN THE SCENE
-            for scenario in block['scenarios']:
-                if scenario in SCENARIO.keys():
-                    # DETECT START box
-                    for box in SCENARIO[scenario]['boxes']:
-                        if box['name']+'_PUBLICBOX' in DECLARED_PUBLICBOXES:
-                            if DECLARED_PUBLICBOXES[box['name']+'_PUBLICBOX']['start']:
-                                SC['etapes'].append(boxname(scenario, box))
 
-                    # GET TOP TREE BOXES IN SCENARIO
-                    # if 'origins' in scenard:
-                    #     for box in scenard['origins']:
-                    #         boxname = (scenario+'_'+box).upper()
-                    #         SC['etapes'].append(boxname)
-
-                    # DETECT WANTED MEDIA
-                    for box in SCENARIO[scenario]['boxes']:
-                        if 'media' in box.keys():
-                            pool.Cartes[device['name']].media.append( os.path.join(box["category"].lower(), box['media']) )
-
-            # ADD SCENE
-            if 'scene' in block:
-                scene_name = block['scene']['name']
-            else:
-                scene_name = 'default'
-            if scene_name not in Sceno.keys():
-                Sceno[scene_name] = []
-            Sceno[scene_name].append(SC)
-
-    # Import SCENES
-    for name, sceneDevices in Sceno.items():
-        cartes = dict()
-        for carte in sceneDevices:
-            cartes[carte["carte"]] = list()
-            for etape in carte["etapes"]:
-                if etape in pool.Etapes_and_Functions.keys():
-                    cartes[carte["carte"]].append(pool.Etapes_and_Functions[etape])
-                else:
-                    log.warning('CAN\'T FIND {0}'.format(etape))
-        s = classes.Scene(name, cartes)
-        pool.Scenes[name] = dict()
-        pool.Scenes[name]["obj"] = s
-
-    # Import TIMELINE
-    importTimeline = []
-    for device in parsepool:
-        if device['name'] == settings["uName"]:
+    # SCENE & TIMELINE
+    for scene in timeline['scenes']:
+        
+        # GET SCENE DETAILS
+        startEtapes = dict()
+        for device in timeline['pool']:
             for block in device["blocks"]:
-                if 'scene' in block:
-                    scene_name = block['scene']['name']
+                if 'keyframe' in scene:
+                    if block["keyframe"] == scene.get('keyframe'):      # Match device blocks for this scene only
+                        if device["name"] not in startEtapes:
+                            startEtapes[ device["name"] ] = list()
+                        for scenario in block['scenarios']:
+                            if scenario in SCENARIO.keys():
+                                for box in SCENARIO[scenario]['boxes']:
+                                    # DETECT STARTING POINT box
+                                    if box['name']+'_PUBLICBOX' in DECLARED_PUBLICBOXES and DECLARED_PUBLICBOXES[box['name']+'_PUBLICBOX']['start']: #
+                                        etape = boxname(scenario, box)
+                                        if etape in pool.Etapes_and_Functions.keys():
+                                            startEtapes[ device['name'] ].append(pool.Etapes_and_Functions[etape])
+                                        else:
+                                            log.warning('PARSING : Can\'t find box {0}'.format(etape))
+                                    # DETECT WANTED MEDIA
+                                    if 'media' in box.keys():
+                                        pool.Cartes[ device['name'] ].media.append( os.path.join(box["category"].lower(), box['media']) )
                 else:
-                    scene_name = 'default'
-                importTimeline.append({
-                    "scene" : scene_name,
-                    "start": block['start'],
-                    "end": block['end']
-                })
-            importTimeline = sorted(importTimeline, key=itemgetter('start'))
-            before = None
-            for scene in importTimeline:
+                    log.log("important", "no keyframe found in timeline")
+                    global IS_THERE_SCENARIO_ERROR
+                    IS_THERE_SCENARIO_ERROR = True
+
+        # IMPORT SCENE
+        pool.Scenes[scene['name']] = classes.Scene(scene['name'], startEtapes)
+
+        # TIMELINE SEQUENCE
+        if 'keyframe' in scene:
+            k = scene['keyframe']
+            while(len(pool.Frames) <= k):
                 pool.Frames.append(None)
-                if before is None:
-                    pool.Scenes[scene["scene"]]["before"] = None
-                else:
-                    pool.Scenes[before]["after"] = pool.Scenes[scene["scene"]]["obj"]
-                    pool.Scenes[before]["until"] = len(pool.Frames)-1
-                    pool.Scenes[scene["scene"]]["before"] = pool.Scenes[before]["after"]
-                pool.Frames[-1] = pool.Scenes[scene["scene"]]["obj"]
-                before = scene["scene"]
+            pool.Frames[scene['keyframe']] = scene['name']
+        else:
+            log.log("important", "no keyframe found in timeline")
+
+    # # PROCESS SCENES
+    # for device in timeline['pool']:
+    #     for block in device["blocks"]:
+    #         SC = {
+    #                 "name": device['name']+'_'+str(block['keyframe'])
+    #                 "carte": device['name'],
+    #                 "scenarios": block['scenarios'],
+    #                 "etapes": [],
+    #                 "position": block['position'],
+    #                 "start": block['start'],
+    #                 "end": block['end']
+    #             }
+    #         #FIND START ETAPE FOR EACH ACTIVATED SCENARIO IN THE SCENE
+    #         for scenario in block['scenarios']:
+    #             if scenario in SCENARIO.keys():
+    #                 # DETECT START box
+    #                 for box in SCENARIO[scenario]['boxes']:
+    #                     if box['name']+'_PUBLICBOX' in DECLARED_PUBLICBOXES:
+    #                         if DECLARED_PUBLICBOXES[box['name']+'_PUBLICBOX']['start']:
+    #                             SC['etapes'].append(boxname(scenario, box))
+
+    #                 # GET TOP TREE BOXES IN SCENARIO
+    #                 # if 'origins' in scenard:
+    #                 #     for box in scenard['origins']:
+    #                 #         boxname = (scenario+'_'+box).upper()
+    #                 #         SC['etapes'].append(boxname)
+
+    #                 # DETECT WANTED MEDIA
+    #                 for box in SCENARIO[scenario]['boxes']:
+    #                     if 'media' in box.keys():
+    #                         pool.Cartes[device['name']].media.append( os.path.join(box["category"].lower(), box['media']) )
+
+    #         # ADD to Scene group
+    #         if block['position'] not in Sceno.keys():
+    #             Sceno[block['position']] = []
+    #         Sceno[block['position']].append(SC)
+
+
+    # # Import SCENES : Find all start_etape of all cards for each scene
+    # for scene in timeline['scenes']:
+    #     startEtapes = dict()
+    #     for card in Sceno.itervalues():                 # Scan every SC Block
+    #         if card["start"] == scene['position']:      # Match blocks for this scene only
+    #             if card["carte"] not in startEtapes:
+    #                 startEtapes[ card["carte"] ] = list()
+    #             for etape in card["etapes"]:
+    #                 if etape in pool.Etapes_and_Functions.keys():
+    #                     startEtapes[ card["carte"] ].append(pool.Etapes_and_Functions[etape])
+    #                 else:
+    #                     log.warning('PARSING : Can\'t find {0}'.format(etape))
+    #     pool.Scenes[scene['name']] = {'obj': classes.Scene(scene['name'], startEtapes)}
+
+    #     # Register Timeline sequencing
+    #     pool.Timeline[]
+
+    # # Import TIMELINE
+
+    # pool.Timeline
+
+    # importTimeline = []
+    # for device in parsepool:
+    #     if device['name'] == settings["uName"]:
+    #         for block in device["blocks"]:
+    #             if 'scene' in block:
+    #                 scene_name = block['scene']['name']
+    #             else:
+    #                 scene_name = 'default'
+    #             importTimeline.append({
+    #                 "scene" : scene_name,
+    #                 "start": block['start'],
+    #                 "end": block['end']
+    #             })
+    #         importTimeline = sorted(importTimeline, key=itemgetter('start'))
+    #         before = None
+    #         for scene in importTimeline:
+    #             pool.Frames.append(None)
+    #             if before is None:
+    #                 pool.Scenes[scene["scene"]]["before"] = None
+    #             else:
+    #                 pool.Scenes[before]["after"] = pool.Scenes[scene["scene"]]["obj"]
+    #                 pool.Scenes[before]["until"] = len(pool.Frames)-1
+    #                 pool.Scenes[scene["scene"]]["before"] = pool.Scenes[before]["after"]
+    #             pool.Frames[-1] = pool.Scenes[scene["scene"]]["obj"]
+    #             before = scene["scene"]
 
 
 

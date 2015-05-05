@@ -21,76 +21,62 @@
 #include <string>
 
 
-
+//init remote
 void Teleco::initCarte(char pow){
   localpoweroff=pow;
   fprintf(stderr, "teleco - add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
+  needtestroutine=0;
 }
 
+//check if start
 int Teleco::fisrtView(){
   return uninit;
 }
 
+//start remote
 void Teleco::start(){
   fprintf(stderr, "teleco - teleco start\n");
   uninit=0;
   setLedWarning(0);
 }
 
+//reset remote
 void Teleco::reset(){
   fprintf(stderr, "teleco - teleco reset\n");
   setLedWarning(1);
   writeValue(T_INIT,0);
 }
 
+//acces to led status
 void Teleco::setLedOk(int val){
   writeValue(T_LEDOKVALUE,val);
 }
-
 void Teleco::setLedWarning(int val){
   writeValue(T_LEDRVALUE,(1-val));
 }
 
 
-void Teleco::sendInfo(char Str1[], char Str2[],char Str3[], char Str4[]){
-  //fprintf(stderr, "teleco send infos : %s / %s / %s / %s\n",Str1,Str2, Str3, Str4);
-  unsigned char buff[68];
-  buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
-  for(int i=0;i<16;i++){
-    buff[i+1]= *(Str1+i);
-  }
-  for(int i=0;i<16;i++){
-    buff[i+17]= *(Str2+i);
-  }
-  for(int i=0;i<16;i++){
-    buff[i+33]= *(Str3+i);
-  }
-  for(int i=0;i<16;i++){
-    buff[i+49]= *(Str4+i);
-  }
-  fprintf(stderr, "teleco - teleco send infos : %s\n",buff);
-  SPIcarte.send(0,buff,68);
-}
-
-void Teleco::sendPopUp(char Str1[], char Str2[]){
+//send info to the remote
+void Teleco::sendString(char Str1[], char Str2[], int val){
   setLedWarning(1);
-  unsigned char buff[66];
-  buff[0]= (char)(WRITECOMMANDVALUE+T_POPUP);
-  for(int i=0;i<32;i++){
-    buff[i+1]= *(Str1+i);
+  unsigned char buff[38];
+  buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
+  buff[1]= (char)val;
+  for(int i=0;i<17;i++){
+    buff[i+2]= *(Str1+i);
   }
-  for(int i=0;i<32;i++){
-    buff[i+33]= *(Str2+i);
+  for(int i=0;i<17;i++){
+    buff[i+2+16]= *(Str2+i);
   }
-  fprintf(stderr, "teleco - teleco send popup : %s\n",buff);
-  SPIcarte.send(0,buff,66);
+  fprintf(stderr, "teleco - teleco send string : %s\n",buff);
+  SPIcarte.send(0,buff,38);
   setLedWarning(0);
 }
 
+// no use
 void Teleco::sendButtonString(char Str1[]){
-  
   unsigned char buff[19];
   buff[0]= (char)(WRITECOMMANDVALUE+T_BUTON_STRING);
   for(int i=0;i<16;i++){
@@ -101,6 +87,7 @@ void Teleco::sendButtonString(char Str1[]){
 
 }
 
+//send lock status
 int Teleco::readOrSetTelecoLock(int val){
   int state = readValue(T_LOCK);
   if (val!=-1 && state != val){
@@ -109,11 +96,10 @@ int Teleco::readOrSetTelecoLock(int val){
     return readValue(T_LOCK);
   }
   return state;
-  
 }
 
 
-
+//read intterupt from teleco and out corresponding message
 int Teleco::readInterrupt(){
   setLedWarning(1);
   unsigned char buff[2];
@@ -137,8 +123,8 @@ int Teleco::readInterrupt(){
       break;
     case T_PUSHROTARY:
       switch (valeur){
-        case 250:
-          std::cout << "#TELECO_GET_INFO" << std::endl;
+        case 0:
+          std::cout << "#TELECO_MESSAGE_UNKNOW" << std::endl;
           break;
         case 1:
           std::cout << "#TELECO_MESSAGE_PREVIOUSSCENE" << std::endl;
@@ -164,7 +150,6 @@ int Teleco::readInterrupt(){
         case 8:
           std::cout << "#TELECO_MESSAGE_POWEROFF" << std::endl;
           if(localpoweroff==1){
-            
             system ("sudo shutdown -h now");
           }
           break;
@@ -173,6 +158,7 @@ int Teleco::readInterrupt(){
           break;
         case 10:
           std::cout << "#TELECO_MESSAGE_TESTROUTINE" << std::endl;
+          needtestroutine=1;
           break;
       }
       break;

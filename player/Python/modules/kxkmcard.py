@@ -24,7 +24,9 @@ class KxkmCard(ExternalProcess):
     """
 
     def __init__(self):
-
+        if not settings.get("sys", "raspi"):
+            log.warning("KXKM Card should not be launched on no raspi device ")
+            return None
         plateform = subprocess.check_output(["/usr/bin/gcc", "-dumpmachine"])
         if "armv6l" in plateform:
             ExternalProcess.__init__(self, 'kxkmcard-armv6l')
@@ -63,9 +65,9 @@ class KxkmCard(ExternalProcess):
 
     def setMessage(self, line1=None, line2=None):
         cmd = 'texttitreur'
-        if line1 is not None:
+        if line1 is not None and not line1 == "":
             cmd += ' -line1 ' + line1.replace(' ', '_')
-        if line2 is not None:
+        if line2 is not None and not line2 == "":
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
@@ -101,19 +103,22 @@ class KxkmCard(ExternalProcess):
             cmd += ' -mode {0}'.format(mode)
         self.say(cmd)
 
-    def popUpTeleco(self, line1=None, line2=None):
+    def popUpTeleco(self,line1=None, line2=None, page=None):
         """
         send message on menu popup teleco
         :param line1:
         :param line2:
+        :param page: could be "log" "scenario" "usb" "media" "sync" "user" "error"
         :return:
         """
         cmd = 'popup'
-        if line1 is not None:
-            cmd += ' -line1 ' + line1.replace(' ', '_')
-        if line2 is not None:
-            cmd += ' -line2 ' + line2.replace(' ', '_')
-        self.say(cmd)
+        if page is not None:
+            cmd += ' -type {0}'.format(page)
+            if line1 is not None and not line1 == "":
+                cmd += ' -line1 ' + line1.replace(' ', '_')
+            if line2 is not None and not line2 == "":
+                cmd += ' -line2 ' + line2.replace(' ', '_')
+            self.say(cmd)
 
     ##
     # FILTERS
@@ -124,7 +129,7 @@ class KxkmCard(ExternalProcess):
         :return:
         """
         log.log("raw", "Init HardWare on KxkmCard ..")
-        path = settings.get('path', 'deviceslist')
+        path = settings.get_path('deviceslist')
         voltage = None
         titreur = None
 
@@ -171,6 +176,8 @@ class KxkmCard(ExternalProcess):
 
 
     Filters = {
+        # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
+        # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
         'INITHARDWARE': ['initHw'],
         'TELECO_GET_INFO': ['sendInfo'],
 
@@ -178,6 +185,8 @@ class KxkmCard(ExternalProcess):
         'CARTE_PUSH_2': ['btnDown', True],
         'CARTE_PUSH_3': ['btnDown', True],
         'CARTE_FLOAT': ['btnDown', True],
+
+        'CARTE_MESSAGE_POWEROFF': [True],
 
         'TELECO_PUSH_A': ['btnDown', True],
         'TELECO_PUSH_B': ['btnDown', True],
@@ -190,8 +199,9 @@ class KxkmCard(ExternalProcess):
         'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
 
         'TELECO_MESSAGE_PREVIOUSSCENE': ['transTo /scene/previous', True],
-        'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/restart', True],
+        'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/start', True],
         'TELECO_MESSAGE_NEXTSCENE': ['transTo /scene/next', True],
+
         'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
         'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
 
@@ -257,7 +267,9 @@ def kxkm_card_titreur_message(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_popup_teleco(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"])
+    if "page" not in flag.args.keys():
+        flag.args["page"]="user"
+    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"],flag.args["page"])
 
 
 @link({None: "kxkm_card"})

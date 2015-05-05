@@ -1,2 +1,2 @@
 #!/bin/bash
-tail -f /dnc/logs/main.log
+tail -f /tmp/dnc/main.log

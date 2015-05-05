@@ -2,16 +2,15 @@
 import pool
 import classes
 import parsing
-from engine import log, fsm
+from engine import log,tools
 from engine.setting import settings
 log = log.init_log("scenario")
 
-CURRENT_FRAME = None
+CURRENT_FRAME = 0
 CURRENT_SCENE = None
 
-DEVICE_FSM = list()
-SCENARIO_FSM = None
-FSM = list()
+MODULES_FSM = list()
+SCENE_FSM = list()
 
 
 def init():
@@ -22,20 +21,21 @@ def init():
     # STOP ALREADY RUNNING POOL MACHINES
     stop()
     # CLEAR SCENARIO FSMs
-    global SCENARIO_FSM, CURRENT_FRAME, CURRENT_SCENE, FSM, DEVICE_FSM, CARTE
-    SCENARIO_FSM = None
-    CURRENT_FRAME = None
-    CURRENT_SCENE = None
-    FSM = list()
-    DEVICE_FSM = list()
-    # INIT POOL
+    global SCENE_FSM, MODULES_FSM, CARTE
+    SCENE_FSM = list()
+    MODULES_FSM = list()
+    # INIT POOL WITH DECLARED COMPONENTS
     pool.clear()
     pool.load()
 
 
 def load(use_archive=True):
+    # PARSE SCENARIO FILES
     parsing.load(use_archive)
-
+    # REAJUST KEYFRAME (keep last position unless it does not exist anymore..)
+    global CURRENT_FRAME
+    if CURRENT_FRAME > len(pool.Frames):
+        CURRENT_FRAME = 0
 
 def reload():
     stop()
@@ -45,47 +45,61 @@ def reload():
 
 
 def start():
-    global SCENARIO_FSM, DEVICE_FSM
+    # global MODULES_FSM
+    if parsing.IS_THERE_SCENARIO_ERROR:
+        log.error("There is an error in the scenario => do not start scenes")
+        return
     log.log('raw', 'Cards available: {0}'.format(pool.Cartes))
 
     if settings["uName"] in pool.Cartes.keys():
-
-        # START MODULES
-        log.log("raw", "Start device modules")
-        for name, etape in pool.Cartes[settings["uName"]].device.modules.items():
-            dfsm = classes.ScenarioFSM(name)
-            dfsm.start(etape)
-            DEVICE_FSM.append(dfsm)
-            log.info("= MODULE (Scenario) :: "+name)
-
-        import manager
-        SCENARIO_FSM = fsm.FiniteStateMachine("Manager")
-        SCENARIO_FSM.start(manager.step_init)
-        SCENARIO_FSM.append_flag(manager.start_flag.get())
+        start_modules()
+        start_scene()
     else:
-        SCENARIO_FSM = None
         log.warning("== NO SCENARIO FOR: {0}".format(settings["uName"]))
 
 
 def stop():
-    # STOP MODULES
-    for dfsm in DEVICE_FSM:
+    stop_scene()
+    stop_modules()
+
+
+def start_scene():
+    if CURRENT_FRAME < len(pool.Frames):
+        name = pool.Frames[CURRENT_FRAME]
+        if name in pool.Scenes.keys():
+            scene = pool.Scenes[name]
+            log.log('important', '= SCENE '+name)
+            tools.log_teleco(("start scene",name),"scenario")
+            if settings["uName"] in scene.cartes.keys():
+                stop_scene()
+                for etape in scene.cartes[settings["uName"]]:
+                    fsm = classes.ScenarioFSM(etape.uid)
+                    fsm.start(etape)
+                    SCENE_FSM.append(fsm)
+            else:
+                log.debug('Nothing to do on Scene {0} for card {1}'.format(name, settings["uName"]))
+        else:
+            log.warning('No Scene found for KeyFrame {0} with name {1}'.format(CURRENT_FRAME, name))
+    else:
+        log.warning('KeyFrame {0} request doesn\'t exist'.format(CURRENT_FRAME))
+
+
+def stop_scene():
+    for sfsm in SCENE_FSM:
+        sfsm.stop()
+        SCENE_FSM.remove(sfsm)
+
+
+def start_modules():
+    log.log("raw", "Start device modules")
+    for name, etape in pool.Cartes[settings["uName"]].device.modules.items():
+        dfsm = classes.ScenarioFSM(name)
+        dfsm.start(etape)
+        MODULES_FSM.append(dfsm)
+        log.info("= MODULE (Scenario) :: "+name)
+
+
+def stop_modules():
+    for dfsm in MODULES_FSM:
         dfsm.stop()
         dfsm.join()
-    # if settings["uName"] in pool.Cartes.keys():
-    #     pool.Cartes[settings["uName"]].stop_modules()
-
-    global SCENARIO_FSM
-    if SCENARIO_FSM is not None:
-        SCENARIO_FSM.stop()
-        SCENARIO_FSM.join()
-
-    for sfsm in FSM:
-        sfsm.stop()
-        sfsm.join()
-
-
-def restart():
-    stop()
-    init()
-    start()

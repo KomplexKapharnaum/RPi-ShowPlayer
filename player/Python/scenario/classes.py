@@ -124,13 +124,14 @@ class ScenarioFSM(fsm.FiniteStateMachine):
     """
         This class overide the FiniteStateMachine class to adapt it with the scenario system
     """
-    def __init__(self, name, flag_stack_len=256):
+    def __init__(self, name, flag_stack_len=256, source=None):
         """
         :param name: Unique name of the FSM
         :param flag_stack_len: Lenght of the signal flag stack
+        :param source: Source of the fsm (scenario XX)
         :return:
         """
-        fsm.FiniteStateMachine.__init__(self, name, flag_stack_len)
+        fsm.FiniteStateMachine.__init__(self, name, flag_stack_len, fsmtype="scenario", source=source)
         self.history = deque(maxlen=32)
 
     def _change_state(self, flag, state):
@@ -171,15 +172,6 @@ class Scene:
         """
         self.uid = uid
         self.cartes = cartes
-
-    def start(self):
-        """
-        This function is called by the Manager to start the new scene
-        """
-        for etape in self.cartes[settings["uName"]]:
-            fsm = ScenarioFSM(etape.uid)
-            fsm.start(etape)
-            scenario.FSM.append(fsm)
 
     def __str__(self):
         return "Scene : {0}".format(self.uid)

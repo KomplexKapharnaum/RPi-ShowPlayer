@@ -2,20 +2,29 @@
 <Workspace
    version = "1.0">
    <Group
+      location = "container:"
+      name = "gsm">
+      <FileRef
+         location = "group:../GPRS_com/main.c">
+      </FileRef>
+   </Group>
+   <Group
       location = "group:../prog atmega"
       name = "prog atmega">
       <Group
          location = "group:dnc_prod_carte"
          name = "dnc_prod_carte">
          <FileRef
-            location = "group:dnc_prod_carte.ino">
+            location = "group:dnc_prod_carte.ino"
+            assignedFileDataType = "public.c-plus-plus-source">
          </FileRef>
       </Group>
       <Group
          location = "group:dnc_prod_teleco"
          name = "dnc_prod_teleco">
          <FileRef
-            location = "group:dnc_prod_teleco.ino">
+            location = "group:dnc_prod_teleco.ino"
+            assignedFileDataType = "public.c-plus-plus-source">
          </FileRef>
       </Group>
    </Group>

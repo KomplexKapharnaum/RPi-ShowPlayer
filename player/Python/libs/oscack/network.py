@@ -119,10 +119,10 @@ class NetworkMap(dict):  # TODO : Implement check neighbour
             return dict.__iter__(self)
 
     def __str__(self):
-        r = ""
+        r = "\n"
         for netelem in self.values():
             r += str(netelem) + "\n"
-        return r
+        return r[:-1]
 
     # def netelems_in(self, group):
     #     """
@@ -170,7 +170,7 @@ class UnifiedMessageInterpretation:
     """
 
     def __init__(self, path, get=None, values=(), ACK=False, recv=None, JTL=settings.get("OSC", "JTL"), TTL=settings.get("OSC", "TTL"), ignore_cb=None,
-                 ignore_cb_args=(), auto_add=True, connected=None, flag_name=None):
+                 ignore_cb_args=(), auto_add=True, connected=None, machine=None, flag_name=None):
         self.path = path
         if get is not None:
             def _get(*args, **kwargs):
@@ -180,7 +180,10 @@ class UnifiedMessageInterpretation:
         if recv is not None:
             self.recv = recv
         if connected is None:
-            connected = (add_signal_to_protocol, )
+            if machine is None:
+                connected = (add_signal_to_protocol, )
+            else:
+                connected = (machine.append_flag, )
         self.connected = connected
         self.values = values
         self.flag_name = flag_name

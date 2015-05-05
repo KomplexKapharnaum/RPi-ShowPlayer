@@ -34,82 +34,82 @@
 #include <signal.h>
 
 
-using namespace std;
+using namespace std; //for native use of string
 
+//string to hold data from pyton program
 string carte_name;
 string carte_ip;
+string scene="-";
 string version_py="-";
-string version_c="0.3";
+string version_c="0.9";
 string status="-";
-string popup1,popup2,buttonString;
 string voltage="-";
+string buttonline="OK   B   A";
+string popup1;
+string popup2;
 int init=0;
 
+//C object of hardware
 Carte mycarte;
 Teleco myteleco;
 Titreur mytitreur;
 
 
+//update status on remote, call at load and if status (status, scene, tension... change)
+void sendStatusTeleco(){
+  float tension = mycarte.checkTension();
+  char mess1[17];
+  char mess2[17];
+  delay(10);
+  sprintf(mess1,"git %s",status.c_str());
+  sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
+  myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
+  
+  sprintf(mess1,"%s",carte_name.c_str());
+  sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
+  myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
+  
+  sprintf(mess1,"%.1fV %s",tension,scene.c_str());
+  sprintf(mess2,"%s",buttonline.c_str());
+  myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
+}
 
+
+//catch interrupt from carte
 void myInterruptCARTE (void) {
   fprintf(stderr, "main - interrupt from carte\n");
   mycarte.readInterrupt();
-
+  if(mycarte.needStatusUpdate)sendStatusTeleco();
 }
 
-void sendStatusTeleco(){
-  int tension = mycarte.checkTension();
-  float v = tension;
-  v=v/10;
-  char mess1[17];
-  char mess2[17];
-  char mess3[17];
-  char mess4[17];
-  delay(10);
-  sprintf(mess1,"stat=%s",status.c_str());
-  sprintf(mess2,"pyt%s C%s",version_py.c_str(),version_c.c_str());
-  sprintf(mess3,"%s",carte_name.c_str());
-  sprintf(mess4,"%s %.1fV",carte_ip.c_str(),v);
-  myteleco.sendInfo(mess1,mess2,mess3,mess4);
-}
 
+//clean befor exit
 void beforekill(int signum)
 {
+  //turn off light
   mycarte.setGyro(0,200);
   mycarte.led10WValue(0);
   mycarte.rgbValue(0,0,0);
   mycarte.setRelais(0);
+  //turn off titreur
   mytitreur.allLedOff();
   mytitreur.powerdown();
+  //update status
   status="noC";
-  myteleco.reset();
   delay(5);
+  //power off hardware
   mycarte.writeValue(POWERDOWN,100);
-  myteleco.readOrSetTelecoLock(T_POWEROFF);
+  //power off remote
+  myteleco.reset();
+  //myteleco.readOrSetTelecoLock(T_POWEROFF);
+  //exit program
   fprintf(stderr, "bye bye\n");
   delay(10);
   exit(signum);
 }
 
-void myInterruptTELECO(void) {
-  fprintf(stderr, "main - interrupt from teleco\n");
-  if (myteleco.fisrtView()){
-    delay(200);
-    fprintf(stderr, "main - delaypass\n");
-    if (digitalRead(21)==HIGH) {
-      fprintf(stderr, "main - reel interrupt\n");
-      myteleco.readInterrupt();
-      myteleco.start();
-      sendStatusTeleco();
-    }
-  }else{
-    fprintf(stderr, "main - reel interrupt\n");
-    myteleco.readInterrupt();
-  }
-}
 
-
-
+//test output light, titreur
 void testRoutine(int n){
   string msg;
   char buff[24];
@@ -141,6 +141,30 @@ void testRoutine(int n){
 }
 
 
+//catch interrupt from remote
+void myInterruptTELECO(void) {
+  fprintf(stderr, "main - interrupt from teleco\n");
+  if (myteleco.fisrtView()){
+    delay(200);
+    fprintf(stderr, "main - delaypass\n");
+    if (digitalRead(21)==HIGH) {
+      fprintf(stderr, "main - reel interrupt\n");
+      myteleco.readInterrupt();
+      myteleco.start();
+      sendStatusTeleco();
+    }
+  }else{
+    fprintf(stderr, "main - reel interrupt\n");
+    myteleco.readInterrupt();
+  }
+  if(myteleco.needtestroutine){
+    myteleco.needtestroutine=0;
+    testRoutine(1);
+  }
+}
+
+
+//parse pyton or bash input from stdin
 int parseInput(){
   string input;
   getline(cin, input);
@@ -149,7 +173,9 @@ int parseInput(){
   string parsedInput;
   ss>>parsedInput;
   if (init==0){
+    //first call, init not set
     if ("initconfig"==parsedInput) {
+      //get init config
       while (ss>>parsedInput){
         if ("-titreurNbr"==parsedInput){
           int nbmodule;
@@ -159,13 +185,13 @@ int parseInput(){
         if ("-carteVolt"==parsedInput){
           ss>>parsedInput;
           voltage=parsedInput;
-          if(voltage=="life12")mycarte.initCarte(PWM_LEDB,13);
-          else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,11);
-          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,11);
-          else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,27);
-          else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,26);
-          else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,24);
-          else mycarte.initCarte(PWM_LEDB,0);
+          if(voltage=="life12")mycarte.initCarte(PWM_LEDB,LIFE12);
+          else if(voltage=="lipo12")mycarte.initCarte(PWM_LEDB,LIPO12);
+          else if(voltage=="pb12")mycarte.initCarte(PWM_LEDB,PB12);
+          else if(voltage=="lipo24")mycarte.initCarte(PWM_LEDB,LIPO24);
+          else if(voltage=="life24")mycarte.initCarte(PWM_LEDB,LIFE24);
+          else if(voltage=="pb24")mycarte.initCarte(PWM_LEDB,PB24);
+          else mycarte.initCarte(PWM_LEDB,VOLTAGENONE);
         }
         if ("-name"==parsedInput){
           ss>>parsedInput;
@@ -196,9 +222,10 @@ int parseInput(){
       fprintf(stderr, "main - error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
     }
     if ("S"==parsedInput) {
+      //get false init for debug purpose
       fprintf(stderr, "main - overpass standard debug init\n");
       mytitreur.initTitreur(6,MODULE_24x16);
-      mycarte.initCarte(PWM_LEDB,12);
+      mycarte.initCarte(PWM_LEDB,LIPO12);
       carte_name="TEST STAND";
       carte_ip="2.0.2.XXX";
       init=1;
@@ -206,8 +233,9 @@ int parseInput(){
     }
     
   }else{
-    
+    //init passed, parse others
     if ("info"==parsedInput) {
+      //change status
       while (ss>>parsedInput){
         if ("-version"==parsedInput){
           ss>>parsedInput;
@@ -222,50 +250,40 @@ int parseInput(){
     }
     
     if ("popup"==parsedInput) {
+      //send data to the remote
       int n=0;
+      popup1="";
+      popup2="";
+      char mess1[17];
+      char mess2[17];
+      int type=0;
       while (ss>>parsedInput){
-        if ("-n"==parsedInput){
-            ss>>n;
+        if ("-type"==parsedInput){
+          ss>>parsedInput;
+          if (parsedInput=="log") type = T_MENU_ID_LOG_0;
+          if (parsedInput=="scenario") type = T_MENU_ID_STATUS_SCENE;
+          if (parsedInput=="usb") type = T_MENU_ID_STATUS_USB;
+          if (parsedInput=="media") type = T_MENU_ID_STATUS_MEDIA;
+          if (parsedInput=="sync") type = T_MENU_ID_STATUS_SYNC;
+          if (parsedInput=="user") type = T_MENU_ID_STATUS_USER;
+          if (parsedInput=="error") type = T_MENU_ID_STATUS_ERROR;
         }
         if ("-line1"==parsedInput){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          popup1=parsedInput;
+          strncpy(mess1, parsedInput.c_str(), sizeof(mess1));
         }
         if ("-line2"==parsedInput){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          popup2=parsedInput;
-        }
-        if ("-clear"==parsedInput){
-          popup1=" ";
-          popup2=" ";
-        }
-      }
-      char mess1[33];
-      char mess2[33];
-      sprintf(mess1,"%u%s",n,popup1.c_str());
-      sprintf(mess2,"%u%s",n,popup2.c_str());
-      myteleco.sendPopUp(mess1,mess2);
-    }
-    
-    if ("buttonstring"==parsedInput) {
-      while (ss>>parsedInput){
-        if ("-line"==parsedInput){
-          ss>>parsedInput;
-          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          buttonString=parsedInput;
-        }
-        if ("-media"==parsedInput){
-          buttonString="32  0/4  01  all";
-        }
-        if ("-clear"==parsedInput){
-          buttonString=" ";
+          strncpy(mess2, parsedInput.c_str(), sizeof(mess2));
+          if (type==T_MENU_ID_STATUS_SCENE) {
+            scene=parsedInput;
+            sendStatusTeleco();
+          }
         }
       }
-      char mess1[17];
-      sprintf(mess1,"%s",buttonString.c_str());
-      myteleco.sendButtonString(mess1);
+      if(type!=0)myteleco.sendString(mess1,mess2,type);
     }
 
 
@@ -273,8 +291,9 @@ int parseInput(){
     if ("initconfig"==parsedInput) {
       fprintf(stderr, "main - error already init\n");
     }
-    //init ok, traitement des autres commandes
+    
     if ("texttitreur"==parsedInput) {
+      //write on titreur
       mytitreur.allLedOff();
       while (ss>>parsedInput){
         char buff[mytitreur.charbyline()];
@@ -300,9 +319,10 @@ int parseInput(){
           // todo mytitreur.scroll();
         }
       }
-    }// end textTitreur
+    }
     
     if ("setlight"==parsedInput) {
+      //change light
       int fade=0;
       int strob=0;
       while (ss>>parsedInput){
@@ -330,6 +350,7 @@ int parseInput(){
     }// end setlight
     
     if ("setgyro"==parsedInput) {
+      //change gyro flex led
       int speed=350;
       int strob=0;
       while (ss>>parsedInput){
@@ -354,6 +375,7 @@ int parseInput(){
     }// end setgyro
     
     if ("setrelais"==parsedInput) {
+      //change onboard relais state
       while (ss>>parsedInput){
         if ("-on"==parsedInput){
           mycarte.setRelais(1);
@@ -363,9 +385,10 @@ int parseInput(){
         }
         
       }
-    }// end setrelais
+    }
     
     if ("setledtelecook"==parsedInput) {
+      //green led under ok push on remote
       while (ss>>parsedInput){
         if ("-on"==parsedInput){
           myteleco.setLedOk(1);
@@ -375,9 +398,10 @@ int parseInput(){
         }
         
       }
-    }// end setledtelecook
+    }
     
     if ("setledcarteok"==parsedInput) {
+      //green led under right of carte
       while (ss>>parsedInput){
         if ("-on"==parsedInput){
           mycarte.setledG(1);
@@ -387,9 +411,10 @@ int parseInput(){
         }
         
       }
-    }// end setledcarteok
+    }
     
     if ("settelecolock"==parsedInput) {
+      //set lock status on remote
       while (ss>>parsedInput){
         if ("-lock"==parsedInput){
           myteleco.readOrSetTelecoLock(T_ISLOCK);
@@ -408,14 +433,16 @@ int parseInput(){
           std::cout << "#TELECO_LOCK_STATE "<< state << std::endl;
         }
       }
-    }// end settelecolock
+    }
     
     if ("powerdownhardware"==parsedInput) {
+      //exit c main programm for debug
       beforekill(0);
     }
     
     
     if ("DR"==parsedInput) {
+      //direct access of carte register for debug
       int reg = 0;
       int val = 0;
       int fade = 0;
@@ -437,6 +464,7 @@ int parseInput(){
     }// end directaccess
     
     if ("testroutine"==parsedInput) {
+      //start testroutine
       int nbr = 1;
       while (ss>>parsedInput){
         char buff[mytitreur.charbyline()];
@@ -455,21 +483,22 @@ int parseInput(){
 
 
 int main (int argc, char * argv[]){
-  
+
+//catch exit signal
 signal(SIGTERM, beforekill);
 signal(SIGINT, beforekill);
  
   wiringPiSetupGpio();
   pinMode (21, INPUT);
 
-
-  
+//program start
 cout << "#INITHARDWARE" << endl;
   
-  
+  //wait for init
   while(!init){
     parseInput();
   }
+  //init carte
   if(version_py=="-") {
     fprintf(stderr, "main - init teleco with local poweroff\n");
     myteleco.initCarte(1);}
@@ -478,6 +507,8 @@ cout << "#INITHARDWARE" << endl;
     myteleco.initCarte(0);
   }
   delay(10);
+  
+  //init teleco if already connected // ISSUE HERE
   if (digitalRead(21)==HIGH) {
     fprintf(stderr, "main - teleco add at boot\n");
     myteleco.readInterrupt();
@@ -485,12 +516,13 @@ cout << "#INITHARDWARE" << endl;
     sendStatusTeleco();
   }
 
+  //start interrupt thread
   fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
 
   
-  
+  //wait for input
   while(1){
     parseInput();
   }
@@ -499,79 +531,4 @@ cout << "#INITHARDWARE" << endl;
   
 }
 
-
-
-/*
- extSPI mySPI;
- mySPI.initSPI();
- mySPI.addChipSelect(13,1000000);
- mySPI.addChipSelect(19,1000000);
- //mySPI.addChipSelectWithHC595Buffer(17,0,1000000);
- //mySPI.addChipSelectWithHC595Buffer(17,3,1000000);
- //mySPI.selectHC595csline(5);
- unsigned char buff[10];
- for (int i=0; i<10; i++) {
- buff[i]=i;
- }
- //mySPI.sendWithPause(0,buff,10);
- //mySPI.sendWithPause(1,buff,10);
- 
- fprintf(stderr, "/n end send");
- mySPI.send(0,buff,10);
- mySPI.send(1,buff,10);
- //mySPI.send(2,buff,10);
- */
-
-
-/*mycarte.writeValue(GYROMODE,1);
- mycarte.writeValue(LED10W1VALUE,255,0);
- delay(1000);
- mycarte.writeValue(LEDRVBSTROBSPEED,2);
- delay(5000);
- mycarte.writeValue(GYROSTROBSPEED,5);
- delay(50);
- mycarte.writeValue(LEDRVBSTROBSPEED,0);
- delay(5000);
- mycarte.writeValue(GYROSTROBSPEED,0);
- mycarte.writeValue(LED10W1VALUE,0,5);*/
-/*mycarte.setGyro(GYRORIGHT,1000);
- mycarte.led10WValue(50);
- delay(1000);
- mycarte.led10WValue(255,5);
- delay(10000);
- mycarte.setGyro(GYROLEFT,200);
- mycarte.led10WValue(255,0,1000);
- delay(10000);
- mycarte.setGyro(GYROALLON,0,100);
- mycarte.led10WValue(0);*/
-
-//mycarte.writeValue(LED10W1VALUE,22,25);
-//delay(5);
-//mycarte.readValue(LED10W1VALUE);
-//delay(1000);
-//mycarte.checkTension();
-/*mycarte.writeValue(LED10W1VALUE,255,10);
- delay(15000);
- mycarte.writeValue(LED10W1VALUE,255,0);
- delay(1000);
- mycarte.writeValue(LED10W1VALUE,128,0);
- delay(1000);
- mycarte.writeValue(LED10W1VALUE,200,0);
- delay(1000);
- mycarte.writeValue(LED10W1VALUE,0,0);*/
-
-//delay(300);
-//mytitreur.allLedOn();
-//delay(300);
-//mytitreur.allLedOff();
-//mytitreur.printScreen();
-
-//mytitreur.testScreen();
-//mytitreur.plot(2,2,1);
-//mytitreur.plot(10,2,1);
-
-//mytitreur.putChar(0,0,'B');
-//mytitreur.putChar(7,0,'i');
-//mytitreur.putChar(14,0,'s');
-//mytitreur.plot(0,0,1);
 

@@ -59,7 +59,13 @@
 #define GYRORIGHT 2
 #define GYROLEFT 3
 
-
+#define LIPO12 11
+#define LIFE12 13
+#define PB12 12
+#define LIPO24 27
+#define LIFE24 26
+#define PB24 24
+#define VOLTAGENONE 0
 
 
 #define PWM_LEDB 1 //1 = pwm sur led B ; 0 = pwm sur 2eme led 10w
@@ -70,21 +76,23 @@
 class Carte{
   
 private:
-  int gamme_tension;
-  int pwm_ledb_or_10w2;
-  int tension;
+  int gamme_tension; //use for poweroff in low batt condition
+  int pwm_ledb_or_10w2; //?
+  float tension; //battery voltage
   int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT;
+  int count_tensionbasse,count_tensioncoupure;
 
   
 protected:
-  extSPI SPIcarte;
+  extSPI SPIcarte; //SPI objct
   
 public :
+  int needStatusUpdate; //carte want to check Tension
   void initCarte(int _pwm_ledb_or_10w2 = PWM_LEDB, int _gamme_tension = 0, int checkFloat = 0);
   void writeValue(int valueType,int value, int fadetime=0);
   int readValue(int valueType);
   int readInterrupt();
-  int checkTension();
+  float checkTension();
   void rgbValue(int r, int v, int b, int fadetime=0, int strob=0);
   void led10WValue(int v, int fadetime = 0, int strob=0);
   void setGyro(int mode, int speed, int strob=0);

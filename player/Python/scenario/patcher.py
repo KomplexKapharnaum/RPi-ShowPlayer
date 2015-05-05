@@ -52,9 +52,9 @@ class ThreadPatcher(threading.Thread):
         :param signal: signal to serve
         :return:
         """
-        for fsm in scenario.FSM:
+        for fsm in scenario.SCENE_FSM:
             fsm.append_flag(signal)
-        for fsm in scenario.DEVICE_FSM:
+        for fsm in scenario.MODULES_FSM:
             fsm.append_flag(signal)
         for fsm in engine.MODULES_FSM.values():
             fsm.append_flag(signal)
@@ -83,7 +83,6 @@ class ThreadPatcher(threading.Thread):
         # Extract DEST and clear the signal Dests
         sendto = deepcopy(signal.args["dest"])
         signal.args["dest"] = list()
-
         # Replace SELF in DEST list by uName
         if settings.get("scenario", "dest_self") in sendto:
             sendto.remove(settings.get("scenario", "dest_self"))

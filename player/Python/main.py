@@ -7,7 +7,7 @@ import os
 
 from engine import log
 log = log.init_log("main")
-log.log('info', '=== KXKM - DNC PLAYER ===')
+log.important('=== KXKM - DNC PLAYER ===')
 
 def set_python_path(depth=0):
     f = sys._getframe(1)
@@ -28,8 +28,14 @@ try:
     application.init()
     application.start()
 
-    while application.POWEROFF == 0:
-        time.sleep(1)
+    try:
+        while application.POWEROFF == 0:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        log.debug("KeyboardException received")
+        application.POWEROFF = 1
+    except Exception as e:
+        log.exception("EXITING after exception in MAIN : \n"+log.show_exception(e))
 
 except Exception as e:
     log.exception(log.show_exception(e))
@@ -37,5 +43,5 @@ except Exception as e:
 
 application.stop()
 
-log.log('info', '=== EXIT : '+str(application.POWEROFF)+' ===' )
+log.important('=== EXIT : '+str(application.POWEROFF)+' ===' )
 os._exit(application.POWEROFF)
