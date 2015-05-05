@@ -100,7 +100,8 @@ void beforekill(int signum)
   //power off hardware
   mycarte.writeValue(POWERDOWN,100);
   //power off remote
-  myteleco.readOrSetTelecoLock(T_POWEROFF);
+  myteleco.reset();
+  //myteleco.readOrSetTelecoLock(T_POWEROFF);
   //exit program
   fprintf(stderr, "bye bye\n");
   delay(10);

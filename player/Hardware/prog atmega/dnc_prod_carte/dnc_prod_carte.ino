@@ -95,7 +95,7 @@ void setup (void) {
   Serial.println("hello");
   newValue[UBATT] = 1;
   checkInputPeriod = 100;
-  checkTensionPeriod = 300000;
+  checkTensionPeriod = 60000;
 }
 
 void poweroff(){
