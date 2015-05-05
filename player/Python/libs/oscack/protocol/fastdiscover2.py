@@ -19,7 +19,7 @@ from libs.oscack import message, network
 from libs import rtplib
 from engine.setting import settings
 from engine.log import init_log
-from scenario import manager
+from modules import scenecontrol
 
 log = init_log("discov")
 
@@ -77,7 +77,7 @@ def add_method_before_patcher(path, types, fnct):
     libs.oscack.DNCserver.del_method(None, None)          # Remove wildcard
     libs.oscack.DNCserver.ackServer.del_method(path, types)         # Remove before add
     libs.oscack.DNCserver.ackServer.add_method(path, types, fnct)   # Add callback
-    libs.oscack.DNCserver.add_method(None, None, manager.patch_msg)  # Replug patcher
+    libs.oscack.DNCserver.add_method(None, None, scenecontrol.patch_msg)  # Replug patcher
 
 
 
