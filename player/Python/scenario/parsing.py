@@ -232,6 +232,9 @@ def parse_timeline(timeline):
                                     # DETECT WANTED MEDIA
                                     if 'media' in box.keys():
                                         pool.Cartes[ device['name'] ].media.append( os.path.join(box["category"].lower(), box['media']) )
+                else:
+                    log.log("important", "no keyframe found in timeline")
+                    
         # IMPORT SCENE
         pool.Scenes[scene['name']] = classes.Scene(scene['name'], startEtapes)
 
@@ -241,6 +244,8 @@ def parse_timeline(timeline):
             while(len(pool.Frames) <= k):
                 pool.Frames.append(None)
             pool.Frames[scene['keyframe']] = scene['name']
+        else:
+            log.log("important", "no keyframe found in timeline")
 
     # # PROCESS SCENES
     # for device in timeline['pool']:

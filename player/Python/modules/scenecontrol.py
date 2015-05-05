@@ -47,7 +47,7 @@ def scene_init(flag, **kwargs):
         else:
             log.log("debug", "Omit wildcard because manager already been inited")
     else:
-        log.log("debug", "no device found in pool.Cartes")
+        log.log("important", "no device found in pool.Cartes")
 
 
 @link({ "/scene/init": "scene_init",
