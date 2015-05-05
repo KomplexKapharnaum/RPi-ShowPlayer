@@ -85,7 +85,7 @@ long unsigned lastCheckInput;
 int checkInputPeriod;
 
 long unsigned lastCheckTension;
-int checkTensionPeriod;
+long checkTensionPeriod;
 
 void setup (void) {
   Serial.begin(19200);
@@ -95,7 +95,7 @@ void setup (void) {
   Serial.println("hello");
   newValue[UBATT] = 1;
   checkInputPeriod = 100;
-  checkTensionPeriod = 10000;
+  checkTensionPeriod = 300000;
 }
 
 void poweroff(){
