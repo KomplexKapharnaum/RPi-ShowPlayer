@@ -63,7 +63,8 @@ class Mpg123(ExternalProcess):
 @module('AudioPlayer')
 @link({"/audio/play [media] [repeat]": "audio_play",
         "/audio/pause": "audio_pause",
-        "/audio/stop": "audio_stop"})
+        "/audio/stop": "audio_stop",
+        "/audio/set_volume [volume]": "audio_set_volume"})
 def audio_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VlcAudio()
@@ -100,6 +101,15 @@ def audio_pause(flag, **kwargs):
     # dest = ["a", "b"]
     # for elem in dest:
     #    oscack.message.send(oscack.DNCserver.networkmap[elem].target, oscack.message.Message("/test", args1, args2, ('f', args3), ACK=True))
+
+
+@link({None: "audio_player"})
+def audio_set_volume(flag, **kwargs):
+    if isinstance(kwargs["_fsm"].process, VlcAudio):
+        kwargs["_fsm"].process.set_volume(flag.args["volume"])
+    else:
+        log.warning("Ask to set volume on an unlauched process (VlcPlayer)")
+
 
 
 
