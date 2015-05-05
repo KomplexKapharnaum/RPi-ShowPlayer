@@ -100,6 +100,7 @@ def init(flag):
         fmedia = media.Media.from_scenario(f)
         if isinstance(fmedia, media.Media):  # Check if the file exist ?
             needed_media_list.append(fmedia)
+    time.sleep(3)                          # Wait 3 seconde to get the teleco
     check_media_presence()
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
     flag = flag_init_end.get()
