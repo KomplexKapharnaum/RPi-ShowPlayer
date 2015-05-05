@@ -126,7 +126,7 @@ def video_pause(flag, **kwargs):
     kwargs["_fsm"].process.pause()
 
 
-@link({None, "video_set_volume"})
+@link({None, "video_player"})
 def video_set_volume(flag, **kwargs):
     if isinstance(kwargs["_fsm"].process, VlcPlayer):
         kwargs["_fsm"].process.set_volume(flag.args["volume"])
