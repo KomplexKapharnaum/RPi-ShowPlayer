@@ -271,6 +271,7 @@ class BaseLog:
         """
         if LEVELS["error"] >= LEVELS[self.teleco_level]:
             log_teleco(msg, "log")
+            log_teleco(msg, "error")
         self.logger.error(msg)
 
     def critical(self, msg=""):
