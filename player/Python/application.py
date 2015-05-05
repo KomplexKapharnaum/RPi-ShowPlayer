@@ -199,7 +199,9 @@ class inputThread(threading.Thread):
                     c = raw_input("")
                 except KeyboardInterrupt:
                     POWEROFF = 1
+                    log.debug("Keyboard Exception received")
                 except Exception:      # For no shell env
+                    log.debug("There is no input sleep 10 and continue...")
                     time.sleep(10)
                     continue
                 if c in ("q", "Q", "quit", "exit", "qs"):
