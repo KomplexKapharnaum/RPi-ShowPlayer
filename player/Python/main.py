@@ -32,6 +32,7 @@ try:
         while application.POWEROFF == 0:
             time.sleep(1)
     except KeyboardInterrupt:
+        log.debug("KeyboardException received")
         application.POWEROFF = 1
     except Exception as e:
         log.exception("EXITING after exception in MAIN : \n"+log.show_exception(e))
