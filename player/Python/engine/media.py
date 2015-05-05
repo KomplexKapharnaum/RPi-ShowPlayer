@@ -259,6 +259,16 @@ class Media:
             'i', int(self.filesize))
         # return ('s', str(self.rel_path)), ('b', cPickle.dumps((self.mtime, self.filesize), 2))
 
+    def check_on_fs(self):
+        """
+        This function test if the media is present on the fs
+        :return:
+        """
+        if os.path.exists(os.path.join(settings.get_path("media"), self.rel_path)):
+            return True
+        else:
+            return False
+
     def put_on_fs(self):  # , error_fnct=None
         """
             This methof put the Media to the file system with the correct way to preserve mtime

@@ -126,6 +126,20 @@ def append_send_list_timeout():
         network_scheduler.enter(settings.get("sync", "timeout_media_version"), append_send_list_timeout)
 
 
+def check_media_presence():
+    """
+    This function test for each media in needed list if it's present on the filesystem
+    :return: n_ok_media, n_media
+    """
+    global needed_media_list
+    ok = 0
+    for fmedia in needed_media_list:
+        if fmedia.check_on_fs():
+            ok += 1
+    tools.log_teleco("Media : {0}/{1}".format(ok, len(needed_media_list)), page="media")
+    return ok, len(needed_media_list)
+
+
 def update_needed_list(flag):
     """
     This function update the needed media list
@@ -148,6 +162,7 @@ def update_needed_list(flag):
         if isinstance(fmedia, media.Media):  # Check if the file exist ?
             needed_media_list.append(fmedia)
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
+    check_media_presence()
 
 
 def append_timeout_flag():
