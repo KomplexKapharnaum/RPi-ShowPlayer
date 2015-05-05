@@ -21,6 +21,8 @@ import libs.simplejson as json
 from engine.log import init_log
 log = init_log("parse")
 
+IS_THERE_SCENARIO_ERROR = False
+
 SCENARIO = dict()
 TIMELINE = dict()
 LIBRARY = dict()
@@ -234,6 +236,8 @@ def parse_timeline(timeline):
                                         pool.Cartes[ device['name'] ].media.append( os.path.join(box["category"].lower(), box['media']) )
                 else:
                     log.log("important", "no keyframe found in timeline")
+                    global IS_THERE_SCENARIO_ERROR
+                    IS_THERE_SCENARIO_ERROR = True
 
         # IMPORT SCENE
         pool.Scenes[scene['name']] = classes.Scene(scene['name'], startEtapes)

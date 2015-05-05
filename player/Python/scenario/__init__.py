@@ -45,7 +45,10 @@ def reload():
 
 
 def start():
-    global MODULES_FSM
+    # global MODULES_FSM
+    if parsing.IS_THERE_SCENARIO_ERROR:
+        log.error("There is an error in the scenario => do not start scenes")
+        return
     log.log('raw', 'Cards available: {0}'.format(pool.Cartes))
 
     if settings["uName"] in pool.Cartes.keys():
