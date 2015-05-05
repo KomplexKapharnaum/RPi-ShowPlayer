@@ -215,30 +215,32 @@ def parse_timeline(timeline):
         startEtapes = dict()
         for device in timeline['pool']:
             for block in device["blocks"]:
-                if block["keyframe"] == scene.get('keyframe',None):      # Match device blocks for this scene only
-                    if device["name"] not in startEtapes:
-                        startEtapes[ device["name"] ] = list()
-                    for scenario in block['scenarios']:
-                        if scenario in SCENARIO.keys():
-                            for box in SCENARIO[scenario]['boxes']:
-                                # DETECT STARTING POINT box
-                                if box['name']+'_PUBLICBOX' in DECLARED_PUBLICBOXES and DECLARED_PUBLICBOXES[box['name']+'_PUBLICBOX']['start']: #
-                                    etape = boxname(scenario, box)
-                                    if etape in pool.Etapes_and_Functions.keys():
-                                        startEtapes[ device['name'] ].append(pool.Etapes_and_Functions[etape])
-                                    else:
-                                        log.warning('PARSING : Can\'t find box {0}'.format(etape))
-                                # DETECT WANTED MEDIA
-                                if 'media' in box.keys():
-                                    pool.Cartes[ device['name'] ].media.append( os.path.join(box["category"].lower(), box['media']) )
+                if 'keyframe' in scene:
+                    if block["keyframe"] == scene.get('keyframe'):      # Match device blocks for this scene only
+                        if device["name"] not in startEtapes:
+                            startEtapes[ device["name"] ] = list()
+                        for scenario in block['scenarios']:
+                            if scenario in SCENARIO.keys():
+                                for box in SCENARIO[scenario]['boxes']:
+                                    # DETECT STARTING POINT box
+                                    if box['name']+'_PUBLICBOX' in DECLARED_PUBLICBOXES and DECLARED_PUBLICBOXES[box['name']+'_PUBLICBOX']['start']: #
+                                        etape = boxname(scenario, box)
+                                        if etape in pool.Etapes_and_Functions.keys():
+                                            startEtapes[ device['name'] ].append(pool.Etapes_and_Functions[etape])
+                                        else:
+                                            log.warning('PARSING : Can\'t find box {0}'.format(etape))
+                                    # DETECT WANTED MEDIA
+                                    if 'media' in box.keys():
+                                        pool.Cartes[ device['name'] ].media.append( os.path.join(box["category"].lower(), box['media']) )
         # IMPORT SCENE
         pool.Scenes[scene['name']] = classes.Scene(scene['name'], startEtapes)
 
         # TIMELINE SEQUENCE
-        k = scene['keyframe']
-        while(len(pool.Frames) <= k):
-            pool.Frames.append(None)
-        pool.Frames[scene['keyframe']] = scene['name']
+        if 'keyframe' in scene:
+            k = scene['keyframe']
+            while(len(pool.Frames) <= k):
+                pool.Frames.append(None)
+            pool.Frames[scene['keyframe']] = scene['name']
 
     # # PROCESS SCENES
     # for device in timeline['pool']:
