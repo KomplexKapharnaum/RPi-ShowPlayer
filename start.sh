@@ -34,6 +34,8 @@ while (( running )); do
     if ((DIRECT_INOUT)); then
     	./player/Python/main.py
     else
+        echo "wait before start"
+        sleep 10
     	mkdir -p /tmp/dnc
     	# echo '' > /tmp/dnc/stdin
     	touch /tmp/dnc/main.log
