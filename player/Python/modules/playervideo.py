@@ -90,7 +90,7 @@ exposesignals(VlcPlayer.Filters)
 @link({"/video/play [media] [repeat]": "video_play",
         "/video/pause": "video_pause",
         "/video/stop": "video_stop",
-        "/video/volume [volume]": "video_volume"})
+        "/video/set_volume [volume]": "video_set_volume"})
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VlcPlayerOneShot()
@@ -126,8 +126,8 @@ def video_pause(flag, **kwargs):
     kwargs["_fsm"].process.pause()
 
 
-@link({None, "video_player"})
-def video_volume(flag, **kwargs):
+@link({None: "video_player"})
+def video_set_volume(flag, **kwargs):
     if isinstance(kwargs["_fsm"].process, VlcPlayer):
         kwargs["_fsm"].process.set_volume(flag.args["volume"])
     else:
