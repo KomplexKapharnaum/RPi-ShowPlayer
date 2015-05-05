@@ -191,6 +191,7 @@ class FiniteStateMachine:
         self._event_stop = threading.Event()
         self._event_stop.set()
         self.main_thread = None
+        self._init_state = None
         self.process = None
         self._perf_ref = None  # Ref to the perf FSM object
         if is_perf_enabled:
@@ -324,6 +325,7 @@ class FiniteStateMachine:
         This method only wait that a transition can change the state of the FSM
         :return:
         """
+        self._change_state(None, self._init_state)
         while self._event_stop.is_set() is not True:
             # self._event_flag_stack_not_empty.wait()
             log.log("raw", "- FSM ({0}) : Wait for interesting flags ! ".format(self))
@@ -366,7 +368,7 @@ class FiniteStateMachine:
         if self._event_stop.is_set() is not True:
             return False
         self._event_stop.clear()
-        self._change_state(None, init_state)
+        self._init_state = init_state
         self.main_thread = threading.Thread(target=self._wait_for_transition)
         self.main_thread.start()
         return True
