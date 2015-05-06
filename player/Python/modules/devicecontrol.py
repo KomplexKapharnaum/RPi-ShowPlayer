@@ -8,10 +8,11 @@
 import application
 from modules import link
 from _classes import module
-from engine import tools
+from engine import tools, threads, fsm
 from engine.log import init_log
 from engine.setting import settings
 from engine.media import load_scenario_from_fs
+
 log = init_log("devicecontrol")
 
 
@@ -19,7 +20,8 @@ log = init_log("devicecontrol")
 @link({"/device/reload": "device_reload",
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
-        "/device/restart": "device_restart",
+        "/device/restart": "device_send_restart",
+        "/device/do_restart": "device_restart",
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
         "FS_TIMELINE_UPDATED": "device_update_timeline"})
@@ -30,6 +32,14 @@ def device_control(flag, **kwargs):
 @link({None: "device_control"})
 def device_reload(flag, **kwargs):
     application.reload()
+
+@link({None: "device_control"})
+def device_send_restart(flag, **kwargs):
+    """
+    This function send a restart signal to all members of the current group
+    """
+    flag = fsm.Flag("DEVICE_DO_RESTART")
+    threads.patcher.patch(flag.get(args={"dest": settings.get("scenario", "dest_group")}))
 
 @link({None: "device_control"})
 def device_restart(flag, **kwargs):
