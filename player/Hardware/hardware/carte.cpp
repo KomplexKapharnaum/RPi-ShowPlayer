@@ -127,7 +127,8 @@ float Carte::checkTension(){
   delay(20);
   tension = readValue(UBATT)+50;
   tension = tension/10;
-  digitalWrite (GPIO_READ_BATT, LOW);
+  //strange behaviour
+  //digitalWrite (GPIO_READ_BATT, LOW);
   fprintf(stderr, "carte - checktension gpio low\n");
   fprintf(stderr, "carte - get %.1fV\n",tension);
   std::cout << "#CARTE_TENSION " << tension << std::endl;
