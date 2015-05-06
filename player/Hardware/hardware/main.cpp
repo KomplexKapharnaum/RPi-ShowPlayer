@@ -55,11 +55,11 @@ Titreur mytitreur;
 
 
 //update status on remote, call at load and if status (status, scene, tension... change)
-void sendStatusTeleco(){
+void sendStatusTeleco(force=0){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
-  if(myteleco.fisrtView()==0){
+  if(myteleco.fisrtView()==0 || force){
     delay(10);
     sprintf(mess1,"git %s",status.c_str());
     sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
@@ -151,6 +151,7 @@ void myInterruptTELECO(void) {
     if (digitalRead(21)==HIGH) {
       fprintf(stderr, "main - reel interrupt\n");
       myteleco.readInterrupt();
+      sendStatusTeleco(1);
       delay(20);
       for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
         char mess1[17];
@@ -162,7 +163,7 @@ void myInterruptTELECO(void) {
       }
       delay(20);
       myteleco.start();
-      sendStatusTeleco();
+      
     }
   }else{
     fprintf(stderr, "main - reel interrupt\n");
