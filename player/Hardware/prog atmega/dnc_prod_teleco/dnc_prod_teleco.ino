@@ -409,7 +409,7 @@ void displayMenu(byte need=0){
     //printf_P(PSTR("free memory = %u \n"),freeMemory());
     //printf_P(PSTR("get line1 =%s\n"),menu.line1);
     //printf_P(PSTR("get line2 =%s\n"),menu.line2);
-    delay(20);
+    //delay(20);
     lcd.clear();
     if(menu.id!=0){
       printf_P(PSTR(" variable id=%u"),menu.id);
@@ -612,10 +612,10 @@ void newcheckInput(){
 void newcheckStringReceive() {
   if (command == 0 && adress == T_STRING) {
     buf [pos] = 0;
-    printf_P(PSTR("get new string %s\n"),buf);
     pos = 0;
     adress = 0;
     byte id = buf[0];
+    printf_P(PSTR("get new string n=%u : %s\n"),id,buf);
     //for log only
     if (id==T_MENU_ID_LOG_0) {
       printf_P(PSTR("shift logs\n"));
@@ -632,11 +632,11 @@ void newcheckStringReceive() {
       printf_P(PSTR("same menu %u, need update\n"),id);
       displayNeedUpdate=100;
     }
-    if (id>=T_MENU_ID_STATUS_USB && id<=T_MENU_ID_STATUS_ERROR) {
+    /*if (id>=T_MENU_ID_STATUS_USB && id<=T_MENU_ID_STATUS_ERROR) {
       popupNeedDisplay=1;
       displayNeedUpdate=60;
       currentPopup=id;
-    }
+    }*/
     flushbuf();
   }
 }
@@ -735,8 +735,10 @@ void waitforinit(){
   while(newValue[T_INIT]==0){
     if (digitalRead (SS) == HIGH) command = 0;
     newcheckStringReceive();
-  };
+  }
+  if (digitalRead (SS) == HIGH) command = 0;
   digitalWrite(outpin[T_INTERRUPT], LOW);
+  delay(100);
 }
 
 

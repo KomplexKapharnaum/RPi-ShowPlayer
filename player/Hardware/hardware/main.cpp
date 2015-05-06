@@ -60,15 +60,15 @@ void sendStatusTeleco(){
   char mess1[17];
   char mess2[17];
   delay(10);
-  if(myteleco.fisrtView()==0){
+  if(myteleco.fisrtView()!=1){
     sprintf(mess1,"git %s",status.c_str());
     sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
     myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
-    
+    delay(10);
     sprintf(mess1,"%s",carte_name.c_str());
     sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
     myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
-    
+    delay(10);
     sprintf(mess1,"%.1fV %s",tension,scene.c_str());
     sprintf(mess2,"%s",buttonline.c_str());
     myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
@@ -80,7 +80,7 @@ void sendStatusTeleco(){
 void myInterruptCARTE (void) {
   fprintf(stderr, "main - interrupt from carte\n");
   mycarte.readInterrupt();
-  if(mycarte.needStatusUpdate)sendStatusTeleco();
+  if(mycarte.needStatusUpdate  && myteleco.fisrtView()!=1)sendStatusTeleco();
 }
 
 
@@ -146,13 +146,13 @@ void testRoutine(int n){
 void myInterruptTELECO(void) {
   fprintf(stderr, "main - interrupt from teleco\n");
   if (myteleco.fisrtView()){
-    delay(200);
+    delay(20);
     fprintf(stderr, "main - delaypass\n");
     if (digitalRead(21)==HIGH) {
       fprintf(stderr, "main - reel interrupt\n");
       myteleco.readInterrupt();
       sendStatusTeleco();
-      delay(100);
+      delay(20);
       for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
         char mess1[17];
         char mess2[17];
@@ -161,7 +161,7 @@ void myInterruptTELECO(void) {
         myteleco.sendString(mess1,mess2,i);
         delay(10);
       }
-      delay(100);
+      delay(20);
       myteleco.start();
     }
   }else{
