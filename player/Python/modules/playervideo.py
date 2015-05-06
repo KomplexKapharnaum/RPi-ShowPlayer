@@ -48,6 +48,7 @@ class VlcPlayer(ExternalProcess):
         if self.preloaded:
             #self.say("clear")
             self.say("add {media}".format(media=self.media))
+            self.say("volume {0}".format(settings.get("sys", "vlc_volume")))        # Set default VLC volume
             #self.say("play")
             repeat = 'on' if self.repeat else 'off'
             self.say("repeat {switch}".format(switch=repeat))

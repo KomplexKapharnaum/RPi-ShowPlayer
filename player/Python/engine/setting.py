@@ -164,8 +164,9 @@ DEFAULT_SETTING["perf"]["history"]["format"] = "simple"     # History prompt for
 DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10          # Undeclared FSM (stopped) to be keept with history
 
 DEFAULT_SETTING["sys"] = dict()
-DEFAULT_SETTING["sys"]["raspi"] = True    # This settings is for debug, if raspi is False it will prevent pc for error
-DEFAULT_SETTING["sys"]["volume"] = 0      # Set the default system volume to 0dB
+DEFAULT_SETTING["sys"]["raspi"] = True              # This settings is for debug, if raspi is False it will prevent pc for error
+DEFAULT_SETTING["sys"]["volume"] = 0                # Set the default system volume to 0dB
+DEFAULT_SETTING["sys"]["vlc_volume"] = 512          # Default vlc volume. 512 = 100%
 
 
 DEFAULT_SETTING["temp"] = dict()            # TEMP SETTINGS FOR TEST
