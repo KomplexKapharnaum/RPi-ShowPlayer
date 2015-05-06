@@ -55,7 +55,7 @@ Titreur mytitreur;
 
 
 //update status on remote, call at load and if status (status, scene, tension... change)
-void sendStatusTeleco(force=0){
+void sendStatusTeleco(int force=0){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
