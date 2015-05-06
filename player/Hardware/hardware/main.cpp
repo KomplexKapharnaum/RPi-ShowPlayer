@@ -41,7 +41,7 @@ string carte_name;
 string carte_ip;
 string scene="-";
 string version_py="-";
-string version_c="0.9";
+string version_c="1.1";
 string status="-";
 string voltage="-";
 string buttonline="OK   B   A";
