@@ -82,7 +82,7 @@ DEFAULT_SETTING["sync"]["scenario"] = True              # GLOABL Put False to di
 DEFAULT_SETTING["sync"]["enable"] = True                # GLOBAL Put False to disable sync
 DEFAULT_SETTING["sync"]["flag_timestamp"] = 0           # flag_timestamp
 DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the same group to be sync
-DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 180  # 180 seconds
+DEFAULT_SETTING["sync"]["scenario_sync_timeout"] = 60   # 180 seconds
 DEFAULT_SETTING["sync"]["escape_scenario_dir"] = "__"   # 3 seconds
 DEFAULT_SETTING["sync"]["usb_mount_timeout"] = 5        # 5 seconds max for mounting/unmounting usb device
 DEFAULT_SETTING["sync"]["netctl_autorestart"] = True    # 5 seconds max for mounting/unmounting usb device
@@ -111,7 +111,7 @@ DEFAULT_SETTING["media"]["automove"] = "yes"
 DEFAULT_SETTING["media"]["usb_mount_timeout"] = 3       # 3 sec max for mount before killing it
 
 DEFAULT_SETTING["OSC"] = dict()
-DEFAULT_SETTING["OSC"]["iamhere_interval"] = 60
+DEFAULT_SETTING["OSC"]["iamhere_interval"] = 15
 DEFAULT_SETTING["OSC"]["checkneighbour_interval"] = 130
 DEFAULT_SETTING["OSC"]["classicport"] = 1781
 DEFAULT_SETTING["OSC"]["ackport"] = 1782
