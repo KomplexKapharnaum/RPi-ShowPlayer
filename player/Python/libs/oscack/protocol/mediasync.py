@@ -90,7 +90,7 @@ def init(flag):
     async_monitor_udev.start()
     from_scenario_wanted = None
     while from_scenario_wanted is None:
-        from_scenario_wanted = functions.get_wanted_media()
+        from_scenario_wanted = functions.get_wanted_media_list()
         if from_scenario_wanted is not None:
             break
         else:
@@ -152,7 +152,7 @@ def update_needed_list(flag):
     global unwanted_media_list
     from_scenario_wanted = None
     while from_scenario_wanted is None:
-        from_scenario_wanted = functions.get_wanted_media()
+        from_scenario_wanted = functions.get_wanted_media_list()
         if from_scenario_wanted is not None:
             break
         else:
