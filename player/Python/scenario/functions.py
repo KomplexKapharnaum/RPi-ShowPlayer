@@ -160,7 +160,7 @@ def send_osc_neighbour(*args, **kwargs):
     for carte in pool.CURRENT_SCENE.cartes:
         if carte != settings["uName"]:
             try:
-                message.send(libs.oscack.DNCserver.networkmap[carte].target, msg)
+                message.send(libs.oscack.DNCserver.networkmap.get_by_uName(carte).target, msg)
             except KeyError:
                 log.error("There is no {0} carte in NetworkMap".format(carte))
 

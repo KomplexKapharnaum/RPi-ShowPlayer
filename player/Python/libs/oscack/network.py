@@ -10,7 +10,7 @@ from engine.fsm import Flag
 from engine.threads import network_scheduler
 from libs.oscack import message
 # from oscack.protocol import discover
-from engine.setting import settings
+from engine.setting import settings, devices
 from engine.log import init_log
 log = init_log("network")
 
@@ -92,6 +92,18 @@ class NetworkMap(dict):  # TODO : Implement check neighbour
         #self._scheduler_id = globalContext.scheduler.protocol.enter(self._delay_check_neighbourhood,
         #                                                            self.check_neighbourhood)
         self._stop_sched_check_neighbourhood = threading.Event()
+
+    def get_by_uName(self, uName):
+        if uName in self.keys():
+            return self[uName]
+        else:
+            for elem in devices["devices"]:
+                if uName == elem["hostname"]:
+                    ip = elem["ip"]
+                    log.warning("Add device {0}@{1} in networkmap from device list file".format(uName, ip))
+                    netelem = NetworkElement(uName, ip)
+                    self.append(netelem)
+                    return netelem
 
     def __getitem__(self, item):
         with self.lock:
