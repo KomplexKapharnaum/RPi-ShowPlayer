@@ -90,9 +90,9 @@ class ThreadPatcher(threading.Thread):
                 sendto.append(settings["uName"])
 
         # Replace GROUP in DEST list by uNames
-        if settings.get("scenario", "dest_group") in signal.args["dest"]:
+        if "Group" in signal.args["dest"]:
             log.log("raw", "add GROUP in dispatch list")
-            sendto.remove(settings.get("scenario", "dest_group"))
+            sendto.remove("Group")
             sendto += [x for x in scenario.CURRENT_SCENE.cartes if x not in sendto]
 
         # Replace GROUP in DEST list by uNames
