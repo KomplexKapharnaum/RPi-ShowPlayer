@@ -2,8 +2,9 @@
 import pool
 import classes
 import parsing
-from engine import log,tools
+from engine import log, tools
 from engine.setting import settings
+
 log = log.init_log("scenario")
 
 CURRENT_FRAME = 0
@@ -37,6 +38,7 @@ def load(use_archive=True):
     if CURRENT_FRAME > len(pool.Frames):
         CURRENT_FRAME = 0
 
+
 def reload():
     stop()
     init()
@@ -68,14 +70,19 @@ def start_scene():
         name = pool.Frames[CURRENT_FRAME]
         if name in pool.Scenes.keys():
             scene = pool.Scenes[name]
-            log.log('important', '= SCENE '+name)
-            tools.log_teleco(("start scene",name),"scenario")
+            log.log('important', '= SCENE ' + name)
+            tools.log_teleco(("start scene", name), "scenario")
             if settings["uName"] in scene.cartes.keys():
                 stop_scene()
                 for etape in scene.cartes[settings["uName"]]:
-                    fsm = classes.ScenarioFSM(etape.uid)
-                    fsm.start(etape)
-                    SCENE_FSM.append(fsm)
+                    for action in etape.actions:
+                        if len(action) > 1 and isinstance(action[1], dict) and "args" in action[1].keys() and "dest" in action[1]["args"].keys() and ("Self" in action[1]["args"]["dest"] or settings.get("uName") in action[1]["args"]["dest"]):
+                            fsm = classes.ScenarioFSM(etape.uid)
+                            fsm.start(etape)
+                            SCENE_FSM.append(fsm)
+                            break
+                        else:
+                            log.debug("Ignore etape {0} because it's not for us".format(etape))
             else:
                 log.debug('Nothing to do on Scene {0} for card {1}'.format(name, settings["uName"]))
         else:
@@ -96,7 +103,7 @@ def start_modules():
         dfsm = classes.ScenarioFSM(name)
         dfsm.start(etape)
         MODULES_FSM.append(dfsm)
-        log.info("= MODULE (Scenario) :: "+name)
+        log.info("= MODULE (Scenario) :: " + name)
 
 
 def stop_modules():
