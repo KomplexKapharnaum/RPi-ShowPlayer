@@ -45,8 +45,7 @@ string version_c="0.9";
 string status="-";
 string voltage="-";
 string buttonline="OK   B   A";
-string popup1;
-string popup2;
+string popup[11][2];
 int init=0;
 
 //C object of hardware
@@ -61,17 +60,19 @@ void sendStatusTeleco(){
   char mess1[17];
   char mess2[17];
   delay(10);
-  sprintf(mess1,"git %s",status.c_str());
-  sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
-  myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
-  
-  sprintf(mess1,"%s",carte_name.c_str());
-  sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
-  myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
-  
-  sprintf(mess1,"%.1fV %s",tension,scene.c_str());
-  sprintf(mess2,"%s",buttonline.c_str());
-  myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
+  if(myteleco.fisrtView()==0){
+    sprintf(mess1,"git %s",status.c_str());
+    sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
+    myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
+    
+    sprintf(mess1,"%s",carte_name.c_str());
+    sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
+    myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
+    
+    sprintf(mess1,"%.1fV %s",tension,scene.c_str());
+    sprintf(mess2,"%s",buttonline.c_str());
+    myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
+  }
 }
 
 
@@ -152,6 +153,14 @@ void myInterruptTELECO(void) {
       myteleco.readInterrupt();
       myteleco.start();
       sendStatusTeleco();
+      for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
+        char mess1[17];
+        char mess2[17];
+        strncpy(mess1, popup[i][0].c_str(), sizeof(mess1));
+        strncpy(mess2, popup[i][1].c_str(), sizeof(mess2));
+        myteleco.sendString(mess1,mess2,i);
+        delay(10);
+      }
     }
   }else{
     fprintf(stderr, "main - reel interrupt\n");
@@ -252,8 +261,6 @@ int parseInput(){
     if ("popup"==parsedInput) {
       //send data to the remote
       int n=0;
-      popup1="";
-      popup2="";
       char mess1[17];
       char mess2[17];
       int type=0;
@@ -267,23 +274,27 @@ int parseInput(){
           if (parsedInput=="sync") type = T_MENU_ID_STATUS_SYNC;
           if (parsedInput=="user") type = T_MENU_ID_STATUS_USER;
           if (parsedInput=="error") type = T_MENU_ID_STATUS_ERROR;
+          popup[type][0]="________________";
+          popup[type][1]="________________";
         }
         if ("-line1"==parsedInput){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          strncpy(mess1, parsedInput.c_str(), sizeof(mess1));
+          popup[type][0]=parsedInput;
         }
         if ("-line2"==parsedInput){
           ss>>parsedInput;
           replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          strncpy(mess2, parsedInput.c_str(), sizeof(mess2));
+          popup[type][1]=parsedInput;
           if (type==T_MENU_ID_STATUS_SCENE) {
             scene=parsedInput;
             sendStatusTeleco();
           }
         }
       }
-      if(type!=0)myteleco.sendString(mess1,mess2,type);
+      strncpy(mess1, popup[type][0].c_str(), sizeof(mess1));
+      strncpy(mess2, popup[type][1].c_str(), sizeof(mess2));
+      if(type!=0 && myteleco.fisrtView()==0)myteleco.sendString(mess1,mess2,type);
     }
 
 

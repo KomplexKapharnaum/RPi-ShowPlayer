@@ -281,7 +281,10 @@ void switchLock(byte force){
 //-------------------------------------------------new menu system
 
 byte currentMenu=0;
-byte displayNeedUpdate=0;
+int displayNeedUpdate=0;
+byte popupNeedDisplay=0;
+byte currentPopup=0;
+long refreshMenu;
 
 //menu struct saved in PROGMEM
 typedef struct {
@@ -331,7 +334,7 @@ typedef struct {
 #define T_MENU_VARIABLE_LENGTH 25
 
 const menutype menulist[T_MENU_LENGTH] PROGMEM = {
-  {"  do not clean  ","     V1.0",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"  do not clean  ","     V1.1",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0},
   {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
@@ -392,11 +395,16 @@ void initmenu(){
 
 //display menu
 void displayMenu(byte need=0){
-  if((displayNeedUpdate>0 && command == 0) || need){
-    if (displayNeedUpdate>1) {
-      displayNeedUpdate--;
-    }else{
+  if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate) || need){
+      byte theMenu=currentMenu;
+      if (popupNeedDisplay) {
+        popupNeedDisplay=0;
+        theMenu=currentPopup;
+        displayNeedUpdate=2000;
+      }
     printf_P(PSTR("update menu %u"),currentMenu);
+    //try
+    SPCR &= ~_BV(SPIE);//disable spi interrupt
     memcpy_P (&menu, &menulist[currentMenu], sizeof(menutype));
     //printf_P(PSTR("get behaviour =%u\n"),menu.behaviour);
     //printf_P(PSTR("get id =%u\n"),menu.id);
@@ -420,8 +428,10 @@ void displayMenu(byte need=0){
     }
     printf_P(PSTR(" done\n"));
     displayNeedUpdate=0;
+    SPCR |= _BV(SPIE); //enable spi interrupt
+    refreshMenu=millis();
   }
-  }
+  
 }
 
 
@@ -615,9 +625,15 @@ void newcheckStringReceive() {
     //fil menu with string
     memcpy(&variableMenulist[id].line1[0], &buf[1], 16 );
     memcpy(&variableMenulist[id].line2[0], &buf[17], 16 );
+    refreshMenu=millis();
     if (menu.id==id) {
       printf_P(PSTR("same menu %u, need update\n"),id);
       displayNeedUpdate=100;
+    }
+    if (id>=T_MENU_ID_STATUS_USB && id<=T_MENU_ID_STATUS_ERROR) {
+      popupNeedDisplay=1;
+      displayNeedUpdate=60;
+      currentPopup=id;
     }
     flushbuf();
   }
