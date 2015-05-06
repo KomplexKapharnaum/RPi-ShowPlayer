@@ -15,8 +15,8 @@ log = init_log("alsa")
 def set_absolute_amixer():
     if settings.get("sys", "raspi"):
         try:
-            subprocess.check_call("{cmd} {value}dB".format(cmd=shlex.split(settings.get("path", "amixer")),
-                                                           value=settings.get("sys", "volume")))
+            subprocess.check_call(shlex.split("{cmd} {value}dB".format(cmd=settings.get("path", "amixer"),
+                                                                       value=settings.get("sys", "volume"))))
         except subprocess.CalledProcessError as e:
             log.exception("Cannont set alsamixer volume")
             log.show_exception(e)
