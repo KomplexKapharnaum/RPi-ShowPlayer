@@ -153,6 +153,7 @@ void myInterruptTELECO(void) {
       myteleco.readInterrupt();
       myteleco.start();
       sendStatusTeleco();
+      delay(100);
       for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
         char mess1[17];
         char mess2[17];

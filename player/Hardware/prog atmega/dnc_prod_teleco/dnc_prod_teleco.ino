@@ -398,13 +398,11 @@ void displayMenu(byte need=0){
   if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate) || need){
       byte theMenu=currentMenu;
       if (popupNeedDisplay) {
-        popupNeedDisplay=0;
         theMenu=currentPopup;
-        displayNeedUpdate=2000;
       }
     printf_P(PSTR("update menu %u"),currentMenu);
     //try
-    SPCR &= ~_BV(SPIE);//disable spi interrupt
+    //SPCR &= ~_BV(SPIE);//disable spi interrupt
     memcpy_P (&menu, &menulist[currentMenu], sizeof(menutype));
     //printf_P(PSTR("get behaviour =%u\n"),menu.behaviour);
     //printf_P(PSTR("get id =%u\n"),menu.id);
@@ -428,8 +426,12 @@ void displayMenu(byte need=0){
     }
     printf_P(PSTR(" done\n"));
     displayNeedUpdate=0;
-    SPCR |= _BV(SPIE); //enable spi interrupt
+    //SPCR |= _BV(SPIE); //enable spi interrupt
     refreshMenu=millis();
+    if (popupNeedDisplay){
+      popupNeedDisplay=0;
+      displayNeedUpdate=2000;
+    }
   }
   
 }
