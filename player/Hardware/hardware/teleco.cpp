@@ -28,6 +28,7 @@ void Teleco::initCarte(char pow){
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
   needtestroutine=0;
+  uninit=1;
 }
 
 //check if start
@@ -48,6 +49,7 @@ void Teleco::reset(){
   fprintf(stderr, "teleco - teleco reset\n");
   setLedWarning(1);
   writeValue(T_INIT,0);
+  uninit=1;
 }
 
 //acces to led status

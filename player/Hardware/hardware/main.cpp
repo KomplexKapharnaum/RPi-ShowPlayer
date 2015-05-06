@@ -59,8 +59,8 @@ void sendStatusTeleco(){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
-  delay(10);
-  if(myteleco.fisrtView()!=1){
+  if(!myteleco.fisrtView()){
+    delay(10);
     sprintf(mess1,"git %s",status.c_str());
     sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
     myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
@@ -80,7 +80,7 @@ void sendStatusTeleco(){
 void myInterruptCARTE (void) {
   fprintf(stderr, "main - interrupt from carte\n");
   mycarte.readInterrupt();
-  if(mycarte.needStatusUpdate  && myteleco.fisrtView()!=1)sendStatusTeleco();
+  if(mycarte.needStatusUpdate)sendStatusTeleco();
 }
 
 
