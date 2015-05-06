@@ -221,7 +221,7 @@ def client_sync(flag):
     add_method_before_patcher("/rtp/sync", None, client_get_sync)
     network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
                             flag_timeout_wait_sync.get(
-                                TTL=settings.get("rtp", "timeout") * 1.5, JTL=4))
+                                TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
     machine.current_state.preemptible.set()
     #log.log("error", "Just before sending asktime")
     message.send(target, msg_asktime.get())
@@ -373,6 +373,7 @@ step_addhere.transitions = {
     True: trans_sync_here
 }
 step_asktime.transitions = {
+    flag_timeout_task_sync.uid: step_main_wait,
     "TIMEOUT_WAIT_SYNC": step_main_wait,
     "GET_SYNC": step_main_wait
 }
