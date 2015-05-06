@@ -51,6 +51,7 @@ DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7"
 DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
+DEFAULT_SETTING["path"]["amixer"] = "/usr/bin/amixer set PCM"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 # DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
 # DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
@@ -164,6 +165,7 @@ DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10          # Undeclared FSM (stoppe
 
 DEFAULT_SETTING["sys"] = dict()
 DEFAULT_SETTING["sys"]["raspi"] = True    # This settings is for debug, if raspi is False it will prevent pc for error
+DEFAULT_SETTING["sys"]["volume"] = 0      # Set the default system volume to 0dB
 
 
 DEFAULT_SETTING["temp"] = dict()            # TEMP SETTINGS FOR TEST

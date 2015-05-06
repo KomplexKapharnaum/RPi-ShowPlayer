@@ -26,6 +26,8 @@ def init(autoload=True):
     # LOAD INPUT KEYBOARD THREAD
     k = inputThread()
     k.start()
+    # SET SYSTEM VOLUME
+    engine.alsa.set_absolute_amixer()
     # INIT THREAD
     engine.threads.init()
     # LOAD SUPER-MODULES IN ENGINE
