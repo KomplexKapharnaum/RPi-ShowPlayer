@@ -147,7 +147,7 @@ DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
 DEFAULT_SETTING["log"]["teleco"] = dict()
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5       # Block 1.5 s for assure error displaying
-DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 1.5        # Block 1.5 s before displaying an other message
+DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 3          # Block 1.5 s before displaying an other message
 DEFAULT_SETTING["log"]["teleco"]["linelength"] = 16         # Number of char per line
 DEFAULT_SETTING["log"]["teleco"]["level"] = "warning"       # For the teleco
 
