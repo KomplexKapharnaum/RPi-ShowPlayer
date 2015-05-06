@@ -5,6 +5,7 @@
 #
 
 import os
+import time
 
 from _classes import ExternalProcess, module
 from modules import link, exposesignals
@@ -58,6 +59,8 @@ class VlcPlayer(ExternalProcess):
 
     def stop(self):
         self.say("stop")
+        time.sleep(0.01)
+        ExternalProcess.stop(self)
 
     def set_volume(self, value):
         self.say("volume {0}".format(value))
