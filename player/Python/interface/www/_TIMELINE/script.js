@@ -1,10 +1,6 @@
 
   $(function() {
 
-
-		var urlbase = '';
-		//var urlbase = 'http://192.168.0.19:8080';
-
     $('#colonne2').hide();
     setTimeout(function(){
       loadTimeline();
@@ -513,7 +509,7 @@
             $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
           }
           if(($.inArray(sceno, scenesList)==-1)&&(scenario.name.indexOf('_')==-1)) {
-            //console.log(sceno);
+            console.log(sceno);
             $('#scenariosms').append(('<option value="'+index+'">'+scenario.name+'</option>'));
             $('#scenariosdropdown').append(('<option value="'+index+'">'+scenario.name+'</option>'));
           }
@@ -609,7 +605,7 @@
       ///////////////////TOOLTIPS///////////////////////
       this.blockbox.mouseenter(function(e){
         $('.tip').html('');
-        $('.tip').append('Scene: '+thisblock.scene+'<br>'+'Groupe: '+thisblock.group+'<br>'+'Scenarios: '+'<br>');
+        $('.tip').append(thisblock.scene+'<br>');
         $.each(thisblock.scenarios,function(index,scenar){
           $('.tip').append(scenar+'<br>');
         });
@@ -633,9 +629,9 @@
   		$.ajax({
   			type: 'GET',
   			timeout: 1000,
-  		  //url: "http://2.0.1.89:8080/moduleslist",
-        url: urlbase+"/moduleslist",
-  			dataType: "jsonp",
+  		  // url: "http://2.0.1.89:8080/moduleslist", HORFIX by Olivier : url shouldn't be raw codded
+		    url: "/moduleslist",
+  			dataType: "jsonp"
   		}).done(function(data) {
         allModules = {};
   			allModules = data;
@@ -1123,9 +1119,9 @@
   		$.ajax({
   			type: 'GET',
   			timeout: 1000,
-  		  //url: "http://2.0.1.89:8080/disposList",
-        url: urlbase+'/disposList',
-  			dataType: "jsonp",
+  		  // url: "http://2.0.1.89:8080/disposList", HORFIX by Olivier : url shouldn't be raw codded
+		    url: "/disposList",
+  			dataType: "jsonp"
   		}).done(function(data) {
   			disposList = data.devices;
   			disposList.unshift(dispotemp);
