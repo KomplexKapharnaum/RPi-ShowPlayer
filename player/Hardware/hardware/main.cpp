@@ -161,6 +161,7 @@ void myInterruptTELECO(void) {
         myteleco.sendString(mess1,mess2,i);
         delay(10);
       }
+      delay(100);
       myteleco.start();
     }
   }else{

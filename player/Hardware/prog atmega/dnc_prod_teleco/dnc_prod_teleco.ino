@@ -675,8 +675,8 @@ ISR (SPI_STC_vect)
   } else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
-      //printf_P(PSTR("wv"));
       if (adress < T_STRING) {
+        printf_P(PSTR("wv %u=%u\n"),adress,c);
         newValue[adress] = c;
         command = 1;
         SPDR = 0;
@@ -731,9 +731,12 @@ void waitforinit(){
   delay(300);
   SPDR = 0;
   digitalWrite(outpin[T_INTERRUPT], HIGH);
-  while(newValue[T_INIT]==0;); //comment for debug
+  //comment for debug
+  while(newValue[T_INIT]==0){
+    if (digitalRead (SS) == HIGH) command = 0;
+    newcheckStringReceive();
+  };
   digitalWrite(outpin[T_INTERRUPT], LOW);
-  
 }
 
 
