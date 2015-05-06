@@ -64,6 +64,8 @@ class Mpg123(ExternalProcess):
 @link({"/audio/play [media] [repeat]": "audio_play",
         "/audio/pause": "audio_pause",
         "/audio/stop": "audio_stop",
+        "/audio/volumeup": "audio_volume_up",
+        "/audio/volumedown": "audio_volume_down",
         "/audio/set_volume [volume]": "audio_set_volume"})
 def audio_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
@@ -109,6 +111,22 @@ def audio_set_volume(flag, **kwargs):
         kwargs["_fsm"].process.set_volume(flag.args["volume"])
     else:
         log.warning("Ask to set volume on an unlauched process (VlcPlayer)")
+
+
+@link({None: "audio_player"})
+def audio_volume_up(flag, **kwargs):
+    if isinstance(kwargs["_fsm"].process, VlcAudio):
+        kwargs["_fsm"].process.volume_up()
+    else:
+        log.warning("Ask to volume up on an unlauched process (VlcPlayer)")
+
+
+@link({None: "audio_player"})
+def audio_volume_down(flag, **kwargs):
+    if isinstance(kwargs["_fsm"].process, VlcAudio):
+        kwargs["_fsm"].process.volume_down()
+    else:
+        log.warning("Ask to volume down on an unlauched process (VlcPlayer)")
 
 
 
