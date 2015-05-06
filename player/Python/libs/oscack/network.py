@@ -170,7 +170,7 @@ class UnifiedMessageInterpretation:
     """
 
     def __init__(self, path, get=None, values=(), ACK=False, recv=None, JTL=settings.get("OSC", "JTL"), TTL=settings.get("OSC", "TTL"), ignore_cb=None,
-                 ignore_cb_args=(), auto_add=True, connected=None, machine=None, flag_name=None):
+                 ignore_cb_args=(), auto_add=True, connected=None, machine=None, flag_name=None, treatement=None):
         self.path = path
         if get is not None:
             def _get(*args, **kwargs):
@@ -192,6 +192,7 @@ class UnifiedMessageInterpretation:
         self.TTL = TTL
         self.ignore_cb = ignore_cb
         self.ignore_cb_args = ignore_cb_args
+        self.treatment = treatement     # To use if you want to add a treatment with the recv function
         # self.ignore_raise = ignore_raise
         if auto_add:
             global to_auto_add
@@ -199,6 +200,12 @@ class UnifiedMessageInterpretation:
 
     def recv(self, path, args, types, src):
         log.log("raw", "recv catch an message {path} with : {args}".format(path=path, args=args))
+        if self.treatment is not None:
+            try:
+                self.treatment(path, args, types, src)
+            except Exception as e:
+                log.exception("Exception in treatment function")
+                log.show_exception(e)
         kwargs = {}
         try:
             for i in xrange(len(args)):
