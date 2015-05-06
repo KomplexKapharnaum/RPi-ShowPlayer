@@ -159,6 +159,7 @@ void myInterruptTELECO(void) {
         strncpy(mess1, popup[i][0].c_str(), sizeof(mess1));
         strncpy(mess2, popup[i][1].c_str(), sizeof(mess2));
         myteleco.sendString(mess1,mess2,i);
+        delay(10);
       }
     }
   }else{
