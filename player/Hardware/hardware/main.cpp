@@ -158,7 +158,7 @@ void myInterruptTELECO(void) {
         char mess2[17];
         strncpy(mess1, popup[i][0].c_str(), sizeof(mess1));
         strncpy(mess2, popup[i][1].c_str(), sizeof(mess2));
-        if(type!=0 && myteleco.fisrtView()==0)myteleco.sendString(mess1,mess2,i);
+        myteleco.sendString(mess1,mess2,i);
       }
     }
   }else{
@@ -291,7 +291,6 @@ int parseInput(){
           }
         }
       }
-      
       strncpy(mess1, popup[type][0].c_str(), sizeof(mess1));
       strncpy(mess2, popup[type][1].c_str(), sizeof(mess2));
       if(type!=0 && myteleco.fisrtView()==0)myteleco.sendString(mess1,mess2,type);

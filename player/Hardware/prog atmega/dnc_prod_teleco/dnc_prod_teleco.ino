@@ -334,7 +334,7 @@ typedef struct {
 #define T_MENU_VARIABLE_LENGTH 25
 
 const menutype menulist[T_MENU_LENGTH] PROGMEM = {
-  {"  do not clean  ","     V1.0",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"  do not clean  ","     V1.1",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0},
   {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
