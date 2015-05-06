@@ -90,7 +90,7 @@ def init(flag):
     async_monitor_udev.start()
     from_scenario_wanted = None
     while from_scenario_wanted is None:
-        from_scenario_wanted = functions.get_wanted_media()
+        from_scenario_wanted = functions.get_wanted_media_list()
         if from_scenario_wanted is not None:
             break
         else:
@@ -100,7 +100,6 @@ def init(flag):
         fmedia = media.Media.from_scenario(f)
         if isinstance(fmedia, media.Media):  # Check if the file exist ?
             needed_media_list.append(fmedia)
-    time.sleep(3)                          # Wait 3 seconde to get the teleco
     check_media_presence()
     unwanted_media_list = media.get_unwanted_media_list(needed_media_list)
     flag = flag_init_end.get()
@@ -153,7 +152,7 @@ def update_needed_list(flag):
     global unwanted_media_list
     from_scenario_wanted = None
     while from_scenario_wanted is None:
-        from_scenario_wanted = functions.get_wanted_media()
+        from_scenario_wanted = functions.get_wanted_media_list()
         if from_scenario_wanted is not None:
             break
         else:

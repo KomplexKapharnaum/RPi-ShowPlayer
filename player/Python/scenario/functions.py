@@ -13,16 +13,38 @@ from libs.oscack import message
 from modules import globalfunction, oscpatcher
 from engine.setting import settings
 from engine.threads import scenario_scheduler, patcher
-from scenario import pool
+from scenario import pool, classes
 from engine.fsm import Flag
 from engine.log import init_log
 
 log = init_log("functools")
 
-def get_wanted_media():
-    if settings.get('uName') in pool.Cartes.keys():
-        return pool.Cartes[ settings.get('uName') ].media
-    return None
+
+def get_wanted_media_list():
+    """
+    This function search in the parsed scenario all media wich could be played by the card
+    :return: list of Media file objects
+    """
+    media_list = list()
+    for box in pool.Etapes_and_Functions.values():
+        if isinstance(box, classes.Etape):
+            for action in box.actions:
+                if len(action) > 0 and isinstance(action[1], dict):         # If there are some params
+                    k = action[1].keys()
+                    if "signal" in k and "args" in k:                           # ADD SIGNAL BOX
+                        argsk = action[1]["args"].keys()
+                        if "dest" in argsk and "media" in argsk:                # It's a PLAY box
+                            if settings.get("uName")in action[1]["args"]["dest"]:     # It's for us
+                                path = action[1]["args"]["media"]
+                                if "VIDEO" in action[1]["signal"]:
+                                    path = os.path.join(settings.get("path", "relative", "video"), path)
+                                elif "AUDIO" in action[1]["signal"]:
+                                    path = os.path.join(settings.get("path", "relative", "audio"), path)
+                                else:
+                                    log.warning("SIGNAL BOX WITH MEDIA BUT IT'S NOT AN VIDEO/AUDIO_PLAY")
+                                if path not in media_list:      # Check and avoid duplications
+                                    media_list.append(path)
+    return media_list
 
 
 @oscpatcher("SIGNAL_FORWARDER")
