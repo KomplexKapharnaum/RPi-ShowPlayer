@@ -6,9 +6,9 @@ import shlex
 import threading
 import sys
 import codecs
-# import signal
+import signal
 #
-# signal.signal(signal.SIGCLD, signal.SIG_IGN)    # Avoid defunct process (just ignore them if they crash
+signal.signal(signal.SIGCLD, signal.SIG_IGN)    # Avoid defunct process (just ignore them if they crash
                                                 # More info :
                                                 # http://stackoverflow.com/questions/16944886/how-to-kill-zombie-process
                                                 # http://bugs.python.org/issue15756
