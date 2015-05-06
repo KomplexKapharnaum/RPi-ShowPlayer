@@ -7,6 +7,8 @@
 #include "MemoryFree.h"
 
 
+boolean simpleRemote =true;
+
 //function for reset
 void(* resetFunc) (void) = 0;
 
@@ -242,6 +244,9 @@ void strobLVRoutine(byte force) {
 #define T_POWEROFF 10
 
 void switchLock(byte force){
+  if (simpleRemote) {
+    simpleRemote=false;
+  }else{
   printf_P(PSTR("switch lock (T_LOCK%u-%u) force %u - "),newValue[T_LOCK],Value[T_LOCK], force);
   if (Value[T_LOCK]==T_ISOPEN || force==T_ISLOCK){
     Value[T_LOCK]=T_ISLOCK; newValue[T_LOCK]=T_ISLOCK;
@@ -274,6 +279,7 @@ void switchLock(byte force){
     delay(5);
     poweroff();
     return;
+  }
   }
 }
 
@@ -334,7 +340,7 @@ typedef struct {
 #define T_MENU_VARIABLE_LENGTH 25
 
 const menutype menulist[T_MENU_LENGTH] PROGMEM = {
-  {"  do not clean  ","     V1.1",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
+  {"  do not clean  ","     V1.2",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
   {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0},
   {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
@@ -485,7 +491,7 @@ void newcheckInput(){
             //push on rotary
           case T_PUSHROTARY:
             
-            if(1-digitalRead(inpin[i])==1){
+            if(1-digitalRead(inpin[i])==1 && !simpleRemote){
               if (onePushRotary==0){
                 onePushRotary=1;
                 printf_P(PSTR("get push rotary\n"));
@@ -583,7 +589,7 @@ void newcheckInput(){
     if(Value[T_LOCK]==T_ISOPEN){
       long newLeft;
       newLeft = (long)rotary.read()*1.0/2;
-      if (newLeft!=positionLeft) {
+      if (newLeft!=positionLeft && !simpleRemote) {
          printf_P(PSTR("get rotary\n"));
         if (menu.behaviour==T_MENU_BEHAVIOUR_MASTER) {
           if (newLeft<positionLeft) goprevMasterMenu();
@@ -614,30 +620,34 @@ void newcheckStringReceive() {
     buf [pos] = 0;
     pos = 0;
     adress = 0;
-    byte id = buf[0];
-    printf_P(PSTR("get new string n=%u : %s\n"),id,buf);
-    //for log only
-    if (id==T_MENU_ID_LOG_0) {
-      printf_P(PSTR("shift logs\n"));
-      for (byte n=T_MENU_ID_LOG_0+T_MENU_NB_LOG-1; n>T_MENU_ID_LOG_0; n--) {
-        memcpy(variableMenulist[n].line1, variableMenulist[n-1].line1, 16 );
-        memcpy(variableMenulist[n].line2, variableMenulist[n-1].line2, 16 );
+    //if (!simpleRemote) {
+      byte id = buf[0];
+      printf_P(PSTR("get new string n=%u : %s\n"),id,buf);
+      //for log only
+      if (id==T_MENU_ID_LOG_0) {
+        printf_P(PSTR("shift logs\n"));
+        for (byte n=T_MENU_ID_LOG_0+T_MENU_NB_LOG-1; n>T_MENU_ID_LOG_0; n--) {
+          memcpy(variableMenulist[n].line1, variableMenulist[n-1].line1, 16 );
+          memcpy(variableMenulist[n].line2, variableMenulist[n-1].line2, 16 );
+        }
       }
-    }
-    //fil menu with string
-    memcpy(&variableMenulist[id].line1[0], &buf[1], 16 );
-    memcpy(&variableMenulist[id].line2[0], &buf[17], 16 );
-    refreshMenu=millis();
-    if (menu.id==id) {
-      printf_P(PSTR("same menu %u, need update\n"),id);
-      displayNeedUpdate=100;
-    }
-    /*if (id>=T_MENU_ID_STATUS_USB && id<=T_MENU_ID_STATUS_ERROR) {
-      popupNeedDisplay=1;
-      displayNeedUpdate=60;
-      currentPopup=id;
-    }*/
-    flushbuf();
+      //fil menu with string
+      memcpy(&variableMenulist[id].line1[0], &buf[1], 16 );
+      memcpy(&variableMenulist[id].line2[0], &buf[17], 16 );
+      refreshMenu=millis();
+      if (menu.id==id) {
+        printf_P(PSTR("same menu %u, need update\n"),id);
+        if(simpleRemote)displayNeedUpdate=1000;
+        else simpleRemote=300;
+      }
+      /*if (id>=T_MENU_ID_STATUS_USB && id<=T_MENU_ID_STATUS_ERROR) {
+        popupNeedDisplay=1;
+        displayNeedUpdate=60;
+        currentPopup=id;
+      }*/
+      flushbuf();
+      digitalWrite(outpin[T_INTERRUPT], LOW);
+    //}
   }
 }
 
@@ -719,7 +729,13 @@ void setup (void) {
   flushbuf();
   initmenu();
   displayMenu(1);
-  waitforinit();
+  if (simpleRemote) {
+    newValue[T_INIT]=1;
+    displayNeedUpdate=1000;
+    currentMenu=2;
+  }else{
+    waitforinit();
+  }
   positionLeft = rotary.read();
   printf_P(PSTR("init ok\n"));
 }
