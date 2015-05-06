@@ -62,6 +62,12 @@ class VlcPlayer(ExternalProcess):
     def set_volume(self, value):
         self.say("volume {0}".format(value))
 
+    def volume_up(self):
+        self.say("volup")
+
+    def volume_down(self):
+        self.say("voldown")
+
     Filters = {
         'VIDEO_END': [True]
     }
@@ -91,6 +97,8 @@ exposesignals(VlcPlayer.Filters)
 @link({"/video/play [media] [repeat]": "video_play",
         "/video/pause": "video_pause",
         "/video/stop": "video_stop",
+        "/video/volumeup": "video_volume_up",
+        "/video/volumedown": "video_volume_down",
         "/video/set_volume [volume]": "video_set_volume"})
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
@@ -134,6 +142,21 @@ def video_set_volume(flag, **kwargs):
     else:
         log.warning("Ask to set volume on an unlauched process (VlcPlayer)")
 
+
+@link({None: "video_player"})
+def video_volume_up(flag, **kwargs):
+    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+        kwargs["_fsm"].process.volume_up()
+    else:
+        log.warning("Ask to volume up on an unlauched process (VlcPlayer)")
+
+
+@link({None: "video_player"})
+def video_volume_down(flag, **kwargs):
+    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+        kwargs["_fsm"].process.volume_down()
+    else:
+        log.warning("Ask to volume down on an unlauched process (VlcPlayer)")
 
 
 
