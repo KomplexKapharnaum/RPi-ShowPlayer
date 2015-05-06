@@ -151,7 +151,6 @@ void myInterruptTELECO(void) {
     if (digitalRead(21)==HIGH) {
       fprintf(stderr, "main - reel interrupt\n");
       myteleco.readInterrupt();
-      myteleco.start();
       sendStatusTeleco();
       delay(100);
       for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
@@ -162,6 +161,7 @@ void myInterruptTELECO(void) {
         myteleco.sendString(mess1,mess2,i);
         delay(10);
       }
+      myteleco.start();
     }
   }else{
     fprintf(stderr, "main - reel interrupt\n");
@@ -275,8 +275,8 @@ int parseInput(){
           if (parsedInput=="sync") type = T_MENU_ID_STATUS_SYNC;
           if (parsedInput=="user") type = T_MENU_ID_STATUS_USER;
           if (parsedInput=="error") type = T_MENU_ID_STATUS_ERROR;
-          popup[type][0]="________________";
-          popup[type][1]="________________";
+          popup[type][0]="                ";
+          popup[type][1]="                ";
         }
         if ("-line1"==parsedInput){
           ss>>parsedInput;

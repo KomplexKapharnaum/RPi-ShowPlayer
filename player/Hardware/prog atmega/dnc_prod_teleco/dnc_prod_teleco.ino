@@ -731,10 +731,9 @@ void waitforinit(){
   delay(300);
   SPDR = 0;
   digitalWrite(outpin[T_INTERRUPT], HIGH);
-  while(command==0); //comment for debug
+  while(newValue[T_INIT]==0;); //comment for debug
   digitalWrite(outpin[T_INTERRUPT], LOW);
-  Value[T_INIT]=1;
-  newValue[T_INIT]=1;
+  
 }
 
 

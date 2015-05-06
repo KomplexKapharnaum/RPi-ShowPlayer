@@ -40,6 +40,7 @@ void Teleco::start(){
   fprintf(stderr, "teleco - teleco start\n");
   uninit=0;
   setLedWarning(0);
+  writeValue(T_INIT,1);
 }
 
 //reset remote
