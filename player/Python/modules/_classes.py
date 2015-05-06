@@ -4,11 +4,12 @@
 import os
 import shlex
 import threading
+import time
 import sys
 import codecs
-import signal
+# import signal
 #
-signal.signal(signal.SIGCLD, signal.SIG_IGN)    # Avoid defunct process (just ignore them if they crash
+# signal.signal(signal.SIGCLD, signal.SIG_IGN)    # Avoid defunct process (just ignore them if they crash
                                                 # More info :
                                                 # http://stackoverflow.com/questions/16944886/how-to-kill-zombie-process
                                                 # http://bugs.python.org/issue15756
@@ -48,6 +49,7 @@ class ExternalProcess(object):
         """
         self.name = name
         self._watchdog = None
+        self._defunctdog = None
         self._running = threading.Event()
         self._popen = None
         self.command = ''
@@ -68,6 +70,7 @@ class ExternalProcess(object):
         """
         self.stop()# Stop current process
         self._watchdog = threading.Thread(target=self._watch)
+        self._defunctdog = threading.Thread(target=self._defunct)
         logfile = settings.get_path("logs")+'/'+self.name+'.log'
         try:
             self.stderr = open(logfile, 'w')
@@ -87,9 +90,18 @@ class ExternalProcess(object):
                                          universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
                                         # preexec_fn=lambda : os.nice(-20)
         self._watchdog.start()
+        self._defunctdog.start()
         register_thread(self)
         if self.onOpen:
             self.onEvent([self.onOpen])
+
+    def _defunct(self):
+        """
+        Try to collect process to avoid defunct
+        :return:
+        """
+        while self._popen.poll() is None:
+            time.sleep(0.1)
 
     def stop(self):
         """
