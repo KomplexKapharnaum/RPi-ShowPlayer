@@ -70,7 +70,7 @@ void Teleco::sendString(char Str1[], char Str2[], int val){
   for(int i=0;i<17;i++){
     buff[i+2+16]= *(Str2+i);
   }
-  fprintf(stderr, "teleco - teleco send string : %s\n",buff);
+  fprintf(stderr, "teleco - teleco send string type=%u : %s\n",val,buff);
   SPIcarte.send(0,buff,38);
   setLedWarning(0);
 }
