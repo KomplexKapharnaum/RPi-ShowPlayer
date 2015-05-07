@@ -68,7 +68,7 @@ def device_update_timeline(flag, **kwargs):
     load_scenario_from_fs(settings["current_timeline"])
 
 @link({None: "device_control"})
-def device_send_tension(flag, **kwargs):
+def device_send_info_tension(flag, **kwargs):
     tools.send_tension(flag)
 
 
