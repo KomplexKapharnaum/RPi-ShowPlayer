@@ -231,6 +231,8 @@ def register(thread, uid):
     :return:
     """
     log.log("raw", "Register thread send ack : " + str(uid))
+    if uid in ack_threads.keys():
+        log.warning("! Register an ack thread with uid {0}, but already have !".format(uid))
     ack_threads[uid] = thread
     # globalContext.protocol.ack.ACK_THREAD_REGISTER[uid] = thread TODO: check and remove
 
