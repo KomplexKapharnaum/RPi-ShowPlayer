@@ -123,7 +123,7 @@ class ThreadSendMessage(threading.Thread):
             n = 0
             while register(self, self.msg.uid) is not True and n < 10:
                 n += 1
-                log.warning("Not send because of duplicate uid {0}. {0} tr(y)(ies)".format(self.msg.uid, n))
+                log.warning("Not send because of duplicate uid {0}. {1} tr(y)(ies)".format(self.msg.uid, n))
                 self.msg.regen_uid()
                 time.sleep(0.01)
         else:
