@@ -585,11 +585,8 @@ class ScenarioFile:
             scp.join(timeout=settings.get("sync", "scenario_sync_timeout"))
             log.error("END of scp : {0} with {1}".format(self, scp.command))
             if not os.path.exists(self.path):       # Test if the file really exist after scp
-                log.debug("Copy fail")
                 log.error("SCP ERROR MAYBE CORRUPTED (reboot ?)")
                 raise RuntimeError()
-            else:
-                log.debug("Copy work")
         except RuntimeError:
             log.warning("Can't get scenario {0} with {1}".format(self, scp.command))
             return False
