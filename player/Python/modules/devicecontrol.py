@@ -26,7 +26,8 @@ log = init_log("devicecontrol")
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
         "FS_TIMELINE_UPDATED": "device_update_timeline",
-        "/device/sendInfoTension": "device_send_info_tension"})
+        "/device/sendInfoTension": "device_send_info_tension",
+        "/device/senWarningTension": "device_send_warning_tension"})
 
 def device_control(flag, **kwargs):
     pass
@@ -76,6 +77,13 @@ def device_send_info_tension(flag, **kwargs):
     for dest in settings.get("log","tension","ip"):
         liblo.send(liblo.Address(dest,port),message)
 
+@link({None: "device_control"})
+def device_send_warning_tension(flag, **kwargs):
+    message = liblo.Message("/warningTension",settings.get("uName"))
+    log.debug("get warning tension and forward")
+    port = settings.get("log","tension","port")
+    for dest in settings.get("log","tension","ip"):
+        liblo.send(liblo.Address(dest,port),message)
 
 
 
