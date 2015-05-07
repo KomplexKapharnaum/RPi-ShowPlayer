@@ -94,6 +94,10 @@ class Message(liblo.Message):
     def regen_uid(self):
         self.uid = acklib.gen_uids()
 
+    def get_new(self):
+        return Message(*self._args, **self._kwargs)
+
+
     def __str__(self):
         return "OSC MSG : " + str(self._args) + "  ::  " + str(self._kwargs)
 

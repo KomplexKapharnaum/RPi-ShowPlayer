@@ -132,7 +132,7 @@ class ThreadPatcher(threading.Thread):
                 log.warning("Try to send to {0} but not finc in networkmap AND devices list".format(dest))
                 log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
                 continue
-            message.send(target.target, msg_to_send)
+            message.send(target.target, msg_to_send.get_new())
 
         # Send to Himself (via local pacther)
         if settings["uName"] in sendto:
