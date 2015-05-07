@@ -122,7 +122,7 @@ class ThreadPatcher(threading.Thread):
         msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
         for dest in sendto:
             if dest in libs.oscack.DNCserver.networkmap.keys() and dest != settings["uName"]:
-                    message.send(libs.oscack.DNCserver.networkmap[dest].target, msg_to_send)
+            	message.send(libs.oscack.DNCserver.networkmap.get_by_uName(dest).target, msg_to_send)
             elif dest != settings.get("scenario", "dest_self"):
                 log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
