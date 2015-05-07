@@ -23,7 +23,7 @@
 
 //init carte
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
-  fprintf(stderr, "carte - add extension card dnc\n");
+  fprintf(stderr, "\ncarte - add extension card dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(13,1000000);
   gamme_tension=_gamme_tension;
@@ -56,7 +56,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
 
 //write value in carte register
 void Carte::writeValue(int valueType,int value, int fadetime){
-  fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
+  //fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
   int size;
   if(fadetime==0){size=2; }else {size=4;}
   unsigned char buff[5];
@@ -71,12 +71,12 @@ void Carte::writeValue(int valueType,int value, int fadetime){
 
 //read value from carte register
 int Carte::readValue(int valueType){
-  fprintf(stderr, "carte - readValue %u = ", valueType);
+  //fprintf(stderr, "carte - readValue %u = ", valueType);
   unsigned char buff[2];
   buff[0]= (char)(READCOMMAND+valueType);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "%u ",buff[1]);
+  //fprintf(stderr, "%u \n",buff[1]);
   return buff[1];
 }
 
@@ -86,12 +86,12 @@ int Carte::readInterrupt(){
   buff[0]= (char)(READCOMMAND+INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "carte - read i %u\n",buff[1]);
+  //fprintf(stderr, "carte - read i %u\n",buff[1]);
   int address = buff[1];
   buff[0]= (char)(READCOMMAND+buff[1]);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "carte - read v %u\n",buff[1]);
+  fprintf(stderr, "carte - interrupt %u read %u\n",address,buff[1]);
   int valeur =buff[1];
   switch (address) {
       //@todo : faire un tableau et l'envoyer
@@ -118,7 +118,7 @@ int Carte::readInterrupt(){
 
 //read tension from carte
 float Carte::checkTension(){
-  fprintf(stderr, "carte - checktension gpio high\n");
+  //fprintf(stderr, "carte - checktension gpio high\n");
   //analog in from atmega is after a mosfet under rpi control
   //not useless, change in V2
   digitalWrite (GPIO_READ_BATT, HIGH);
@@ -129,7 +129,7 @@ float Carte::checkTension(){
   tension = tension/10;
   //strange behaviour
   //digitalWrite (GPIO_READ_BATT, LOW);
-  fprintf(stderr, "carte - checktension gpio low\n");
+  //fprintf(stderr, "carte - checktension gpio low\n");
   fprintf(stderr, "carte - get %.1fV\n",tension);
   std::cout << "#CARTE_TENSION " << tension << std::endl;
   needStatusUpdate=0;
