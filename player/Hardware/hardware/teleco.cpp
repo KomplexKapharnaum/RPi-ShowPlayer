@@ -24,7 +24,7 @@
 //init remote
 void Teleco::initCarte(char pow){
   localpoweroff=pow;
-  fprintf(stderr, "teleco - add teleco dnc\n");
+  fprintf(stderr, "\nteleco - add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
   needtestroutine=0;
@@ -115,7 +115,7 @@ int Teleco::readInterrupt(){
   buff[0]= (char)(READCOMMAND+T_INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "teleco - read i %u",buff[1]);
+  //fprintf(stderr, "teleco - read i %u",buff[1]);
   int address = buff[1];
   buff[0]= (char)(READCOMMAND+address);
   buff[1]=0;
@@ -181,7 +181,7 @@ int Teleco::readInterrupt(){
       std::cout << "#TELECO_FLOAT "<< valeur << std::endl;
       break;
     case T_DISPLAY_LOCK:
-      fprintf(stderr, "teleco - lock com\n");
+      fprintf(stderr, "teleco - lock com %u\n",valeur);
       lockCom=valeur;
       break;
     case T_INIT:
