@@ -60,6 +60,7 @@ class Message(liblo.Message):
         add_port = False
         self._args = args
         self._kwargs = kwargs
+        self.uid = None
 
         # if "SEND_PORT" in kwargs.keys(): TODO : check and delete
         #     if kwargs["SEND_PORT"]:
@@ -68,7 +69,7 @@ class Message(liblo.Message):
         if "ACK" in kwargs.keys():
             if kwargs["ACK"]:
                 self.ACK = True
-                self.uid = acklib.gen_uids()
+                self.regen_uid()
                 args = [args[0], True, ('i', self.uid[0]), ('i', self.uid[1])] + list(args[1:])
                 if add_port:
                     args.append(settings.get("OSC", "ackport"))
@@ -88,6 +89,9 @@ class Message(liblo.Message):
             log.critical(str(args))
             log.critical(str(**kwargs))
             raise e
+
+    def regen_uid(self):
+        self.uid = acklib.gen_uids()
 
     def __str__(self):
         return "OSC MSG : " + str(self._args) + "  ::  " + str(self._kwargs)
@@ -116,7 +120,11 @@ class ThreadSendMessage(threading.Thread):
         self._interval_table = ack_speed
         if target.get_hostname() != "255.255.255.255":  # Broadcast
             # Register in order to be stop when a ACK is received
-            register(self, self.msg.uid)
+            n = 0
+            while register(self, self.msg.uid) is not True and n < 10:
+                n += 1
+                self.msg.regen_uid()
+                time.sleep(0.01)
         else:
             self.broadcast = True
             broadcast_ack_threads.append(self.msg.uid)
