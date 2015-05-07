@@ -147,6 +147,7 @@ DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
 DEFAULT_SETTING["log"]["tension"] = dict()
+DEFAULT_SETTING["log"]["tension"]["port"] = 1783
 DEFAULT_SETTING["log"]["tension"]["ip"] = ["2.0.1.4"]
 DEFAULT_SETTING["log"]["teleco"] = dict()
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5       # Block 1.5 s for assure error displaying

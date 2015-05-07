@@ -5,11 +5,11 @@
 #
 #
 
+import liblo
 import application
 from modules import link
 from _classes import module
 from engine import tools, threads, fsm
-from libs import oscack
 from engine.log import init_log
 from engine.setting import settings
 from engine.media import load_scenario_from_fs
@@ -70,10 +70,12 @@ def device_update_timeline(flag, **kwargs):
 
 @link({None: "device_control"})
 def device_send_info_tension(flag, **kwargs):
-    message = oscack.message.Message("/tension",settings.get("uName"),float(flag.args[0]),ACK=False)
-    log.debug("get tension {0} and forward".format(flag.args[0]))
+    message = liblo.Message("/tension",settings.get("uName"),float(flag.args["args"][0]))
+    log.debug("get tension {0} and forward".format(flag.args["args"][0]))
+    port = settings.get("log","tension","port")
     for dest in settings.get("log","tension","ip"):
-        oscack.message.send(oscack.message.Address(dest),message)
+        liblo.send(liblo.Address(dest,port),message)
+
 
 
 
