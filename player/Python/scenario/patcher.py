@@ -84,8 +84,8 @@ class ThreadPatcher(threading.Thread):
         sendto = deepcopy(signal.args["dest"])
         signal.args["dest"] = list()
         # Replace SELF in DEST list by uName
-        if settings.get("scenario", "dest_self") in sendto:
-            sendto.remove(settings.get("scenario", "dest_self"))
+        if "Self" in sendto:
+            sendto.remove("Self")
             if settings["uName"] not in sendto:
                 sendto.append(settings["uName"])
 
@@ -96,7 +96,7 @@ class ThreadPatcher(threading.Thread):
             sendto.remove("Group")
             sendto += [x for x in scenario.pool.Scenes[scenario.pool.Frames[scenario.CURRENT_FRAME]].cartes if x not in sendto]
 
-        # Replace GROUP in DEST list by uNames
+        # Replace ALL in DEST list by uNames        # TODO : Replace by BROADCAST
         if settings.get("scenario", "dest_all") in signal.args["dest"]:
             log.log("raw", "add ALL in dispatch list")
             sendto = scenario.pool.Cartes.keys()
@@ -118,18 +118,18 @@ class ThreadPatcher(threading.Thread):
         # # Send to each DEST
         # else:
 
+        # Send to Others
+        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
+        for dest in sendto:
+            if dest in libs.oscack.DNCserver.networkmap.keys() and dest != settings["uName"]:
+                    message.send(libs.oscack.DNCserver.networkmap[dest].target, msg_to_send)
+            elif dest != settings.get("scenario", "dest_self"):
+                log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
+
         # Send to Himself (via local pacther)
         if settings["uName"] in sendto:
             self._queue.put(signal)
             sendto.remove(settings["uName"])
-
-        # Send to Others
-        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
-        for dest in sendto:
-            if dest in libs.oscack.DNCserver.networkmap.keys():
-                    message.send(libs.oscack.DNCserver.networkmap[dest].target, msg_to_send)
-            elif dest != settings.get("scenario", "dest_self"):
-                log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
     def run(self):
         while not self._stop.is_set() or not self._queue.empty():
