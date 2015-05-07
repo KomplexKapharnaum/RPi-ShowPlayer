@@ -76,7 +76,7 @@ void sendStatusTeleco(){
 
 //catch interrupt from carte
 void myInterruptCARTE (void) {
-  fprintf(stderr, "main - interrupt from carte\n");
+  //fprintf(stderr, "main - interrupt from carte\n");
   mycarte.readInterrupt();
   if(mycarte.needStatusUpdate)sendStatusTeleco();
 }
@@ -142,7 +142,7 @@ void testRoutine(int n){
 
 //catch interrupt from remote
 void myInterruptTELECO(void) {
-  fprintf(stderr, "main - interrupt from teleco\n");
+  //fprintf(stderr, "main - interrupt from teleco\n");
   if (myteleco.fisrtView()){
     delay(20);
     //fprintf(stderr, "main - delaypass\n");
