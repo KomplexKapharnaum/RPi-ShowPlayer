@@ -24,7 +24,9 @@ log = init_log("devicecontrol")
         "/device/do_restart": "device_restart",
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
-        "FS_TIMELINE_UPDATED": "device_update_timeline"})
+        "FS_TIMELINE_UPDATED": "device_update_timeline",
+        "/device/sendInfoTension": "device_send_info_tension"})
+
 def device_control(flag, **kwargs):
     pass
 
@@ -64,6 +66,10 @@ def device_update_system(flag, **kwargs):
 @link({None: "device_reload"})
 def device_update_timeline(flag, **kwargs):
     load_scenario_from_fs(settings["current_timeline"])
+
+@link({None: "device_control"})
+def device_send_tension(flag, **kwargs):
+    tools.send_tension(flag)
 
 
 

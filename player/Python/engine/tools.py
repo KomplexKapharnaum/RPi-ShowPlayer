@@ -171,6 +171,12 @@ def restart_netctl():
     else:
         log.debug("Don't restart netctl because we are not on a raspi")
 
+def send_tension(flag):
+    """
+    This function send info tension to one ip server
+    :return:
+    """
+    log.error(flag.args)
 
 class ThreadTeleco(threading.Thread):
     """
