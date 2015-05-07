@@ -61,6 +61,7 @@ class Message(liblo.Message):
         self._args = args
         self._kwargs = kwargs
         self.uid = None
+        self.warning = threading.Event()        # TODO remove
 
         # if "SEND_PORT" in kwargs.keys(): TODO : check and delete
         #     if kwargs["SEND_PORT"]:
@@ -125,6 +126,7 @@ class ThreadSendMessage(threading.Thread):
                 n += 1
                 log.warning("Not send because of duplicate uid {0}. {1} tr(y)(ies)".format(self.msg.uid, n))
                 self.msg.regen_uid()
+                self.warning.set()
                 time.sleep(0.01)
         else:
             self.broadcast = True
@@ -139,6 +141,8 @@ class ThreadSendMessage(threading.Thread):
         with self.sending:
             while not self._stop.is_set() and self._n_send < len(self._interval_table) + 1:
                 try:
+                    if self.msg.warning.is_set():
+                        log.warning("Send a ACK message {1} with uid {0} after regen uid".format(self.msg.uid, self.msg))
                     liblo.send(self.target, self.msg)
                 except (liblo.AddressError, IOError) as err:
                     log.exception(
