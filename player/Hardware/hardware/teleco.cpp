@@ -120,7 +120,7 @@ int Teleco::readInterrupt(){
   buff[0]= (char)(READCOMMAND+address);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "teleco - intterupt %u read %u\n",address,buff[1]);
+  if(address!=T_DISPLAY_LOCK)fprintf(stderr, "teleco - intterupt %u read %u\n",address,buff[1]);
   int valeur = buff[1];
   setLedWarning(0);
   switch (address) {
@@ -181,7 +181,7 @@ int Teleco::readInterrupt(){
       std::cout << "#TELECO_FLOAT "<< valeur << std::endl;
       break;
     case T_DISPLAY_LOCK:
-      fprintf(stderr, "teleco - lock com %u\n",valeur);
+      //fprintf(stderr, "teleco - lock com %u\n",valeur);
       lockCom=valeur;
       break;
     case T_INIT:

@@ -435,9 +435,12 @@ void displayMenu(byte need=0){
       lcd.clear();
       if(menu.id!=0){
         if(menu.id>=T_MENU_ID_LOG_0){
-          printf_P(PSTR(" log id=%u log"),menu.id);
+          byte place= patchlog[((menu.id-T_MENU_ID_LOG_0))%T_MENU_NB_LOG]+T_MENU_ID_LOG_0;
+          printf_P(PSTR(" log id=%u log place %u"),menu.id,place);
           lcd.setCursor(0, 0);
-          lcd.print(variableMenulist[menu.id-T_MENU_ID_LOG_0].line1);
+          lcd.print(variableMenulist[place].line1);
+          lcd.setCursor(0, 1);
+          lcd.print(variableMenulist[place].line2);
         }
         else{
           printf_P(PSTR(" variable id=%u"),menu.id);
@@ -644,6 +647,13 @@ void shiftlog(){
   }
 }
 
+void clearlines(byte i){
+  for (byte j=0;j<16;j++){
+    variableMenulist[i].line1[j]=' ';
+    variableMenulist[i].line2[j]=' ';
+  }
+}
+
 //checkstring receive
 void newcheckStringReceive() {
   if (command == 0 && adress == T_STRING) {
@@ -652,14 +662,18 @@ void newcheckStringReceive() {
     adress = 0;
     //if (!simpleRemote) {
     byte id = buf[0];
-    printf_P(PSTR("get new string n=%u : %s\n"),id,&buf[1]);
     //for log only
     if (id==T_MENU_ID_LOG_0) {
       shiftlog();
-      if(copybuffer(variableMenulist[T_MENU_ID_LOG_0+patchlog[0]].line1,1,16))
-      copybuffer(variableMenulist[T_MENU_ID_LOG_0+patchlog[0]].line2,17,16);
+      byte place=T_MENU_ID_LOG_0+patchlog[0];
+      printf_P(PSTR("get new log n=%u : %s store at place %u\n"),id,&buf[1],place);
+      clearlines(T_MENU_ID_LOG_0+patchlog[0]);
+      if(copybuffer(variableMenulist[place].line1,1,16))
+      copybuffer(variableMenulist[place].line2,17,16);
       displayNeedUpdate=300;
     }else{
+      printf_P(PSTR("get new status n=%u : %s\n"),id,&buf[1]);
+      clearlines(id);
       //fil menu with string
       //memcpy(&variableMenulist[id].line1[0], &buf[1], 16 );
       if(copybuffer(variableMenulist[id].line1,1,16))
