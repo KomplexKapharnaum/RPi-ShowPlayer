@@ -91,7 +91,7 @@ def etapename(box):
     return box['category']+'_'+box['name']
 
 def boxname(scenarioname, box):
-    return (scenarioname+'_'+box['name']+'_'+box['boxname']).upper()
+    return (scenarioname+'_'+box['boxname']).upper()
 
 # 1: DEVICES
 def parse_devices(timeline):
