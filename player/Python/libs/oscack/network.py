@@ -102,7 +102,7 @@ class NetworkMap(dict):  # TODO : Implement check neighbour
                     ip = elem["ip"]
                     log.warning("Add device {0}@{1} in networkmap from device list file".format(uName, ip))
                     netelem = NetworkElement(uName, ip)
-                    self.append(netelem)
+                    self[uName] = netelem
                     return netelem
 
     def __getitem__(self, item):
