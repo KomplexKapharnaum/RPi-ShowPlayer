@@ -20,12 +20,15 @@ from engine.setting import settings
 from engine.tools import register_thread, unregister_thread
 import scenario
 from engine.log import init_log
+
 log = init_log("patcher")
+
 
 class ThreadPatcher(threading.Thread):
     """
     This class define a thread which wait a signal into the queue and apply to him a patch if there is some defined
     """
+
     def __init__(self):
         threading.Thread.__init__(self)
         register_thread(self)
@@ -94,7 +97,8 @@ class ThreadPatcher(threading.Thread):
             log.debug("Send to group in scene")
             log.log("raw", "add GROUP in dispatch list")
             sendto.remove("Group")
-            sendto += [x for x in scenario.pool.Scenes[scenario.pool.Frames[scenario.CURRENT_FRAME]].cartes if x not in sendto]
+            sendto += [x for x in scenario.pool.Scenes[scenario.pool.Frames[scenario.CURRENT_FRAME]].cartes if
+                       x not in sendto]
 
         # Replace ALL in DEST list by uNames        # TODO : Replace by BROADCAST
         if settings.get("scenario", "dest_all") in signal.args["dest"]:
@@ -102,7 +106,7 @@ class ThreadPatcher(threading.Thread):
             sendto = scenario.pool.Cartes.keys()
 
         # Add SYNC timestamp for multiple DEST
-        if len(sendto) > 1: #or settings.get("scenario", "dest_all") in sendto:
+        if len(sendto) > 1:  # or settings.get("scenario", "dest_all") in sendto:
             if "abs_time_sync" not in signal.args.keys():
                 s, ns = rtplib.get_time()
                 signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
@@ -111,7 +115,7 @@ class ThreadPatcher(threading.Thread):
 
         # Send to ALL - Broadcast
         # if settings.get("scenario", "dest_all") in sendto:
-        #     log.log("raw", "dispatch to all dest")
+        # log.log("raw", "dispatch to all dest")
         #     msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=False)
         #     message.send(message.Address("255.255.255.255"), msg_to_send)
 
@@ -121,9 +125,11 @@ class ThreadPatcher(threading.Thread):
         # Send to Others
         msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
         for dest in sendto:
-            if dest in libs.oscack.DNCserver.networkmap.keys() and dest != settings["uName"]:
-            	message.send(libs.oscack.DNCserver.networkmap.get_by_uName(dest).target, msg_to_send)
-            elif dest != settings.get("scenario", "dest_self"):
+            if dest == settings["uName"]:
+                continue
+            try:
+                message.send(libs.oscack.DNCserver.networkmap.get_by_uName(dest).target, msg_to_send)
+            except KeyError:
                 log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
         # Send to Himself (via local pacther)
