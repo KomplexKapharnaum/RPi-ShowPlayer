@@ -80,6 +80,7 @@ void Teleco::sendString(char Str1[], char Str2[], int val){
   SPIcarte.send(0,buff,38);
   //setLedWarning(0);
   } else {
+    fprintf(stderr, "teleco - cant send by lock\n");
 }
 
 // no use

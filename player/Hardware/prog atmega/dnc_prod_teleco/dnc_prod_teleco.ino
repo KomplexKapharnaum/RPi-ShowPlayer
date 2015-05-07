@@ -56,9 +56,6 @@ void initlcd(){
   delay(5);
   lcd.display();
   lcd.setBackLight(1);
-  lcd.setCursor(0, 0);
-  lcd.print("hello");
-  lcd.setCursor(0, 1);
   printf_P(PSTR(" ok\n"));
   //printf_P(PSTR("free memory = %u \n"),freeMemory());
 }
@@ -419,7 +416,8 @@ void initmenu(){
 //display menu
 void displayMenu(byte need=0){
   if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate) || need){
-    if (switchlockCom(1)) {
+    if(need==0){if (switchlockCom(1))need=2;}
+    if (need>0) {
       byte theMenu=currentMenu;
       if (popupNeedDisplay) {
         theMenu=currentPopup;
@@ -459,7 +457,7 @@ void displayMenu(byte need=0){
       displayNeedUpdate=0;
       //SPCR |= _BV(SPIE); //enable spi interrupt
       refreshMenu=millis();
-      switchlockCom(0);
+      if(need==2)switchlockCom(0);
       if (popupNeedDisplay){
         popupNeedDisplay=0;
         displayNeedUpdate=2000;
@@ -812,7 +810,7 @@ void lowleveRoutine(){
   //if slave select not active
   if (digitalRead (SS) == HIGH) command = 0;
   //timeout if prog do not answer to interrupt
-  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt) {
+  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt && Value[T_INIT]==1) {
     printf_P(PSTR("warning interrupt read fail\n"));
     freeInterrupt();
   }
