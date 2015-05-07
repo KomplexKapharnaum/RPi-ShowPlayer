@@ -240,8 +240,10 @@ def register(thread, uid):
     """
     log.log("raw", "Register thread send ack : " + str(uid))
     if uid in ack_threads.keys():
-        log.warning("! Register an ack thread with uid {0}, but already have !".format(uid))
+        log.warning("! Ask to register an ack thread with uid {0}, but already have !".format(uid))
+        return False
     ack_threads[uid] = thread
+    return True
     # globalContext.protocol.ack.ACK_THREAD_REGISTER[uid] = thread TODO: check and remove
 
 
