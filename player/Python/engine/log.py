@@ -49,7 +49,7 @@ def add_coloring_to_emit_ansi(fn):
         elif(levelno>=21):
             color = '\x1b[32m' # green :: IMPORTANT
         elif(levelno>=20):
-            color = '\x01\x1b[1;34m\x02' # light blue :: INFO
+            color = '\x1b[34m' # light blue :: INFO
         elif(levelno>=10):
             color = '\x1b[35m' # purple :: DEBUG
         else:
