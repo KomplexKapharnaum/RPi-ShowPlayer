@@ -181,6 +181,7 @@ int Teleco::readInterrupt(){
       std::cout << "#TELECO_FLOAT "<< valeur << std::endl;
       break;
     case T_DISPLAY_LOCK:
+      fprintf(stderr, "teleco - lock com\n");
       lockCom=valeur;
       break;
     case T_INIT:
