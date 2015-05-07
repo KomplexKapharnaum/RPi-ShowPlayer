@@ -48,7 +48,7 @@ DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
 # DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
-DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc -f --no-osd"
+DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd -f "
 DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["amixer"] = "/usr/bin/amixer set PCM"
@@ -162,7 +162,7 @@ DEFAULT_SETTING["perf"]["history"] = dict()
 DEFAULT_SETTING["perf"]["history"]["enable"] = True         # Enable log history for each FSM
 DEFAULT_SETTING["perf"]["history"]["withflag"] = True       # Enable flag log in history
 DEFAULT_SETTING["perf"]["history"]["withexception"] = True  # Enable excpetion log in history
-DEFAULT_SETTING["perf"]["history"]["length"] = 50           # Maximum length of an FSM history (keep older)
+DEFAULT_SETTING["perf"]["history"]["length"] = 300           # Maximum length of an FSM history (keep older)
 DEFAULT_SETTING["perf"]["history"]["format"] = "simple"     # History prompt format #TODO
 DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10          # Undeclared FSM (stopped) to be keept with history
 
