@@ -81,6 +81,7 @@ void Teleco::sendString(char Str1[], char Str2[], int val){
   //setLedWarning(0);
   } else {
     fprintf(stderr, "teleco - cant send by lock\n");
+  }
 }
 
 // no use
