@@ -127,8 +127,11 @@ class ThreadPatcher(threading.Thread):
         for dest in sendto:
             if dest == settings["uName"]:
                 continue
+            target = libs.oscack.DNCserver.networkmap.get_by_uName(dest)
+            if target is None:
+                log.warning("Try to send to {0} but not finc in networkmap AND devices list".format(dest))
             try:
-                message.send(libs.oscack.DNCserver.networkmap.get_by_uName(dest).target, msg_to_send)
+                message.send(target.target, msg_to_send)
             except KeyError:
                 log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
 
