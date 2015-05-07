@@ -435,9 +435,9 @@ void displayMenu(byte need=0){
       lcd.clear();
       if(menu.id!=0){
         if(menu.id>=T_MENU_ID_LOG_0){
-          printf_P(PSTR(" log id=%u"),menu.id);
+          printf_P(PSTR(" log id=%u log"),menu.id);
           lcd.setCursor(0, 0);
-          lcd.print(variableMenulist[patchlog[menu.id-T_MENU_ID_LOG_0]].line1);
+          lcd.print(variableMenulist[menu.id-T_MENU_ID_LOG_0].line1);
         }
         else{
           printf_P(PSTR(" variable id=%u"),menu.id);

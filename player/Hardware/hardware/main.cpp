@@ -145,17 +145,19 @@ void myInterruptTELECO(void) {
   fprintf(stderr, "main - interrupt from teleco\n");
   if (myteleco.fisrtView()){
     delay(20);
-    fprintf(stderr, "main - delaypass\n");
+    //fprintf(stderr, "main - delaypass\n");
     if (digitalRead(21)==LOW) return;
-    fprintf(stderr, "main - reel interrupt\n");
+    //fprintf(stderr, "main - reel interrupt\n");
   }
   
   myteleco.readInterrupt();
   if(myteleco.needtestroutine){
+    fprintf(stderr, "main - teleco need test routine\n");
     myteleco.needtestroutine=0;
     testRoutine(1);
   }
   if(myteleco.needstart){
+    fprintf(stderr, "main - teleco need start\n");
     myteleco.needstart=0;
     sendStatusTeleco();
     delay(20);

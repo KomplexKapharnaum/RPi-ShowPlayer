@@ -115,12 +115,12 @@ int Teleco::readInterrupt(){
   buff[0]= (char)(READCOMMAND+T_INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "teleco - read i %u\n",buff[1]);
+  fprintf(stderr, "teleco - read i %u",buff[1]);
   int address = buff[1];
   buff[0]= (char)(READCOMMAND+address);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "teleco - read v %u\n",buff[1]);
+  fprintf(stderr, "teleco - intterupt %u read %u\n",address,buff[1]);
   int valeur = buff[1];
   setLedWarning(0);
   switch (address) {
