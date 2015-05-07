@@ -435,7 +435,7 @@ void displayMenu(byte need=0){
       lcd.clear();
       if(menu.id!=0){
         if(menu.id>=T_MENU_ID_LOG_0){
-          byte place= patchlog[((menu.id-T_MENU_ID_LOG_0))%T_MENU_NB_LOG]+T_MENU_ID_LOG_0;
+          byte place= patchlog[((T_MENU_NB_LOG+menu.id-T_MENU_ID_LOG_0))%T_MENU_NB_LOG]+T_MENU_ID_LOG_0;
           printf_P(PSTR(" log id=%u log place %u"),menu.id,place);
           lcd.setCursor(0, 0);
           lcd.print(variableMenulist[place].line1);

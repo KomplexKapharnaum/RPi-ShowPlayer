@@ -523,10 +523,7 @@ cout << "#INITHARDWARE" << endl;
   
   //init teleco if already connected // ISSUE HERE
   if (digitalRead(21)==HIGH) {
-    fprintf(stderr, "main - teleco add at boot\n");
-    myteleco.readInterrupt();
-    myteleco.start();
-    sendStatusTeleco();
+    myInterruptTELECO();
   }
 
   //start interrupt thread
