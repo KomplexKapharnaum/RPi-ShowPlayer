@@ -435,7 +435,7 @@ void displayMenu(byte need=0){
       lcd.clear();
       if(menu.id!=0){
         if(menu.id>=T_MENU_ID_LOG_0){
-          byte place= patchlog[((T_MENU_NB_LOG+menu.id-T_MENU_ID_LOG_0))%T_MENU_NB_LOG]+T_MENU_ID_LOG_0;
+          byte place= (T_MENU_NB_LOG+patchlog[0]-(menu.id-T_MENU_ID_LOG_0))%T_MENU_NB_LOG + T_MENU_ID_LOG_0;
           printf_P(PSTR(" log id=%u log place %u"),menu.id,place);
           lcd.setCursor(0, 0);
           lcd.print(variableMenulist[place].line1);
@@ -667,8 +667,8 @@ void newcheckStringReceive() {
       shiftlog();
       byte place=T_MENU_ID_LOG_0+patchlog[0];
       printf_P(PSTR("get new log n=%u : %s store at place %u\n"),id,&buf[1],place);
-      clearlines(T_MENU_ID_LOG_0+patchlog[0]);
-      if(copybuffer(variableMenulist[place].line1,1,16))
+      clearlines(place);
+      copybuffer(variableMenulist[place].line1,1,16);
       copybuffer(variableMenulist[place].line2,17,16);
       displayNeedUpdate=300;
     }else{
@@ -676,7 +676,7 @@ void newcheckStringReceive() {
       clearlines(id);
       //fil menu with string
       //memcpy(&variableMenulist[id].line1[0], &buf[1], 16 );
-      if(copybuffer(variableMenulist[id].line1,1,16))
+      copybuffer(variableMenulist[id].line1,1,16);
       //memcpy(&variableMenulist[id].line2[0], &buf[17], 16 );
       copybuffer(variableMenulist[id].line2,17,16);
     }
@@ -812,9 +812,13 @@ void waitforinit(){
   printf_P(PSTR("\n wait for init\n"));
   delay(300);
   SPDR = 0;
-  setInterrupt(T_INIT);
   while(newValue[T_INIT]==0){
-    lowleveRoutine();
+    setInterrupt(T_INIT);
+    long time=millis();
+    while(millis()<time+500 && newValue[T_INIT]==0){
+      lowleveRoutine();
+    }
+    freeInterrupt();
   }
   delay(100);
 }
@@ -826,6 +830,7 @@ void lowleveRoutine(){
   //timeout if prog do not answer to interrupt
   if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt && Value[T_INIT]==1) {
     printf_P(PSTR("warning interrupt read fail\n"));
+    newValue[T_LEDRVALUE] = 0;
     freeInterrupt();
   }
   newcheckStringReceive();
