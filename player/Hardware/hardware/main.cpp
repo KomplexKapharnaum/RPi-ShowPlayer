@@ -55,11 +55,10 @@ Titreur mytitreur;
 
 
 //update status on remote, call at load and if status (status, scene, tension... change)
-void sendStatusTeleco(int force=0){
+void sendStatusTeleco(){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
-  if(myteleco.fisrtView()==0 || force){
     delay(10);
     sprintf(mess1,"git %s",status.c_str());
     sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
@@ -72,7 +71,6 @@ void sendStatusTeleco(int force=0){
     sprintf(mess1,"%.1fV %s",tension,scene.c_str());
     sprintf(mess2,"%s",buttonline.c_str());
     myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
-  }
 }
 
 
@@ -148,30 +146,29 @@ void myInterruptTELECO(void) {
   if (myteleco.fisrtView()){
     delay(20);
     fprintf(stderr, "main - delaypass\n");
-    if (digitalRead(21)==HIGH) {
-      fprintf(stderr, "main - reel interrupt\n");
-      myteleco.readInterrupt();
-      sendStatusTeleco(1);
-      delay(20);
-      for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
-        char mess1[17];
-        char mess2[17];
-        strncpy(mess1, popup[i][0].c_str(), sizeof(mess1));
-        strncpy(mess2, popup[i][1].c_str(), sizeof(mess2));
-        myteleco.sendString(mess1,mess2,i);
-        delay(10);
-      }
-      delay(20);
-      myteleco.start();
-      
-    }
-  }else{
+    if (digitalRead(21)==LOW) return;
     fprintf(stderr, "main - reel interrupt\n");
-    myteleco.readInterrupt();
   }
+  
+  myteleco.readInterrupt();
   if(myteleco.needtestroutine){
     myteleco.needtestroutine=0;
     testRoutine(1);
+  }
+  if(myteleco.needstart){
+    myteleco.needstart=0;
+    sendStatusTeleco();
+    delay(20);
+    for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
+      char mess1[17];
+      char mess2[17];
+      strncpy(mess1, popup[i][0].c_str(), sizeof(mess1));
+      strncpy(mess2, popup[i][1].c_str(), sizeof(mess2));
+      myteleco.sendString(mess1,mess2,i);
+      delay(10);
+    }
+    delay(20);
+    myteleco.start();
   }
 }
 

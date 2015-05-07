@@ -28,7 +28,7 @@
 //VALUE FOR PININ ANALOG
 #define T_FLOAT 9
 //meta
-#define T_COUNTVAL 10
+#define T_DISPLAY_LOCK 10
 #define T_TELECOMODE 11
 #define T_BOARDCHECKFLOAT 12
 //ledstrob
@@ -86,6 +86,9 @@ class Teleco : public Carte {
   int uninit;
   char localpoweroff;
 
+private:
+  char lockCom;
+
 public:
   void initCarte(char pow);
   void sendString(char Str1[], char Str2[],int val);
@@ -98,6 +101,7 @@ public:
   void setLedWarning(int val);
   int readOrSetTelecoLock(int val=-1);
   int needtestroutine;
+  int needstart;
 };
 
 
