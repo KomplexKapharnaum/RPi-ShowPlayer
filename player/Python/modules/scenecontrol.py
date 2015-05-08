@@ -65,7 +65,7 @@ def scene_control(flag, **kwargs):
 @link({None: "scene_control"})
 def scene_restart(flag, **kwargs):
     flag = fsm.Flag("SCENE_START")
-    patcher.patch(flag.get({"args": "Group"}))
+    patcher.patch(flag.get({"dest": "Group"}))
 
 
 @link({None: "scene_control"})
