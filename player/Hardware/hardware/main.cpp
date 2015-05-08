@@ -510,14 +510,14 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
-  //cout << "Pushing " << i << "\n";
+  cout << "Pushing " << i << "\n";
   q.push(message);
 }
 
 void consume(Queue<string>& q) {
   auto item = q.pop();
   parseInput(item);
-  //cout << "Consumer " << id << " popped " << item << "\n";
+  cout << "Consumer " << id << " popped " << item << "\n";
 }
 
 
