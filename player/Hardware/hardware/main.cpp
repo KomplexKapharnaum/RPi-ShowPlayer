@@ -552,10 +552,12 @@ int main (int argc, char * argv[]){
   
   //wait for init
   string input;
-  while(!init){
+  do {
     getline(cin, input);
     produce(q,input);
-  }
+    consumer.join();
+  }while(!init);
+  
   //init carte
   if(version_py=="-") {
     produce(q,"initcarte_local");
