@@ -24,7 +24,7 @@
 //init remote
 void Teleco::initCarte(char pow){
   localpoweroff=pow;
-  fprintf(stderr, "\nteleco - add teleco dnc\n");
+  fprintf(stderr, "\n\x1b[32mteleco - add teleco dnc\n");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
   needtestroutine=0;
@@ -40,7 +40,7 @@ int Teleco::fisrtView(){
 
 //start remote
 void Teleco::start(){
-  fprintf(stderr, "teleco - teleco start\n");
+  fprintf(stderr, "\x1b[32mteleco - teleco start\n");
   uninit=0;
   setLedWarning(0);
   writeValue(T_INIT,1);

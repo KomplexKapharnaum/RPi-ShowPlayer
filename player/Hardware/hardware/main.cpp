@@ -51,6 +51,9 @@ string buttonline="OK   B   A";
 string popup[11][2];
 int init=0;
 
+//safe queue to put message in
+Queue<int> q;
+
 //C object of hardware
 Carte mycarte;
 Teleco myteleco;
@@ -114,7 +117,7 @@ void beforekill(int signum)
   myteleco.reset();
   //myteleco.readOrSetTelecoLock(T_POWEROFF);
   //exit program
-  fprintf(stderr, "bye bye\n");
+  fprintf(stderr, "\x1b[32mbye bye\n");
   delay(10);
   exit(signum);
 }
@@ -216,7 +219,7 @@ int parseInput(string input){
   }
   
   //other message from main program or stdin
-  fprintf(stderr, "\nGETCOMMAND : %s\n",input.c_str());
+  fprintf(stderr, "\n\x1b[33mGETCOMMAND : %s\n",input.c_str());
   stringstream ss(input);
   string parsedInput;
   ss>>parsedInput;
@@ -545,9 +548,6 @@ int main (int argc, char * argv[]){
   
   //program start
   cout << "#INITHARDWARE" << endl;
-  
-  //safe queue to put message in
-  Queue<int> q;
   
   //one reader, execute order one by one
   thread consumer(bind(&consume, ref(q)));

@@ -52,7 +52,7 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
 //problem, plutôt faire des commandes écrites pour être directement envoyée en SPI.
 
 void Titreur::initModule(int m){
-  fprintf(stderr, "\ntitreur - init titreur module %u\n",m);
+  fprintf(stderr, "\n\x1b[32mtitreur - init titreur module %u\n",m);
   //mySPI.setkeepSelect();
   
   ht1632_sendcmd(m, HT1632_CMD_SYSDIS);  // Disable system
