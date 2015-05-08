@@ -14,7 +14,7 @@ log = init_log("publicbox")
 # Imported in interface as NAME_PUBLICFUNC
 #
 
-@publicbox('[signal] [TTL] [dispo]')
+@publicbox('[signal] [ttl] [dispo]')
 def sendSignal(flag, **kwargs):
     '''
     SENDSIGNAL Box: Emmit SIGNAL to DEST
