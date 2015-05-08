@@ -54,6 +54,7 @@ int init=0;
 //safe queue to put message in
 Queue<string> q;
 
+
 //C object of hardware
 Carte mycarte;
 Teleco myteleco;
@@ -79,33 +80,6 @@ void sendStatusTeleco(){
   myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
 }
 
-
-
-
-//clean befor exit
-void beforekill(int signum)
-{
-  //turn off light
-  mycarte.setGyro(0,200);
-  mycarte.led10WValue(0);
-  mycarte.rgbValue(0,0,0);
-  mycarte.setRelais(0);
-  //turn off titreur
-  mytitreur.allLedOff();
-  mytitreur.powerdown();
-  //update status
-  status="noC";
-  delay(5);
-  //power off hardware
-  mycarte.writeValue(POWERDOWN,100);
-  //power off remote
-  myteleco.reset();
-  //myteleco.readOrSetTelecoLock(T_POWEROFF);
-  //exit program
-  fprintf(stderr, "\x1b[32mbye bye\n\x1b[0m");
-  delay(10);
-  exit(signum);
-}
 
 
 //test output light, titreur
@@ -196,6 +170,28 @@ int parseInput(string input){
     myteleco.initCarte(0);
     delay(10);
     return 0;
+  }
+  
+  if (input=="kill") {
+    //turn off light
+    mycarte.setGyro(0,200);
+    mycarte.led10WValue(0);
+    mycarte.rgbValue(0,0,0);
+    mycarte.setRelais(0);
+    //turn off titreur
+    mytitreur.allLedOff();
+    mytitreur.powerdown();
+    //update status
+    status="noC";
+    delay(5);
+    //power off hardware
+    mycarte.writeValue(POWERDOWN,100);
+    //power off remote
+    myteleco.reset();
+    //myteleco.readOrSetTelecoLock(T_POWEROFF);
+    //exit program
+    fprintf(stderr, "\x1b[32mbye bye\n\x1b[0m");
+    delay(10);
   }
   
   //other message from main program or stdin
@@ -515,9 +511,30 @@ void produce(Queue<string>& q, string message) {
 }
 
 void consume(Queue<string>& q) {
-  auto item = q.pop();
-  parseInput(item);
-  cout << "Consumer popped " << item << "\n";
+  bool loop_continue = true;
+  while (loop_continue) {
+    auto item = q.pop();
+    if (item=="kill")loop_continue=false;
+    parseInput(item);
+    cout << "Consumer popped " << item << "\n";
+  }
+}
+
+
+  
+//one reader, execute order one by one
+thread consumer(bind(&consume, ref(q)));
+  
+void killthread() {
+  produce(q,"kill");
+  consumer.join();
+}
+
+//clean befor exit
+void beforekill(int signum)
+{
+  killthread();
+  exit(signum);
 }
 
 
@@ -546,9 +563,7 @@ int main (int argc, char * argv[]){
   
   //program start
   cout << "#INITHARDWARE" << endl;
-  
-  //one reader, execute order one by one
-  thread consumer(bind(&consume, ref(q)));
+
   
   //wait for init
   string input;
@@ -582,6 +597,7 @@ int main (int argc, char * argv[]){
     getline(cin, input);
     produce(q,input);
   }
+  
   
   return 0;
   

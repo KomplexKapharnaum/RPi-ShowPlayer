@@ -12,3 +12,11 @@
 #include <iostream>
 
 #endif /* defined(__testc__main__) */
+
+void beforekill(int signum);
+void myInterruptCARTE (void);
+void myInterruptTELECO(void);
+void killthread();
+int parseInput(std::string input);
+void testRoutine(int n);
+void sendStatusTeleco();
