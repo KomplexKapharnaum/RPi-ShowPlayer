@@ -359,7 +359,6 @@ int parseInput(string input){
       int fade=0;
       int strob=0;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-rgb"==parsedInput){
           int r,g,b;
           ss>>r; ss>>g; ss>>b;
@@ -387,7 +386,6 @@ int parseInput(string input){
       int speed=350;
       int strob=0;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-mode"==parsedInput){
           ss>>parsedInput;
           int m;
@@ -480,7 +478,6 @@ int parseInput(string input){
       int val = 0;
       int fade = 0;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-reg"==parsedInput){
           ss>>reg;
         }
@@ -500,7 +497,6 @@ int parseInput(string input){
       //start testroutine
       int nbr = 1;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-nbr"==parsedInput){
           ss>>nbr;
         }
