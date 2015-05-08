@@ -59,17 +59,6 @@ Carte mycarte;
 Teleco myteleco;
 Titreur mytitreur;
 
-void produce(Queue<string>& q, string message) {
-  //cout << "Pushing " << i << "\n";
-  q.push(message);
-}
-
-void consume(Queue<string>& q) {
-  auto item = q.pop();
-  parseInput(item);
-  //cout << "Consumer " << id << " popped " << item << "\n";
-}
-
 
 //update status on remote, call at load and if status (status, scene, tension... change)
 void sendStatusTeleco(){
@@ -91,10 +80,6 @@ void sendStatusTeleco(){
 }
 
 
-//catch interrupt from carte
-void myInterruptCARTE (void) {
-  produce(q,"interrupt_carte");
-}
 
 
 //clean befor exit
@@ -154,11 +139,6 @@ void testRoutine(int n){
   
 }
 
-
-//catch interrupt from remote
-void myInterruptTELECO(void) {
-  produce(q,"interrupt_teleco");
-}
 
 
 //parse pyton or bash input from stdin
@@ -532,6 +512,29 @@ int parseInput(string input){
     
   }
   return 1;
+}
+
+void produce(Queue<string>& q, string message) {
+  //cout << "Pushing " << i << "\n";
+  q.push(message);
+}
+
+void consume(Queue<string>& q) {
+  auto item = q.pop();
+  parseInput(item);
+  //cout << "Consumer " << id << " popped " << item << "\n";
+}
+
+
+//catch interrupt from carte
+void myInterruptCARTE (void) {
+  produce(q,"interrupt_carte");
+}
+
+
+//catch interrupt from remote
+void myInterruptTELECO(void) {
+  produce(q,"interrupt_teleco");
 }
 
 
