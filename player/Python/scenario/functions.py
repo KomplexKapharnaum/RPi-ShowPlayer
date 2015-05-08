@@ -126,7 +126,7 @@ def add_signal(*args, **kwargs):
             signal = Flag(sig_uid)
             log.log("raw", "Signal unknown : {0}".format(sig_uid))
         # CONSERVE SYNC TIME
-        if args[0] is not None and 'abs_time_sync' in args[0].args:
+        if args[0] is not None and args[0] is not False and 'abs_time_sync' in args[0].args:
             kwargs["args"]['abs_time_sync'] = args[0].args['abs_time_sync']
         patcher.patch(signal.get(dict(kwargs["args"])))
 

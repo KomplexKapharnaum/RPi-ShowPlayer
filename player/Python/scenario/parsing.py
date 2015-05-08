@@ -197,7 +197,10 @@ def parse_scenario(parsepool, name):
         toBox = (name+'_'+con['To']+'_'+con['TargetId']).upper()
         if fromBox in importEtapes.keys():
             if toBox in importEtapes.keys():
-                importEtapes[fromBox].transitions[con['connectionLabel']] = importEtapes[toBox]
+                if con['connectionLabel'] == "DEFAULT":
+                    importEtapes[fromBox].transitions[False] = importEtapes[toBox]      # Default transition
+                else:
+                    importEtapes[fromBox].transitions[con['connectionLabel']] = importEtapes[toBox]
 
     # ETAPES
     for etape in importEtapes.values():

@@ -43,7 +43,10 @@ while (( running )); do
     	# ./player/Python/main.py < /tmp/dnc/stdin &> ./logs/main.log
     fi
     exitcode=$?
-    if [ $exitcode -eq 2 ]; then
+    if [ $exitcode -eq 0 ]; then
+        echo "Exiting ... POWEROFF == 0"
+        break
+    elif [ $exitcode -eq 2 ]; then
         quit
         poweroff
     elif [ $exitcode -eq 3 ]; then
@@ -57,4 +60,5 @@ while (( running )); do
     fi
     sleep 2
 done
+kill_zombies
 
