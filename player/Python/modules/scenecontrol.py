@@ -5,6 +5,7 @@
 #
 #
 import threading
+from engine import fsm
 from engine.threads import patcher
 import scenario
 import libs.oscack
@@ -52,12 +53,19 @@ def scene_init(flag, **kwargs):
 
 @link({ "/scene/init": "scene_init",
         "/scene/start": "scene_start",
+        "/scene/restart": "scene_restart",
         "/scene/previous": "scene_prev",
         "/scene/next": "scene_next",
         "/scene/stop": "scene_stop",
         })
 def scene_control(flag, **kwargs):
     pass
+
+
+@link({None: "scene_control"})
+def scene_restart(flag, **kwargs):
+    flag = fsm.Flag("SCENE_START")
+    patcher.patch(flag.get({"args": "Group"}))
 
 
 @link({None: "scene_control"})

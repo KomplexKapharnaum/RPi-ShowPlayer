@@ -6,6 +6,7 @@
 #
 
 import liblo
+import time
 import application
 from modules import link
 from _classes import module
@@ -47,6 +48,7 @@ def device_send_restart(flag, **kwargs):
 
 @link({None: "device_control"})
 def device_restart(flag, **kwargs):
+    time.sleep(0.5)
     application.POWEROFF = 1
 
 @link({None: "device_control"})
