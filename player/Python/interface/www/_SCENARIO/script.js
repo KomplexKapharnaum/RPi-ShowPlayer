@@ -409,10 +409,16 @@
           $(this).offset(draggablePos);
           if ((e.pageX < 900)&&(e.pageY < 2000)){
 
+						////// FILL counter technique
 						boxCount++;
+						var counts = new Array();
 						$.each(allStates,function(index,state){
 							var count = state.boxname.replace('box','');
-							if (count == boxCount) { boxCount++; }
+							counts.push(count);
+						});
+						counts.sort(function(a, b){return a-b});
+						$.each (counts, function(index,num){
+							if (num == boxCount) { boxCount++;}
 						});
 
             var name = $(this).attr('id');
@@ -447,6 +453,7 @@
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
     function state(name,boxname,category,px,py,dispoBOO,dispositifs,mediaBOO,arguments){
+
 
       var thisState = this;
   		this.box = $('<div>').addClass('box').attr('id', boxname);
