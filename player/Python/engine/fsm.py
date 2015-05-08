@@ -357,7 +357,8 @@ class FiniteStateMachine:
                 if False in self.current_state.transitions.keys():
                     self._catch_flag(False, self.current_state.transitions[False])      # Perform default transition
                     log.log("raw", "Perform default transition")
-                self._event_flag_stack_new.clear()
+                else:
+                    self._event_flag_stack_new.clear()
 
         log.log("raw", "{0} Finite state machine stop".format(self.name))
 
