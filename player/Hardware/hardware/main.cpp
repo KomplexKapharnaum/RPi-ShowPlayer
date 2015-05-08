@@ -39,6 +39,8 @@
 
 using namespace std; //for native use of string
 
+bool live=true;
+
 //string to hold data from pyton program
 string carte_name;
 string carte_ip;
@@ -463,7 +465,8 @@ int parseInput(string input){
     
     if ("powerdownhardware"==parsedInput) {
       //exit c main programm for debug
-      beforekill(0);
+      //beforekill(0);
+      live=false;
     }
     
     
@@ -592,10 +595,10 @@ int main (int argc, char * argv[]){
   
   
   //wait for input
-  while(1){
+  do {
     getline(cin, input);
     produce(q,input);
-  }
+  }while(live);
   
   killthread();
   return 0;
