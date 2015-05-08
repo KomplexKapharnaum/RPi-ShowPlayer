@@ -142,7 +142,7 @@ void myInterruptTELECO(void) {
 
 
 //parse pyton or bash input from stdin
-int parseInput(string std::input){
+int parseInput(std::string input){
   
   if (input=="interrupt_teleco") {
     //fprintf(stderr, "main - interrupt from teleco\n");
