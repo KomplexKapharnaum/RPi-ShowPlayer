@@ -96,7 +96,7 @@ int Carte::readInterrupt(){
   switch (address) {
       //@todo : faire un tableau et l'envoyer
     case PUSH1:
-      std::cout << "#TELECO_PUSH_OK "<< valeur << std::endl;
+      std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
       break;
     case PUSH2:
       std::cout << "#CARTE_PUSH_2 "<< valeur << std::endl;
