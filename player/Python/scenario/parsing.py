@@ -194,7 +194,7 @@ def parse_scenario(parsepool, name):
 
         # TRANSITIONS
         if 'From' not in con.keys() or 'To' not in con.keys():
-            log.warning("Connection {0} missing FROM or TO box")
+            log.warning("Connection {0} missing FROM or TO box".format(con))
             continue
         fromBox = (name+'_'+con['From']+'_'+con['SourceId'].split('_')[1]).upper()
         toBox = (name+'_'+con['To']+'_'+con['TargetId']).upper()
