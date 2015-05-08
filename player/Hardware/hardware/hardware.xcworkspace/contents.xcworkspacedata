@@ -46,6 +46,9 @@
       <FileRef
          location = "group:PI_GPIO.c">
       </FileRef>
+      <FileRef
+         location = "group:Queue.h">
+      </FileRef>
    </Group>
    <Group
       location = "container:"
