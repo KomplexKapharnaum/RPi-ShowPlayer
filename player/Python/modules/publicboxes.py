@@ -14,13 +14,13 @@ log = init_log("publicbox")
 # Imported in interface as NAME_PUBLICFUNC
 #
 
-@publicbox('[signal] [dispo] [TTL]')
+@publicbox('[signal] [TTL] [dispo]')
 def sendSignal(flag, **kwargs):
     '''
     SENDSIGNAL Box: Emmit SIGNAL to DEST
     '''
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
-    if 'TTL' in kwargs['args']['TTL']:
+    if 'TTL' in kwargs['args'].keys():
         TTL = float(kwargs['args']['TTL'])
     else:
         TTL = 1
