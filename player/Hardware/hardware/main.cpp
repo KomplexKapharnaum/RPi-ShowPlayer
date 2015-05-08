@@ -102,7 +102,7 @@ void beforekill(int signum)
   myteleco.reset();
   //myteleco.readOrSetTelecoLock(T_POWEROFF);
   //exit program
-  fprintf(stderr, "\x1b[32mbye bye\n");
+  fprintf(stderr, "\x1b[32mbye bye\n\x1b[0m");
   delay(10);
   exit(signum);
 }
@@ -199,7 +199,7 @@ int parseInput(string input){
   }
   
   //other message from main program or stdin
-  fprintf(stderr, "\n\x1b[33mGETCOMMAND : %s\n",input.c_str());
+  fprintf(stderr, "\n\x1b[33mGETCOMMAND : %s\n\x1b[0m",input.c_str());
   stringstream ss(input);
   string parsedInput;
   ss>>parsedInput;
