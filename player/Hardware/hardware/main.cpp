@@ -39,6 +39,22 @@
 
 using namespace std; //for native use of string
 
+//string to hold data from pyton program
+string carte_name;
+string carte_ip;
+string scene="-";
+string version_py="-";
+string version_c="1.1";
+string status="-";
+string voltage="-";
+string buttonline="OK   B   A";
+string popup[11][2];
+int init=0;
+
+//C object of hardware
+Carte mycarte;
+Teleco myteleco;
+Titreur mytitreur;
 
 void produce(Queue<string>& q, string message) {
   //cout << "Pushing " << i << "\n";
@@ -49,7 +65,6 @@ void consume(Queue<string>& q) {
   auto item = q.pop();
   parseInput(item);
   //cout << "Consumer " << id << " popped " << item << "\n";
-  
 }
 
 
@@ -520,22 +535,7 @@ int parseInput(string input){
 
 int main (int argc, char * argv[]){
   
-  //string to hold data from pyton program
-  string carte_name;
-  string carte_ip;
-  string scene="-";
-  string version_py="-";
-  string version_c="1.1";
-  string status="-";
-  string voltage="-";
-  string buttonline="OK   B   A";
-  string popup[11][2];
-  int init=0;
-  
-  //C object of hardware
-  Carte mycarte;
-  Teleco myteleco;
-  Titreur mytitreur;
+
   
   //catch exit signal
   signal(SIGTERM, beforekill);
