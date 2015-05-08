@@ -101,7 +101,7 @@ class ThreadPatcher(threading.Thread):
 
         # Replace ALL in DEST list by uNames        # TODO : Replace by BROADCAST
         # if settings.get("scenario", "dest_all") in signal.args["dest"]:
-        #     log.log("raw", "add ALL in dispatch list")
+        # log.log("raw", "add ALL in dispatch list")
         #     sendto = scenario.pool.Cartes.keys()
 
         # Add SYNC timestamp for multiple DEST
@@ -122,7 +122,8 @@ class ThreadPatcher(threading.Thread):
         # else:
 
         # Send to Others
-        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
+        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)),
+                                      ('i', scenario.CURRENT_SCENE_FRAME), ACK=True)
         # If All just Broad cast
         if "All" in signal.args["dest"]:
             message.send(message.Address("255.255.255.255"), msg_to_send)

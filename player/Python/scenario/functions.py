@@ -9,6 +9,7 @@ import cPickle
 CREATE_NEW_PROCESS_GROUP = 512
 
 import libs.oscack
+import scenario
 from libs.oscack import message
 from modules import globalfunction, oscpatcher
 from engine.setting import settings
@@ -54,6 +55,8 @@ def forward_signal(*args, **kwargs):
     :return:
     """
     if args[0].args["path"] == '/signal':
+        if args[0].args["args"][2] != scenario.CURRENT_SCENE_FRAME:
+            log.warning("Ignore signal {0} because it was emit on an other keyframe".format(args[0].args["args"][0]))
         flag = cPickle.loads(str(bytearray(args[0].args["args"][1])))
         log.debug('Forwarded signal received {0}'.format(flag.get_info()))
         patcher.serve(flag)
