@@ -19,7 +19,7 @@ if is_perf_enabled:
     is_exception_enabled = settings.get("perf", "history", "withexception")
 # import scenario
 
-log = init_log("fsm", log_lvl="raw")
+log = init_log("fsm")
 
 
 class FSMException(Exception):
