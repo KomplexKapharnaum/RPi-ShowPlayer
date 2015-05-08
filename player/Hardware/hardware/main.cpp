@@ -597,7 +597,7 @@ int main (int argc, char * argv[]){
     produce(q,input);
   }
   
-  
+  killthread();
   return 0;
   
 }
