@@ -57,6 +57,7 @@ def forward_signal(*args, **kwargs):
     if args[0].args["path"] == '/signal':
         if args[0].args["args"][2] != scenario.CURRENT_SCENE_FRAME:
             log.warning("Ignore signal {0} because it was emit on an other keyframe".format(args[0].args["args"][0]))
+            return False
         flag = cPickle.loads(str(bytearray(args[0].args["args"][1])))
         log.debug('Forwarded signal received {0}'.format(flag.get_info()))
         patcher.serve(flag)
