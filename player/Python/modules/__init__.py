@@ -80,7 +80,6 @@ class publicbox(object):
     def __init__(self, args='', start=False):
         self.start = start
         self.args = [arg.strip('[').strip(']') for arg in args.split(' ')]
-        log.error("public boxes : {0}".format(self.args))
 
     def __call__(self, f):
         global DECLARED_PUBLICBOXES

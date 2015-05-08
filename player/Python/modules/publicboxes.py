@@ -14,7 +14,7 @@ log = init_log("publicbox")
 # Imported in interface as NAME_PUBLICFUNC
 #
 
-@publicbox('[signal] [ttl] [dispo]')
+@publicbox('[signal] [TTL] [JTL] [dispo]')
 def sendSignal(flag, **kwargs):
     '''
     SENDSIGNAL Box: Emmit SIGNAL to DEST
@@ -24,7 +24,11 @@ def sendSignal(flag, **kwargs):
         TTL = float(kwargs['args']['TTL'])
     else:
         TTL = 1
-    signal = Flag(signal_uid, TTL=TTL, JTL=3)
+    if 'JTL' in kwargs['args'].keys():
+        JTL = float(kwargs['args']['JTL'])
+    else:
+        JTL = 3
+    signal = Flag(signal_uid, TTL=TTL, JTL=JTL)
     patcher.patch(signal.get(dict(kwargs["args"])))
     log.log("raw", "SEND BOX : "+signal_uid)
 
