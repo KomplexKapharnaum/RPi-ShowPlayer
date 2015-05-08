@@ -25,7 +25,7 @@ def sendSignal(flag, **kwargs):
     log.log("raw", "SEND BOX : "+signal_uid)
 
 @publicbox('[signal] [TTL] [JTL] [dispo]')
-def sendSignalXTL(flag, **kwargs):
+def sendSignalPlus(flag, **kwargs):
     '''
     SENDSIGNAL Box: Emmit SIGNAL to DEST
     '''
