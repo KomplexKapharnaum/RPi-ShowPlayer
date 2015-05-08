@@ -97,7 +97,7 @@ class ThreadPatcher(threading.Thread):
             log.debug("Send to group in scene")
             log.log("raw", "add GROUP in dispatch list")
             sendto.remove("Group")
-            sendto += [x for x in scenario.get_group_members() if x not in sendto]
+            sendto += [x.uid for x in scenario.get_group_members() if x not in sendto]
 
         # Replace ALL in DEST list by uNames        # TODO : Replace by BROADCAST
         if settings.get("scenario", "dest_all") in signal.args["dest"]:

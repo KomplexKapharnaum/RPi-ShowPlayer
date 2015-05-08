@@ -174,12 +174,12 @@ class inputThread(threading.Thread):
         if not alone:
             log.info("--- SCENARIO FSM ---")
 
-        if scenario.SCENARIO_FSM is not None:
-            log.info(scenario.SCENARIO_FSM.current_state)
-        for f in scenario.FSM:
+        # if scenario. is not None:
+        #     log.info(scenario.SCENE_FSM.current_state)
+        for f in scenario.MODULES_FSM:
             log.info(f.current_state)
             log.info(f._flag_stack)
-        for f in scenario.DEVICE_FSM:
+        for f in scenario.SCENE_FSM:
             log.info(f.current_state)
             log.info(f._flag_stack)
 

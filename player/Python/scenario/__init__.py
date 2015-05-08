@@ -123,8 +123,8 @@ def get_group_members():
     :return: list of card
     """
     members = list()
-    for group in pool.Frames[CURRENT_SCENE_FRAME].groups:
-        if settings.get("uName") in group:
+    for group in pool.Frames[CURRENT_SCENE_FRAME].groups.values():
+        if pool.Cartes[settings.get("uName")] in group:
             for member in group:
                 if member not in members:   # Avoid duplication
                     members.append(member)
