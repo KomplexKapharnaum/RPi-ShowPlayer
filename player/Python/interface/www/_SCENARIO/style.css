@@ -81,7 +81,7 @@ body
   display: block;
   border: 1px solid gray;
   width: 950px;
-  height: 2000px;
+  height: 4000px;
 
 }
 .inspector {
@@ -305,7 +305,7 @@ body
 }
 
 #serverDisplay{
-  position: absolute;
+  /*position: absolute;*/
   top: 560px;
 }
 
