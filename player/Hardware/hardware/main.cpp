@@ -52,7 +52,7 @@ string popup[11][2];
 int init=0;
 
 //safe queue to put message in
-Queue<int> q;
+Queue<string> q;
 
 //C object of hardware
 Carte mycarte;
