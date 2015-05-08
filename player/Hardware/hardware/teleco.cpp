@@ -48,10 +48,12 @@ void Teleco::start(){
 
 //reset remote
 void Teleco::reset(){
+  if (uninit==0) {
   fprintf(stderr, "teleco - teleco reset\n");
   setLedWarning(1);
   writeValue(T_INIT,0);
   uninit=1;
+  }
 }
 
 //acces to led status

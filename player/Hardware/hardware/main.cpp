@@ -570,7 +570,6 @@ int main (int argc, char * argv[]){
   do {
     getline(cin, input);
     produce(q,input);
-    consumer.join();
   }while(!init);
   
   //init carte
