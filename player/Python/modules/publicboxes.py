@@ -19,7 +19,7 @@ def sendSignal(flag, **kwargs):
     '''
     SENDSIGNAL Box: Emmit SIGNAL to DEST
     '''
-    log.error("send signal : {0}".format(flag))
+    log.error("send signal : {0}".format(kwargs['args']))
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
     if 'TTL' in kwargs['args'].keys() and kwargs['args']['TTL'] is not None:
         TTL = float(kwargs['args']['TTL'])
