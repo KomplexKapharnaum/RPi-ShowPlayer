@@ -24,7 +24,7 @@
 //init remote
 void Teleco::initCarte(char pow){
   localpoweroff=pow;
-  fprintf(stderr, "\nteleco - add teleco dnc\n");
+  fprintf(stderr, "\n\x1b[32mteleco - add teleco dnc\n\x1b[0m");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
   needtestroutine=0;
@@ -40,7 +40,7 @@ int Teleco::fisrtView(){
 
 //start remote
 void Teleco::start(){
-  fprintf(stderr, "teleco - teleco start\n");
+  fprintf(stderr, "\x1b[32mteleco - teleco start\n\x1b[0m");
   uninit=0;
   setLedWarning(0);
   writeValue(T_INIT,1);
@@ -48,10 +48,12 @@ void Teleco::start(){
 
 //reset remote
 void Teleco::reset(){
+  if (uninit==0) {
   fprintf(stderr, "teleco - teleco reset\n");
   setLedWarning(1);
   writeValue(T_INIT,0);
   uninit=1;
+  }
 }
 
 //acces to led status
@@ -191,5 +193,5 @@ int Teleco::readInterrupt(){
     default:
       break;
   }
-
+  return valeur;
 }

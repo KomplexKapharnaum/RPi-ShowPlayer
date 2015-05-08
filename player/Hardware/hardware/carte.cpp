@@ -23,7 +23,7 @@
 
 //init carte
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
-  fprintf(stderr, "\ncarte - add extension card dnc\n");
+  fprintf(stderr, "\n\x1b[32mcarte - add extension card dnc\n\x1b[0m");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(13,1000000);
   gamme_tension=_gamme_tension;
@@ -113,7 +113,7 @@ int Carte::readInterrupt(){
     default:
       break;
   }
-  
+  return valeur;
 }
 
 //read tension from carte

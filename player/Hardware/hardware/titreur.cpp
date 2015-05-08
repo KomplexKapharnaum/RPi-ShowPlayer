@@ -52,7 +52,7 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
 //problem, plutôt faire des commandes écrites pour être directement envoyée en SPI.
 
 void Titreur::initModule(int m){
-  fprintf(stderr, "\ntitreur - init titreur module %u\n",m);
+  fprintf(stderr, "\n\x1b[32mtitreur - init titreur module %u\n\x1b[0m",m);
   //mySPI.setkeepSelect();
   
   ht1632_sendcmd(m, HT1632_CMD_SYSDIS);  // Disable system
@@ -114,7 +114,7 @@ void Titreur::putChar(int x, int y, char c){
   c-=32;
 
   for (char col=0; col< 6; col++) {
-    int dots = myfont[c][col];
+    char dots = myfont[c][col];
     for (char row=0; row < 8; row++) { // only 8 rows.
       if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
     }
