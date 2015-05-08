@@ -143,6 +143,7 @@ void myInterruptTELECO(void) {
 
 //parse pyton or bash input from stdin
 int parseInput(string std::input){
+  
   if (input=="interrupt_teleco") {
     //fprintf(stderr, "main - interrupt from teleco\n");
     if (myteleco.fisrtView()){
@@ -176,22 +177,29 @@ int parseInput(string std::input){
     }
     return 0;
   }
+  
   if (input=="interrupt_carte") {
     //fprintf(stderr, "main - interrupt from carte\n");
     mycarte.readInterrupt();
-    if(mycarte.needStatusUpdate)sendStatusTeleco();
+    if(mycarte.needStatusUpdate) sendStatusTeleco();
     return 0;
   }
+  
   if (input=="initcarte_local") {
     fprintf(stderr, "main - init teleco with local poweroff\n");
     myteleco.initCarte(1);
     delay(10);
+    return 0;
   }
+  
   if (input=="initcarte_main") {
     fprintf(stderr, "main - init teleco with main program poweroff\n");
     myteleco.initCarte(0);
     delay(10);
+    return 0;
   }
+  
+  //other message from main program or stdin
   fprintf(stderr, "\nGETCOMMAND : %s\n",input.c_str());
   stringstream ss(input);
   std::string parsedInput;
