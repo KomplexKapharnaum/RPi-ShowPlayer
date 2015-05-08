@@ -113,7 +113,7 @@ int Carte::readInterrupt(){
     default:
       break;
   }
-  
+  return valeur;
 }
 
 //read tension from carte

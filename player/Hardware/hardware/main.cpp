@@ -160,7 +160,6 @@ void myInterruptTELECO(void) {
 
 //parse pyton or bash input from stdin
 int parseInput(string input){
-  
   if (input=="interrupt_teleco") {
     //fprintf(stderr, "main - interrupt from teleco\n");
     if (myteleco.fisrtView()){
@@ -529,7 +528,7 @@ int parseInput(string input){
     }// end testroutine
     
   }
-  
+  return 1;
 }
 
 

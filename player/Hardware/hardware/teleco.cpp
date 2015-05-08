@@ -191,5 +191,5 @@ int Teleco::readInterrupt(){
     default:
       break;
   }
-
+  return valeur;
 }
