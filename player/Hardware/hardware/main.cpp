@@ -282,7 +282,6 @@ int parseInput(string input){
     
     if ("popup"==parsedInput) {
       //send data to the remote
-      int n=0;
       char mess1[17];
       char mess2[17];
       int type=0;
