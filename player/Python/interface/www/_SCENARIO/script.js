@@ -289,6 +289,7 @@
 					        var tempbox = {name:box.name, category:box.category, dispos: box.dispos, medias: box.medias, arguments: box.arguments, code:box.code};
 					        allBoxes.push(tempbox);
 					      });
+								buildLibrary();
 
             }
         });
