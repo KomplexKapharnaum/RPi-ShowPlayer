@@ -1037,7 +1037,7 @@
             target: connection.TargetId
             //anchors: ["BottomCenter", [0.75, 0, 0, -1]]
         });
-        newConnection.setLabel(connection.connectionLabel);
+				if (connection.connectionLabel !== null) {newConnection.setLabel(connection.connectionLabel);}
 				// Si signal pas dans lib, l'ajouter au dropdown
 				if($.inArray(connection.connectionLabel, allSignals)===-1){allSignals.push(connection.connectionLabel);}
 				updateSignals();
