@@ -509,7 +509,7 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
-  cout << "Pushing " << message << "\n";
+  fprintf(stderr, "main - push %s\n",message.c_str());
   q.push(message);
 }
 
@@ -517,9 +517,9 @@ void consume(Queue<string>& q) {
   bool loop_continue = true;
   while (loop_continue) {
     auto item = q.pop();
+    fprintf(stderr, "main - popped %s\n",item.c_str());
     if (item=="kill")loop_continue=false;
     parseInput(item);
-    cout << "Consumer popped " << item << "\n";
   }
 }
 

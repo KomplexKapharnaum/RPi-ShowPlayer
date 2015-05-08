@@ -114,7 +114,7 @@ void Titreur::putChar(int x, int y, char c){
   c-=32;
 
   for (char col=0; col< 6; col++) {
-    int dots = myfont[c][col];
+    char dots = myfont[c][col];
     for (char row=0; row < 8; row++) { // only 8 rows.
       if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
     }
