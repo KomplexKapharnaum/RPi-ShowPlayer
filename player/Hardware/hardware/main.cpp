@@ -35,18 +35,20 @@
 
 #include "Queue.h"
 
-//using namespace std; //for native use of string
 
 
-void produce(Queue<std::string>& q, std::string message) {
-  //std::cout << "Pushing " << i << "\n";
+using namespace std; //for native use of string
+
+
+void produce(Queue<string>& q, string message) {
+  //cout << "Pushing " << i << "\n";
   q.push(message);
 }
 
-void consume(Queue<std::string>& q) {
+void consume(Queue<string>& q) {
   auto item = q.pop();
   parseInput(item);
-  //std::cout << "Consumer " << id << " popped " << item << "\n";
+  //cout << "Consumer " << id << " popped " << item << "\n";
   
 }
 
@@ -105,7 +107,7 @@ void beforekill(int signum)
 
 //test output light, titreur
 void testRoutine(int n){
-  std::string msg;
+  string msg;
   char buff[24];
   msg="test";
   strncpy(buff, msg.c_str(), sizeof(buff));
@@ -142,7 +144,7 @@ void myInterruptTELECO(void) {
 
 
 //parse pyton or bash input from stdin
-int parseInput(std::string input){
+int parseInput(string input){
   
   if (input=="interrupt_teleco") {
     //fprintf(stderr, "main - interrupt from teleco\n");
@@ -202,7 +204,7 @@ int parseInput(std::string input){
   //other message from main program or stdin
   fprintf(stderr, "\nGETCOMMAND : %s\n",input.c_str());
   stringstream ss(input);
-  std::string parsedInput;
+  string parsedInput;
   ss>>parsedInput;
   if (init==0){
     //first call, init not set
@@ -464,7 +466,7 @@ int parseInput(std::string input){
         }
         if ("-read"==parsedInput){
           int state = myteleco.readOrSetTelecoLock();
-          std::cout << "#TELECO_LOCK_STATE "<< state << std::endl;
+          cout << "#TELECO_LOCK_STATE "<< state << endl;
         }
       }
     }
@@ -519,15 +521,15 @@ int parseInput(std::string input){
 int main (int argc, char * argv[]){
   
   //string to hold data from pyton program
-  std::string carte_name;
-  std::string carte_ip;
-  std::string scene="-";
-  std::string version_py="-";
-  std::string version_c="1.1";
-  std::string status="-";
-  std::string voltage="-";
-  std::string buttonline="OK   B   A";
-  std::string popup[11][2];
+  string carte_name;
+  string carte_ip;
+  string scene="-";
+  string version_py="-";
+  string version_c="1.1";
+  string status="-";
+  string voltage="-";
+  string buttonline="OK   B   A";
+  string popup[11][2];
   int init=0;
   
   //C object of hardware
@@ -549,10 +551,10 @@ int main (int argc, char * argv[]){
   Queue<int> q;
   
   //one reader, execute order one by one
-  std::thread consumer(std::bind(&consume, std::ref(q)));
+  thread consumer(bind(&consume, ref(q)));
   
   //wait for init
-  std::string input;
+  string input;
   while(!init){
     getline(cin, input);
     produce(q,input);
