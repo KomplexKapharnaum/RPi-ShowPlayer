@@ -148,7 +148,7 @@ int parseInput(string input){
     if (myteleco.fisrtView()){
       delay(20);
       //fprintf(stderr, "main - delaypass\n");
-      if (digitalRead(21)==LOW) return;
+      if (digitalRead(21)==LOW) return 2;
       //fprintf(stderr, "main - reel interrupt\n");
     }
     
