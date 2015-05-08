@@ -35,15 +35,15 @@
 
 #include "Queue.h"
 
-using namespace std; //for native use of string
+//using namespace std; //for native use of string
 
 
-void produce(Queue<string>& q, string message) {
+void produce(Queue<std::string>& q, std::string message) {
   //std::cout << "Pushing " << i << "\n";
   q.push(message);
 }
 
-void consume(Queue<string>& q) {
+void consume(Queue<std::string>& q) {
   auto item = q.pop();
   parseInput(item);
   //std::cout << "Consumer " << id << " popped " << item << "\n";
@@ -105,7 +105,7 @@ void beforekill(int signum)
 
 //test output light, titreur
 void testRoutine(int n){
-  string msg;
+  std::string msg;
   char buff[24];
   msg="test";
   strncpy(buff, msg.c_str(), sizeof(buff));
@@ -194,7 +194,7 @@ int parseInput(string input){
   }
   fprintf(stderr, "\nGETCOMMAND : %s\n",input.c_str());
   stringstream ss(input);
-  string parsedInput;
+  std::string parsedInput;
   ss>>parsedInput;
   if (init==0){
     //first call, init not set
@@ -511,15 +511,15 @@ int parseInput(string input){
 int main (int argc, char * argv[]){
   
   //string to hold data from pyton program
-  string carte_name;
-  string carte_ip;
-  string scene="-";
-  string version_py="-";
-  string version_c="1.1";
-  string status="-";
-  string voltage="-";
-  string buttonline="OK   B   A";
-  string popup[11][2];
+  std::string carte_name;
+  std::string carte_ip;
+  std::string scene="-";
+  std::string version_py="-";
+  std::string version_c="1.1";
+  std::string status="-";
+  std::string voltage="-";
+  std::string buttonline="OK   B   A";
+  std::string popup[11][2];
   int init=0;
   
   //C object of hardware
@@ -544,7 +544,7 @@ int main (int argc, char * argv[]){
   std::thread consumer(std::bind(&consume, std::ref(q)));
   
   //wait for init
-  string input;
+  std::string input;
   while(!init){
     getline(cin, input);
     produce(q,input);
