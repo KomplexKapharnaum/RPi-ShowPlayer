@@ -531,11 +531,12 @@ void consume(Queue<string>& q) {
   }
 }
 
+//one listener to cin
+thread reader(bind(readcin, ref(q)));
 
-  
 //one reader, execute order one by one
 thread consumer(bind(&consume, ref(q)));
-thread reader(bind(&readcin));
+
   
 void killthread() {
   produce(q,"kill");
