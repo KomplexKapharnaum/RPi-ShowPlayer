@@ -7,7 +7,7 @@
 //
 
 
-#include "main.h"
+
 #include "extSPI.h"
 
 #include <stdio.h>
@@ -34,33 +34,12 @@
 #include <signal.h>
 
 #include "Queue.h"
+#include "main.h"
 
 
 
-using namespace std; //for native use of string
-
-bool live=true;
-
-//string to hold data from pyton program
-string carte_name;
-string carte_ip;
-string scene="-";
-string version_py="-";
-string version_c="1.1";
-string status="-";
-string voltage="-";
-string buttonline="OK   B   A";
-string popup[11][2];
-int init=0;
-
-//safe queue to put message in
-Queue<string> q;
 
 
-//C object of hardware
-Carte mycarte;
-Teleco myteleco;
-Titreur mytitreur;
 
 
 //update status on remote, call at load and if status (status, scene, tension... change)
@@ -193,6 +172,7 @@ int parseInput(string input){
     //myteleco.readOrSetTelecoLock(T_POWEROFF);
     //exit program
     fprintf(stderr, "\x1b[32mbye bye\n\x1b[0m");
+    live=false;
     delay(10);
   }
   
@@ -258,7 +238,8 @@ int parseInput(string input){
       carte_name="TEST STAND";
       carte_ip="2.0.2.XXX";
       init=1;
-      mytitreur.putChar(0,0,'S');
+      //mytitreur.putChar(0,0,'S');
+      produce(q,"initcarte_local");
     }
     
   }else{
@@ -463,13 +444,6 @@ int parseInput(string input){
       }
     }
     
-    if ("powerdownhardware"==parsedInput) {
-      //exit c main programm for debug
-      //beforekill(0);
-      live=false;
-    }
-    
-    
     if ("DR"==parsedInput) {
       //direct access of carte register for debug
       int reg = 0;
@@ -488,7 +462,6 @@ int parseInput(string input){
       }
       fprintf(stderr, "main - direct acces %u %u %u\n",reg,val,fade);
       mycarte.writeValue(reg,val,fade);
-      
     }// end directaccess
     
     if ("testroutine"==parsedInput) {
@@ -509,8 +482,18 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
-  fprintf(stderr, "main - push %s\n",message.c_str());
+  fprintf(stderr, "main - prog push %s\n",message.c_str());
   q.push(message);
+}
+
+void readcin(Queue<string>& q) {
+  bool loop_continue = true;
+  string input;
+  while (live) {
+    getline(cin, input);
+    fprintf(stderr, "main - cin push %s\n",input.c_str());
+    q.push(input);
+  }
 }
 
 void consume(Queue<string>& q) {
@@ -523,10 +506,12 @@ void consume(Queue<string>& q) {
   }
 }
 
+//one listener to cin
+thread reader(bind(readcin, ref(q)));
 
-  
 //one reader, execute order one by one
 thread consumer(bind(&consume, ref(q)));
+
   
 void killthread() {
   produce(q,"kill");
@@ -555,8 +540,6 @@ void myInterruptTELECO(void) {
 
 int main (int argc, char * argv[]){
   
-
-  
   //catch exit signal
   signal(SIGTERM, beforekill);
   signal(SIGINT, beforekill);
@@ -567,40 +550,27 @@ int main (int argc, char * argv[]){
   //program start
   cout << "#INITHARDWARE" << endl;
 
-  
   //wait for init
-  string input;
-  do {
-    getline(cin, input);
-    produce(q,input);
-  }while(!init);
-  
-  //init carte
-  if(version_py=="-") {
-    produce(q,"initcarte_local");
-  }
-  else {
-    produce(q,"initcarte_main");
-  }
+  while(!init);
   
   //init teleco if already connected // ISSUE HERE
   if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
   }
   
+  cout << "#HARDWAREREADY" << endl;
+  
   //start interrupt thread
   fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
-  wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
-  wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
-  
+  wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
+  wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
   
   //wait for input
-  do {
-    getline(cin, input);
-    produce(q,input);
-  }while(live);
+  while(live);
   
   killthread();
+  exit(0);
+  
   return 0;
   
 }
