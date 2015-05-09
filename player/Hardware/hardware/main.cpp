@@ -226,6 +226,7 @@ int parseInput(string input){
       mytitreur.text(0,0,buff);
       strncpy(buff, carte_ip.c_str(), sizeof(buff));
       mytitreur.text(0,8,buff);
+      produce(q,"initcarte_local");
     }else{
       fprintf(stderr, "main - error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
     }
@@ -554,7 +555,6 @@ int main (int argc, char * argv[]){
   if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
   }
-  produce(q,"interrupt_teleco");
   
   cout << "#HARDWAREREADY" << endl;
   
