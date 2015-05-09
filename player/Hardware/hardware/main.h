@@ -20,3 +20,6 @@ void killthread();
 int parseInput(std::string input);
 void testRoutine(int n);
 void sendStatusTeleco();
+void produce(Queue<string>& q, string message);
+void readcin(Queue<string>& q);
+void consume(Queue<string>& q);
