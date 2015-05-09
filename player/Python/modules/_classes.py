@@ -95,6 +95,7 @@ class ExternalProcess(object):
                                         # preexec_fn=lambda : os.nice(-20)
         self._watchdog.start()
         self._defunctdog.start()
+        self._c = 0
         self._stdin_thread.start()
         register_thread(self)
         if self.onOpen:
@@ -152,12 +153,10 @@ class ExternalProcess(object):
         """
         if not self.is_running() and message == "stop":
             log.error("CATCH AND AVOID stop BEFORE LAUNCED VLC")
-            try:
+            if self._c == 0:
+                self._c += 1
+            else:
                 a = 1/0
-            except Exception as e:
-                log.error("EXECEPEPPTTPTPT!")
-                log.exception(log.show_exception(e))
-            return
         self._stdin_queue.put_nowait(message)
 
     def _say(self, message):
