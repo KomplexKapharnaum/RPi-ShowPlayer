@@ -161,13 +161,10 @@ class ExternalProcess(object):
         :return:
         """
         log.important("Add {0} message to {1} queue".format(message, self.name))
-        log.important(show_trace())
+        if message == "stop":
+            log.important(show_trace())
         if not self.is_running() and message == "stop":
             log.error("CATCH AND AVOID stop BEFORE LAUNCED VLC")
-            if self._c == 0:
-                self._c += 1
-            else:
-                raise Exception()
             return
         self._stdin_queue.put_nowait(message)
 
