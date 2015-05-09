@@ -156,7 +156,7 @@ class ExternalProcess(object):
                 a = 1/0
             except Exception as e:
                 log.error("EXECEPEPPTTPTPT!")
-                log.show_exception(e)
+                log.exception(e)
             return
         self._stdin_queue.put_nowait(message)
 
