@@ -73,7 +73,7 @@ def start_protocol():
         DNCserver.start()
     BroadcastAddress = message.Address("255.255.255.255")
     discover_machine = protocol.discover.machine
-    if settings.get("rtp", "enable") and settings.get("sync", "enable"):
+    if settings.get("rtp", "enable") and settings.get("sync", "rtp"):
         protocol.discover.machine.start(protocol.discover.step_init)
         protocol.discover.add_flag_send_iamhere()
         machine_waiting_osc.append(discover_machine)
