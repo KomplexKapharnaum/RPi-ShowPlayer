@@ -443,7 +443,7 @@ int parseInput(string input){
       }
     }
     
-    if ("powerdownhardware"==parsedInput) {
+    if ("kill"==parsedInput) {
       //exit c main programm for debug
       //beforekill(0);
       live=false;
@@ -494,10 +494,13 @@ void produce(Queue<string>& q, string message) {
 }
 
 void readcin(Queue<string>& q) {
+  bool loop_continue = true;
   string input;
-  getline(cin, input);
-  fprintf(stderr, "main - cin push %s\n",input.c_str());
-  q.push(input);
+  while (live) {
+    getline(cin, input);
+    fprintf(stderr, "main - cin push %s\n",input.c_str());
+    q.push(input);
+  }
 }
 
 void consume(Queue<string>& q) {
@@ -520,6 +523,7 @@ thread consumer(bind(&consume, ref(q)));
 void killthread() {
   produce(q,"kill");
   consumer.join();
+  reader.join();
 }
 
 //clean befor exit
@@ -558,13 +562,15 @@ int main (int argc, char * argv[]){
   //wait for init
   while(!init);
   
+  if (digitalRead(21)==HIGH) {
+    produce(q,"interrupt_teleco");
+  }
+  
   cout << "#HARDWAREREADY" << endl;
   
   
   //init teleco if already connected // ISSUE HERE
-  if (digitalRead(21)==HIGH) {
-    produce(q,"interrupt_teleco");
-  }
+
   
   //start interrupt thread
   fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
@@ -576,6 +582,7 @@ int main (int argc, char * argv[]){
   while(live);
   
   killthread();
+  
   return 0;
   
 }
