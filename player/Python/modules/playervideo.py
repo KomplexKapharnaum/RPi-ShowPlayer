@@ -58,7 +58,8 @@ class VlcPlayer(ExternalProcess):
         self.say("pause")
 
     def stop(self):
-        self.say("stop")
+        if self.is_running():
+            self.say("stop")
         time.sleep(0.01)
         ExternalProcess.stop(self)
 
