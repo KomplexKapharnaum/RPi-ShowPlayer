@@ -217,7 +217,7 @@ class KxkmCard(ExternalProcess):
 
         # new version
 
-        "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True],
+        "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True], #TODO need to parse argument for scope of signal
         "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
         "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
 
