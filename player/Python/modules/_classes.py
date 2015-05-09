@@ -162,7 +162,7 @@ class ExternalProcess(object):
             message += "\n"
             m = message.encode("utf-8")
             self._popen.stdin.write(m)
-            log.log("raw", " "+message)
+            log.log("important", " "+message)
         else:
             log.log("debug", "Message aborted, Thread not active ")
 
