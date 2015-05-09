@@ -20,6 +20,7 @@ cross_ref = list()
 # Debug
 _Timeline = None
 _JSONtimeline = None
+_JSONScenario = list()
 
 def clear():
     """

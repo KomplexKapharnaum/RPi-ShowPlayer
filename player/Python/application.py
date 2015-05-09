@@ -233,6 +233,8 @@ class inputThread(threading.Thread):
                     log.info(scenario.pool._Timeline)
                 elif cmd[0] == "timelinejson":
                     log.info(scenario.pool._JSONtimeline)
+                elif cmd[0] == "scenariojson":
+                    log.info(scenario.pool._JSONScenario)
                 elif cmd[0] == "mhistory":
                     engine.perf.multiplex_history(cmd[1:])
                 elif cmd[0] == "_log":

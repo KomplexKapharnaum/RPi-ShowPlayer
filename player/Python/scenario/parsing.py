@@ -137,6 +137,7 @@ def parse_library(libs):
 
 # 3: SCENARIOS
 def parse_scenario(parsepool, name):
+    pool._JSONScenario.append(parsepool)
     # GET PARSED SCENARIO FILE
     importEtapes = {}
     if 'boxes' not in parsepool:
