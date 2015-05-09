@@ -6,6 +6,7 @@
 
 import weakref
 import sys
+import traceback
 import os
 import time
 import unicodedata
@@ -261,6 +262,9 @@ class ThreadTeleco(threading.Thread):
                 blocs.append(list())  # New block
             blocs[-1].append(line)
         return blocs
+
+def show_trace():
+    traceback.print_stack()
 
 
 engine.log.log_teleco = log_teleco  # This add log_teleco real function to log to avoid circular import
