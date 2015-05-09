@@ -134,9 +134,6 @@ int Teleco::readInterrupt(){
       break;
     case T_PUSHROTARY:
       switch (valeur){
-        case 0:
-          std::cout << "#TELECO_MESSAGE_UNKNOW" << std::endl;
-          break;
         case 1:
           std::cout << "#TELECO_MESSAGE_PREVIOUSSCENE" << std::endl;
           break;
@@ -171,6 +168,10 @@ int Teleco::readInterrupt(){
           std::cout << "#TELECO_MESSAGE_TESTROUTINE" << std::endl;
           needtestroutine=1;
           break;
+        default:
+          std::cout << "#TELECO_MESSAGE_UNKNOW" << std::endl;
+          break;
+          
       }
       break;
     case T_PUSHOK:
