@@ -7,7 +7,7 @@
 //
 
 
-#include "main.h"
+
 #include "extSPI.h"
 
 #include <stdio.h>
@@ -34,33 +34,12 @@
 #include <signal.h>
 
 #include "Queue.h"
+#include "main.h"
 
 
 
-using namespace std; //for native use of string
-
-bool live=true;
-
-//string to hold data from pyton program
-string carte_name;
-string carte_ip;
-string scene="-";
-string version_py="-";
-string version_c="1.1";
-string status="-";
-string voltage="-";
-string buttonline="OK   B   A";
-string popup[11][2];
-int init=0;
-
-//safe queue to put message in
-Queue<string> q;
 
 
-//C object of hardware
-Carte mycarte;
-Teleco myteleco;
-Titreur mytitreur;
 
 
 //update status on remote, call at load and if status (status, scene, tension... change)
