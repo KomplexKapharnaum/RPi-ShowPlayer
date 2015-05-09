@@ -91,7 +91,7 @@ private:
 
 public:
   void initCarte(char pow);
-  void sendString(char Str1[], char Str2[],int val);
+  bool sendString(char Str1[], char Str2[],int val);
   void sendButtonString(char Str1[]);
   int fisrtView();
   void start();
