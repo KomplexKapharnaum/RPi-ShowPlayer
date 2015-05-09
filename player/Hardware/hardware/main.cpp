@@ -554,6 +554,7 @@ int main (int argc, char * argv[]){
   if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
   }
+  produce(q,"interrupt_teleco");
   
   cout << "#HARDWAREREADY" << endl;
   
