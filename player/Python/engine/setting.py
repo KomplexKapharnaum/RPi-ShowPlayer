@@ -80,6 +80,7 @@ DEFAULT_SETTING["sync"]["video"] = True                 # Explain if the scyn pr
 DEFAULT_SETTING["sync"]["media"] = True                 # GLOBAL Put False to disable only media sync
 DEFAULT_SETTING["sync"]["usb"] = True                   # GLOBAL Put False to disable USB copy
 DEFAULT_SETTING["sync"]["scenario"] = True              # GLOABL Put False to disable only scenario sync
+DEFAULT_SETTING["sync"]["rtp"] = True                   # GLOBAL Put False to disable RTP
 DEFAULT_SETTING["sync"]["enable"] = True                # GLOBAL Put False to disable sync
 DEFAULT_SETTING["sync"]["flag_timestamp"] = 0           # flag_timestamp
 DEFAULT_SETTING["sync"]["max_scenario_sync"] = 5        # Max scenario of the same group to be sync
