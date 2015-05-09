@@ -172,6 +172,7 @@ int parseInput(string input){
     //myteleco.readOrSetTelecoLock(T_POWEROFF);
     //exit program
     fprintf(stderr, "\x1b[32mbye bye\n\x1b[0m");
+    live=false;
     delay(10);
   }
   
@@ -443,13 +444,6 @@ int parseInput(string input){
       }
     }
     
-    if ("kill"==parsedInput) {
-      //exit c main programm for debug
-      //beforekill(0);
-      live=false;
-    }
-    
-    
     if ("DR"==parsedInput) {
       //direct access of carte register for debug
       int reg = 0;
@@ -468,7 +462,6 @@ int parseInput(string input){
       }
       fprintf(stderr, "main - direct acces %u %u %u\n",reg,val,fade);
       mycarte.writeValue(reg,val,fade);
-      
     }// end directaccess
     
     if ("testroutine"==parsedInput) {
@@ -548,7 +541,6 @@ void myInterruptTELECO(void) {
 
 int main (int argc, char * argv[]){
   
-
   //catch exit signal
   signal(SIGTERM, beforekill);
   signal(SIGINT, beforekill);
@@ -562,21 +554,17 @@ int main (int argc, char * argv[]){
   //wait for init
   while(!init);
   
+  //init teleco if already connected // ISSUE HERE
   if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
   }
   
   cout << "#HARDWAREREADY" << endl;
   
-  
-  //init teleco if already connected // ISSUE HERE
-
-  
   //start interrupt thread
   fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
-  
   
   //wait for input
   while(live);
