@@ -231,6 +231,15 @@ def server_sync(flag):
     machine.append_flag(flag_timeout_task_sync.get(TTL=settings.get("OSC", "TTL"), JTL=settings.get("OSC", "JTL")))
 
 
+def add_timeout():
+    """
+    This function add a timeout
+    :return:
+    """
+    log.error("ADD TIMEOUT ASK SYNC")
+    machine.append_flag(flag_timeout_wait_sync.get(TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
+
+
 def client_sync(flag):
     target = message.Address(flag.args["src"].get_hostname())
     # msg = msg_pong.get(**kwargs_pong)
@@ -245,9 +254,10 @@ def client_sync(flag):
     # libs.oscack.DNCserver.ackServer.add_method("/rtp/sync", None, client_get_sync)
     add_method_before_patcher("/rtp/ping", None, catch_ping)
     add_method_before_patcher("/rtp/sync", None, client_get_sync)
-    network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
-                            flag_timeout_wait_sync.get(
-                                TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
+    # network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
+    #                         flag_timeout_wait_sync.get(
+    #                             TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
+    network_scheduler.enter(settings.get("rtp", "timeout"), add_timeout)
     machine.current_state.preemptible.set()
     #log.log("error", "Just before sending asktime")
     message.send(target, msg_asktime.get())
