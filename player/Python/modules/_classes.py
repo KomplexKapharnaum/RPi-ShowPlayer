@@ -152,6 +152,7 @@ class ExternalProcess(object):
         """
         if self.is_running() and message == "stop":
             log.error("CATCH AND AVOID stop BEFORE LAUNCED VLC")
+            return
         self._stdin_queue.put_nowait(message)
 
     def _say(self, message):
