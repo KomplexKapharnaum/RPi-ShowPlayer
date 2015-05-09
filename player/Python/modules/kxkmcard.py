@@ -239,7 +239,7 @@ def init_kxkm_card(flag, **kwargs):
        "/lumiere/led1 [led10w1] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/gyro [mode] [speed] [strob]": "kxkm_card_gyro"})
-def kxkm_card(flag):
+def kxkm_card(flag, **kwargs):
     pass
 
 
