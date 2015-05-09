@@ -91,7 +91,6 @@ void testRoutine(int n){
   msg="end";
   strncpy(buff, msg.c_str(), sizeof(buff));
   mytitreur.text(0,0,buff);
-  
 }
 
 
@@ -498,7 +497,7 @@ void consume(Queue<string>& q) {
   bool loop_continue = true;
   while (loop_continue) {
     auto item = q.pop();
-    fprintf(stderr, "main - popped %s\n",item.c_str());
+    if(!(item=="interrupt_carte" || item=="interrupt_teleco")) fprintf(stderr, "main - popped %s\n",item.c_str());
     if (item=="kill")loop_continue=false;
     parseInput(item);
   }
