@@ -189,6 +189,9 @@ class KxkmCard(ExternalProcess):
 
         'CARTE_MESSAGE_POWEROFF': [True],
 
+        "CARTE_TENSION": ['transTo /device/sendInfoTension'],
+        "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
+
         'TELECO_PUSH_A': ['btnDown', True],
         'TELECO_PUSH_B': ['btnDown', True],
         'TELECO_PUSH_OK': ['btnDown', True],
@@ -196,7 +199,7 @@ class KxkmCard(ExternalProcess):
         'TELECO_PUSH_REED': [True],
         'TELECO_PUSH_FLOAT': [True],
 
-
+        #old version for compatibility
 
         'TELECO_MESSAGE_BLINKGROUP': [],
         'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
@@ -211,14 +214,12 @@ class KxkmCard(ExternalProcess):
         "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
         "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
 
-        "CARTE_TENSION": ['transTo /device/sendInfoTension'],
-        "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
 
-        # new version for compatibility
+        # new version
 
-        "TELECO_MESSAGE_PREVIOUSSCENE": [],
-        "TELECO_MESSAGE_RESTARTSCENE": [],
-        "TELECO_MESSAGE_NEXTSCENE": [],
+        "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True],
+        "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
+        "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
 
 
         "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
@@ -235,13 +236,13 @@ class KxkmCard(ExternalProcess):
         "TELECO_MESSAGE_LOG_DEBUG": [],
 
         "TELECO_MESSAGE_BLINKGROUP": [],
-        "TELECO_MESSAGE_TESTROUTINE": [],
+        "TELECO_MESSAGE_TESTROUTINE": ['testRoutine'],
 
         "TELECO_MESSAGE_SYS_RESTARTPY": [],
-        "TELECO_MESSAGE_SYS_RESTARTWIFI": [],
-        "TELECO_MESSAGE_SYS_UPDATESYS": [],
-        "TELECO_MESSAGE_SYS_POWEROFF": [],
-        "TELECO_MESSAGE_SYS_REBOOT": [],
+        "TELECO_MESSAGE_SYS_RESTARTWIFI": ['transTo /device/wifi/restart'],
+        "TELECO_MESSAGE_SYS_UPDATESYS": ['transTo /device/updatesys'],
+        "TELECO_MESSAGE_SYS_POWEROFF": ['transTo /device/poweroff'],
+        "TELECO_MESSAGE_SYS_REBOOT": ['transTo /device/reboot'],
 
         "TELECO_MESSAGE_GET_INFO": [],
 
