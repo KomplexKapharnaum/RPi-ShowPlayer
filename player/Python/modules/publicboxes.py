@@ -24,6 +24,25 @@ def sendSignal(flag, **kwargs):
     patcher.patch(signal.get(dict(kwargs["args"])))
     log.log("raw", "SEND BOX : "+signal_uid)
 
+@publicbox('[signal] [TTL] [JTL] [dispo]')
+def sendSignalPlus(flag, **kwargs):
+    '''
+    SENDSIGNAL Box: Emmit SIGNAL to DEST
+    '''
+    log.error("send signal : {0}".format(kwargs['args']))
+    signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
+    if 'TTL' in kwargs['args'].keys() and kwargs['args']['TTL'] is not None:
+        TTL = float(kwargs['args']['TTL'])
+    else:
+        TTL = 1
+    if 'JTL' in kwargs['args'].keys() and kwargs['args']['JTL'] is not None:
+        JTL = float(kwargs['args']['JTL'])
+    else:
+        JTL = 3
+    signal = Flag(signal_uid, TTL=TTL, JTL=JTL)
+    patcher.patch(signal.get(dict(kwargs["args"])))
+    log.log("raw", "SEND BOX : "+signal_uid)
+
 
 @publicbox('[dispo]', start=True)
 def start(flag, **kwargs):

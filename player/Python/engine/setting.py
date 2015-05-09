@@ -48,7 +48,7 @@ DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
 # DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
-DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd --zoom=0.7"
+DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd -f "
 DEFAULT_SETTING["path"]["vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd" # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["amixer"] = "/usr/bin/amixer set PCM"
@@ -146,6 +146,9 @@ DEFAULT_SETTING["values"]["lights"]["strob"] = 0
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
+DEFAULT_SETTING["log"]["tension"] = dict()
+DEFAULT_SETTING["log"]["tension"]["port"] = 1783
+DEFAULT_SETTING["log"]["tension"]["ip"] = ["255.255.255.255"]
 DEFAULT_SETTING["log"]["teleco"] = dict()
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5       # Block 1.5 s for assure error displaying
 DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 3          # Block 1.5 s before displaying an other message
@@ -159,7 +162,7 @@ DEFAULT_SETTING["perf"]["history"] = dict()
 DEFAULT_SETTING["perf"]["history"]["enable"] = True         # Enable log history for each FSM
 DEFAULT_SETTING["perf"]["history"]["withflag"] = True       # Enable flag log in history
 DEFAULT_SETTING["perf"]["history"]["withexception"] = True  # Enable excpetion log in history
-DEFAULT_SETTING["perf"]["history"]["length"] = 50           # Maximum length of an FSM history (keep older)
+DEFAULT_SETTING["perf"]["history"]["length"] = 300           # Maximum length of an FSM history (keep older)
 DEFAULT_SETTING["perf"]["history"]["format"] = "simple"     # History prompt format #TODO
 DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10          # Undeclared FSM (stopped) to be keept with history
 
@@ -264,6 +267,7 @@ class Settings(dict):
 
 
 settings = Settings(os.path.expanduser(DEFAULT_SETTING_PATH))
+devices = Settings(os.path.join(settings.get_path("deviceslist")))
 # status = Settings(settings.get("path", "status"))
 if not os.path.exists(settings.get("path", "tmp")):
     os.makedirs(settings.get("path", "tmp"))

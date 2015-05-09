@@ -206,7 +206,10 @@ class KxkmCard(ExternalProcess):
         'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
 
         "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
-        "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys']
+        "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
+
+        "CARTE_TENSION": ['transTo /device/sendInfoTension'],
+        "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension']
     }
 
 

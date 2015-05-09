@@ -5,6 +5,7 @@
 #
 #
 
+import liblo
 import application
 from modules import link
 from _classes import module
@@ -23,7 +24,10 @@ log = init_log("devicecontrol")
         "/device/restart": "device_restart",
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
-        "FS_TIMELINE_UPDATED": "device_update_timeline"})
+        "FS_TIMELINE_UPDATED": "device_update_timeline",
+        "/device/sendInfoTension": "device_send_info_tension",
+        "/device/senWarningTension": "device_send_warning_tension"})
+
 def device_control(flag, **kwargs):
     pass
 
@@ -59,6 +63,22 @@ def device_update_system(flag, **kwargs):
 @link({None: "device_reload"})
 def device_update_timeline(flag, **kwargs):
     load_scenario_from_fs(settings["current_timeline"])
+
+@link({None: "device_control"})
+def device_send_info_tension(flag, **kwargs):
+    message = liblo.Message("/tension",settings.get("uName"),float(flag.args["args"][0]))
+    log.debug("get tension {0} and forward".format(flag.args["args"][0]))
+    port = settings.get("log","tension","port")
+    for dest in settings.get("log","tension","ip"):
+        liblo.send(liblo.Address(dest,port),message)
+
+@link({None: "device_control"})
+def device_send_warning_tension(flag, **kwargs):
+    message = liblo.Message("/warningTension",settings.get("uName"))
+    log.debug("get warning tension and forward")
+    port = settings.get("log","tension","port")
+    for dest in settings.get("log","tension","ip"):
+        liblo.send(liblo.Address(dest,port),message)
 
 
 

@@ -60,6 +60,8 @@ class Message(liblo.Message):
         add_port = False
         self._args = args
         self._kwargs = kwargs
+        self.uid = None
+        self.warning = threading.Event()        # TODO remove
 
         # if "SEND_PORT" in kwargs.keys(): TODO : check and delete
         #     if kwargs["SEND_PORT"]:
@@ -68,7 +70,7 @@ class Message(liblo.Message):
         if "ACK" in kwargs.keys():
             if kwargs["ACK"]:
                 self.ACK = True
-                self.uid = acklib.gen_uids()
+                self.regen_uid()
                 args = [args[0], True, ('i', self.uid[0]), ('i', self.uid[1])] + list(args[1:])
                 if add_port:
                     args.append(settings.get("OSC", "ackport"))
@@ -88,6 +90,13 @@ class Message(liblo.Message):
             log.critical(str(args))
             log.critical(str(**kwargs))
             raise e
+
+    def regen_uid(self):
+        self.uid = acklib.gen_uids()
+
+    def get_new(self):
+        return Message(*self._args, **self._kwargs)
+
 
     def __str__(self):
         return "OSC MSG : " + str(self._args) + "  ::  " + str(self._kwargs)
@@ -116,7 +125,13 @@ class ThreadSendMessage(threading.Thread):
         self._interval_table = ack_speed
         if target.get_hostname() != "255.255.255.255":  # Broadcast
             # Register in order to be stop when a ACK is received
-            register(self, self.msg.uid)
+            n = 0
+            while register(self, self.msg.uid) is not True and n < 10:
+                n += 1
+                log.warning("Not send because of duplicate uid {0}. {1} tr(y)(ies)".format(self.msg.uid, n))
+                self.msg.regen_uid()
+                self.msg.warning.set()
+                time.sleep(0.01)
         else:
             self.broadcast = True
             broadcast_ack_threads.append(self.msg.uid)
@@ -130,6 +145,8 @@ class ThreadSendMessage(threading.Thread):
         with self.sending:
             while not self._stop.is_set() and self._n_send < len(self._interval_table) + 1:
                 try:
+                    if self.msg.warning.is_set():
+                        log.warning("Send a ACK message {1} with uid {0} after regen uid".format(self.msg.uid, self.msg))
                     liblo.send(self.target, self.msg)
                 except (liblo.AddressError, IOError) as err:
                     log.exception(
@@ -231,7 +248,11 @@ def register(thread, uid):
     :return:
     """
     log.log("raw", "Register thread send ack : " + str(uid))
+    if uid in ack_threads.keys():
+        log.warning("! Ask to register an ack thread with uid {0}, but already have !".format(uid))
+        return False
     ack_threads[uid] = thread
+    return True
     # globalContext.protocol.ack.ACK_THREAD_REGISTER[uid] = thread TODO: check and remove
 
 

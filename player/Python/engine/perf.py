@@ -114,7 +114,7 @@ class ChangeFSM(HistoryEvent):
         else:
             r += "=>"
         flag = self.flag
-        if flag in (None, True):
+        if flag in (None, True, False):
             flag = str(flag)
         else:
             flag = flag.uid

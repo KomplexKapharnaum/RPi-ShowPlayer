@@ -33,8 +33,13 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#include "Queue.h"
+
+
 
 using namespace std; //for native use of string
+
+bool live=true;
 
 //string to hold data from pyton program
 string carte_name;
@@ -48,6 +53,10 @@ string buttonline="OK   B   A";
 string popup[11][2];
 int init=0;
 
+//safe queue to put message in
+Queue<string> q;
+
+
 //C object of hardware
 Carte mycarte;
 Teleco myteleco;
@@ -55,59 +64,24 @@ Titreur mytitreur;
 
 
 //update status on remote, call at load and if status (status, scene, tension... change)
-void sendStatusTeleco(int force=0){
+void sendStatusTeleco(){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
-  if(myteleco.fisrtView()==0 || force){
-    delay(10);
-    sprintf(mess1,"git %s",status.c_str());
-    sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
-    myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
-    delay(10);
-    sprintf(mess1,"%s",carte_name.c_str());
-    sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
-    myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
-    delay(10);
-    sprintf(mess1,"%.1fV %s",tension,scene.c_str());
-    sprintf(mess2,"%s",buttonline.c_str());
-    myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
-  }
-}
-
-
-//catch interrupt from carte
-void myInterruptCARTE (void) {
-  fprintf(stderr, "main - interrupt from carte\n");
-  mycarte.readInterrupt();
-  if(mycarte.needStatusUpdate)sendStatusTeleco();
-}
-
-
-//clean befor exit
-void beforekill(int signum)
-{
-  //turn off light
-  mycarte.setGyro(0,200);
-  mycarte.led10WValue(0);
-  mycarte.rgbValue(0,0,0);
-  mycarte.setRelais(0);
-  //turn off titreur
-  mytitreur.allLedOff();
-  mytitreur.powerdown();
-  //update status
-  status="noC";
-  delay(5);
-  //power off hardware
-  mycarte.writeValue(POWERDOWN,100);
-  //power off remote
-  myteleco.reset();
-  //myteleco.readOrSetTelecoLock(T_POWEROFF);
-  //exit program
-  fprintf(stderr, "bye bye\n");
   delay(10);
-  exit(signum);
+  sprintf(mess1,"git %s",status.c_str());
+  sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
+  myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
+  delay(10);
+  sprintf(mess1,"%s",carte_name.c_str());
+  sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
+  myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
+  delay(10);
+  sprintf(mess1,"%.1fV %s",tension,scene.c_str());
+  sprintf(mess2,"%s",buttonline.c_str());
+  myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
 }
+
 
 
 //test output light, titreur
@@ -142,16 +116,28 @@ void testRoutine(int n){
 }
 
 
-//catch interrupt from remote
-void myInterruptTELECO(void) {
-  fprintf(stderr, "main - interrupt from teleco\n");
-  if (myteleco.fisrtView()){
-    delay(20);
-    fprintf(stderr, "main - delaypass\n");
-    if (digitalRead(21)==HIGH) {
-      fprintf(stderr, "main - reel interrupt\n");
-      myteleco.readInterrupt();
-      sendStatusTeleco(1);
+
+//parse pyton or bash input from stdin
+int parseInput(string input){
+  if (input=="interrupt_teleco") {
+    //fprintf(stderr, "main - interrupt from teleco\n");
+    if (myteleco.fisrtView()){
+      delay(20);
+      //fprintf(stderr, "main - delaypass\n");
+      if (digitalRead(21)==LOW) return 2;
+      //fprintf(stderr, "main - reel interrupt\n");
+    }
+    
+    myteleco.readInterrupt();
+    if(myteleco.needtestroutine){
+      fprintf(stderr, "main - teleco need test routine\n");
+      myteleco.needtestroutine=0;
+      testRoutine(1);
+    }
+    if(myteleco.needstart){
+      fprintf(stderr, "main - teleco need start\n");
+      myteleco.needstart=0;
+      sendStatusTeleco();
       delay(20);
       for (int i=T_MENU_ID_STATUS_SCENE; i<T_MENU_ID_LOG_0; i++) {
         char mess1[17];
@@ -163,24 +149,55 @@ void myInterruptTELECO(void) {
       }
       delay(20);
       myteleco.start();
-      
     }
-  }else{
-    fprintf(stderr, "main - reel interrupt\n");
-    myteleco.readInterrupt();
+    return 0;
   }
-  if(myteleco.needtestroutine){
-    myteleco.needtestroutine=0;
-    testRoutine(1);
+  
+  if (input=="interrupt_carte") {
+    //fprintf(stderr, "main - interrupt from carte\n");
+    mycarte.readInterrupt();
+    if(mycarte.needStatusUpdate) sendStatusTeleco();
+    return 0;
   }
-}
-
-
-//parse pyton or bash input from stdin
-int parseInput(){
-  string input;
-  getline(cin, input);
-  fprintf(stderr, "\nGETCOMMAND : %s\n",input.c_str());
+  
+  if (input=="initcarte_local") {
+    fprintf(stderr, "main - init teleco with local poweroff\n");
+    myteleco.initCarte(1);
+    delay(10);
+    return 0;
+  }
+  
+  if (input=="initcarte_main") {
+    fprintf(stderr, "main - init teleco with main program poweroff\n");
+    myteleco.initCarte(0);
+    delay(10);
+    return 0;
+  }
+  
+  if (input=="kill") {
+    //turn off light
+    mycarte.setGyro(0,200);
+    mycarte.led10WValue(0);
+    mycarte.rgbValue(0,0,0);
+    mycarte.setRelais(0);
+    //turn off titreur
+    mytitreur.allLedOff();
+    mytitreur.powerdown();
+    //update status
+    status="noC";
+    delay(5);
+    //power off hardware
+    mycarte.writeValue(POWERDOWN,100);
+    //power off remote
+    myteleco.reset();
+    //myteleco.readOrSetTelecoLock(T_POWEROFF);
+    //exit program
+    fprintf(stderr, "\x1b[32mbye bye\n\x1b[0m");
+    delay(10);
+  }
+  
+  //other message from main program or stdin
+  fprintf(stderr, "\n\x1b[33mGETCOMMAND : %s\n\x1b[0m",input.c_str());
   stringstream ss(input);
   string parsedInput;
   ss>>parsedInput;
@@ -263,7 +280,6 @@ int parseInput(){
     
     if ("popup"==parsedInput) {
       //send data to the remote
-      int n=0;
       char mess1[17];
       char mess2[17];
       int type=0;
@@ -299,9 +315,9 @@ int parseInput(){
       strncpy(mess2, popup[type][1].c_str(), sizeof(mess2));
       if(type!=0)myteleco.sendString(mess1,mess2,type);
     }
-
-
-
+    
+    
+    
     if ("initconfig"==parsedInput) {
       fprintf(stderr, "main - error already init\n");
     }
@@ -340,7 +356,6 @@ int parseInput(){
       int fade=0;
       int strob=0;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-rgb"==parsedInput){
           int r,g,b;
           ss>>r; ss>>g; ss>>b;
@@ -368,7 +383,6 @@ int parseInput(){
       int speed=350;
       int strob=0;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-mode"==parsedInput){
           ss>>parsedInput;
           int m;
@@ -444,14 +458,15 @@ int parseInput(){
         }
         if ("-read"==parsedInput){
           int state = myteleco.readOrSetTelecoLock();
-          std::cout << "#TELECO_LOCK_STATE "<< state << std::endl;
+          cout << "#TELECO_LOCK_STATE "<< state << endl;
         }
       }
     }
     
     if ("powerdownhardware"==parsedInput) {
       //exit c main programm for debug
-      beforekill(0);
+      //beforekill(0);
+      live=false;
     }
     
     
@@ -461,7 +476,6 @@ int parseInput(){
       int val = 0;
       int fade = 0;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-reg"==parsedInput){
           ss>>reg;
         }
@@ -481,7 +495,6 @@ int parseInput(){
       //start testroutine
       int nbr = 1;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-nbr"==parsedInput){
           ss>>nbr;
         }
@@ -492,56 +505,103 @@ int parseInput(){
     }// end testroutine
     
   }
+  return 1;
+}
+
+void produce(Queue<string>& q, string message) {
+  fprintf(stderr, "main - push %s\n",message.c_str());
+  q.push(message);
+}
+
+void consume(Queue<string>& q) {
+  bool loop_continue = true;
+  while (loop_continue) {
+    auto item = q.pop();
+    fprintf(stderr, "main - popped %s\n",item.c_str());
+    if (item=="kill")loop_continue=false;
+    parseInput(item);
+  }
+}
+
+
   
+//one reader, execute order one by one
+thread consumer(bind(&consume, ref(q)));
+  
+void killthread() {
+  produce(q,"kill");
+  consumer.join();
+}
+
+//clean befor exit
+void beforekill(int signum)
+{
+  killthread();
+  exit(signum);
+}
+
+
+//catch interrupt from carte
+void myInterruptCARTE (void) {
+  produce(q,"interrupt_carte");
+}
+
+
+//catch interrupt from remote
+void myInterruptTELECO(void) {
+  produce(q,"interrupt_teleco");
 }
 
 
 int main (int argc, char * argv[]){
+  
 
-//catch exit signal
-signal(SIGTERM, beforekill);
-signal(SIGINT, beforekill);
- 
+  
+  //catch exit signal
+  signal(SIGTERM, beforekill);
+  signal(SIGINT, beforekill);
+  
   wiringPiSetupGpio();
   pinMode (21, INPUT);
+  
+  //program start
+  cout << "#INITHARDWARE" << endl;
 
-//program start
-cout << "#INITHARDWARE" << endl;
   
   //wait for init
-  while(!init){
-    parseInput();
-  }
+  string input;
+  do {
+    getline(cin, input);
+    produce(q,input);
+  }while(!init);
+  
   //init carte
   if(version_py=="-") {
-    fprintf(stderr, "main - init teleco with local poweroff\n");
-    myteleco.initCarte(1);}
-  else {
-    fprintf(stderr, "main - init teleco with main program poweroff\n");
-    myteleco.initCarte(0);
+    produce(q,"initcarte_local");
   }
-  delay(10);
+  else {
+    produce(q,"initcarte_main");
+  }
   
   //init teleco if already connected // ISSUE HERE
   if (digitalRead(21)==HIGH) {
-    fprintf(stderr, "main - teleco add at boot\n");
-    myteleco.readInterrupt();
-    myteleco.start();
-    sendStatusTeleco();
+    produce(q,"interrupt_teleco");
   }
-
+  
   //start interrupt thread
   fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
-
+  
   
   //wait for input
-  while(1){
-    parseInput();
-  }
+  do {
+    getline(cin, input);
+    produce(q,input);
+  }while(live);
   
-  return 1;
+  killthread();
+  return 0;
   
 }
 

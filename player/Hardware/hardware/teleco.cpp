@@ -24,11 +24,13 @@
 //init remote
 void Teleco::initCarte(char pow){
   localpoweroff=pow;
-  fprintf(stderr, "teleco - add teleco dnc\n");
+  fprintf(stderr, "\n\x1b[32mteleco - add teleco dnc\n\x1b[0m");
   SPIcarte.initSPI();
   SPIcarte.addChipSelect(19,500000);
   needtestroutine=0;
+  needstart=0;
   uninit=1;
+  lockCom=0;
 }
 
 //check if start
@@ -38,7 +40,7 @@ int Teleco::fisrtView(){
 
 //start remote
 void Teleco::start(){
-  fprintf(stderr, "teleco - teleco start\n");
+  fprintf(stderr, "\x1b[32mteleco - teleco start\n\x1b[0m");
   uninit=0;
   setLedWarning(0);
   writeValue(T_INIT,1);
@@ -46,10 +48,12 @@ void Teleco::start(){
 
 //reset remote
 void Teleco::reset(){
+  if (uninit==0) {
   fprintf(stderr, "teleco - teleco reset\n");
   setLedWarning(1);
   writeValue(T_INIT,0);
   uninit=1;
+  }
 }
 
 //acces to led status
@@ -63,7 +67,8 @@ void Teleco::setLedWarning(int val){
 
 //send info to the remote
 void Teleco::sendString(char Str1[], char Str2[], int val){
-  setLedWarning(1);
+  if (lockCom==0){
+  //setLedWarning(1);
   unsigned char buff[38];
   buff[0]= (char)(WRITECOMMANDVALUE+T_STRING);
   buff[1]= (char)val;
@@ -73,9 +78,12 @@ void Teleco::sendString(char Str1[], char Str2[], int val){
   for(int i=0;i<17;i++){
     buff[i+2+16]= *(Str2+i);
   }
-  fprintf(stderr, "teleco - teleco send string type=%u : %s\n",val,buff);
+  fprintf(stderr, "teleco - teleco send string type=%u : %s - %s\n",val,Str1,Str2);
   SPIcarte.send(0,buff,38);
-  setLedWarning(0);
+  //setLedWarning(0);
+  } else {
+    fprintf(stderr, "teleco - cant send by lock\n");
+  }
 }
 
 // no use
@@ -109,12 +117,12 @@ int Teleco::readInterrupt(){
   buff[0]= (char)(READCOMMAND+T_INTERRUPT);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "teleco - read i %u\n",buff[1]);
+  //fprintf(stderr, "teleco - read i %u",buff[1]);
   int address = buff[1];
   buff[0]= (char)(READCOMMAND+address);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
-  fprintf(stderr, "teleco - read v %u\n",buff[1]);
+  if(address!=T_DISPLAY_LOCK)fprintf(stderr, "teleco - intterupt %u read %u\n",address,buff[1]);
   int valeur = buff[1];
   setLedWarning(0);
   switch (address) {
@@ -174,10 +182,16 @@ int Teleco::readInterrupt(){
     case T_FLOAT:
       std::cout << "#TELECO_FLOAT "<< valeur << std::endl;
       break;
+    case T_DISPLAY_LOCK:
+      //fprintf(stderr, "teleco - lock com %u\n",valeur);
+      lockCom=valeur;
+      break;
+    case T_INIT:
+      if (valeur==0) needstart=1;
+      break;
       
     default:
-      uninit=1;
       break;
   }
-
+  return valeur;
 }

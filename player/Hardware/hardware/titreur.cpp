@@ -52,7 +52,7 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
 //problem, plutôt faire des commandes écrites pour être directement envoyée en SPI.
 
 void Titreur::initModule(int m){
-  fprintf(stderr, "titreur - init titreur module %u\n",m);
+  fprintf(stderr, "\n\x1b[32mtitreur - init titreur module %u\n\x1b[0m",m);
   //mySPI.setkeepSelect();
   
   ht1632_sendcmd(m, HT1632_CMD_SYSDIS);  // Disable system
@@ -114,7 +114,7 @@ void Titreur::putChar(int x, int y, char c){
   c-=32;
 
   for (char col=0; col< 6; col++) {
-    int dots = myfont[c][col];
+    char dots = myfont[c][col];
     for (char row=0; row < 8; row++) { // only 8 rows.
       if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
     }
@@ -186,10 +186,10 @@ void Titreur::testScreen(){
 
 //print matrix on screen
 void Titreur::printScreen(){
-  fprintf(stderr, "titreur - print : ");
+  //fprintf(stderr, "titreur - print : ");
   for (int m=0; m<nb_module; m++) {
   *output = 160;
-  fprintf(stderr, "module %u",m);
+  //fprintf(stderr, "module %u",m);
   for (int i=0; i<typeModule+2; i++) {
     if (i==0) *(output+1) = 0 | ((*(matrix+typeModule*m)>>2)&63);
     else if (i==typeModule) *(output+i+1)= ((*(matrix+typeModule*m)>>2)&63) | ((*(matrix+(i-1+typeModule*m))<<6)&192);
@@ -199,7 +199,7 @@ void Titreur::printScreen(){
   mySPI.send(m,output,typeModule+3);
   
 }
-  fprintf(stderr, "\n");
+  //fprintf(stderr, "\n");
   
 }
 

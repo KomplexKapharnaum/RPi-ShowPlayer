@@ -91,7 +91,7 @@ def etapename(box):
     return box['category']+'_'+box['name']
 
 def boxname(scenarioname, box):
-    return (scenarioname+'_'+box['boxname']).upper()
+    return (scenarioname+'_'+box['name']+'_'+box['boxname']).upper()
 
 # 1: DEVICES
 def parse_devices(timeline):
@@ -193,11 +193,17 @@ def parse_scenario(parsepool, name):
             con['connectionLabel'] = None
 
         # TRANSITIONS
-        fromBox = (name+'_'+con['SourceId'].split('_')[1]).upper()
-        toBox = (name+'_'+con['TargetId']).upper()
+        if 'From' not in con.keys() or 'To' not in con.keys():
+            log.warning("Connection {0} missing FROM or TO box".format(con))
+            continue
+        fromBox = (name+'_'+con['From']+'_'+con['SourceId'].split('_')[1]).upper()
+        toBox = (name+'_'+con['To']+'_'+con['TargetId']).upper()
         if fromBox in importEtapes.keys():
             if toBox in importEtapes.keys():
-                importEtapes[fromBox].transitions[con['connectionLabel']] = importEtapes[toBox]
+                if con['connectionLabel'] == "DEFAULT":
+                    importEtapes[fromBox].transitions[False] = importEtapes[toBox]      # Default transition
+                else:
+                    importEtapes[fromBox].transitions[con['connectionLabel']] = importEtapes[toBox]
 
     # ETAPES
     for etape in importEtapes.values():

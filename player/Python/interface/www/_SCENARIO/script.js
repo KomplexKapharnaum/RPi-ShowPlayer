@@ -3,15 +3,21 @@
     /////////////////////////  GLOBAL  //////////////////////////////
 
     jsPlumb.registerConnectionType("selected", {
-      paintStyle:{ strokeStyle:"lawngreen", lineWidth:3  },
-      hoverPaintStyle:{ strokeStyle:"lawngreen", lineWidth:4 },
-      ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]]
+      paintStyle:{ strokeStyle:"lawngreen", lineWidth:2 },
+      hoverPaintStyle:{ strokeStyle:"lawngreen", lineWidth:3 },
+      ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]],
+			overlays:[
+                    ["Arrow" , { width:8, length:8, foldback: 1, location:1 }]
+                ]
     });
 
     jsPlumb.registerConnectionType("generic", {
-      paintStyle:{ strokeStyle:"dimgray", lineWidth:3  },
-      hoverPaintStyle:{ strokeStyle:"dimgray", lineWidth:4 },
-      ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]]
+      paintStyle:{ strokeStyle:"dimgray", lineWidth:2  },
+      hoverPaintStyle:{ strokeStyle:"dimgray", lineWidth:3 },
+      ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label",location:[0.5, 0.5], cssClass: "aLabel" }]],
+			overlays:[
+                    ["Arrow" , { width:8, length:8, foldback: 1, location:1 }]
+                ]
     });
 
 	  jsPlumb.setContainer($('#container'));
@@ -27,7 +33,10 @@
 
 		var libLoaded = false;
 		var mediasLoaded = false;
-		//var
+
+
+		var urlbase = '';
+		//var urlbase = 'http://192.168.0.19:8080';
 
     $("#signalEdit").hide();
     $('#newBox').hide();
@@ -280,6 +289,7 @@
 					        var tempbox = {name:box.name, category:box.category, dispos: box.dispos, medias: box.medias, arguments: box.arguments, code:box.code};
 					        allBoxes.push(tempbox);
 					      });
+								buildLibrary();
 
             }
         });
@@ -303,14 +313,17 @@
 			$.ajax({
 				type: 'GET',
 				timeout: 1000,
-			   // url: "http://2.0.1.89:8080/library", HOTFIX by Olivier, url should not be raw codded
-				url: "/library",
+				url: urlbase+"/library",
 				dataType: "jsonp"
 			}).done(function(data) {
 				hardlib = data.functions;
 				mergeLibrary();
 				allSignals = data.signals;
+				console.log("loading signals");
 				updateSignals();
+				loadScenario();
+			}).fail(function(){
+				loadScenario();
 			});
 		}
 		loadExtLib();
@@ -359,22 +372,21 @@
 
 
     ////////////////////////// MEDIAS ////////////////////////////////
-		audioFiles = ['select...','son1','son2','son3','son4'];
-		videoFiles = ['select...','vid1','vid2','vid3','vid4'];
-		txtFiles = ['select...','text1','text2','text3','text4'];
+		audioFiles = ['Selectionner Media','son1','son2','son3','son4'];
+		videoFiles = ['Selectionner Media','vid1','vid2','vid3','vid4'];
+		txtFiles = ['Selectionner Media','text1','text2','text3','text4'];
 		$.ajax({
 			type: 'GET',
 			timeout: 1000,
-		   // url: "http://2.0.1.89:8080/medialist", HORFIX by Olivier : url shouldn't be raw codded
-			url : "/medialist",
+			url : urlbase+"/medialist",
 			dataType: "jsonp"
 		}).done(function(data) {
 			audioFiles = data.audio;
-			audioFiles.unshift('Select...');
+			audioFiles.unshift('Selectionner Media');
 			videoFiles = data.video;
-			videoFiles.unshift('Select...');
+			videoFiles.unshift('Selectionner Media');
 			txtFiles = data.txt;
-			txtFiles.unshift('Select...');
+			txtFiles.unshift('Selectionner Media');
 		});
 
 
@@ -398,10 +410,16 @@
           $(this).offset(draggablePos);
           if ((e.pageX < 900)&&(e.pageY < 2000)){
 
+						////// FILL counter technique
 						boxCount++;
+						var counts = new Array();
 						$.each(allStates,function(index,state){
 							var count = state.boxname.replace('box','');
-							if (count == boxCount) { boxCount++; }
+							counts.push(count);
+						});
+						counts.sort(function(a, b){return a-b});
+						$.each (counts, function(index,num){
+							if (num == boxCount) { boxCount++;}
 						});
 
             var name = $(this).attr('id');
@@ -436,6 +454,7 @@
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
     function state(name,boxname,category,px,py,dispoBOO,dispositifs,mediaBOO,arguments){
+
 
       var thisState = this;
   		this.box = $('<div>').addClass('box').attr('id', boxname);
@@ -474,15 +493,16 @@
         this.box.append(this.disposList);
       }
       if(mediaBOO == true){
-        this.media = 'Select...';
-        this.mediasList = $('<select>').attr('id', this.name+'Medias').addClass('dropdownMedias')
+        this.media = 'Select';
+        this.mediasList = $('<select>').attr('id', this.name+'Medias').addClass('dropdownMedias');//.attr('dir','rtl');
         this.box.append(this.mediasList);
         var files = new Array();
         if(category == 'AUDIO') {files=audioFiles;}
         if(category == 'VIDEO') {files=videoFiles;}
 				if(category == 'TITREUR') {files=txtFiles;}
         $.each(files, function(index,file){
-         $(thisState.mediasList).append(('<option value="'+file+'">'+file+'</option>'));
+					var shortFile = file.split(".")[0]
+         $(thisState.mediasList).append(('<option value="'+file+'">'+shortFile+'</option>'));
         });
       }
       if(this.argumentsList[0]){
@@ -552,7 +572,8 @@
     		jsPlumb.makeTarget(thisState.box, {
     		  anchor: 'Continuous',
           //connector:"Straight",
-                        endpoint:[ "Rectangle", { width:10, height:10 }],
+                        //endpoint:[ "Rectangle", { width:0.1, height:0.1 }],
+												endpoint:"Blank",
                         paintStyle:{ fillStyle:"dimgray", outlineColor:"dimgray", outlineWidth:2 },
                         hoverPaintStyle:{ fillStyle:"white" },
                         ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel" }]]
@@ -561,10 +582,10 @@
     		  parent: thisState.box,
           anchor: "Continuous",
           //connector:"Straight",
-					connector: [ "Flowchart", { stub: [0, 6], gap: 2, cornerRadius: 0, alwaysRespectStubs: false } ],
+					connector: [ "Flowchart", { stub: [0, 6], gap: 0, cornerRadius: 0, alwaysRespectStubs: false } ],
 
                 endpoint:"Blank",
-                connectorStyle:{ strokeStyle:"dimgray", lineWidth:3 },
+                connectorStyle:{ strokeStyle:"dimgray", lineWidth:2 },
                 connectorHoverStyle:{ lineWidth:4 },
                 ConnectionOverlays: [ [ "Label", { label: "FOO", id: "label", cssClass: "aLabel", fillStyle: "white" }]]
     		});
@@ -642,7 +663,8 @@
       if(mediaBOO == true){
         $(thisState.mediasList).change(function(){
           var that = $(this);
-          thisState.media = $(this).find('option:selected').text();
+          thisState.media = $(this).find('option:selected').val();
+					thisState.mediasList.blur();
 					if (thisState.category == 'TITREUR'){ thisState.loadText();}
         });
       }
@@ -738,12 +760,15 @@
 
     jsPlumb.bind("connection", function (info) {
         //info.connection.setLabel(info.connection.id);
-				info.connection.setLabel('');
+				var Z = "dededede";
+				info.connection.setLabel(Z);
+				info.connection.setType("generic");
 
     });
 
 
     jsPlumb.bind("click", function(connection) {
+
 			selected = 'connection';
       connectionSelected = connection;
       $.each(allStates, function(index, state){
@@ -752,47 +777,46 @@
 			$('#editText').hide();
       var label = connectionSelected.getLabel();
 			$("#signalEdit").fadeIn(400);
-
 			$('#signalselector').val(
 				$('#signalselector option').filter(function(){ return $(this).html() == label; }).val()
 			);
-
 			$("#signalselector").change(function(){
 				var newval = $('#signalselector option:selected').text();
 				connectionSelected.setLabel(newval);
-				//connectionSelected.id=newval;
 			});
-
       $("#signalName").val('Enter New...');
-			//$("#signalName").focus();
 
-      $("#signalName").keyup(function(e) {
-			//$("#signalName").focusout(function(e) {
-        listening = false;
-  		  if (e.keyCode == 13) {
-					var newval = $("#signalName").val();
-    			connectionSelected.setLabel(newval);
-          connectionSelected.id=newval;
-          listening = true;
-					$("#signalEdit").hide();
-  		  }
-  		});
       //Style
-      unselectConnections();
-      connection.setType("selected");
-      connection.setLabel(label);
       $.each(allStates, function(index, state){
         this.resetColor();
       });
+	    unselectConnections();
+      connection.setType("selected");
+      if (label !== null) connection.setLabel(label);
 
     });
+
+    $("#signalName").keyup(function(e) {
+      listening = false;
+		  if (e.keyCode == 13) {
+				var newval = $("#signalName").val();
+  			connectionSelected.setLabel(newval);
+        connectionSelected.id=newval;
+        listening = true;
+				$("#signalEdit").hide();
+				//Add new one ds la liste des signaux
+				allSignals.push(newval);
+				updateSignals();
+
+		  }
+		});
 
 
     function unselectConnections(){
       $.each(jsPlumb.getAllConnections(), function(idx, connection) {
         var label = connection.getLabel();
         connection.setType("generic");
-        connection.setLabel(label);
+        if (label !== null) connection.setLabel(label);
       });
     }
 
@@ -971,34 +995,35 @@
     });
 
     function loadScenario() {
-        $.ajax({
-            url: "data/load.php",
-            dataType: "json",
-            type: "POST",
-            data: {
-                filename: scenarioName,
-								type: 'scenario'
-            }
-        })
-        .done(function(reponse) {
-            if (reponse.status == 'success')
-            {
-                $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
-                Graphique = JSON.parse(reponse.contents);
-								if (loadGraphAfter == true) { loadGraphique(); }
-            }
-            else if (reponse.status == 'error')
-            { $('#serverDisplay').html( 'Erreur côté serveur: '+reponse.message ); }
-        })
-        .fail(function() {
-            $('#serverDisplay').html( 'Impossible de joindre le serveur...' );
-        });
+			console.log("loading Scenario");
+	    $.ajax({
+	        url: "data/load.php",
+	        dataType: "json",
+	        type: "POST",
+	        data: {
+	            filename: scenarioName,
+							type: 'scenario'
+	        }
+	    })
+	    .done(function(reponse) {
+	        if (reponse.status == 'success')
+	        {
+	            $('#serverDisplay').html('Loaded: <br>' + reponse.contents );
+	            Graphique = JSON.parse(reponse.contents);
+							if (loadGraphAfter == true) { loadGraphique(); }
+	        }
+	        else if (reponse.status == 'error')
+	        { $('#serverDisplay').html( 'Erreur côté serveur: '+reponse.message ); }
+	    })
+	    .fail(function() {
+	        $('#serverDisplay').html( 'Impossible de joindre le serveur...' );
+	    });
     }
 
     function loadGraphique(){
       clearAll();
 			//jsPlumb.reset();
-
+			console.log("loading Graph");
 
       var boxes = Graphique.boxes;
       $.each(boxes, function( index, box ) {
@@ -1020,7 +1045,10 @@
             target: connection.TargetId
             //anchors: ["BottomCenter", [0.75, 0, 0, -1]]
         });
-        newConnection.setLabel(connection.connectionLabel);
+				if (connection.connectionLabel !== null) {newConnection.setLabel(connection.connectionLabel);}
+				// Si signal pas dans lib, l'ajouter au dropdown
+				if($.inArray(connection.connectionLabel, allSignals)===-1){allSignals.push(connection.connectionLabel);}
+				updateSignals();
       });
 
 			//jsPlumb.repaintEverything();
@@ -1028,6 +1056,8 @@
 			// 			jsPlumb.repaint(state.box);
 			// 			jsPlumb.recalculateOffsets(state.box)
 			// });
+
+
 
     }
 
@@ -1080,9 +1110,10 @@
           data: { type: 'scenario'}
       })
       .done(function(filelist) {
-        // var scenariosList = JSON.parse(filelist); // HOT FIX by Olivier  , is it correct ?
-		      // The filelist var seems to already de a JSON object so parsing result in an error
-		var scenariosList = filelist;   // So juste rename the var for compatibility
+        var scenariosList = filelist;
+        if( Object.prototype.toString.call( scenariosList ) !== '[object Array]' ) {
+          scenariosList = JSON.parse(scenariosList);
+        }
         $.each(scenariosList,function(index,name){
           if (name !== 'library.json'){
             var newname = name.replace('.json','');
@@ -1098,10 +1129,10 @@
 
 		$('#selFile').change(function(){
 			scenarioName = $('#selFile option:selected').text();
-			// window.open(window.location.href+'#timeline#'+scenarioName,"_self");
-			// location.reload(true);
-			loadGraphAfter = true;
-			loadScenario();
+			window.open(window.location.href.split("#")[0]+'#timeline#'+scenarioName,"_self");
+			location.reload(true);
+			// loadGraphAfter = true;
+			// loadScenario();
 		});
 
 
@@ -1109,12 +1140,16 @@
     ///////////////////////////   START   ////////////////////////////
 		loadScenariosList();
     loadTimeline();
-		loadScenario();
+		//loadScenario();
 
 		loadGraphAfter = true;
 
+    $(".textarea").on("click", function () {
+      $(this).select();
+    });
 
-		if (scenarioName !== 'noscenario') { setTimeout(loadGraphique, 200); }
+
+		//if (scenarioName !== 'noscenario') { console.log(scenarioName); setTimeout(loadGraphique, 200); }
 
 		// $(document).ajaxStop(function(){
 		// 	if (scenarioName !== 'noscenario') { loadGraphique(); }

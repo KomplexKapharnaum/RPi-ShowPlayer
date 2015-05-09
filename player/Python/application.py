@@ -20,7 +20,7 @@ import threading
 import time
 
 
-POWEROFF = 0    # 1: STOP PROGRAM   2: POWEROFF AFTER STOP  3: REBOOT AFTER STOP
+POWEROFF = False    # 1: STOP PROGRAM   2: POWEROFF AFTER STOP  3: REBOOT AFTER STOP
 
 def init(autoload=True):
     # LOAD INPUT KEYBOARD THREAD
@@ -206,10 +206,15 @@ class inputThread(threading.Thread):
                     log.debug("There is no input sleep 10 and continue...")
                     time.sleep(10)
                     continue
+                if c in ("r", "rs", "respawn", "reload"):
+                    if c == "rs":   # Prompt all fsm history and quit
+                        engine.perf.all_history()
+                    POWEROFF = 1
+                    break
                 if c in ("q", "Q", "quit", "exit", "qs"):
                     if c == "qs":   # Prompt all fsm history and quit
                         engine.perf.all_history()
-                    POWEROFF = 1
+                    POWEROFF = 0
                     break
                 if c == "":
                     continue

@@ -217,7 +217,7 @@
       }
 
       .select option[selected] {
-   color: red;
+   /*color: red;*/
 }
 
     .dropdownGnrl{
@@ -310,6 +310,7 @@
     }*/
 
     .tip {
+      font-size: 12px;
       padding:10px;
     	position: absolute;
     	background: #888888;
