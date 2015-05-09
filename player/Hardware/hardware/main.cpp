@@ -517,7 +517,6 @@ void killthread() {
   produce(q,"kill");
   consumer.join();
   cin << " ";
-  reader.join();
 }
 
 //clean befor exit
@@ -571,6 +570,7 @@ int main (int argc, char * argv[]){
   while(live);
   
   killthread();
+  exit(0);
   
   return 0;
   
