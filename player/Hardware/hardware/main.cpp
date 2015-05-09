@@ -516,6 +516,7 @@ thread consumer(bind(&consume, ref(q)));
 void killthread() {
   produce(q,"kill");
   consumer.join();
+  cin << " ";
   reader.join();
 }
 

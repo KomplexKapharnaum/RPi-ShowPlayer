@@ -33,6 +33,7 @@ testroutine [-nbr (int)]
 
 form program :
 "#INITHARDWARE"  --> doit être suivi d'un cin initconfig
+"#HARDWAREREADY" --> précise que le hardware est ok
 "#GET_INFO"  --> doit être suivi d'un cin info
 
 from carte : 
