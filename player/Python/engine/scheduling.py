@@ -10,7 +10,7 @@ import threading
 
 from engine.tools import register_thread, unregister_thread
 from engine.log import init_log
-log = init_log("sched", log_lvl="raw")
+log = init_log("sched")
 
 
 class ThreadScheduler:
@@ -33,7 +33,7 @@ class ThreadScheduler:
         return self._counter
 
     def enter(self, delay, action, argument=(), kwargs={}):
-        log.log("raw", "Add new scheduled action {0} in {1} sec".format(action, delay))
+        # log.log("raw", "Add new scheduled action {0} in {1} sec".format(action, delay))
         if not hasattr(argument, '__iter__'):
             argument = (argument, )
         self._counter += 1

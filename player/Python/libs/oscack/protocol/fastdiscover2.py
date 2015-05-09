@@ -231,13 +231,14 @@ def server_sync(flag):
     machine.append_flag(flag_timeout_task_sync.get(TTL=settings.get("OSC", "TTL"), JTL=settings.get("OSC", "JTL")))
 
 
-def add_timeout():
+def add_asksync_timeout():
     """
     This function add a timeout
     :return:
     """
-    log.error("ADD TIMEOUT ASK SYNC")
-    machine.append_flag(flag_timeout_wait_sync.get(TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
+    if machine.current_state == step_asktime:
+        log.warning("Add timeout ASK SYNC because time sync is too long")
+        machine.append_flag(flag_timeout_wait_sync.get(TTL=settings.get("rtp", "timeout") * 0.5, JTL=None))
 
 
 def client_sync(flag):
