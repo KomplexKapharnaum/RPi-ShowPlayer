@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #
 #
@@ -10,20 +11,19 @@ import time
 import application
 from modules import link
 from _classes import module
-from engine import tools, threads, fsm
+from engine import tools
 from engine.log import init_log
 from engine.setting import settings
 from engine.media import load_scenario_from_fs
-
 log = init_log("devicecontrol")
 
 
 @module('DeviceControl')
-@link({"/device/reload": "device_reload",
+@link({"/device/reload": "device_send_group_reload",
+       "/device/do_reload": "device_do_reload",
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
-        "/device/restart": "device_send_restart",
-        "/device/do_restart": "device_restart",
+        "/device/restart": "device_restart",
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
         "FS_TIMELINE_UPDATED": "device_update_timeline",
@@ -35,7 +35,7 @@ def device_control(flag, **kwargs):
 
 
 @link({None: "device_control"})
-def device_reload(flag, **kwargs):
+def device_do_reload(flag, **kwargs):
     application.reload()
 
 @link({None: "device_control"})

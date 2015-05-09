@@ -179,6 +179,7 @@ class KxkmCard(ExternalProcess):
         # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
         # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
         'INITHARDWARE': ['initHw'],
+        'HARDWAREREADY': ['transTo /hardware/ready'],
         'TELECO_GET_INFO': ['sendInfo'],
 
         'CARTE_PUSH_1': ['btnDown', True],
@@ -188,12 +189,17 @@ class KxkmCard(ExternalProcess):
 
         'CARTE_MESSAGE_POWEROFF': [True],
 
+        "CARTE_TENSION": ['transTo /device/sendInfoTension'],
+        "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
+
         'TELECO_PUSH_A': ['btnDown', True],
         'TELECO_PUSH_B': ['btnDown', True],
         'TELECO_PUSH_OK': ['btnDown', True],
 
         'TELECO_PUSH_REED': [True],
         'TELECO_PUSH_FLOAT': [True],
+
+        #old version for compatibility
 
         'TELECO_MESSAGE_BLINKGROUP': [],
         'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
@@ -208,17 +214,62 @@ class KxkmCard(ExternalProcess):
         "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
         "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
 
-        "CARTE_TENSION": ['transTo /device/sendInfoTension'],
-        "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension']
+
+        # new version
+
+        "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True], #TODO need to parse argument for scope of signal
+        "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
+        "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
+
+
+        "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
+        "TELECO_MESSAGE_SETTINGS_LOG_ERROR": [],
+        "TELECO_MESSAGE_SETTINGS_VOLPLUS": [],
+        "TELECO_MESSAGE_SETTINGS_VOLMOINS": [],
+        "TELECO_MESSAGE_SETTINGS_VOLSAVE": [],
+        "TELECO_MESSAGE_SETTINGS_VOLBACK": [],
+
+        "TELECO_MESSAGE_MODE_SHOW": [],
+        "TELECO_MESSAGE_MODE_REPET": [],
+        "TELECO_MESSAGE_MODE_DEBUG": [],
+        "TELECO_MESSAGE_LOG_ERROR": [],
+        "TELECO_MESSAGE_LOG_DEBUG": [],
+
+        "TELECO_MESSAGE_BLINKGROUP": [],
+        "TELECO_MESSAGE_TESTROUTINE": ['testRoutine'],
+
+        "TELECO_MESSAGE_SYS_RESTARTPY": [],
+        "TELECO_MESSAGE_SYS_RESTARTWIFI": ['transTo /device/wifi/restart'],
+        "TELECO_MESSAGE_SYS_UPDATESYS": ['transTo /device/updatesys'],
+        "TELECO_MESSAGE_SYS_POWEROFF": ['transTo /device/poweroff'],
+        "TELECO_MESSAGE_SYS_REBOOT": ['transTo /device/reboot'],
+
+        "TELECO_MESSAGE_GET_INFO": [],
+
+        "TELECO_MESSAGE_MEDIA_VOLPLUS": [],
+        "TELECO_MESSAGE_MEDIA_VOLMOINS": [],
+        "TELECO_MESSAGE_MEDIA_MUTE": [],
+        "TELECO_MESSAGE_MEDIA_PAUSE": [],
+        "TELECO_MESSAGE_MEDIA_PLAY": [],
+        "TELECO_MESSAGE_MEDIA_STOP": []
     }
 
 
 exposesignals(KxkmCard.Filters)
 
 
+@module('KxkmCard')
+@link({"/hardware/ready": "kxkm_card"})
+def init_kxkm_card(flag, **kwargs):
+    """
+    This function is an Etape for the KXKM Card FSM wich wait the end of the initialisation of the C prog
+    :param flag:
+    :return:
+    """
+    if "kxkmcard" not in kwargs["_fsm"].vars.keys():
+        kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
 
 # ETAPE AND SIGNALS
-@module('KxkmCard')
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
@@ -230,8 +281,7 @@ exposesignals(KxkmCard.Filters)
        "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/gyro [mode] [speed] [strob]": "kxkm_card_gyro"})
 def kxkm_card(flag, **kwargs):
-    if "kxkmcard" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
+    pass
 
 
 @link({None: "kxkm_card"})

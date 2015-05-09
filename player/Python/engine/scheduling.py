@@ -33,6 +33,7 @@ class ThreadScheduler:
         return self._counter
 
     def enter(self, delay, action, argument=(), kwargs={}):
+        # log.log("raw", "Add new scheduled action {0} in {1} sec".format(action, delay))
         if not hasattr(argument, '__iter__'):
             argument = (argument, )
         self._counter += 1
