@@ -515,7 +515,7 @@ void produce(Queue<string>& q, string message) {
 }
 
 void readcin(Queue<string>& q) {
-  input string;
+  string input;
   getline(cin, input);
   fprintf(stderr, "main - cin push %s\n",input.c_str());
   q.push(input);
