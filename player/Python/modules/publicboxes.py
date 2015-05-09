@@ -1,5 +1,7 @@
 import time
 
+import liblo
+
 from engine.threads import patcher
 from engine.fsm import Flag
 from engine.log import init_log
@@ -76,3 +78,16 @@ def delay(flag, **kwargs):
     """
     duration = search_in_or_default("duration", kwargs['args'], default=0)
     time.sleep(float(duration))
+
+
+@publicbox('[ip] [port] [msg]')
+def rawosc(flag, **kwargs):
+    """
+    This function send a raw OSC message to an IP : PORT
+    :param flag:
+    :param kwars:
+    :return:
+    """
+    ip = kwargs['args']['ip']
+    port = int(kwargs['args']['port'])
+    liblo.send(liblo.Address(ip, int(port)), liblo.Message(*kwargs['args']['msg'].split(' ')))

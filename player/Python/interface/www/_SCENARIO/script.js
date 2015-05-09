@@ -289,6 +289,7 @@
 					        var tempbox = {name:box.name, category:box.category, dispos: box.dispos, medias: box.medias, arguments: box.arguments, code:box.code};
 					        allBoxes.push(tempbox);
 					      });
+								buildLibrary();
 
             }
         });
@@ -409,10 +410,16 @@
           $(this).offset(draggablePos);
           if ((e.pageX < 900)&&(e.pageY < 2000)){
 
+						////// FILL counter technique
 						boxCount++;
+						var counts = new Array();
 						$.each(allStates,function(index,state){
 							var count = state.boxname.replace('box','');
-							if (count == boxCount) { boxCount++; }
+							counts.push(count);
+						});
+						counts.sort(function(a, b){return a-b});
+						$.each (counts, function(index,num){
+							if (num == boxCount) { boxCount++;}
 						});
 
             var name = $(this).attr('id');
@@ -447,6 +454,7 @@
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
     function state(name,boxname,category,px,py,dispoBOO,dispositifs,mediaBOO,arguments){
+
 
       var thisState = this;
   		this.box = $('<div>').addClass('box').attr('id', boxname);
@@ -1037,7 +1045,7 @@
             target: connection.TargetId
             //anchors: ["BottomCenter", [0.75, 0, 0, -1]]
         });
-        newConnection.setLabel(connection.connectionLabel);
+				if (connection.connectionLabel !== null) {newConnection.setLabel(connection.connectionLabel);}
 				// Si signal pas dans lib, l'ajouter au dropdown
 				if($.inArray(connection.connectionLabel, allSignals)===-1){allSignals.push(connection.connectionLabel);}
 				updateSignals();

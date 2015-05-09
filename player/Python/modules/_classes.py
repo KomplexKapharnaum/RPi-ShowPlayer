@@ -129,7 +129,7 @@ class ExternalProcess(object):
             message += "\n"
             m = message.encode("utf-8")
             self._popen.stdin.write(m)
-            log.log("error", " "+message)
+            log.log("raw", " "+message)
         else:
             # log.log("debug", "Message aborted, Thread not active ")
             pass
@@ -184,6 +184,8 @@ class ExternalProcess(object):
         if signal_name[0] == '/':
             signal_name = signal_name.replace('/', '_')[1:].upper()
         log.log("raw", signal_name+' '+' '.join(args[1:]))
+        if signal_name == "DEVICE_SENDINFOTENSION" and not settings.get("log", "tension", "active"):
+            return      # Avoid patch flag if setting unactive send tension info
         flag = Flag(signal_name).get(args={"args": args[1:]})
         patcher.patch(flag)
 
