@@ -144,7 +144,7 @@ class ExternalProcess(object):
                 break           # Ask to stop
             self._say(msg)
 
-    def say(self, message):
+    def _say(self, message):
         """
         This function overwrite the say ExternalProcess Function to add a queue
         :param message:
@@ -155,7 +155,7 @@ class ExternalProcess(object):
             return
         self._stdin_queue.put_nowait(message)
 
-    def _say(self, message):
+    def say(self, message):
         """
         This function is only used by the thread which write in the stdin
         :param message:
