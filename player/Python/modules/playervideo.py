@@ -110,7 +110,7 @@ def video_player(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
+    # kwargs["_fsm"].process.stop()
     kwargs["_fsm"].process = VlcPlayerOneShot()
 
 
