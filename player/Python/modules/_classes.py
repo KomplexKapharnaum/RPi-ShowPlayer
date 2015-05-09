@@ -136,6 +136,9 @@ class ExternalProcess(object):
         :return:
         """
         while True:
+            if not self.is_running():
+                time.sleep(0.1)
+                continue
             msg = self._stdin_queue.get()
             if msg is None:
                 break           # Ask to stop
@@ -147,10 +150,7 @@ class ExternalProcess(object):
         :param message:
         :return:
         """
-        if self.is_running():
-            self._stdin_queue.put_nowait(message)
-        else:
-            log.log("debug", "Message aborted, Thread not active ")
+        self._stdin_queue.put_nowait(message)
 
     def _say(self, message):
         """
