@@ -253,6 +253,21 @@ class Settings(dict):
                 return Settings.get_default(*args)
         return d
 
+    def set(self, *args):
+        """
+        Set a value to the settings and save it
+        :param args: path to the settings, and last is value ( "log", "teleco", "level", "debug" )
+        :return:
+        """
+        args = list(args)
+        value = args.pop()
+        d = self
+        for elem in args[0:-1]:
+            if elem not in d.keys():
+                d[elem] = dict()
+            d = d[elem]
+        d[args[-1]] = value
+
     def get_path(self, *args):
         """
         This function return a path based on settings with ("path","main") as root path
