@@ -487,7 +487,6 @@ void produce(Queue<string>& q, string message) {
 }
 
 void readcin(Queue<string>& q) {
-  bool loop_continue = true;
   string input;
   while (live) {
     getline(cin, input);
