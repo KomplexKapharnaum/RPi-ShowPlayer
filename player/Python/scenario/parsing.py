@@ -331,4 +331,6 @@ def parse_timeline(timeline):
         pool.Scenes[scene['name']] = Timeline[frame]
         pool.Frames.append(Timeline[frame]) # scene['name']
 
+        pool._Timeline = Timeline
+
     log.info("END NEW PARSING")

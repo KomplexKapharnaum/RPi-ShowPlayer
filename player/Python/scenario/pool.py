@@ -18,6 +18,8 @@ Medias = dict()
 cross_ref = list()
 
 
+_Timeline = None
+
 def clear():
     """
     This function init pool variable before parsing a new scenario file
