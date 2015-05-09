@@ -19,8 +19,8 @@ class VlcPlayer(ExternalProcess):
     """
     Video Lan VLC Player interface
     """
-    def __init__(self, start=True):
-        ExternalProcess.__init__(self, 'vlcvideo')
+    def __init__(self, start=True, name='vlcvideo', *args, **kwargs):
+        ExternalProcess.__init__(self, name=name, *args, **kwargs)
         self.onClose = "VIDEO_END"
         self.media = None
         self.repeat = False
@@ -78,8 +78,9 @@ class VlcPlayer(ExternalProcess):
 
 class VlcPlayerOneShot(VlcPlayer):
 
-    def __init__(self):
-        VlcPlayer.__init__(self, start=False)
+    def __init__(self, *args, **kwargs):
+        kwargs['start'] = False
+        VlcPlayer.__init__(self, *args, **kwargs)
 
     def play(self, filename=None, repeat=None):
         if filename is not None:
