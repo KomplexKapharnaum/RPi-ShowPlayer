@@ -220,13 +220,13 @@ exposesignals(KxkmCard.Filters)
 @module('KxkmCard')
 @link({"/hardware/ready": "kxkm_card"})
 def init_kxkm_card(flag, **kwargs):
-    if "kxkmcard" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
     """
     This function is an Etape for the KXKM Card FSM wich wait the end of the initialisation of the C prog
     :param flag:
     :return:
     """
+    if "kxkmcard" not in kwargs["_fsm"].vars.keys():
+        kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
 
 # ETAPE AND SIGNALS
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
