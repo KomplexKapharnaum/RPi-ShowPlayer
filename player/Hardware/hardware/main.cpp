@@ -258,7 +258,8 @@ int parseInput(string input){
       carte_name="TEST STAND";
       carte_ip="2.0.2.XXX";
       init=1;
-      mytitreur.putChar(0,0,'S');
+      //mytitreur.putChar(0,0,'S');
+      produce(q,"initcarte_local");
     }
     
   }else{
@@ -509,8 +510,15 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
-  fprintf(stderr, "main - push %s\n",message.c_str());
+  fprintf(stderr, "main - prog push %s\n",message.c_str());
   q.push(message);
+}
+
+void readcin(Queue<string>& q) {
+  input string;
+  getline(cin, input);
+  fprintf(stderr, "main - cin push %s\n",input.c_str());
+  q.push(input);
 }
 
 void consume(Queue<string>& q) {
@@ -527,6 +535,7 @@ void consume(Queue<string>& q) {
   
 //one reader, execute order one by one
 thread consumer(bind(&consume, ref(q)));
+thread reader(bind(&readcin));
   
 void killthread() {
   produce(q,"kill");
@@ -556,7 +565,6 @@ void myInterruptTELECO(void) {
 int main (int argc, char * argv[]){
   
 
-  
   //catch exit signal
   signal(SIGTERM, beforekill);
   signal(SIGINT, beforekill);
@@ -567,21 +575,11 @@ int main (int argc, char * argv[]){
   //program start
   cout << "#INITHARDWARE" << endl;
 
-  
   //wait for init
-  string input;
-  do {
-    getline(cin, input);
-    produce(q,input);
-  }while(!init);
+  while(!init);
   
-  //init carte
-  if(version_py=="-") {
-    produce(q,"initcarte_local");
-  }
-  else {
-    produce(q,"initcarte_main");
-  }
+  cout << "#HARDWAREREADY" << endl;
+  
   
   //init teleco if already connected // ISSUE HERE
   if (digitalRead(21)==HIGH) {
@@ -590,15 +588,12 @@ int main (int argc, char * argv[]){
   
   //start interrupt thread
   fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
-  wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE) ;
-  wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO) ;
+  wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
+  wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
   
   
   //wait for input
-  do {
-    getline(cin, input);
-    produce(q,input);
-  }while(live);
+  while(live);
   
   killthread();
   return 0;
