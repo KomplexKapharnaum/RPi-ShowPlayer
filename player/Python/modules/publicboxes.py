@@ -90,4 +90,12 @@ def rawosc(flag, **kwargs):
     """
     ip = kwargs['args']['ip']
     port = int(kwargs['args']['port'])
-    liblo.send(liblo.Address(ip, int(port)), liblo.Message(*kwargs['args']['msg'].split(' ')))
+    msg = kwargs['args']['msg'].split(' ')
+    path = msg[0]
+    args = list()
+    for arg in msg[1:]:
+        if len(arg) > 2:
+            if "_" == arg[0]:
+                arg = (arg[1], arg[2:])
+        args.append(arg)
+    liblo.send(liblo.Address(ip, int(port)), liblo.Message(path, *args))
