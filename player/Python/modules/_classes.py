@@ -18,7 +18,7 @@ from Queue import Queue
 from modules import MODULES
 from libs.subprocess32 import Popen, PIPE
 from engine.threads import patcher
-from engine.tools import register_thread, unregister_thread
+from engine.tools import register_thread, unregister_thread, show_trace
 from engine.fsm import Flag
 from engine.setting import settings
 from engine.log import init_log
@@ -161,6 +161,7 @@ class ExternalProcess(object):
         :return:
         """
         log.important("Add {0} message to {1} queue".format(message, self.name))
+        log.important(show_trace())
         if not self.is_running() and message == "stop":
             log.error("CATCH AND AVOID stop BEFORE LAUNCED VLC")
             if self._c == 0:
