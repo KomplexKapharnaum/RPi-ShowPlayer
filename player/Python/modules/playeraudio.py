@@ -74,7 +74,7 @@ def audio_player(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_play(flag, **kwargs):
-    # kwargs["_fsm"].process.stop()
+    kwargs["_fsm"].process.stop()
     kwargs["_fsm"].process = VlcAudio()
 
     media = flag.args["media"] if 'media' in flag.args else None
