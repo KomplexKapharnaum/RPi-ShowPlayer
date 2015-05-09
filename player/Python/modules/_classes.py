@@ -7,6 +7,7 @@ import threading
 import time
 import sys
 import codecs
+from Queue import Queue
 # import signal
 #
 # signal.signal(signal.SIGCLD, signal.SIG_IGN)    # Avoid defunct process (just ignore them if they crash
@@ -56,6 +57,8 @@ class ExternalProcess(object):
         self.stderr = None
         self.onOpen = None
         self.onClose = None
+        self._stdin_queue = Queue(maxsize=16)
+        self._stdin_thread = None
         if name:
             if name not in settings.get("path", "relative").keys():
                 self.executable = settings.get("path", name)
@@ -71,6 +74,7 @@ class ExternalProcess(object):
         self.stop()# Stop current process
         self._watchdog = threading.Thread(target=self._watch)
         self._defunctdog = threading.Thread(target=self._defunct)
+        self._stdin_thread = threading.Thread(target=self.stdin_thread)
         logfile = settings.get_path("logs")+'/'+self.name+'.log'
         try:
             self.stderr = open(logfile, 'w')
@@ -91,6 +95,7 @@ class ExternalProcess(object):
                                         # preexec_fn=lambda : os.nice(-20)
         self._watchdog.start()
         self._defunctdog.start()
+        self._stdin_thread.start()
         register_thread(self)
         if self.onOpen:
             self.onEvent([self.onOpen])
@@ -109,6 +114,7 @@ class ExternalProcess(object):
         :return:
         """
         if self.is_running():
+            self._stdin_queue.put_nowait(None)      # Ask to stop the stdin_thread
             try:
                 self._popen.terminate()  # Send SIGTERM to the player, asking to stop
                 log.debug('SIGTERM '+self.name)
@@ -124,15 +130,41 @@ class ExternalProcess(object):
     def is_running(self):
         return self._running.is_set()
 
+    def stdin_thread(self):
+        """
+        This function wait for a message to write into the stdin
+        :return:
+        """
+        while True:
+            if not self.is_running():
+                time.sleep(0.1)
+                continue
+            msg = self._stdin_queue.get()
+            if msg is None:
+                break           # Ask to stop
+            self._say(msg)
+
     def say(self, message):
+        """
+        This function overwrite the say ExternalProcess Function to add a queue
+        :param message:
+        :return:
+        """
+        self._stdin_queue.put_nowait(message)
+
+    def _say(self, message):
+        """
+        This function is only used by the thread which write in the stdin
+        :param message:
+        :return:
+        """
         if self.is_running():
             message += "\n"
             m = message.encode("utf-8")
             self._popen.stdin.write(m)
-            log.log("raw", " "+message)
+            log.log("important", " "+message)
         else:
-            # log.log("debug", "Message aborted, Thread not active ")
-            pass
+            log.log("debug", "Message aborted, Thread not active ")
 
     def _watch(self):
         """
