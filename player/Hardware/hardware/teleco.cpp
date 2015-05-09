@@ -66,7 +66,7 @@ void Teleco::setLedWarning(int val){
 
 
 //send info to the remote
-void Teleco::sendString(char Str1[], char Str2[], int val){
+bool Teleco::sendString(char Str1[], char Str2[], int val){
   if (lockCom==0){
   //setLedWarning(1);
   unsigned char buff[38];
@@ -81,8 +81,10 @@ void Teleco::sendString(char Str1[], char Str2[], int val){
   fprintf(stderr, "teleco - teleco send string type=%u : %s - %s\n",val,Str1,Str2);
   SPIcarte.send(0,buff,38);
   //setLedWarning(0);
+    return true;
   } else {
     fprintf(stderr, "teleco - cant send by lock\n");
+    return false;
   }
 }
 
@@ -110,6 +112,61 @@ int Teleco::readOrSetTelecoLock(int val){
 }
 
 
+#define TELECO_MESSAGE_PREVIOUSSCENE 1
+#define TELECO_MESSAGE_PREVIOUSSCENE_GROUP 2
+#define TELECO_MESSAGE_PREVIOUSSCENE_ALL_SYNC 3
+#define TELECO_MESSAGE_RESTARTSCENE 4
+#define TELECO_MESSAGE_RESTARTSCENE_GROUP 5
+#define TELECO_MESSAGE_RESTARTSCENE_ALL_SYNC 6
+#define TELECO_MESSAGE_NEXTSCENE 7
+#define TELECO_MESSAGE_NEXTSCENE_GROUP 8
+#define TELECO_MESSAGE_NEXTSCENE_ALL_SYNC 9
+
+#define TELECO_MESSAGE_SETTINGS_LOG_DEBUG 20
+#define TELECO_MESSAGE_SETTINGS_LOG_ERROR 21
+#define TELECO_MESSAGE_SETTINGS_VOLPLUS 22
+#define TELECO_MESSAGE_SETTINGS_VOLMOINS 23
+#define TELECO_MESSAGE_SETTINGS_VOLSAVE 24
+#define TELECO_MESSAGE_SETTINGS_VOLBACK 25
+
+#define TELECO_MESSAGE_MODE_SHOW 30
+#define TELECO_MESSAGE_MODE_REPET 31
+#define TELECO_MESSAGE_MODE_DEBUG 32
+#define TELECO_MESSAGE_LOG_ERROR 32
+#define TELECO_MESSAGE_LOG_DEBUG 32
+
+#define TELECO_MESSAGE_BLINKGROUP 40
+#define TELECO_MESSAGE_TESTROUTINE 41
+
+#define TELECO_MESSAGE_SYS_RESTARTPY 50
+#define TELECO_MESSAGE_SYS_RESTARTWIFI 51
+#define TELECO_MESSAGE_SYS_UPDATESYS 52
+#define TELECO_MESSAGE_SYS_POWEROFF 53
+#define TELECO_MESSAGE_SYS_REBOOT 54
+
+#define TELECO_MESSAGE_GET_INFO 60
+
+#define TELECO_MESSAGE_MEDIA_VOLPLUS 70
+#define TELECO_MESSAGE_MEDIA_VOLPLUS_GROUP 71
+#define TELECO_MESSAGE_MEDIA_VOLPLUS_ALL_SYNC 72
+#define TELECO_MESSAGE_MEDIA_VOLMOINS 73
+#define TELECO_MESSAGE_MEDIA_VOLMOINS_GROUP 74
+#define TELECO_MESSAGE_MEDIA_VOLMOINS_ALL_SYNC 75
+#define TELECO_MESSAGE_MEDIA_MUTE 76
+#define TELECO_MESSAGE_MEDIA_MUTE_GROUP 77
+#define TELECO_MESSAGE_MEDIA_MUTE_ALL_SYNC 78
+#define TELECO_MESSAGE_MEDIA_PAUSE 79
+#define TELECO_MESSAGE_MEDIA_PAUSE_GROUP 80
+#define TELECO_MESSAGE_MEDIA_PLAY 81
+#define TELECO_MESSAGE_MEDIA_PLAY_GROUP 82
+#define TELECO_MESSAGE_MEDIA_STOP 83
+#define TELECO_MESSAGE_MEDIA_STOP_GROUP 84
+
+
+
+
+
+
 //read intterupt from teleco and out corresponding message
 int Teleco::readInterrupt(){
   setLedWarning(1);
@@ -126,6 +183,10 @@ int Teleco::readInterrupt(){
   int valeur = buff[1];
   setLedWarning(0);
   switch (address) {
+    case T_DISPLAY_LOCK:
+      //fprintf(stderr, "teleco - lock com %u\n",valeur);
+      lockCom=valeur;
+      break;
     case T_PUSHA:
       std::cout << "#TELECO_PUSH_A "<< valeur << std::endl;
       break;
@@ -134,39 +195,149 @@ int Teleco::readInterrupt(){
       break;
     case T_PUSHROTARY:
       switch (valeur){
-        case 1:
-          std::cout << "#TELECO_MESSAGE_PREVIOUSSCENE" << std::endl;
+
+        case TELECO_MESSAGE_PREVIOUSSCENE:
+          std::cout << "# TELECO_MESSAGE_PREVIOUSSCENE" << std::endl;
           break;
-        case 2:
-          std::cout << "#TELECO_MESSAGE_RESTARTSCENE" << std::endl;
+        case TELECO_MESSAGE_PREVIOUSSCENE_GROUP:
+          std::cout << "# TELECO_MESSAGE_PREVIOUSSCENE_GROUP" << std::endl;
           break;
-        case 3:
-          std::cout << "#TELECO_MESSAGE_NEXTSCENE" << std::endl;
+        case TELECO_MESSAGE_PREVIOUSSCENE_ALL_SYNC:
+          std::cout << "# TELECO_MESSAGE_PREVIOUSSCENE_ALL_SYNC" << std::endl;
           break;
-        case 4:
-          std::cout << "#TELECO_MESSAGE_BLINKGROUP" << std::endl;
+        case TELECO_MESSAGE_RESTARTSCENE:
+          std::cout << "# TELECO_MESSAGE_RESTARTSCENE" << std::endl;
           break;
-        case 5:
-          std::cout << "#TELECO_MESSAGE_RESTARTPY" << std::endl;
+        case TELECO_MESSAGE_RESTARTSCENE_GROUP :
+          std::cout << "# TELECO_MESSAGE_RESTARTSCENE_GROUP" << std::endl;
           break;
-        case 6:
-          std::cout << "#TELECO_MESSAGE_RESTARTWIFI" << std::endl;
+        case TELECO_MESSAGE_RESTARTSCENE_ALL_SYNC :
+          std::cout << "# TELECO_MESSAGE_RESTARTSCENE_ALL_SYNC" << std::endl;
           break;
-        case 7:
-          std::cout << "#TELECO_MESSAGE_UPDATESYS" << std::endl;
+        case TELECO_MESSAGE_NEXTSCENE :
+          std::cout << "# TELECO_MESSAGE_NEXTSCENE" << std::endl;
           break;
-        case 8:
-          std::cout << "#TELECO_MESSAGE_POWEROFF" << std::endl;
+        case TELECO_MESSAGE_NEXTSCENE_GROUP :
+          std::cout << "# TELECO_MESSAGE_NEXTSCENE_GROUP" << std::endl;
+          break;
+        case TELECO_MESSAGE_NEXTSCENE_ALL_SYNC :
+          std::cout << "# TELECO_MESSAGE_NEXTSCENE_ALL_SYNC" << std::endl;
+          break;
+          
+          
+        case TELECO_MESSAGE_SETTINGS_LOG_DEBUG :
+          std::cout << "# TELECO_MESSAGE_SETTINGS_LOG_DEBUG" << std::endl;
+          break;
+        case TELECO_MESSAGE_SETTINGS_LOG_ERROR :
+          std::cout << "# TELECO_MESSAGE_SETTINGS_LOG_ERROR" << std::endl;
+          break;
+        case TELECO_MESSAGE_SETTINGS_VOLPLUS :
+          std::cout << "# TELECO_MESSAGE_SETTINGS_VOLPLUS" << std::endl;
+          break;
+        case TELECO_MESSAGE_SETTINGS_VOLMOINS :
+          std::cout << "# TELECO_MESSAGE_SETTINGS_VOLMOINS" << std::endl;
+          break;
+        case TELECO_MESSAGE_SETTINGS_VOLSAVE :
+          std::cout << "# TELECO_MESSAGE_SETTINGS_VOLSAVE" << std::endl;
+          break;
+        case TELECO_MESSAGE_SETTINGS_VOLBACK :
+          std::cout << "# TELECO_MESSAGE_SETTINGS_VOLBACK" << std::endl;
+          break;
+          
+          
+        case TELECO_MESSAGE_MODE_SHOW :
+          std::cout << "# TELECO_MESSAGE_MODE_SHOW" << std::endl;
+          break;
+        case TELECO_MESSAGE_MODE_REPET :
+          std::cout << "# TELECO_MESSAGE_MODE_REPET" << std::endl;
+          break;
+        case TELECO_MESSAGE_MODE_DEBUG :
+          std::cout << "# TELECO_MESSAGE_MODE_DEBUG" << std::endl;
+          break;
+        case TELECO_MESSAGE_LOG_ERROR :
+          std::cout << "# TELECO_MESSAGE_LOG_ERROR" << std::endl;
+          break;
+        case TELECO_MESSAGE_LOG_DEBUG :
+          std::cout << "# TELECO_MESSAGE_LOG_DEBUG" << std::endl;
+          break;
+          
+          
+        case TELECO_MESSAGE_BLINKGROUP :
+          std::cout << "# TELECO_MESSAGE_BLINKGROUP" << std::endl;
+          break;
+        case TELECO_MESSAGE_TESTROUTINE :
+          std::cout << "# TELECO_MESSAGE_TESTROUTINE" << std::endl;
+          needtestroutine=1;
+          break;
+          
+          
+        case TELECO_MESSAGE_SYS_RESTARTPY :
+          std::cout << "# TELECO_MESSAGE_SYS_RESTARTPY" << std::endl;
+          break;
+        case TELECO_MESSAGE_SYS_RESTARTWIFI :
+          std::cout << "# TELECO_MESSAGE_SYS_RESTARTWIFI" << std::endl;
+          break;
+        case TELECO_MESSAGE_SYS_UPDATESYS :
+          std::cout << "# TELECO_MESSAGE_SYS_UPDATESYS" << std::endl;
+          break;
+        case TELECO_MESSAGE_SYS_POWEROFF :
+          std::cout << "# TELECO_MESSAGE_SYS_POWEROFF" << std::endl;
           if(localpoweroff==1){
             system ("sudo shutdown -h now");
           }
           break;
-        case 9:
-          std::cout << "#TELECO_MESSAGE_REBOOT" << std::endl;
+        case TELECO_MESSAGE_SYS_REBOOT :
+          std::cout << "# TELECO_MESSAGE_SYS_REBOOT" << std::endl;
           break;
-        case 10:
-          std::cout << "#TELECO_MESSAGE_TESTROUTINE" << std::endl;
-          needtestroutine=1;
+          
+        case TELECO_MESSAGE_GET_INFO :
+          std::cout << "# TELECO_MESSAGE_GET_INFO" << std::endl;
+          break;
+          
+        case TELECO_MESSAGE_MEDIA_VOLPLUS :
+          std::cout << "# TELECO_MESSAGE_MEDIA_VOLPLUS" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_VOLPLUS_GROUP :
+          std::cout << "# TELECO_MESSAGE_MEDIA_VOLPLUS_GROUP" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_VOLPLUS_ALL_SYNC :
+          std::cout << "# TELECO_MESSAGE_MEDIA_VOLPLUS_ALL_SYNC" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_VOLMOINS :
+          std::cout << "# TELECO_MESSAGE_MEDIA_VOLMOINS" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_VOLMOINS_GROUP :
+          std::cout << "# TELECO_MESSAGE_MEDIA_VOLMOINS_GROUP" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_VOLMOINS_ALL_SYNC :
+          std::cout << "# TELECO_MESSAGE_MEDIA_VOLMOINS_ALL_SYNC" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_MUTE :
+          std::cout << "# TELECO_MESSAGE_MEDIA_MUTE" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_MUTE_GROUP :
+          std::cout << "# TELECO_MESSAGE_MEDIA_MUTE_GROUP" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_MUTE_ALL_SYNC :
+          std::cout << "# TELECO_MESSAGE_MEDIA_MUTE_ALL_SYNC" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_PAUSE :
+          std::cout << "# TELECO_MESSAGE_MEDIA_PAUSE" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_PAUSE_GROUP :
+          std::cout << "# TELECO_MESSAGE_MEDIA_PAUSE_GROUP" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_PLAY :
+          std::cout << "# TELECO_MESSAGE_MEDIA_PLAY" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_PLAY_GROUP :
+          std::cout << "# TELECO_MESSAGE_MEDIA_PLAY_GROUP" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_STOP :
+          std::cout << "# TELECO_MESSAGE_MEDIA_STOP" << std::endl;
+          break;
+        case TELECO_MESSAGE_MEDIA_STOP_GROUP :
+          std::cout << "# TELECO_MESSAGE_MEDIA_STOP_GROUP" << std::endl;
           break;
         default:
           std::cout << "#TELECO_MESSAGE_UNKNOW" << std::endl;
@@ -182,10 +353,6 @@ int Teleco::readInterrupt(){
       break;
     case T_FLOAT:
       std::cout << "#TELECO_FLOAT "<< valeur << std::endl;
-      break;
-    case T_DISPLAY_LOCK:
-      //fprintf(stderr, "teleco - lock com %u\n",valeur);
-      lockCom=valeur;
       break;
     case T_INIT:
       if (valeur==0) needstart=1;
