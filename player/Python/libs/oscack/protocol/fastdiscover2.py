@@ -258,7 +258,7 @@ def client_sync(flag):
     # network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
     #                         flag_timeout_wait_sync.get(
     #                             TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
-    network_scheduler.enter(settings.get("rtp", "timeout"), add_timeout)
+    network_scheduler.enter(settings.get("rtp", "timeout"), add_asksync_timeout)
     machine.current_state.preemptible.set()
     #log.log("error", "Just before sending asktime")
     message.send(target, msg_asktime.get())
