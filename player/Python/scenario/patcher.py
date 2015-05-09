@@ -125,7 +125,7 @@ class ThreadPatcher(threading.Thread):
         msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)),
                                       ('i', scenario.CURRENT_SCENE_FRAME), ACK=True)
         # If All just Broad cast
-        if "All" in signal.args["dest"]:
+        if "All" in sendto:
             message.send(message.Address("255.255.255.255"), msg_to_send)
             return
         # Else, send one by one
