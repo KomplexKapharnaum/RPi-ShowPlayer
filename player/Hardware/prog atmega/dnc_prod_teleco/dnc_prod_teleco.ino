@@ -331,7 +331,7 @@ typedef struct {
 #define T_MENU_BEHAVIOR_VOLUME 32
 #define T_MENU_BEHAVIOR_STATUTS 50
 
-#define T_MENU_LENGTH 46
+#define T_MENU_LENGTH 45
 
 //two variable objet to handle operation
 menutype menu;
@@ -416,7 +416,6 @@ const menutype menulist[T_MENU_LENGTH] PROGMEM = {
   {" do not clean","     V1.4",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0,true},
-  {"name + volt","OK  +  -",T_MENU_BEHAVIOUR_SHOW2,T_MENU_ID_SHOW_STATUS,0,0,0,true},
   {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"move next","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_NEXTSCENE,TELECO_MESSAGE_NEXTSCENE_GROUP,TELECO_MESSAGE_NEXTSCENE_ALL_SYNC,true},
   {"move previous","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_PREVIOUSSCENE,TELECO_MESSAGE_PREVIOUSSCENE_GROUP,TELECO_MESSAGE_PREVIOUSSCENE_ALL_SYNC,false},
@@ -429,7 +428,7 @@ const menutype menulist[T_MENU_LENGTH] PROGMEM = {
   {"pause","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_PAUSE,TELECO_MESSAGE_MEDIA_PAUSE_GROUP,0,false},
   {"play","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_PLAY,TELECO_MESSAGE_MEDIA_PLAY_GROUP,0,false},
   {"--settings","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
-    {"modes","show repe debu",T_MENU_BEHAVIOR_SELECT,0,TELECO_MESSAGE_MODE_SHOW,TELECO_MESSAGE_MODE_REPET,TELECO_MESSAGE_MODE_DEBUG,true},
+    {"modes","show repe debu",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MODE_SHOW,TELECO_MESSAGE_MODE_REPET,TELECO_MESSAGE_MODE_DEBUG,true},
     {"volume","    plus moins",T_MENU_BEHAVIOR_SELECT,0,0,TELECO_MESSAGE_SETTINGS_VOLPLUS,TELECO_MESSAGE_SETTINGS_VOLMOINS,false},
     {"volume memory","save back",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_SETTINGS_VOLSAVE,TELECO_MESSAGE_SETTINGS_VOLBACK,0,false},
     {"log level","error    debug",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_LOG_ERROR,0,TELECO_MESSAGE_LOG_DEBUG,false},
@@ -593,9 +592,6 @@ void gonextMasterMenu(){
   }
 }
 
-
-
-
 void gonextMenu(){
   memcpy_P (&temp, &menulist[currentMenu+1], sizeof(menutype));
   if (temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu+1<T_MENU_LENGTH && displayShow(temp.show)) {
@@ -604,7 +600,46 @@ void gonextMenu(){
   }
 }
 
-
+void confirm(byte button,byte val){
+  lcd.setCursor(0, 1);
+  lcd.print("               ");
+  lcd.setCursor(0, 1);
+  lcd.print("  confirm  ");
+  boolean wait=true;
+  
+  while(wait){
+    if(1-digitalRead(inpin[T_PUSHROTARY-T_DECINPIN])==1){
+      onePushRotary=1;
+      newValue[T_PUSHROTARY]=val;
+      updateInput(T_PUSHROTARY);
+      printf_P(PSTR("yes %u\n"),menu.ok);
+      lcd.print("OK");
+      if (val==TELECO_MESSAGE_MODE_SHOW) {
+        printf_P(PSTR("switch to show mode \n"));
+        show=true;
+      }
+      if (val==TELECO_MESSAGE_MODE_REPET || val==TELECO_MESSAGE_MODE_DEBUG) {
+        printf_P(PSTR("switch to no show mode \n"));
+        show=false;
+      }
+      while(wait){
+        if(1-digitalRead(inpin[button])==0) {
+          lcd.setCursor(0, 1);
+          lcd.print(menu.line2);
+          wait=false;
+        }
+      }
+    }else {
+      if(1-digitalRead(inpin[button])==0){
+          printf_P(PSTR("no\n"));
+          lcd.setCursor(0, 1);
+          lcd.print(menu.line2);
+          wait=false;
+        }
+    }
+    
+  }
+}
 
 
 //checkinput and do something function the menu we are
@@ -658,7 +693,7 @@ void newcheckInput(){
                   if (onePushA==0){
                     onePushA=1;
                     printf_P(PSTR("get pushA want confirm %u\n"),menu.a);
-                    confirm(T_PUSHA,menu.a);
+                    confirm(i,menu.a);
                   }
                 }else{
                   unselect();
@@ -690,8 +725,8 @@ void newcheckInput(){
                 if(1-digitalRead(inpin[i])==1){
                   if (onePushB==0){
                     onePushB=1;
-                    printf_P(PSTR("get pushB want confirm %u\n"),menu.b);
-                    confirm(T_PUSHB,menu.b);
+                    printf_P(PSTR("get pushB want confirm %u - "),menu.b);
+                    confirm(i,menu.b);
                   }
                 }else{
                   unselect();
@@ -723,8 +758,8 @@ void newcheckInput(){
                 if(1-digitalRead(inpin[i])==1){
                   if (onePushOK==0){
                     onePushOK=1;
-                    printf_P(PSTR("get pushOK select %u\n"),menu.ok);
-                    confirm(T_PUSHOK,menu.ok);
+                    printf_P(PSTR("get pushOK want confirm %u\n"),menu.ok);
+                    confirm(i,menu.ok);
                   }
                 }else{
                   unselect();
@@ -764,32 +799,7 @@ void newcheckInput(){
   }
 }
 
-void confirm(byte button,byte val){
-  lcd.setCursor(0, 1);
-  lcd.print("  confirm ");
-  boolean wait=true;
-  while(wait){
-    if(1-digitalRead(inpin[button])==0){
-      lcd.setCursor(0, 1);
-      lcd.print(menu.line2);
-      wait=false;
-    }
-    if(1-digitalRead(inpin[T_PUSHROTARY])==1){
-      newValue[T_PUSHROTARY]=val;
-      lcd.print("OK");
-      delay(100);
-      lcd.setCursor(0, 1);
-      lcd.print(menu.line2);
-      wait=false;
-      if (val==TELECO_MESSAGE_MODE_SHOW) {
-        show=true;
-      }
-      if (val==TELECO_MESSAGE_MODE_REPET || val==TELECO_MESSAGE_MODE_DEBUG) {
-        show=false;
-      }
-    }
-  }
-}
+
 
 void unselect(){
   newValue[T_PUSHROTARY]=0;

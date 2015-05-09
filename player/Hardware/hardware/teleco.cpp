@@ -286,7 +286,7 @@ int Teleco::readInterrupt(){
           std::cout << "#TELECO_MESSAGE_MEDIA_STOP_GROUP" << std::endl;
           break;
         default:
-          std::cout << "#TELECO_MESSAGE_UNKNOW" << std::endl;
+          //std::cout << "#TELECO_MESSAGE_UNKNOW" << std::endl;
           break;
           
       }
