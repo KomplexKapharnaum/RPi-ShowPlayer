@@ -57,6 +57,7 @@ class ExternalProcess(object):
         self.stderr = None
         self.onOpen = None
         self.onClose = None
+        self._c = 0
         self._stdin_queue = Queue(maxsize=16)
         self._stdin_thread = None
         if name:
@@ -95,7 +96,6 @@ class ExternalProcess(object):
                                         # preexec_fn=lambda : os.nice(-20)
         self._watchdog.start()
         self._defunctdog.start()
-        self._c = 0
         self._stdin_thread.start()
         register_thread(self)
         if self.onOpen:
