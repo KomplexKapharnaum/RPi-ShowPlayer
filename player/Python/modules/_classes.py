@@ -136,9 +136,6 @@ class ExternalProcess(object):
         :return:
         """
         while True:
-            if not self.is_running():
-                time.sleep(0.1)
-                continue
             msg = self._stdin_queue.get()
             if msg is None:
                 break           # Ask to stop
