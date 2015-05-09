@@ -17,8 +17,9 @@ Patchs = dict()
 Medias = dict()
 cross_ref = list()
 
-
+# Debug
 _Timeline = None
+_JSONtimeline = None
 
 def clear():
     """

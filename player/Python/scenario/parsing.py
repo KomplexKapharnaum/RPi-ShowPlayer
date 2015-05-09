@@ -332,5 +332,7 @@ def parse_timeline(timeline):
         pool.Frames.append(Timeline[frame]) # scene['name']
 
         pool._Timeline = Timeline
+        pool._JSONtimeline = timeline
+
 
     log.info("END NEW PARSING")
