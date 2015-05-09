@@ -323,7 +323,8 @@ def parse_timeline(timeline):
                     log.warning("{0} try to add scenario {1} but it doesn't exist".format(dispo['name'], scenario))
                     continue
                 # Init start_etape for dispo
-                Timeline[frame].start_etapes[dispo['name']] = list()
+                if dispo['name'] not in Timeline[frame].start_etapes.keys():
+                    Timeline[frame].start_etapes[dispo['name']] = list()
                 for etape in SCENARIO[scenario]['boxes']:   # Search start box in this scenario
                     if etape['name'] == "START" and ('Self' in etape['dispositifs'] or dispo['name'] in etape['dispositifs']):
                         log.important("Found start box : {0} for {1}".format(boxname(scenario, etape), dispo['name']))
