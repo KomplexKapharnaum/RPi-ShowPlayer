@@ -137,6 +137,7 @@ def parse_library(libs):
 
 # 3: SCENARIOS
 def parse_scenario(parsepool, name):
+    pool._JSONScenario.append(parsepool)
     # GET PARSED SCENARIO FILE
     importEtapes = {}
     if 'boxes' not in parsepool:
@@ -317,18 +318,25 @@ def parse_timeline(timeline):
                 continue
             # Search in all scenario launched by the card in the current scene
             for scenario in dispo['blocks'][frame]['scenarios']:
+                log.important("Read scenario {0} for {1}".format(scenario, dispo['name']))
                 if scenario not in SCENARIO.keys():         # Scenario doesn't exist
                     log.warning("{0} try to add scenario {1} but it doesn't exist".format(dispo['name'], scenario))
                     continue
                 # Init start_etape for dispo
-                Timeline[frame].start_etapes[dispo['name']] = list()
+                if dispo['name'] not in Timeline[frame].start_etapes.keys():
+                    Timeline[frame].start_etapes[dispo['name']] = list()
                 for etape in SCENARIO[scenario]['boxes']:   # Search start box in this scenario
                     if etape['name'] == "START" and ('Self' in etape['dispositifs'] or dispo['name'] in etape['dispositifs']):
+                        log.important("Found start box : {0} for {1}".format(boxname(scenario, etape), dispo['name']))
                         # This START box is for us => append to start_etapes
                         Timeline[frame].start_etapes[dispo['name']].append(
                             pool.Etapes_and_Functions[boxname(scenario, etape)])
         # End parse scene
         pool.Scenes[scene['name']] = Timeline[frame]
         pool.Frames.append(Timeline[frame]) # scene['name']
+
+        pool._Timeline = Timeline
+        pool._JSONtimeline = timeline
+
 
     log.info("END NEW PARSING")

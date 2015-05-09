@@ -18,6 +18,8 @@ log = init_log("audio")
 ## FILE2FILE: GOOD
 ## LOOP: BAD
 class VlcAudio(VlcPlayerOneShot):
+    def __init__(self, *args, **kwargs):
+        VlcPlayerOneShot.__init__(self, name='vlcaudio', *args, **kwargs)
 
     def preload(self, *args, **kwargs):
         VlcPlayerOneShot.preload(self, *args, mediatype='audio', **kwargs)

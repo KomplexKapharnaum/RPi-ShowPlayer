@@ -18,7 +18,7 @@ from Queue import Queue
 from modules import MODULES
 from libs.subprocess32 import Popen, PIPE
 from engine.threads import patcher
-from engine.tools import register_thread, unregister_thread
+from engine.tools import register_thread, unregister_thread, show_trace
 from engine.fsm import Flag
 from engine.setting import settings
 from engine.log import init_log
@@ -57,6 +57,7 @@ class ExternalProcess(object):
         self.stderr = None
         self.onOpen = None
         self.onClose = None
+        self._c = 0
         self._stdin_queue = Queue(maxsize=16)
         self._stdin_thread = None
         if name:
@@ -108,6 +109,15 @@ class ExternalProcess(object):
         while self._popen.poll() is None:
             time.sleep(0.1)
 
+    def clean_queue(self):
+        """
+        This function clean the queue
+        :return:
+        """
+        self._stdin_queue.put_nowait(None) # Release thread
+
+
+
     def stop(self):
         """
         Ask to stop the external process
@@ -150,6 +160,12 @@ class ExternalProcess(object):
         :param message:
         :return:
         """
+        log.important("Add {0} message to {1} queue".format(message, self.name))
+        if message == "stop":
+            log.important(show_trace())
+        if not self.is_running() and message == "stop":
+            log.error("CATCH AND AVOID stop BEFORE LAUNCED VLC")
+            return
         self._stdin_queue.put_nowait(message)
 
     def _say(self, message):

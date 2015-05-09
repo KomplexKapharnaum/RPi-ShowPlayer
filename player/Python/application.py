@@ -229,6 +229,12 @@ class inputThread(threading.Thread):
                     tmpfsm.start(tmpstate)
                 elif cmd[0] == "history":
                     engine.perf.prompt_history()
+                elif cmd[0] == "timeline":
+                    log.info(scenario.pool._Timeline)
+                elif cmd[0] == "timelinejson":
+                    log.info(scenario.pool._JSONtimeline)
+                elif cmd[0] == "scenariojson":
+                    log.info(scenario.pool._JSONScenario)
                 elif cmd[0] == "mhistory":
                     engine.perf.multiplex_history(cmd[1:])
                 elif cmd[0] == "_log":

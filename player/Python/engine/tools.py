@@ -6,6 +6,7 @@
 
 import weakref
 import sys
+import traceback
 import os
 import time
 import unicodedata
@@ -137,6 +138,8 @@ def log_teleco(lines, page="log", encode="utf-8"):
     :param encode: Encoding of input strings, if none, assume data are already encoded
     :return:
     """
+    if settings.get("log", "teleco", "active") is not True:
+        return
     if not isinstance(lines, (list, tuple)):
         lines = [lines, ]
     encoded_lines = list()
@@ -261,6 +264,9 @@ class ThreadTeleco(threading.Thread):
                 blocs.append(list())  # New block
             blocs[-1].append(line)
         return blocs
+
+def show_trace():
+    traceback.print_stack()
 
 
 engine.log.log_teleco = log_teleco  # This add log_teleco real function to log to avoid circular import
