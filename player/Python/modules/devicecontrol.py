@@ -6,6 +6,7 @@
 #
 
 import liblo
+import time
 import application
 from modules import link
 from _classes import module
@@ -43,10 +44,11 @@ def device_send_restart(flag, **kwargs):
     This function send a restart signal to all members of the current group
     """
     flag = fsm.Flag("DEVICE_DO_RESTART")
-    threads.patcher.patch(flag.get(args={"dest": settings.get("scenario", "dest_group")}))
+    threads.patcher.patch(flag.get(args={"dest": "Group"}))
 
 @link({None: "device_control"})
 def device_restart(flag, **kwargs):
+    time.sleep(0.5)
     application.POWEROFF = 1
 
 @link({None: "device_control"})
