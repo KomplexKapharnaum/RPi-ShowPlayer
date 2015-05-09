@@ -179,6 +179,7 @@ class KxkmCard(ExternalProcess):
         # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
         # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
         'INITHARDWARE': ['initHw'],
+        'HARDWAREREADY': ['transTo /hardware/ready'],
         'TELECO_GET_INFO': ['sendInfo'],
 
         'CARTE_PUSH_1': ['btnDown', True],
@@ -216,9 +217,18 @@ class KxkmCard(ExternalProcess):
 exposesignals(KxkmCard.Filters)
 
 
+@module('KxkmCard')
+@link({"/hardware/ready": "kxkm_card"})
+def init_kxkm_card(flag, **kwargs):
+    if "kxkmcard" not in kwargs["_fsm"].vars.keys():
+        kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
+    """
+    This function is an Etape for the KXKM Card FSM wich wait the end of the initialisation of the C prog
+    :param flag:
+    :return:
+    """
 
 # ETAPE AND SIGNALS
-@module('KxkmCard')
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
@@ -229,9 +239,8 @@ exposesignals(KxkmCard.Filters)
        "/lumiere/led1 [led10w1] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/gyro [mode] [speed] [strob]": "kxkm_card_gyro"})
-def kxkm_card(flag, **kwargs):
-    if "kxkmcard" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
+def kxkm_card(flag):
+    pass
 
 
 @link({None: "kxkm_card"})
