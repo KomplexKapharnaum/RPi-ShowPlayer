@@ -112,9 +112,9 @@ void Titreur::plot(int x,int y,int val){
 void Titreur::putChar(int x, int y, char c){
   fprintf(stderr, "%c(%u)",c,c);
   c-=32;
-
-  for (char col=0; col< 6; col++) {
-    char dots = myfont[c][col];
+  int cc=c;
+  for (int col=0; col< 6; col++) {
+    unsigned char dots = myfont[cc][col];
     for (char row=0; row < 8; row++) { // only 8 rows.
       if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
     }

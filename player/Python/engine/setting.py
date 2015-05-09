@@ -149,6 +149,7 @@ DEFAULT_SETTING["log"]["output"] = "Console"
 DEFAULT_SETTING["log"]["tension"] = dict()
 DEFAULT_SETTING["log"]["tension"]["port"] = 1783
 DEFAULT_SETTING["log"]["tension"]["ip"] = ["255.255.255.255"]
+DEFAULT_SETTING["log"]["tension"]["active"] = True          # Active the propagation of info tension
 DEFAULT_SETTING["log"]["teleco"] = dict()
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5       # Block 1.5 s for assure error displaying
 DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 3          # Block 1.5 s before displaying an other message
