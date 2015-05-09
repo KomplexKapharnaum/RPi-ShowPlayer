@@ -196,6 +196,8 @@ class KxkmCard(ExternalProcess):
         'TELECO_PUSH_REED': [True],
         'TELECO_PUSH_FLOAT': [True],
 
+
+
         'TELECO_MESSAGE_BLINKGROUP': [],
         'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
 
@@ -210,7 +212,45 @@ class KxkmCard(ExternalProcess):
         "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
 
         "CARTE_TENSION": ['transTo /device/sendInfoTension'],
-        "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension']
+        "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
+
+        # new version for compatibility
+
+        "TELECO_MESSAGE_PREVIOUSSCENE": [],
+        "TELECO_MESSAGE_RESTARTSCENE": [],
+        "TELECO_MESSAGE_NEXTSCENE": [],
+
+
+        "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
+        "TELECO_MESSAGE_SETTINGS_LOG_ERROR": [],
+        "TELECO_MESSAGE_SETTINGS_VOLPLUS": [],
+        "TELECO_MESSAGE_SETTINGS_VOLMOINS": [],
+        "TELECO_MESSAGE_SETTINGS_VOLSAVE": [],
+        "TELECO_MESSAGE_SETTINGS_VOLBACK": [],
+
+        "TELECO_MESSAGE_MODE_SHOW": [],
+        "TELECO_MESSAGE_MODE_REPET": [],
+        "TELECO_MESSAGE_MODE_DEBUG": [],
+        "TELECO_MESSAGE_LOG_ERROR": [],
+        "TELECO_MESSAGE_LOG_DEBUG": [],
+
+        "TELECO_MESSAGE_BLINKGROUP": [],
+        "TELECO_MESSAGE_TESTROUTINE": [],
+
+        "TELECO_MESSAGE_SYS_RESTARTPY": [],
+        "TELECO_MESSAGE_SYS_RESTARTWIFI": [],
+        "TELECO_MESSAGE_SYS_UPDATESYS": [],
+        "TELECO_MESSAGE_SYS_POWEROFF": [],
+        "TELECO_MESSAGE_SYS_REBOOT": [],
+
+        "TELECO_MESSAGE_GET_INFO": [],
+
+        "TELECO_MESSAGE_MEDIA_VOLPLUS": [],
+        "TELECO_MESSAGE_MEDIA_VOLMOINS": [],
+        "TELECO_MESSAGE_MEDIA_MUTE": [],
+        "TELECO_MESSAGE_MEDIA_PAUSE": [],
+        "TELECO_MESSAGE_MEDIA_PLAY": [],
+        "TELECO_MESSAGE_MEDIA_STOP": []
     }
 
 
