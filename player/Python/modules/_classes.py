@@ -157,6 +157,7 @@ class ExternalProcess(object):
                 self._c += 1
             else:
                 raise Exception()
+            return
         self._stdin_queue.put_nowait(message)
 
     def _say(self, message):
