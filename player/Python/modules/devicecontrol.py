@@ -69,6 +69,7 @@ def device_update_system(flag, **kwargs):
 
 @link({None: "device_reload"})
 def device_update_timeline(flag, **kwargs):
+    log.debug("Updating timeline ...")
     load_scenario_from_fs(settings["current_timeline"])
 
 @link({None: "device_control"})
