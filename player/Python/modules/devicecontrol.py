@@ -19,7 +19,7 @@ log = init_log("devicecontrol")
 
 
 @module('DeviceControl')
-@link({"/device/reload": "device_send_group_reload",
+@link({"/device/reload": "device_do_reload",
        "/device/do_reload": "device_do_reload",
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
