@@ -62,6 +62,7 @@ def add_coloring_to_emit_ansi(fn):
 logging.StreamHandler.emit = add_coloring_to_emit_ansi(logging.StreamHandler.emit)
 
 LEVELS = {
+    "tmp": logging.DEBUG - 6,
     "raw": logging.DEBUG - 5,
     "net_raw": logging.DEBUG - 3,
     "net_dbg": logging.DEBUG - 2,
