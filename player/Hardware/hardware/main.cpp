@@ -515,8 +515,7 @@ thread consumer(bind(&consume, ref(q)));
 void killthread() {
   produce(q,"kill");
   consumer.join();
-  reader.terminate();
-  reader.join();
+  //reader.join(); TODO: find way to kill reader before exit
 }
 
 //clean befor exit
