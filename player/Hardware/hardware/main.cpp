@@ -515,12 +515,7 @@ thread consumer(bind(&consume, ref(q)));
 void killthread() {
   produce(q,"kill");
   consumer.join();
-  streambuf *buf = cin.rdbuf(); // keep the cin buffer to restore it
-  
-  ifstream file ( "something"); // create the file
-  
-  cin.rdbuf( file.rdbuf() ); // redirect input
-  cin.rdbuf ( buf );
+  reader.terminate();
   reader.join();
 }
 
