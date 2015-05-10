@@ -520,6 +520,7 @@ void killthread() {
   ifstream file ( "something"); // create the file
   
   cin.rdbuf( file.rdbuf() ); // redirect input
+  cin.rdbuf ( buf );
   reader.join();
 }
 
