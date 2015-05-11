@@ -131,6 +131,7 @@ exposesignals(VideoVLCPlayer.Filters)
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VideoVLCPlayer()
+        kwargs["_fsm"].process.start()
 
 
 @link({None: "video_player"})
