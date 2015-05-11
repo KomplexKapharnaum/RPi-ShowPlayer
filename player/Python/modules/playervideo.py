@@ -13,6 +13,7 @@ from modules import link, exposesignals
 from engine.setting import settings
 from engine.log import init_log
 from libs import rtplib
+
 log = init_log("video")
 
 
@@ -20,6 +21,7 @@ class VideoVLCPlayer(AbstractVLC):
     """
     This class define an VideoPlayer with VLC as player backend
     """
+
     def __init__(self):
         commande = copy.copy(settings.get("path", "vlc"))
         """:type: str"""
@@ -35,7 +37,7 @@ class VideoVLCPlayer(AbstractVLC):
 
 #
 # class VlcPlayer(ExternalProcess):
-#     """
+# """
 #     Video Lan VLC Player interface
 #     """
 #     def __init__(self, start=True, name='vlcvideo', *args, **kwargs):
@@ -119,11 +121,13 @@ exposesignals(VideoVLCPlayer.Filters)
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
 @link({"/video/play [media] [repeat]": "video_play",
-        "/video/pause": "video_pause",
-        "/video/stop": "video_stop",
-        "/video/volumeup": "video_volume_up",
-        "/video/volumedown": "video_volume_down",
-        "/video/set_volume [volume]": "video_set_volume"})
+       "/video/pause": "video_pause",
+       "/video/resume": "video_resume",
+       "/video/toggle": "video_toggle",
+       "/video/stop": "video_stop",
+       "/video/volumeup": "video_volume_up",
+       "/video/volumedown": "video_volume_down",
+       "/video/set_volume [volume]": "video_set_volume"})
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VideoVLCPlayer()
@@ -131,27 +135,23 @@ def video_player(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
-    kwargs["_fsm"].process = VlcPlayerOneShot()
-
+    if kwargs["_fsm"].process is None:
+        video_player(flag, kwargs)
 
     media = flag.args["media"] if 'media' in flag.args else None
-    repeat = flag.args["repeat"] if 'repeat' in flag.args else None
+    kwargs["_fsm"].process.load(media)
+    # repeat = flag.args["repeat"] if 'repeat' in flag.args else None
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
-        kwargs["_fsm"].process.preload(media, repeat)
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        kwargs["_fsm"].process.play()
         log.debug('+++ SYNC PLAY')
-    else:
-        kwargs["_fsm"].process.play(media, repeat)
-
-    kwargs["_etape"].preemptible.set()
+    kwargs["_fsm"].process.play()
+    # kwargs["_etape"].preemptible.set()
 
 
 @link({None: "video_player"})
 def video_stop(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
+    kwargs["_fsm"].process.stop_media()
 
 
 @link({None: "video_player"})
@@ -160,8 +160,18 @@ def video_pause(flag, **kwargs):
 
 
 @link({None: "video_player"})
+def video_resume(flag, **kwargs):
+    kwargs["_fsm"].process.resume()
+
+
+@link({None: "video_player"})
+def video_toggle(flag, **kwargs):
+    kwargs["_fsm"].process.toggle()
+
+
+@link({None: "video_player"})
 def video_set_volume(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+    if isinstance(kwargs["_fsm"].process, VideoVLCPlayer):
         kwargs["_fsm"].process.set_volume(flag.args["volume"])
     else:
         log.warning("Ask to set volume on an unlauched process (VlcPlayer)")
@@ -169,7 +179,7 @@ def video_set_volume(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_volume_up(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+    if isinstance(kwargs["_fsm"].process, VideoVLCPlayer):
         kwargs["_fsm"].process.volume_up()
     else:
         log.warning("Ask to volume up on an unlauched process (VlcPlayer)")
@@ -177,11 +187,10 @@ def video_volume_up(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_volume_down(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+    if isinstance(kwargs["_fsm"].process, VideoVLCPlayer):
         kwargs["_fsm"].process.volume_down()
     else:
         log.warning("Ask to volume down on an unlauched process (VlcPlayer)")
-
 
 
 '''
