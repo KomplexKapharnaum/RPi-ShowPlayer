@@ -138,15 +138,18 @@ class ExternalProcess(object):
         """
         self._ask_to_stop.set()
 
-    def join(self):
+    def join(self, *args, **kwargs):
+        """
+        Wait all thread and process to be stopped
+        """
         if self._is_stopping is not True:
             self._log("warning", "Ask to join before it has been ask to stop")
         elif not self._is_launched.is_set():
             self._log("warning", "Ask to join before it has been launched")
             return False
-        self._defunctdog_thread.join()
-        self._stdin_thread.join()
-        self._stdout_thread.join()
+        self._defunctdog_thread.join(*args, **kwargs)
+        self._stdin_thread.join(*args, **kwargs)
+        self._stdout_thread.join(*args, *kwargs)
         return True
 
     def _stdin_writer(self):
