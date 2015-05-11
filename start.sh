@@ -1,4 +1,13 @@
 #!/bin/bash
+
+if [ $(ps -ejH w | grep start.sh | grep -v grep | wc -l ) -eq 2 ]; then
+    echo "DNC starter begin .."
+else
+    echo "An instance is already running .."
+    echo "EXIT"
+    exit 0
+fi
+
 running=1
 DIRECT_INOUT=0
 
@@ -32,14 +41,14 @@ while (( running )); do
 	kill_zombies
 	echo "ShowPlayer Start"
     if ((DIRECT_INOUT)); then
-    	./player/Python/main.py
+    	nice -n -20 ./player/Python/main.py
     else
         echo "wait before start"
         sleep 15
     	mkdir -p /tmp/dnc
     	# echo '' > /tmp/dnc/stdin
     	touch /tmp/dnc/main.log
-	./player/Python/main.py &> /tmp/dnc/main.log
+	    nice -n -20 ./player/Python/main.py &> /tmp/dnc/main.log
     	# ./player/Python/main.py < /tmp/dnc/stdin &> ./logs/main.log
     fi
     exitcode=$?

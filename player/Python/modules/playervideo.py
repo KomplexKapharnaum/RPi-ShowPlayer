@@ -6,133 +6,162 @@
 
 import os
 import time
+import copy
 
-from _classes import ExternalProcess, module
+from _classes import AbstractVLC, ExternalProcess, module
 from modules import link, exposesignals
 from engine.setting import settings
 from engine.log import init_log
 from libs import rtplib
+
 log = init_log("video")
 
 
-class VlcPlayer(ExternalProcess):
+class VideoVLCPlayer(AbstractVLC):
     """
-    Video Lan VLC Player interface
+    This class define an VideoPlayer with VLC as player backend
     """
-    def __init__(self, start=True, name='vlcvideo', *args, **kwargs):
-        ExternalProcess.__init__(self, name=name, *args, **kwargs)
-        self.onClose = "VIDEO_END"
-        self.media = None
-        self.repeat = False
-        self.preloaded = False
-        if start:
-            self.start()
 
-    def preload(self, filename=None, repeat=None, mediatype='video'):
-        if filename is not None:
-            media = os.path.join(settings.get_path("media", mediatype), filename)
-            if os.path.isfile(media):
-                self.media = media
+    def __init__(self):
+        command = copy.copy(settings.get_path("mvlc"))
+        """:type: str"""
+        arguments = copy.copy(settings.get("vlc", "options", "default"))
+        """:type: dict"""
+        arguments.update(settings.get("vlc", "options", "video"))
+        log.log("error", "Vlc arguments : {0}".format(arguments))
+        AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments))
 
-        if repeat is not None:
-            self.repeat = True if repeat else False
-
-        if self.media is None or not os.path.isfile(self.media):
-            log.warning("Media File not found {0}".format(self.media))
-            self.preloaded = False
-        else:
-            self.preloaded = True
-
-    def play(self, filename=None, repeat=None):
-        if filename is not None:
-            self.preload(filename, repeat)
-        if self.preloaded:
-            #self.say("clear")
-            self.say("add {media}".format(media=self.media))
-            self.say("volume {0}".format(settings.get("sys", "vlc_volume")))        # Set default VLC volume
-            #self.say("play")
-            repeat = 'on' if self.repeat else 'off'
-            self.say("repeat {switch}".format(switch=repeat))
-
-    def pause(self):
-        self.say("pause")
-
-    def stop(self):
-        if self.is_running():
-            self.say("stop")
-        time.sleep(0.01)
-        ExternalProcess.stop(self)
-
-    def set_volume(self, value):
-        self.say("volume {0}".format(value))
-
-    def volume_up(self):
-        self.say("volup")
-
-    def volume_down(self):
-        self.say("voldown")
+    def check_media(self, media):
+        """
+        Add video to the media path
+        """
+        return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "video"), media))
 
     Filters = {
-        'VIDEO_END': [True]
+        "MEDIA_END": ["transTo /video/end", True],
+        "VIDEO_END": [True]
     }
 
+#
+# class VlcPlayer(ExternalProcess):
+# """
+#     Video Lan VLC Player interface
+#     """
+#     def __init__(self, start=True, name='vlcvideo', *args, **kwargs):
+#         ExternalProcess.__init__(self, name=name, *args, **kwargs)
+#         self.onClose = "VIDEO_END"
+#         self.media = None
+#         self.repeat = False
+#         self.preloaded = False
+#         if start:
+#             self.start()
+#
+#     def preload(self, filename=None, repeat=None, mediatype='video'):
+#         if filename is not None:
+#             media = os.path.join(settings.get_path("media", mediatype), filename)
+#             if os.path.isfile(media):
+#                 self.media = media
+#
+#         if repeat is not None:
+#             self.repeat = True if repeat else False
+#
+#         if self.media is None or not os.path.isfile(self.media):
+#             log.warning("Media File not found {0}".format(self.media))
+#             self.preloaded = False
+#         else:
+#             self.preloaded = True
+#
+#     def play(self, filename=None, repeat=None):
+#         if filename is not None:
+#             self.preload(filename, repeat)
+#         if self.preloaded:
+#             #self.say("clear")
+#             self.say("add {media}".format(media=self.media))
+#             self.say("volume {0}".format(settings.get("sys", "vlc_volume")))        # Set default VLC volume
+#             #self.say("play")
+#             repeat = 'on' if self.repeat else 'off'
+#             self.say("repeat {switch}".format(switch=repeat))
+#
+#     def pause(self):
+#         self.say("pause")
+#
+#     def stop(self):
+#         if self.is_running():
+#             self.say("stop")
+#         time.sleep(0.01)
+#         ExternalProcess.stop(self)
+#
+#     def set_volume(self, value):
+#         self.say("volume {0}".format(value))
+#
+#     def volume_up(self):
+#         self.say("volup")
+#
+#     def volume_down(self):
+#         self.say("voldown")
+#
+#     Filters = {
+#         'VIDEO_END': [True]
+#     }
+#
+#
+# class VlcPlayerOneShot(VlcPlayer):
+#
+#     def __init__(self, *args, **kwargs):
+#         kwargs['start'] = False
+#         VlcPlayer.__init__(self, *args, **kwargs)
+#
+#     def play(self, filename=None, repeat=None):
+#         if filename is not None:
+#             self.preload(filename, repeat)
+#         if self.preloaded:
+#             self.command = self.executable+' --play-and-exit '
+#             if repeat:
+#                 self.command += ' --repeat '
+#             self.command += self.media
+#             self.start()
 
-class VlcPlayerOneShot(VlcPlayer):
-
-    def __init__(self, *args, **kwargs):
-        kwargs['start'] = False
-        VlcPlayer.__init__(self, *args, **kwargs)
-
-    def play(self, filename=None, repeat=None):
-        if filename is not None:
-            self.preload(filename, repeat)
-        if self.preloaded:
-            self.command = self.executable+' --play-and-exit '
-            if repeat:
-                self.command += ' --repeat '
-            self.command += self.media
-            self.start()
-
-exposesignals(VlcPlayer.Filters)
+exposesignals(VideoVLCPlayer.Filters)
 
 
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
 @link({"/video/play [media] [repeat]": "video_play",
-        "/video/pause": "video_pause",
-        "/video/stop": "video_stop",
-        "/video/volumeup": "video_volume_up",
-        "/video/volumedown": "video_volume_down",
-        "/video/set_volume [volume]": "video_set_volume"})
+       "/video/pause": "video_pause",
+       "/video/resume": "video_resume",
+       "/video/toggle": "video_toggle",
+       "/video/stop": "video_stop",
+       "/video/volumeup": "video_volume_up",
+       "/video/volumedown": "video_volume_down",
+       "/video/set_volume [volume]": "video_set_volume"})
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
-        kwargs["_fsm"].process = VlcPlayerOneShot()
+        kwargs["_fsm"].process = VideoVLCPlayer()
+        kwargs["_fsm"].process.start()
 
 
 @link({None: "video_player"})
 def video_play(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
-    kwargs["_fsm"].process = VlcPlayerOneShot()
-
+    if kwargs["_fsm"].process is None:
+        video_player(flag, kwargs)
 
     media = flag.args["media"] if 'media' in flag.args else None
+    kwargs["_fsm"].process.load(media)
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
+    kwargs["_fsm"].process.repeat(repeat)
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
-        kwargs["_fsm"].process.preload(media, repeat)
+        log.debug('+++ BEFORE SYNC PLAY {0}'.format(rtplib.get_time()))
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        kwargs["_fsm"].process.play()
-        log.debug('+++ SYNC PLAY')
-    else:
-        kwargs["_fsm"].process.play(media, repeat)
-
-    kwargs["_etape"].preemptible.set()
+        log.debug('+++ SYNC PLAY {0}'.format(flag.args['abs_time_sync']))
+    kwargs["_fsm"].process.play()
+    # kwargs["_etape"].preemptible.set()
 
 
 @link({None: "video_player"})
 def video_stop(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
+    kwargs["_fsm"].process.stop_media()
 
 
 @link({None: "video_player"})
@@ -141,8 +170,18 @@ def video_pause(flag, **kwargs):
 
 
 @link({None: "video_player"})
+def video_resume(flag, **kwargs):
+    kwargs["_fsm"].process.resume()
+
+
+@link({None: "video_player"})
+def video_toggle(flag, **kwargs):
+    kwargs["_fsm"].process.toggle()
+
+
+@link({None: "video_player"})
 def video_set_volume(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+    if isinstance(kwargs["_fsm"].process, VideoVLCPlayer):
         kwargs["_fsm"].process.set_volume(flag.args["volume"])
     else:
         log.warning("Ask to set volume on an unlauched process (VlcPlayer)")
@@ -150,7 +189,7 @@ def video_set_volume(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_volume_up(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+    if isinstance(kwargs["_fsm"].process, VideoVLCPlayer):
         kwargs["_fsm"].process.volume_up()
     else:
         log.warning("Ask to volume up on an unlauched process (VlcPlayer)")
@@ -158,11 +197,10 @@ def video_volume_up(flag, **kwargs):
 
 @link({None: "video_player"})
 def video_volume_down(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcPlayer):
+    if isinstance(kwargs["_fsm"].process, VideoVLCPlayer):
         kwargs["_fsm"].process.volume_down()
     else:
         log.warning("Ask to volume down on an unlauched process (VlcPlayer)")
-
 
 
 '''
