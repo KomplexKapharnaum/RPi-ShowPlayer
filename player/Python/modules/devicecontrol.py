@@ -77,8 +77,8 @@ def device_update_timeline(flag, **kwargs):
 @link({None: "device_control"})
 def device_send_info_tension(flag, **kwargs):
     cpu_temperature = 0
-    link_signal ="no signal"
-    link_channel ="no channel"
+    link_signal = "no signal"
+    link_channel = "no channel"
     with open("/sys/class/thermal/thermal_zone0/temp") as file:
         cpu_temperature = float(file.read())/1000
     link = subprocess.check_output(['iw', 'wlan0', 'link'])
@@ -88,12 +88,15 @@ def device_send_info_tension(flag, **kwargs):
     link = subprocess.check_output(['iw', 'wlan0', 'info'])
     for line in link:
         if "channel" in line:
-            link_channel=line
-    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,cpu_temperature,cpu_temperature,link_channel,link_signal,devicesV2.get(settings.get("uName"),"tension"),float(flag.args["args"][0]))
-    log.debug("get tension {0} and forward".format(flag.args["args"][0]))
-    port = settings.get("log","tension","port")
-    for dest in settings.get("log","tension","ip"):
-        liblo.send(liblo.Address(dest,port),message)
+            link_channel = line
+    power = "undefined power"
+    if settings.get("uName") in devicesV2:
+        power = devicesV2.get(settings.get("uName"), "tension")
+    message = liblo.Message("/monitor", settings.get("uName"), settings.get("current_timeline"), pool.timeline_version, cpu_temperature, cpu_temperature, link_channel, link_signal, power, float(flag.args["args"][0]))
+    log.debug("monitoring send {0}".format(message))
+    port = settings.get("log", "tension", "port")
+    for dest in settings.get("log", "tension", "ip"):
+        liblo.send(liblo.Address(dest, port), message)
 
 @link({None: "device_control"})
 def device_send_warning_tension(flag, **kwargs):
