@@ -347,7 +347,7 @@ class AbstractVLC(ExternalProcessFlag):
         :param media: relative media path from the media directory
         :type media: str
         """
-        path = os.path.exists(os.path.join(settings.get_path("media"), media))
+        path = os.path.join(settings.get_path("media"), media)
         if os.path.exists(path):
             return path
         else:
