@@ -9,7 +9,7 @@
 import liblo
 import time
 import application
-from modules import link
+from modules import link,pool
 from _classes import module
 from engine import tools
 from engine.log import init_log
@@ -74,7 +74,10 @@ def device_update_timeline(flag, **kwargs):
 
 @link({None: "device_control"})
 def device_send_info_tension(flag, **kwargs):
-    message = liblo.Message("/tension",settings.get("uName"),float(flag.args["args"][0]))
+    temp=0
+    with open("/sys/class/thermal/thermal_zone0/temp") as f
+        temp = float(f.read())/1000
+    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.,temp,float(flag.args["args"][0]))
     log.debug("get tension {0} and forward".format(flag.args["args"][0]))
     port = settings.get("log","tension","port")
     for dest in settings.get("log","tension","ip"):
