@@ -2,7 +2,7 @@
 
 ps -ejH w | grep start.sh | grep -v grep | wc -l
 
-if [ "$(ps -ejH w | grep start.sh | grep -v grep | wc -l )" == "1" ]; then
+if [ $(ps -ejH w | grep start.sh | grep -v grep | wc -l ) -eq 1 ]; then
     echo "DNC starter begin .."
 else
     echo "An instance is already running .."
