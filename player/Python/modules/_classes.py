@@ -44,7 +44,7 @@ class ExternalProcess(object):
     This class define an external process
     """
 
-    def __init__(self, name, commande):
+    def __init__(self, name, commande=None):
         """
         :param name: Name of the process to identify it
         :param commande: Command to run in the process
