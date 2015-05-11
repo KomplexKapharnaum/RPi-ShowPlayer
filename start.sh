@@ -1,4 +1,7 @@
 #!/bin/bash
+
+./bash/kill.sh
+
 running=1
 DIRECT_INOUT=0
 
