@@ -142,9 +142,7 @@ class ExternalProcess(object):
         """
         Wait all thread and process to be stopped
         """
-        if self._is_stopping is not True:
-            self._log("warning", "Ask to join before it has been ask to stop")
-        elif not self._is_launched.is_set():
+        if not self._is_launched.is_set():
             self._log("warning", "Ask to join before it has been launched")
             return False
         self._defunctdog_thread.join(*args, **kwargs)
@@ -192,7 +190,7 @@ class ExternalProcess(object):
             self._stop_process()  # Really stop the thread
             self.return_code = self._popen.poll()
         else:
-            self._log("debug", "ended itself with {0} code".format(self.return_code))
+            self._log("raw", "ended itself with {0} code".format(self.return_code))
         self._process_ended()
 
     def _log(self, lvl, msg):
