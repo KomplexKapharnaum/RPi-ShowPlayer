@@ -19,83 +19,83 @@ import subprocess
 log = init_log("kxkmcard")
 
 FILTERS = {
-            # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
-            # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
-            'INITHARDWARE': ['initHw'],
-            'HARDWAREREADY': ['transTo /hardware/ready'],
-            'TELECO_GET_INFO': ['sendInfo'],
+    # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
+    # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
+    'INITHARDWARE': ['initHw'],
+    'HARDWAREREADY': ['transTo /hardware/ready'],
+    'TELECO_GET_INFO': ['sendInfo'],
 
-            'CARTE_PUSH_1': ['btnDown', True],
-            'CARTE_PUSH_2': ['btnDown', True],
-            'CARTE_PUSH_3': ['btnDown', True],
-            'CARTE_FLOAT': ['btnDown', True],
+    'CARTE_PUSH_1': ['btnDown', True],
+    'CARTE_PUSH_2': ['btnDown', True],
+    'CARTE_PUSH_3': ['btnDown', True],
+    'CARTE_FLOAT': ['btnDown', True],
 
-            'CARTE_MESSAGE_POWEROFF': [True],
+    'CARTE_MESSAGE_POWEROFF': [True],
 
-            "CARTE_TENSION": ['transTo /device/sendInfoTension'],
-            "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
+    "CARTE_TENSION": ['transTo /device/sendInfoTension'],
+    "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
 
-            'TELECO_PUSH_A': ['btnDown', True],
-            'TELECO_PUSH_B': ['btnDown', True],
-            'TELECO_PUSH_OK': ['btnDown', True],
+    'TELECO_PUSH_A': ['btnDown', True],
+    'TELECO_PUSH_B': ['btnDown', True],
+    'TELECO_PUSH_OK': ['btnDown', True],
 
-            'TELECO_PUSH_REED': [True],
-            'TELECO_PUSH_FLOAT': [True],
+    'TELECO_PUSH_REED': [True],
+    'TELECO_PUSH_FLOAT': [True],
 
-            #old version for compatibility
+    # old version for compatibility
 
-            'TELECO_MESSAGE_BLINKGROUP': [],
-            'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
+    'TELECO_MESSAGE_BLINKGROUP': [],
+    'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
 
-            'TELECO_MESSAGE_PREVIOUSSCENE': ['transTo /scene/previous', True],
-            'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/restart', True],
-            'TELECO_MESSAGE_NEXTSCENE': ['transTo /scene/next', True],
+    'TELECO_MESSAGE_PREVIOUSSCENE': ['transTo /scene/previous', True],
+    'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/restart', True],
+    'TELECO_MESSAGE_NEXTSCENE': ['transTo /scene/next', True],
 
-            'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
-            'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
+    'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
+    'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
 
-            "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
-            "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
-
-
-            # new version
-
-            "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True], #TODO need to parse argument for scope of signal
-            "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
-            "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
+    "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
+    "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
 
 
-            "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
-            "TELECO_MESSAGE_SETTINGS_LOG_ERROR": [],
-            "TELECO_MESSAGE_SETTINGS_VOLPLUS": [],
-            "TELECO_MESSAGE_SETTINGS_VOLMOINS": [],
-            "TELECO_MESSAGE_SETTINGS_VOLSAVE": [],
-            "TELECO_MESSAGE_SETTINGS_VOLBACK": [],
+    # new version
 
-            "TELECO_MESSAGE_MODE_SHOW": [],
-            "TELECO_MESSAGE_MODE_REPET": [],
-            "TELECO_MESSAGE_MODE_DEBUG": [],
-            "TELECO_MESSAGE_LOG_ERROR": [],
-            "TELECO_MESSAGE_LOG_DEBUG": [],
+    "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True],  #TODO need to parse argument for scope of signal
+    "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
+    "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
 
-            "TELECO_MESSAGE_BLINKGROUP": [],
-            "TELECO_MESSAGE_TESTROUTINE": ['testRoutine'],
 
-            "TELECO_MESSAGE_SYS_RESTARTPY": [],
-            "TELECO_MESSAGE_SYS_RESTARTWIFI": ['transTo /device/wifi/restart'],
-            "TELECO_MESSAGE_SYS_UPDATESYS": ['transTo /device/updatesys'],
-            "TELECO_MESSAGE_SYS_POWEROFF": ['transTo /device/poweroff'],
-            "TELECO_MESSAGE_SYS_REBOOT": ['transTo /device/reboot'],
+    "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
+    "TELECO_MESSAGE_SETTINGS_LOG_ERROR": [],
+    "TELECO_MESSAGE_SETTINGS_VOLPLUS": [],
+    "TELECO_MESSAGE_SETTINGS_VOLMOINS": [],
+    "TELECO_MESSAGE_SETTINGS_VOLSAVE": [],
+    "TELECO_MESSAGE_SETTINGS_VOLBACK": [],
 
-            "TELECO_MESSAGE_GET_INFO": [],
+    "TELECO_MESSAGE_MODE_SHOW": [],
+    "TELECO_MESSAGE_MODE_REPET": [],
+    "TELECO_MESSAGE_MODE_DEBUG": [],
+    "TELECO_MESSAGE_LOG_ERROR": [],
+    "TELECO_MESSAGE_LOG_DEBUG": [],
 
-            "TELECO_MESSAGE_MEDIA_VOLPLUS": [],
-            "TELECO_MESSAGE_MEDIA_VOLMOINS": [],
-            "TELECO_MESSAGE_MEDIA_MUTE": [],
-            "TELECO_MESSAGE_MEDIA_PAUSE": [],
-            "TELECO_MESSAGE_MEDIA_PLAY": [],
-            "TELECO_MESSAGE_MEDIA_STOP": []
-    }
+    "TELECO_MESSAGE_BLINKGROUP": [],
+    "TELECO_MESSAGE_TESTROUTINE": ['testRoutine'],
+
+    "TELECO_MESSAGE_SYS_RESTARTPY": [],
+    "TELECO_MESSAGE_SYS_RESTARTWIFI": ['transTo /device/wifi/restart'],
+    "TELECO_MESSAGE_SYS_UPDATESYS": ['transTo /device/updatesys'],
+    "TELECO_MESSAGE_SYS_POWEROFF": ['transTo /device/poweroff'],
+    "TELECO_MESSAGE_SYS_REBOOT": ['transTo /device/reboot'],
+
+    "TELECO_MESSAGE_GET_INFO": [],
+
+    "TELECO_MESSAGE_MEDIA_VOLPLUS": [],
+    "TELECO_MESSAGE_MEDIA_VOLMOINS": [],
+    "TELECO_MESSAGE_MEDIA_MUTE": [],
+    "TELECO_MESSAGE_MEDIA_PAUSE": [],
+    "TELECO_MESSAGE_MEDIA_PLAY": [],
+    "TELECO_MESSAGE_MEDIA_STOP": []
+}
 
 
 class KxkmCard(ExternalProcessFlag):
@@ -187,7 +187,7 @@ class KxkmCard(ExternalProcessFlag):
             cmd += ' -mode {0}'.format(mode)
         self.say(cmd)
 
-    def popUpTeleco(self,line1=None, line2=None, page=None):
+    def popUpTeleco(self, line1=None, line2=None, page=None):
         """
         send message on menu popup teleco
         :param line1:
@@ -232,9 +232,9 @@ class KxkmCard(ExternalProcessFlag):
             log.log("debug", "devices.json not found")
 
         self.say(
-            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit} '
-            .format(name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
-                    volt=voltage, tit=titreur))
+            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit}'.format(
+                name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
+                volt=voltage, tit=titreur))
         return False
 
     def sendInfo(self, cmd=None):
@@ -259,43 +259,43 @@ class KxkmCard(ExternalProcessFlag):
         return float(cmd[1]) == 0
 
 
-    # def _default_patch(self, signal_name, *args):
-    #     """
-    #     Patch by default the signal
-    #     :param signal_name: Name of the signal recv via stdout
-    #     :type signal_name: str
-    #     """
-    #     if signal_name not in self.signals.keys():
-    #         self.signals[signal_name] = Flag(signal_name)
-    #     patcher.patch(self.signals[signal_name].get(args={"args": args}))
-    #
-    # def patch(self, cmd, *args):
-    #     """
-    #     This function patch the given message via stdout with the associated name in filters
-    #     :param cmd: cmd name received
-    #     :param args: args to pass to the signal
-    #     :return:
-    #     """
-    #     self._default_patch(self.filters[cmd[0]][1], *args)
-    #
-    # def _emmit(self, cmd):
-    #     """
-    #     Emmit signal from stdout cmd
-    #     :param cmd: Signal string received
-    #     :type cmd: list of str
-    #     """
-    #     if cmd[0] in self.filters.keys():
-    #         if isinstance(self.filters[cmd[0]], (list, tuple)) and callable(self.filters[cmd[0]][0]):
-    #             self.filters[cmd[0]][0](cmd[0], *cmd[1:])
-    #         else:
-    #             self._log("debug", "Unknown interpretation of {0}".format(cmd))
-    #     else:
-    #         self._default_patch(cmd[0], *cmd[1:])
+        # def _default_patch(self, signal_name, *args):
+        # """
+        #     Patch by default the signal
+        #     :param signal_name: Name of the signal recv via stdout
+        #     :type signal_name: str
+        #     """
+        #     if signal_name not in self.signals.keys():
+        #         self.signals[signal_name] = Flag(signal_name)
+        #     patcher.patch(self.signals[signal_name].get(args={"args": args}))
+        #
+        # def patch(self, cmd, *args):
+        #     """
+        #     This function patch the given message via stdout with the associated name in filters
+        #     :param cmd: cmd name received
+        #     :param args: args to pass to the signal
+        #     :return:
+        #     """
+        #     self._default_patch(self.filters[cmd[0]][1], *args)
+        #
+        # def _emmit(self, cmd):
+        #     """
+        #     Emmit signal from stdout cmd
+        #     :param cmd: Signal string received
+        #     :type cmd: list of str
+        #     """
+        #     if cmd[0] in self.filters.keys():
+        #         if isinstance(self.filters[cmd[0]], (list, tuple)) and callable(self.filters[cmd[0]][0]):
+        #             self.filters[cmd[0]][0](cmd[0], *cmd[1:])
+        #         else:
+        #             self._log("debug", "Unknown interpretation of {0}".format(cmd))
+        #     else:
+        #         self._default_patch(cmd[0], *cmd[1:])
 
 
 #
 # class _KxkmCard(ExternalProcess):
-#     """
+# """
 #     KXKM Ext card module
 #     """
 #
@@ -546,6 +546,7 @@ def init_kxkm_card(flag, **kwargs):
         kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
         kwargs["_fsm"].vars["kxkmcard"].start()
 
+
 # ETAPE AND SIGNALS
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
@@ -568,15 +569,18 @@ def kxkm_card_relais(flag, **kwargs):
     switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
     kwargs["_fsm"].vars["kxkmcard"].setRelais(switch)
 
+
 @link({None: "kxkm_card"})
 def kxkm_card_lekOK_teleco(flag, **kwargs):
     switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
     kwargs["_fsm"].vars["kxkmcard"].setLedTelecoOk(switch)
 
+
 @link({None: "kxkm_card"})
 def kxkm_card_lekOK_card(flag, **kwargs):
     switch = str(flag.args["on/off"]).lower() in ['true', 'on', '1']
     kwargs["_fsm"].vars["kxkmcard"].setLedCarteOk(switch)
+
 
 @link({None: "kxkm_card"})
 def kxkm_card_lights(flag, **kwargs):
@@ -593,15 +597,17 @@ def kxkm_card_gyro(flag, **kwargs):
         log.warning("Missing default value for at least one argument : {0}".format(params))
     kwargs["_fsm"].vars["kxkmcard"].setGyro(**params)
 
+
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_message(flag, **kwargs):
     kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"])
 
+
 @link({None: "kxkm_card"})
 def kxkm_card_popup_teleco(flag, **kwargs):
     if "page" not in flag.args.keys():
-        flag.args["page"]="user"
-    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"],flag.args["page"])
+        flag.args["page"] = "user"
+    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"], flag.args["page"])
 
 
 @link({None: "kxkm_card"})
