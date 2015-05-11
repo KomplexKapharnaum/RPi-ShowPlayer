@@ -551,7 +551,9 @@ int main (int argc, char * argv[]){
   cout << "#INITHARDWARE" << endl;
 
   //wait for init
-  while(!init);
+  while(!init){
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  }
   
   //init teleco if already connected // ISSUE HERE
   if (digitalRead(21)==HIGH) {
@@ -568,7 +570,7 @@ int main (int argc, char * argv[]){
   //wait for input
   while(live){
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
- };
+  }
   
   killthread();
   exit(0);
