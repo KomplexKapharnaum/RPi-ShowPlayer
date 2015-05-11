@@ -88,7 +88,7 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
     "vout": "none",
     "aout": "alsa",
     "priority": -20,
-    "cache": 600,
+    "fcache": 600,
     "vstep": 25,
     "gain": 1,
     "again": 1
