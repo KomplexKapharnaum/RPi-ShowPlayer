@@ -82,12 +82,12 @@ def device_send_info_tension(flag, **kwargs):
     with open("/sys/class/thermal/thermal_zone0/temp") as file:
         cpu_temperature = float(file.read())/1000
     link = subprocess.check_output(['iw', 'wlan0', 'link'])
-    for line in link
-        if "signal" in line
+    for line in link:
+        if "signal" in line:
             link_signal=line
     link = subprocess.check_output(['iw', 'wlan0', 'info'])
-    for line in link
-        if "channel" in line
+    for line in link:
+        if "channel" in line:
             link_channel=line
     message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,temp,cpu_temperature,link_channel,link_signal,devicesV2.get(settings.get("uName"),"tension"),float(flag.args["args"][0]))
     log.debug("get tension {0} and forward".format(flag.args["args"][0]))
