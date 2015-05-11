@@ -162,6 +162,7 @@ class ExternalProcess(object):
                 if message is not None:
                     log.debug("Ignore {0} on process {1} because it's stopped".format(message, self.name))
                 break
+            self._log("error", "write to stdin : {0}".format(message))
             self._direct_stdin_writer(message)
 
     def _direct_stdin_writer(self, msg):
@@ -173,7 +174,6 @@ class ExternalProcess(object):
         with self._stdin_lock:
             msg += "\n"
             m = msg.encode("utf-8")
-            self._log("error", "write to stdin : {0}".format(m))
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
