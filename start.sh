@@ -1,12 +1,6 @@
 #!/bin/bash
 
-if [ "$(ps -ejH w | grep start.sh | grep -v grep | wc -l )" = "1" ]; then
-    echo "DNC starter begin .."
-else
-    echo "An instance is already running .."
-    echo "EXIT"
-    exit 0
-fi
+if [ "$(ps -ejH w | grep start.sh | grep -v grep | wc -l )" == "1" ]; then echo "DNC starter begin .."; else echo "An instance is already running .." ; echo "EXIT"; fi
 
 running=1
 DIRECT_INOUT=0
