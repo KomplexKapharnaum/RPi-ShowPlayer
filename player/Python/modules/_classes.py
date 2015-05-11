@@ -66,6 +66,7 @@ class ExternalProcess(object):
 
         self.stdin_queue = Queue(maxsize=256)
         self._stdin_thread = threading.Thread(target=self._stdin_writer)
+        self._stdin_lock = threading.RLock()
         self.stdout_queue = Queue(maxsize=256)
         self._stdout_thread = threading.Thread(target=self._stdout_reader)
         self.stderr = None
@@ -161,8 +162,17 @@ class ExternalProcess(object):
                 if message is not None:
                     log.debug("Ignore {0} on process {1} because it's stopped".format(message, self.name))
                 break
-            message += "\n"
-            m = message.encode("utf-8")
+            self._direct_stdin_writer(message)
+
+    def _direct_stdin_writer(self, msg):
+        """
+        This function direct write to stdin the given message
+        :param msg: Message to write on stdin
+        :type msg: str
+        """
+        with self._stdin_lock:
+            msg += "\n"
+            m = msg.encode("utf-8")
             self._log("error", "write to stdin : {0}".format(m))
             self._popen.stdin.write(m)
 
