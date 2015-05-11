@@ -363,7 +363,7 @@ class AbstractVLC(ExternalProcessFlag):
         if path is False:
             self._log("warning", "Unknown media {0} => aborting".format(media))
             return False
-        self.stdin_queue.put_nowait("load {0}".format(media))
+        self.stdin_queue.put_nowait("load {0}".format(path))
 
     def play(self):
         """
