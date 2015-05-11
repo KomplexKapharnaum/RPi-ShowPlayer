@@ -1,7 +1,7 @@
 #!/bin/bash
 
 a=$(ps -ejH w | grep start.sh | grep -v grep | wc -l )
-ps -ejH w | grep start.sh | grep -v grep | wc -l
+# ps -ejH w | grep start.sh | grep -v grep | wc -l
 
 echo $a
 
