@@ -149,7 +149,7 @@ class ExternalProcess(object):
             return False
         self._defunctdog_thread.join(*args, **kwargs)
         self._stdin_thread.join(*args, **kwargs)
-        self._stdout_thread.join(*args, *kwargs)
+        self._stdout_thread.join(*args, **kwargs)
         return True
 
     def _stdin_writer(self):
