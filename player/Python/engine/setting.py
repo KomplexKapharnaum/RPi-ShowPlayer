@@ -82,6 +82,7 @@ DEFAULT_SETTING["path"]["relative"]["text"] = "text"
 DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
 
 DEFAULT_SETTING["vlc"] = dict()
+DEFAULT_SETTING["vlc"]["options"] = dict()
 DEFAULT_SETTING["vlc"]["options"]["default"] = {
     "vout": "mmal_vout",
     "aout": "alsa",
@@ -94,6 +95,8 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
 DEFAULT_SETTING["vlc"]["options"]["audio"] = {
     "vout": "none"
 }
+
+DEFAULT_SETTING["vlc"]["volume"] = dict()
 DEFAULT_SETTING["vlc"]["volume"]["master"] = 256        # Master volume for VLC (256 seems to be the 100% volume)
 
 DEFAULT_SETTING["sync"] = dict()
