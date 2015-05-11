@@ -230,6 +230,7 @@ class ExternalProcessFlag(ExternalProcess):
             if msg is None or len(msg) < 1:                 # It's time to stop
                 break
             if msg[0] == "#":                               # It's a signal from the kxkmcard program
+                self._log("error", "filters : {0}".format(self.Filters))
                 self.onEvent(msg[1:].split(' '))
             else:
                 self._log("warning", "unknown stdout line {0}".format(msg))
