@@ -98,6 +98,7 @@ class Mpg123(ExternalProcess):
 def audio_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = AudioVLCPlayer()
+        kwargs["_fsm"].process.start()
 
 
 @link({None: "audio_player"})
