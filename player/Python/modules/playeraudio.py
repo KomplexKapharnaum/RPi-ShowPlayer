@@ -103,21 +103,19 @@ def audio_player(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_play(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
-    kwargs["_fsm"].process = AudioVLCPlayer()
+    if kwargs["_fsm"].process is None:
+        audio_player(flag, kwargs)
 
     media = flag.args["media"] if 'media' in flag.args else None
+    kwargs["_fsm"].process.load(media)
     repeat = flag.args["repeat"] if 'repeat' in flag.args else None
+    kwargs["_fsm"].process.repeat(repeat)
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
-        kwargs["_fsm"].process.preload(media, repeat)
+        log.debug('+++ BEFORE SYNC PLAY {0}'.format(rtplib.get_time()))
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        kwargs["_fsm"].process.play()
-        log.debug('+++ SYNC PLAY')
-    else:
-        kwargs["_fsm"].process.play(media, repeat)
-
-    kwargs["_etape"].preemptible.set()
+        log.debug('+++ SYNC PLAY {0}'.format(flag.args['abs_time_sync']))
+    kwargs["_fsm"].process.play()
 
 
 @link({None: "audio_player"})
