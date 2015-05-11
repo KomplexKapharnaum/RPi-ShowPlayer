@@ -375,6 +375,15 @@ class AbstractVLC(ExternalProcessFlag):
         # self.stdin_queue.put_nowait()
         self._direct_stdin_writer("load {0}".format(path))
 
+    def repeat(self, value):
+        """
+        Set repeat falg
+        :param value: True for repeat, False for no repeat
+        :type value: bool
+        :return:
+        """
+        self._direct_stdin_writer("repeat {0}".format(int(value)))
+
     def play(self):
         """
         Start VLC on the last added media
