@@ -254,6 +254,8 @@ class ExternalProcessFlag(ExternalProcess):
         flag = Flag(signal_name).get(args={"args": args[1:]})
         patcher.patch(flag)
 
+    Filters = {}
+
 
 class ExternalProcessTemplate(object):
     """
