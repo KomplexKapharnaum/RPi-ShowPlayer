@@ -567,10 +567,7 @@ int main (int argc, char * argv[]){
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
   
-  //wait for input
-  while(live){
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  }
+  consumer.join();
   
   killthread();
   exit(0);
