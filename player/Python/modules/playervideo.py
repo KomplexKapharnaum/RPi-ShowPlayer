@@ -28,6 +28,7 @@ class VideoVLCPlayer(AbstractVLC):
         arguments = copy.copy(settings.get("vlc", "options", "default"))
         """:type: dict"""
         arguments.update(settings.get("vlc", "options", "video"))
+        self._log("error", "Vlc arguments : {0}".format(arguments))
         AbstractVLC.__init__(self, name="videovlc", command=command.format(arguments))
 
     Filters = {
