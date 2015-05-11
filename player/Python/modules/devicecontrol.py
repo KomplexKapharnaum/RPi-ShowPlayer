@@ -82,10 +82,12 @@ def device_send_info_tension(flag, **kwargs):
     with open("/sys/class/thermal/thermal_zone0/temp") as file:
         cpu_temperature = float(file.read())/1000
     link = subprocess.check_output(['iw', 'wlan0', 'link'])
+    link.splitlines()
     for line in link:
         if "signal" in line:
             link_signal=line
     link = subprocess.check_output(['iw', 'wlan0', 'info'])
+    link.splitlines()
     for line in link:
         if "channel" in line:
             link_channel = line
