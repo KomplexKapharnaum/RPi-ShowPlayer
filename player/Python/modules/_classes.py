@@ -224,7 +224,7 @@ class ExternalProcessFlag(ExternalProcess):
             if msg is None or len(msg) < 1:                 # It's time to stop
                 break
             if msg[0] == "#":                               # It's a signal from the kxkmcard program
-                self._emmit(msg[1:].split(' '))
+                self.onEvent(msg[1:].split(' '))
             else:
                 self._log("warning", "unknown stdout line {0}".format(msg))
 
@@ -235,7 +235,7 @@ class ExternalProcessFlag(ExternalProcess):
         ExternalProcess.join()
         self._stdout_thread.join()
 
-    def _emit(self, cmd=[]):        # TODO : doc or change implmentation
+    def onEvent(self, cmd=[]):        # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
         doEmmit = True
         if cmd[0] in self.Filters.keys():
