@@ -205,12 +205,12 @@ class ExternalProcessFlag(ExternalProcess):
     This class provide a stdout consumer which emit signal on #MSG recv
     """
 
-    def __init__(self, filters=None, *args, **kwargs):
+    def __init__(self, name, filters=None, *args, **kwargs):
         """
         :param filters: Filters to apply on stdout
         :type filters: dict of list
         """
-        ExternalProcess.__init__(self, *args, **kwargs)
+        ExternalProcess.__init__(self, name, *args, **kwargs)
         if filters is None:
             filters = dict()
         self.Filters = filters
