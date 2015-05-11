@@ -31,6 +31,12 @@ class VideoVLCPlayer(AbstractVLC):
         log.log("error", "Vlc arguments : {0}".format(arguments))
         AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments))
 
+    def check_media(self, media):
+        """
+        Add video to the media path
+        """
+        return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "video"), media))
+
     Filters = {
         "MEDIA_END": ["transTo /video/end", True],
         "VIDEO_END": [True]
