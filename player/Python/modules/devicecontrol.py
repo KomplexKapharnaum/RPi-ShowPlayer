@@ -9,11 +9,12 @@
 import liblo
 import time
 import application
-from modules import link,pool
+from scenario import pool
+from modules import link
 from _classes import module
 from engine import tools
 from engine.log import init_log
-from engine.setting import settings
+from engine.setting import settings,devices
 from engine.media import load_scenario_from_fs
 log = init_log("devicecontrol")
 
@@ -77,7 +78,7 @@ def device_send_info_tension(flag, **kwargs):
     temp=0
     with open("/sys/class/thermal/thermal_zone0/temp") as f
         temp = float(f.read())/1000
-    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.,temp,float(flag.args["args"][0]))
+    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,temp,devices.get(""),float(flag.args["args"][0]))
     log.debug("get tension {0} and forward".format(flag.args["args"][0]))
     port = settings.get("log","tension","port")
     for dest in settings.get("log","tension","ip"):
