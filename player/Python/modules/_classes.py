@@ -78,7 +78,7 @@ class ExternalProcess(object):
         self._defunctdog_thread = threading.Thread(target=self._defunctdog)
         self._request_stop = threading.Event()
 
-        self._check_interval = settings.get("speed", "check_thread_interval")
+        self._check_interval = settings.get("speed", "thread_check_interval")
         self._popen = None
         self._priority = 0
         self.return_code = None
