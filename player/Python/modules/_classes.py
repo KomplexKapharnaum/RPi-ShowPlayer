@@ -5,15 +5,16 @@ import os
 import shlex
 import threading
 import time
+import collections
 import sys
 import codecs
 from Queue import Queue
 # import signal
 #
 # signal.signal(signal.SIGCLD, signal.SIG_IGN)    # Avoid defunct process (just ignore them if they crash
-                                                # More info :
-                                                # http://stackoverflow.com/questions/16944886/how-to-kill-zombie-process
-                                                # http://bugs.python.org/issue15756
+# More info :
+# http://stackoverflow.com/questions/16944886/how-to-kill-zombie-process
+# http://bugs.python.org/issue15756
 
 from modules import MODULES
 from libs.subprocess32 import Popen, PIPE
@@ -22,6 +23,7 @@ from engine.tools import register_thread, unregister_thread, show_trace
 from engine.fsm import Flag
 from engine.setting import settings
 from engine.log import init_log
+
 log = init_log("modulesClass")
 
 
@@ -37,8 +39,291 @@ class module(object):
         return etape
 
 
-# GENERIC THREAD TO HANDLE EXTERNAL PROCESS
 class ExternalProcess(object):
+    """
+    This class define an external process
+    """
+
+    def __init__(self, name, commande):
+        """
+        :param name: Name of the process to identify it
+        :param commande: Command to run in the process
+        :type name: str
+        :type commande: str
+        """
+        self.name = name
+        if commande is None:
+            if name in settings.get("path", "relative").keys():
+                commande = settings.get_path(name)
+            elif name in settings.get("path").keys():
+                commande = settings.get("path", name)
+            else:
+                raise AttributeError("There is no commande in settings for {0}".format(name))
+        else:
+            if os.path.isabs(commande):
+                log.warning("The commande path {0} for {1} is relative".format(commande, name))
+        self.commande = commande
+
+        self.stdin_queue = Queue(maxsize=256)
+        self._stdin_thread = threading.Thread(target=self._stdin_writer)
+        self.stdout_queue = Queue(maxsize=256)
+        self._stdout_thread = threading.Thread(target=self._stdout_reader)
+        self.stderr = None
+        try:
+            self._logpath = os.path.join(settings.get_path("log"), "{0}.log".format(name))
+            self.stderr = open(self._logpath, 'w+')
+        except IOError:
+            log.warning("There is no where ({0}) to put log of {1}".format(self._logpath, self.name))
+
+        self._defunctdog_thread = threading.Thread(target=self._defunctdog)
+        self._request_stop = threading.Event()
+
+        self._check_interval = settings.get("speed", "check_thread_interval")
+        self._popen = None
+        self._priority = 0
+        self.return_code = None
+        self._is_launched = threading.Event()
+        self._is_running = threading.Event()
+        self._ask_to_stop = threading.Event()
+        self._is_stopping = False
+
+    def start(self):
+        """
+        This function start the process and all his threads
+        :return:
+        """
+        if self._is_launched.is_set():
+            self._log("warning", "try to start an already started process")
+            return False
+
+        self._popen = Popen(shlex.split(self.commande), bufsize=-1, executable=None, stdin=PIPE, stdout=PIPE,
+                            stderr=self.stderr, close_fds=False, shell=False, cwd=None, env=None,
+                            universal_newlines=True, startupinfo=None, creationflags=0,
+                            preexec_fn=lambda: os.nice(self._priority))
+
+        self._defunctdog_thread.start()
+        self._stdin_thread.start()
+        self._stdout_thread.start()
+        register_thread(self)
+        self._is_launched.set()
+        self._is_running.set()
+
+    def _process_ended(self):
+        """
+        This function clean thread and process logic when the process end
+        """
+        self._is_stopping = True
+        self.stdin_queue.put_nowait(None)  # Ask stdin_thread to stop
+        self._is_running.clear()
+        unregister_thread(self)
+
+    def _stop_process(self):
+        """
+        This function terminate the process : BLOCKING
+        """
+        self._is_stopping = True
+        try:
+            self._popen.terminate()  # Send SIGTERM to the player, asking to stop
+            self._log("debug", 'SIGTERM')
+        except Exception as e:
+            self._log("debug", "Cannot sigterm")
+        self._stdout_thread.join(timeout=0.2)  # Waiting maximum of 250 ms before killing brutaly the processus
+        if self._stdout_thread.is_alive():
+            self._popen.kill()  # Send SIGNKILL to brutaly kill the process
+            self._log("debug", 'KILLED')
+
+    def stop(self):
+        """
+        This function ask to stop the process : NOT BLOCKING
+        """
+        self._ask_to_stop.set()
+
+    def join(self):
+        if self._is_stopping is not True:
+            self._log("warning", "Ask to join before it has been ask to stop")
+        elif not self._is_launched.is_set():
+            self._log("warning", "Ask to join before it has been launched")
+            return False
+        self._defunctdog_thread.join()
+        self._stdin_thread.join()
+        self._stdout_thread.join()
+        return True
+
+    def _stdin_writer(self):
+        """
+        This funtion write in stdin the current
+        """
+        self._is_launched.wait()
+        while True:
+            message = self.stdin_queue.get()
+            if message is None or self._is_stopping or not self._is_running.is_set():
+                if message is not None:
+                    log.debug("Ignore {0} on process {1} because it's stopped".format(message, self.name))
+                break
+            message += "\n"
+            m = message.encode("utf-8")
+            self._popen.stdin.write(m)
+
+    def _stdout_reader(self):
+        """
+        This function read the stdout and put message to the stdout queue
+        """
+        log.log("tmp", "")
+        self._is_launched.wait()
+        stdout_iterator = iter(self._popen.stdout.readline, b"")
+        for line in stdout_iterator:
+            self.stdout_queue.put_nowait(line)
+        self.stdout_queue.put_nowait(None)              # Stop queue consumers
+
+    def _defunctdog(self):
+        """
+        This function try to get return code of the process to avoid defunct
+        """
+        self._is_running.wait()
+        while self._is_running.is_set() and not self._ask_to_stop.is_set():
+            self.return_code = self._popen.poll()
+            if self.return_code is not None:
+                break
+            time.sleep(self._check_interval)
+        if self.return_code is None:  # If loop end by ask to stop
+            self._stop_process()  # Really stop the thread
+            self.return_code = self._popen.poll()
+        else:
+            self._log("debug", "ended itself with {0} code".format(self.return_code))
+        self._process_ended()
+
+    def _log(self, lvl, msg):
+        """
+        This function log message
+        """
+        log.log(lvl, "Proc[{0}] : {1}".format(self.name, msg))
+
+
+class ExternalProcessTemplate(object):
+    """
+    This class define an external processus template to generate ExternalProcess objects
+    """
+
+    def __init__(self, name, template, commande, arguments=None):
+        """
+
+        :param name: Name of the process template to identify it
+        :param template: ExternalProcess class reference
+        :param commande: Commande to run with optionnaly option ({0})
+        :param arguments: Argument to pass to the commande
+        :type commande: str
+        :type template: class ExternalProcess
+        :type name: str
+        :type arguments: dict
+        """
+        if arguments is None:
+            arguments = dict()
+        self.arguments = arguments
+        self.template = template
+        self.name = name
+        self.commande = commande
+        self.process = list()
+
+    def get(self, name=None, args=dict()):
+        """
+        Generate an external process
+        :param name: Name of the process to identify it (should be unique)
+        :param args: args to pass to add into the commande
+        :type name: str
+        :type args: dict
+        """
+        if name is None:
+            name = "{0}_{1}".format(self.name, len(self.process))
+        args = self.arguments.update(args)
+        process = self.template(name, self.commande.format(args))
+        self.process.append(process)
+        return process
+
+    def stop(self):
+        """
+        Stop all launched process
+        """
+        for process in self.process:
+            process.stop()
+
+    def join(self):
+        """
+        Join all launched process
+        """
+        for process in self.process:
+            process.join()
+
+
+
+
+
+
+class AbstractVLC(ExternalProcess):
+    """
+    This class represent a VLC player
+    """
+    def __init__(self, *args, **kwargs):
+        self._first_play = False
+
+    def _stop_process(self):
+        """
+        Ask to stop VLC in a clean way before call parent setop_process methode
+        """
+        self.stdin_queue.put_nowait("quit")
+        ExternalProcess._stop_process(self)
+
+    def check_media(self, media):
+        """
+        This function check if the media is present on the file system
+        :param media: relative media path from the media directory
+        :type media: str
+        """
+        path = os.path.exists(os.path.join(settings.get_path("media"), media))
+        if os.path.exists(path):
+            return path
+        else:
+            return False
+
+    def add_media(self, media):
+        """
+        This function add a media to the play list
+        :param media: relative media path from the media directory
+        :type media: str
+        """
+        path = self.check_media(media)
+        if path is False:
+            self._log("warning", "Unknown media {0} => aborting".format(media))
+            return False
+        self.stdin_queue.put_nowait("enqueue {0}".format(media))
+
+    def play(self):
+        """
+        Start VLC on the last added media
+        """
+        if self._first_play:
+            self.stdin_queue.put("play")
+            self._first_play = True
+        else:
+            self.stdin_queue.put("next")
+
+    def toggle_pause(self):
+        """
+        This function toggle the pause statue of the current played media
+        """
+        self.stdin_queue.put("pause")
+
+    def stop_media(self):
+        """
+        This function ask VLC to stop the current played media
+        """
+        self.stdin_queue.put("stop")
+
+
+
+
+
+# GENERIC THREAD TO HANDLE EXTERNAL PROCESS
+class _ExternalProcess(object):
     """
     Watchdog thread to control external processes
     """
@@ -72,11 +357,11 @@ class ExternalProcess(object):
         Start the external process
         :return:
         """
-        self.stop()# Stop current process
+        self.stop()  # Stop current process
         self._watchdog = threading.Thread(target=self._watch)
         self._defunctdog = threading.Thread(target=self._defunct)
         self._stdin_thread = threading.Thread(target=self.stdin_thread)
-        logfile = settings.get_path("logs")+'/'+self.name+'.log'
+        logfile = settings.get_path("logs") + '/' + self.name + '.log'
         try:
             self.stderr = open(logfile, 'w')
         except IOError:
@@ -84,16 +369,17 @@ class ExternalProcess(object):
             self.stderr = None
         self._running.set()
         # if self.name == 'vlcvideo':
-        #     log.debug('HIGH PRIORITY')
+        # log.debug('HIGH PRIORITY')
         #     self._popen = Popen( 'chrt -r 80 '+self.command, bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
         #                                      close_fds=False, shell=True, cwd=None, env=None,
         #                                      universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
         #                                     # preexec_fn=lambda : os.nice(-20)
         # else: 
-        self._popen = Popen(shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE, stderr=self.stderr,
-                                         close_fds=False, shell=False, cwd=None, env=None,
-                                         universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None) 
-                                        # preexec_fn=lambda : os.nice(-20)
+        self._popen = Popen(shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE,
+                            stderr=self.stderr,
+                            close_fds=False, shell=False, cwd=None, env=None,
+                            universal_newlines=False, startupinfo=None, creationflags=0, preexec_fn=None)
+        # preexec_fn=lambda : os.nice(-20)
         self._watchdog.start()
         self._defunctdog.start()
         self._stdin_thread.start()
@@ -114,8 +400,7 @@ class ExternalProcess(object):
         This function clean the queue
         :return:
         """
-        self._stdin_queue.put_nowait(None) # Release thread
-
+        self._stdin_queue.put_nowait(None)  # Release thread
 
 
     def stop(self):
@@ -124,18 +409,18 @@ class ExternalProcess(object):
         :return:
         """
         if self.is_running():
-            self._stdin_queue.put_nowait(None)      # Ask to stop the stdin_thread
+            self._stdin_queue.put_nowait(None)  # Ask to stop the stdin_thread
             try:
                 self._popen.terminate()  # Send SIGTERM to the player, asking to stop
-                log.debug('SIGTERM '+self.name)
+                log.debug('SIGTERM ' + self.name)
             except:
                 pass
             self._watchdog.join(timeout=0.2)  # Waiting maximum of 250 ms before killing brutaly the processus
             if self._watchdog.is_alive():
                 self._popen.kill()  # Send SIGNKILL to brutaly kill the process
-                log.warning('KILLED '+self.name)
+                log.warning('KILLED ' + self.name)
             unregister_thread(self)
-        self.join()# Wait for watchdog thread to terminate
+        self.join()  # Wait for watchdog thread to terminate
 
     def is_running(self):
         return self._running.is_set()
@@ -151,7 +436,7 @@ class ExternalProcess(object):
                 continue
             msg = self._stdin_queue.get()
             if msg is None:
-                break           # Ask to stop
+                break  # Ask to stop
             self._say(msg)
 
     def say(self, message):
@@ -178,7 +463,7 @@ class ExternalProcess(object):
             message += "\n"
             m = message.encode("utf-8")
             self._popen.stdin.write(m)
-            log.log("important", " "+message)
+            log.log("important", " " + message)
         else:
             log.log("debug", "Message aborted, Thread not active ")
 
@@ -187,7 +472,7 @@ class ExternalProcess(object):
         This function wait the process to end and add a signal when it appends
         :return:
         """
-        #self._popen.wait()
+        # self._popen.wait()
         lines_iterator = iter(self._popen.stdout.readline, b"")
         for line in lines_iterator:
             line = line.strip()
@@ -231,9 +516,9 @@ class ExternalProcess(object):
         signal_name = args[0].upper()
         if signal_name[0] == '/':
             signal_name = signal_name.replace('/', '_')[1:].upper()
-        log.log("raw", signal_name+' '+' '.join(args[1:]))
+        log.log("raw", signal_name + ' ' + ' '.join(args[1:]))
         if signal_name == "DEVICE_SENDINFOTENSION" and not settings.get("log", "tension", "active"):
-            return      # Avoid patch flag if setting unactive send tension info
+            return  # Avoid patch flag if setting unactive send tension info
         flag = Flag(signal_name).get(args={"args": args[1:]})
         patcher.patch(flag)
 

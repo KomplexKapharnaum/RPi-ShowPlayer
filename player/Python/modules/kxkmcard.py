@@ -4,6 +4,7 @@
 #
 #
 import re
+import threading
 from _classes import ExternalProcess, module
 from modules import link, exposesignals
 from engine.log import init_log
@@ -18,7 +19,179 @@ log = init_log("kxkmcard")
 FILTERS = dict()
 
 
-class KxkmCard(ExternalProcess):
+class KXKMcard(ExternalProcess):
+    """
+    This class define the KXKM card
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        :param filters: Filtres to apply on the stdout outputs
+        :type filters: dict
+        """
+        ExternalProcess.__init__(self, *args, **kwargs)
+        self._stdout_to_flag_thread = threading.Thread(target=self._stdout_thread)
+
+    def _stdout_to_flag(self):
+        """
+        This thread function consume stdout to create flag with it
+        """
+        self._is_running.wait()
+        while self._is_running.is_set():
+            msg = self.stdout_queue.get()
+            if msg is None or len(msg) < 1:                 # It's time to stop
+                break
+            if msg[0] == "#":                               # It's a signal from the kxkmcard program
+                self._emmit(msg[1:].split(' '))
+            else:
+                self._log("warning", "unknown stdout line {0}".format(msg))
+
+    def join(self):
+        """
+        Wait the process and thread to end
+        """
+        ExternalProcess.join()
+        self._stdout_thread.join()
+
+    def _emit(self, cmd=[]):        # TODO : doc or change implmentation
+        cmd[0] = cmd[0].lstrip('#')
+        doEmmit = True
+        if cmd[0] in self.Filters.keys():
+            for fn in self.Filters[cmd[0]]:
+                if isinstance(fn, str):
+                    filt = fn.split(' ')
+                    method = getattr(self, filt[0], None)
+                    if callable(method):
+                        if len(filt) > 1:
+                            doEmmit = method(cmd, filt[1:]) and doEmmit
+                        else:
+                            doEmmit = method(cmd) and doEmmit
+        if doEmmit:
+            self.emmit(cmd)
+
+    def emmit(self, args=[]):   # TODO : doc or change implementation
+        signal_name = args[0].upper()
+        if signal_name[0] == '/':
+            signal_name = signal_name.replace('/', '_')[1:].upper()
+        log.log("raw", signal_name + ' ' + ' '.join(args[1:]))
+        if signal_name == "DEVICE_SENDINFOTENSION" and not settings.get("log", "tension", "active"):
+            return  # Avoid patch flag if setting unactive send tension info
+        flag = Flag(signal_name).get(args={"args": args[1:]})
+        patcher.patch(flag)
+
+    # def _default_patch(self, signal_name, *args):
+    #     """
+    #     Patch by default the signal
+    #     :param signal_name: Name of the signal recv via stdout
+    #     :type signal_name: str
+    #     """
+    #     if signal_name not in self.signals.keys():
+    #         self.signals[signal_name] = Flag(signal_name)
+    #     patcher.patch(self.signals[signal_name].get(args={"args": args}))
+    #
+    # def patch(self, cmd, *args):
+    #     """
+    #     This function patch the given message via stdout with the associated name in filters
+    #     :param cmd: cmd name received
+    #     :param args: args to pass to the signal
+    #     :return:
+    #     """
+    #     self._default_patch(self.filters[cmd[0]][1], *args)
+    #
+    # def _emmit(self, cmd):
+    #     """
+    #     Emmit signal from stdout cmd
+    #     :param cmd: Signal string received
+    #     :type cmd: list of str
+    #     """
+    #     if cmd[0] in self.filters.keys():
+    #         if isinstance(self.filters[cmd[0]], (list, tuple)) and callable(self.filters[cmd[0]][0]):
+    #             self.filters[cmd[0]][0](cmd[0], *cmd[1:])
+    #         else:
+    #             self._log("debug", "Unknown interpretation of {0}".format(cmd))
+    #     else:
+    #         self._default_patch(cmd[0], *cmd[1:])
+
+    Filters = {
+        # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
+        # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
+        'INITHARDWARE': ['initHw'],
+        'HARDWAREREADY': ['transTo /hardware/ready'],
+        'TELECO_GET_INFO': ['sendInfo'],
+
+        'CARTE_PUSH_1': ['btnDown', True],
+        'CARTE_PUSH_2': ['btnDown', True],
+        'CARTE_PUSH_3': ['btnDown', True],
+        'CARTE_FLOAT': ['btnDown', True],
+
+        'CARTE_MESSAGE_POWEROFF': [True],
+
+        "CARTE_TENSION": ['transTo /device/sendInfoTension'],
+        "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
+
+        'TELECO_PUSH_A': ['btnDown', True],
+        'TELECO_PUSH_B': ['btnDown', True],
+        'TELECO_PUSH_OK': ['btnDown', True],
+
+        'TELECO_PUSH_REED': [True],
+        'TELECO_PUSH_FLOAT': [True],
+
+        #old version for compatibility
+
+        'TELECO_MESSAGE_BLINKGROUP': [],
+        'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
+
+        'TELECO_MESSAGE_PREVIOUSSCENE': ['transTo /scene/previous', True],
+        'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/restart', True],
+        'TELECO_MESSAGE_NEXTSCENE': ['transTo /scene/next', True],
+
+        'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
+        'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
+
+        "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
+        "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
+
+
+        # new version
+
+        "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True], #TODO need to parse argument for scope of signal
+        "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
+        "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
+
+
+        "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
+        "TELECO_MESSAGE_SETTINGS_LOG_ERROR": [],
+        "TELECO_MESSAGE_SETTINGS_VOLPLUS": [],
+        "TELECO_MESSAGE_SETTINGS_VOLMOINS": [],
+        "TELECO_MESSAGE_SETTINGS_VOLSAVE": [],
+        "TELECO_MESSAGE_SETTINGS_VOLBACK": [],
+
+        "TELECO_MESSAGE_MODE_SHOW": [],
+        "TELECO_MESSAGE_MODE_REPET": [],
+        "TELECO_MESSAGE_MODE_DEBUG": [],
+        "TELECO_MESSAGE_LOG_ERROR": [],
+        "TELECO_MESSAGE_LOG_DEBUG": [],
+
+        "TELECO_MESSAGE_BLINKGROUP": [],
+        "TELECO_MESSAGE_TESTROUTINE": ['testRoutine'],
+
+        "TELECO_MESSAGE_SYS_RESTARTPY": [],
+        "TELECO_MESSAGE_SYS_RESTARTWIFI": ['transTo /device/wifi/restart'],
+        "TELECO_MESSAGE_SYS_UPDATESYS": ['transTo /device/updatesys'],
+        "TELECO_MESSAGE_SYS_POWEROFF": ['transTo /device/poweroff'],
+        "TELECO_MESSAGE_SYS_REBOOT": ['transTo /device/reboot'],
+
+        "TELECO_MESSAGE_GET_INFO": [],
+
+        "TELECO_MESSAGE_MEDIA_VOLPLUS": [],
+        "TELECO_MESSAGE_MEDIA_VOLMOINS": [],
+        "TELECO_MESSAGE_MEDIA_MUTE": [],
+        "TELECO_MESSAGE_MEDIA_PAUSE": [],
+        "TELECO_MESSAGE_MEDIA_PLAY": [],
+        "TELECO_MESSAGE_MEDIA_STOP": []
+    }
+
+class _KxkmCard(ExternalProcess):
     """
     KXKM Ext card module
     """
