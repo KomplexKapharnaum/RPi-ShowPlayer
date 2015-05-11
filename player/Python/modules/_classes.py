@@ -204,6 +204,9 @@ class ExternalProcessFlag(ExternalProcess):
     """
     This class provide a stdout consumer which emit signal on #MSG recv
     """
+
+    Filters = {}
+
     def __init__(self, *args, **kwargs):
         ExternalProcess.__init__(self, *args, **kwargs)
         self._stdout_to_flag_thread = threading.Thread(target=self._stdout_to_flag)
@@ -258,8 +261,6 @@ class ExternalProcessFlag(ExternalProcess):
             return  # Avoid patch flag if setting unactive send tension info
         flag = Flag(signal_name).get(args={"args": args[1:]})
         patcher.patch(flag)
-
-    Filters = {}
 
 
 class ExternalProcessTemplate(object):

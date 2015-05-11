@@ -181,7 +181,6 @@ class KXKMcard(ExternalProcessFlag):
     def btnUp(self, cmd):
         return float(cmd[1]) == 0
 
-
     Filters = {
         # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
         # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
@@ -536,7 +535,7 @@ class KXKMcard(ExternalProcessFlag):
 exposesignals(KXKMcard.Filters)
 
 
-@module('KxkmCard')
+@module('KXKMcard')
 @link({"/hardware/ready": "kxkm_card"})
 def init_kxkm_card(flag, **kwargs):
     """
