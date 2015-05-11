@@ -75,10 +75,9 @@ def device_update_timeline(flag, **kwargs):
 
 @link({None: "device_control"})
 def device_send_info_tension(flag, **kwargs):
-    temp=0
     with open("/sys/class/thermal/thermal_zone0/temp") as f
         temp = float(f.read())/1000
-    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,temp,devices.get(""),float(flag.args["args"][0]))
+    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,temp,devicesV2.get(settings.get("uName"),"tension"),float(flag.args["args"][0]))
     log.debug("get tension {0} and forward".format(flag.args["args"][0]))
     port = settings.get("log","tension","port")
     for dest in settings.get("log","tension","ip"):

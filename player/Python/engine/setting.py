@@ -66,6 +66,7 @@ DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv7l"] = "player/Hardware/hardwa
 DEFAULT_SETTING["path"]["relative"]["hplayer"] = "player/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["relative"]["interface"] = "player/Python/interface/bottleserver.py"
 DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "devices.json"
+DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "devicesV2.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
 DEFAULT_SETTING["path"]["relative"]["video"] = "video"
 DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
@@ -286,6 +287,7 @@ class Settings(dict):
 
 settings = Settings(os.path.expanduser(DEFAULT_SETTING_PATH))
 devices = Settings(os.path.join(settings.get_path("deviceslist")))
+devicesV2 = Settings(os.path.join(settings.get_path("deviceslistV2")))
 # status = Settings(settings.get("path", "status"))
 if not os.path.exists(settings.get("path", "tmp")):
     os.makedirs(settings.get("path", "tmp"))
