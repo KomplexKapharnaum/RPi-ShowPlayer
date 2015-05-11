@@ -23,12 +23,12 @@ class VideoVLCPlayer(AbstractVLC):
     """
 
     def __init__(self):
-        commande = copy.copy(settings.get_path("mvlc"))
+        command = copy.copy(settings.get_path("mvlc"))
         """:type: str"""
         arguments = copy.copy(settings.get("vlc", "option", "default"))
         """:type: dict"""
         arguments.update(settings.get("vlc", "option", "video"))
-        AbstractVLC.__init__(name="videovlc", commande=commande.format(arguments))
+        AbstractVLC.__init__(name="videovlc", command=command.format(arguments))
 
     Filters = {
         "MEDIA_END": ["transTo /video/end", True],

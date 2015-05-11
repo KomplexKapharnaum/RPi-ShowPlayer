@@ -44,25 +44,25 @@ class ExternalProcess(object):
     This class define an external process
     """
 
-    def __init__(self, name, commande=None):
+    def __init__(self, name, command=None):
         """
         :param name: Name of the process to identify it
-        :param commande: Command to run in the process
+        :param command: Command to run in the process
         :type name: str
-        :type commande: str
+        :type command: str
         """
         self.name = name
-        if commande is None:
+        if command is None:
             if name in settings.get("path", "relative").keys():
-                commande = settings.get_path(name)
+                command = settings.get_path(name)
             elif name in settings.get("path").keys():
-                commande = settings.get("path", name)
+                command = settings.get("path", name)
             else:
                 raise AttributeError("There is no commande in settings for {0}".format(name))
         else:
-            if os.path.isabs(commande):
-                log.warning("The commande path {0} for {1} is relative".format(commande, name))
-        self.commande = commande
+            if os.path.isabs(command):
+                log.warning("The commande path {0} for {1} is relative".format(command, name))
+        self.command = command
 
         self.stdin_queue = Queue(maxsize=256)
         self._stdin_thread = threading.Thread(target=self._stdin_writer)
@@ -96,7 +96,7 @@ class ExternalProcess(object):
             self._log("warning", "try to start an already started process")
             return False
 
-        self._popen = Popen(shlex.split(self.commande), bufsize=-1, executable=None, stdin=PIPE, stdout=PIPE,
+        self._popen = Popen(shlex.split(self.command), bufsize=-1, executable=None, stdin=PIPE, stdout=PIPE,
                             stderr=self.stderr, close_fds=False, shell=False, cwd=None, env=None,
                             universal_newlines=True, startupinfo=None, creationflags=0,
                             preexec_fn=lambda: os.nice(self._priority))
