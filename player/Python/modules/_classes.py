@@ -60,7 +60,7 @@ class ExternalProcess(object):
             else:
                 raise AttributeError("There is no commande in settings for {0}".format(name))
         else:
-            if os.path.isabs(command.split(" ")[0]):
+            if not os.path.isabs(command.split(" ")[0]):
                 log.warning("The commande path {0} for {1} is relative".format(command, name))
         self.command = command
 
