@@ -15,7 +15,7 @@ from modules import link
 from _classes import module
 from engine import tools
 from engine.log import init_log
-from engine.setting import settings,devices
+from engine.setting import settings,devicesV2
 from engine.media import load_scenario_from_fs
 log = init_log("devicecontrol")
 
@@ -89,7 +89,7 @@ def device_send_info_tension(flag, **kwargs):
     for line in link:
         if "channel" in line:
             link_channel=line
-    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,temp,cpu_temperature,link_channel,link_signal,devicesV2.get(settings.get("uName"),"tension"),float(flag.args["args"][0]))
+    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,cpu_temperature,cpu_temperature,link_channel,link_signal,devicesV2.get(settings.get("uName"),"tension"),float(flag.args["args"][0]))
     log.debug("get tension {0} and forward".format(flag.args["args"][0]))
     port = settings.get("log","tension","port")
     for dest in settings.get("log","tension","ip"):
