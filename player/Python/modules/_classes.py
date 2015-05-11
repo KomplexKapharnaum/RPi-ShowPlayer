@@ -210,6 +210,10 @@ class ExternalProcessFlag(ExternalProcess):
         ExternalProcess.__init__(self, *args, **kwargs)
         self._stdout_to_flag_thread = threading.Thread(target=self._stdout_thread)
 
+    def start(self):
+        ExternalProcess.start(self)
+        self._stdout_to_flag_thread.start()
+
     def _stdout_to_flag(self):
         """
         This thread function consume stdout to create flag with it
