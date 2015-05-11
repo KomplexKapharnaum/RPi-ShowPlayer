@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <iostream>
 #include <pthread.h>
 
 /* TIME MEASURE */
@@ -37,13 +38,16 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 
 	    case libvlc_MediaPlayerVout:
 	        // printf("#MEDIA_VOUT %d\n", self->getId());
-			//printf("VOUT %llu\n",mstime());
-			if (self->locked()) 
+	    	printf("VOUT %llu\n",mstime());
+			if (self->getState() < PLAYING)
 			{
-				self->pause();
-				self->setState(READY);
-			}
-			else self->setState(PLAYING);
+				if (self->locked()) 
+				{
+					self->pause();
+					self->setState(READY);
+				}
+				else self->setState(PLAYING);
+	        }
 	        break;
 
 	    case libvlc_MediaPlayerPaused:
@@ -54,10 +58,11 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 			if (self->getState() == PLAYING) 
 			{ 
 				printf("#MEDIA_END %d\n", self->getId());
-	    		//self->stop();
-	    	}
-	    	//printf("#MEDIA_END\n");
+				//self->stop();
+				//self->setState(DONE);
+			}
 			self->setState(WAIT);
+	    	//printf("#MEDIA_END\n");
 	        break;
     
 	    case libvlc_MediaPlayerEndReached:
@@ -98,6 +103,7 @@ vlcPlayer::vlcPlayer(libvlc_instance_t *instance, int id, dualPlayerCallbacks *c
 	this->instance = instance;
 	this->callback = cb;
 	this->lock = false;
+	this->filepath = "";
 	this->player = libvlc_media_player_new (this->instance);
 	this->eventsManager = libvlc_media_player_event_manager(this->player);
 	// libvlc_event_attach(this->eventsManager, libvlc_MediaPlayerOpening, (libvlc_callback_t)this->onOpen, NULL);
@@ -112,10 +118,13 @@ vlcPlayer::vlcPlayer(libvlc_instance_t *instance, int id, dualPlayerCallbacks *c
 /* COMMANDS */
 void vlcPlayer::load(string filepath, bool lock)
 {
+	printf("LOADING %llu\n",mstime());
 	this->setState(LOADING);
 	this->lock = lock;
-	this->media = libvlc_media_new_path (this->instance, filepath.c_str());
+	this->filepath = filepath;
+	libvlc_media_t *media = libvlc_media_new_path (this->instance, this->filepath.c_str());
 	libvlc_media_player_set_media(this->player, media);
+	libvlc_media_release(media);
 	libvlc_media_player_play (this->player);
 }
 
@@ -133,24 +142,29 @@ void vlcPlayer::play()
 {
 	this->lock = false;
 	// printf("#STATE of PLAYER%d: %d\n",this->getId(),this->state);
+	if (this->state == WAIT)
+	{
+		std::cout << "RESTART " << filepath << "\n";
+		this->play(this->filepath);
+	} 
 	if (this->state == READY) 
 	{
-		// printf("PLAY GO %llu\n",mstime());
-		// printf("position: %f\n", libvlc_media_player_get_position(this->player));
-		// printf("time: %"PRId64"\n", libvlc_media_player_get_time(this->player));
 		this->resume();
 		this->setState(PLAYING);
 	}
-	else if (this->state == PLAYING)
+	if (this->state == PLAYING)
 	{
-		this->replay();
+		this->rewind();
 	}
 }
 
-void vlcPlayer::replay()
+void vlcPlayer::rewind()
 {
-	libvlc_media_player_set_position(this->player, 0.0);
-	//libvlc_media_player_set_time(this->player, 0);
+	if (this->state == PLAYING)
+	{
+		//libvlc_media_player_set_position(this->player, 0.0);
+		libvlc_media_player_set_time(this->player, 0);
+	}
 }
 
 void vlcPlayer::pause()
@@ -170,7 +184,8 @@ void vlcPlayer::togglePause()
 
 void vlcPlayer::stop()
 {
-	if (this->getState() > WAIT)  libvlc_media_player_stop (this->player);
+	//if (this->getState() > WAIT)  
+		libvlc_media_player_stop (this->player);
 }
 
 void vlcPlayer::release()
@@ -187,11 +202,12 @@ int vlcPlayer::getState()
 void vlcPlayer::setState(int state)
 {
 	this->state = state;
-	//if (this->state == WAIT) printf("#PLAYER_WAIT %d\n",this->getId());
-	//if (this->state == LOADING) printf("#PLAYER_LOADING %d\n",this->getId());
-	//if (this->state == READY) printf("#PLAYER_READY %d\n",this->getId());
-	//if (this->state == PLAYING) printf("#MEDIA_PLAY %d\n",this->getId());
-	if (this->state == PLAYING) printf("#MEDIA_PLAY\n");
+	if (this->state == WAIT) printf("#PLAYER_WAIT %d\n",this->getId());
+	if (this->state == LOADING) printf("#PLAYER_LOADING %d\n",this->getId());
+	if (this->state == READY) printf("#PLAYER_READY %d\n",this->getId());
+	if (this->state == PLAYING) printf("#MEDIA_PLAY %d\n",this->getId());
+	if (this->state == DONE) printf("#PLAYER_DONE %d\n",this->getId());
+	//if (this->state == PLAYING) printf("#MEDIA_PLAY\n");
 	this->callback->onPlayerStateChange(this->getId(), this->state);
 }
 

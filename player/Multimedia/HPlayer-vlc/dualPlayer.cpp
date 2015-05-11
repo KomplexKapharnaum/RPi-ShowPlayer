@@ -1,18 +1,24 @@
 #include "dualPlayer.h"
 #include "vlcPlayer.h"
 #include <unistd.h>
+#include <iostream>
 
-dualPlayer::dualPlayer():dualPlayerCallbacks()
+dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks()
 {
 	/* VLC Settings */
-	char const *vlc_argv[] = {
-		"--aout", "alsa",
-		"--vout", "mmal_vout",
-		"--no-osd", "--no-autoscale",
-		//"-v"
-	};
-	int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);
+	// char const *vlc_argv[] = {
+	// 	"--aout", "alsa",
+	// 	"--vout", "mmal_vout",
+	// 	"--no-osd", //"--no-autoscale",
+	// 	"-v"
+	// };
+	// int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);
  	//printf("-- CREATE INSTANCE\n");
+
+	for (int i = 0; i < vlc_argc; i++) { // Remember argv[0] is the path to the program, we want from argv[1] onwards
+        std::cout << "ARG: " << vlc_argv[i] << "\n";
+    }
+
  	this->instance = libvlc_new (vlc_argc, vlc_argv);
  	//printf("-- CREATE PLAYER 1\n");
  	this->player1 = new vlcPlayer(this->instance, 1, this);
@@ -24,6 +30,7 @@ dualPlayer::dualPlayer():dualPlayerCallbacks()
 /* COMMANDS */
 void dualPlayer::play(string filepath)
 {
+	//if (filepath == this->filepath && this->activePlayer()->getState() == PLAYING) this->activePlayer()->rewind();
 	this->sparePlayer()->play(filepath);
 }
 
@@ -76,6 +83,11 @@ void dualPlayer::onPlayerStateChange(int playerID, int state)
 		this->activePlayer()->fullScreen();
 		this->sparePlayer()->stop();
 	}
+	if (state == DONE)
+	{
+		//this->player(playerID)->setState(WAIT);
+		//this->player(playerID)->play();
+	} 
 }
 
 

@@ -17,6 +17,7 @@ using std::cin;
 
 #include <signal.h>
 #include "dualPlayer.h"
+#include <algorithm>
 
 
 bool done = false;
@@ -33,7 +34,12 @@ int main(int argc, char* argv[])
 	signal(SIGTERM, closeAndQuit);
 	signal(SIGINT, closeAndQuit);
 
-	player = new dualPlayer();
+	char const *vlc_argv[argc];
+	for (int i = 1; i < argc; ++i) { // Remember argv[0] is the path to the program, we want from argv[1] onwards
+        vlc_argv[i-1] = argv[i];
+        //cout << "ARG: " << argv[i] << "\n";
+    }	
+	player = new dualPlayer(argc-1, vlc_argv);
 
 	string input;
 	string command;

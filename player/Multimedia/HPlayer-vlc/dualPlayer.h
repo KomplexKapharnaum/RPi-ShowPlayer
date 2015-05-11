@@ -11,7 +11,7 @@ using std::string;
 class dualPlayer : public dualPlayerCallbacks
 {
 	public:
-		dualPlayer();
+		dualPlayer(int vlc_argc, char const *vlc_argv[]);
 		void play(string filepath);
 		void load(string filepath);
 		void play();
