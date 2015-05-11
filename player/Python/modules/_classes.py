@@ -175,7 +175,6 @@ class ExternalProcess(object):
         for line in stdout_iterator:
             self._log("error", "stdout : {0}".format(line.strip()))
             self.stdout_queue.put_nowait(line.strip())
-        self._log("error", "end stdout_reader")
         self.stdout_queue.put_nowait(None)              # Stop queue consumers
 
     def _defunctdog(self):
