@@ -174,6 +174,7 @@ class ExternalProcess(object):
         self._is_launched.wait()
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
+            self._log("error", "stdout : {0}".format(line.strip()))
             self.stdout_queue.put_nowait(line.strip())
         self._log("error", "end stdout_reader")
         self.stdout_queue.put_nowait(None)              # Stop queue consumers
