@@ -163,7 +163,7 @@ class ExternalProcess(object):
                 break
             message += "\n"
             m = message.encode("utf-8")
-            self._log("error", "write to stdin : {0}".format(message.strip()))
+            self._log("error", "write to stdin : {0}".format(m.strip()))
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
@@ -175,6 +175,7 @@ class ExternalProcess(object):
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
             self.stdout_queue.put_nowait(line.strip())
+        self._log("error", "end stdout_reader")
         self.stdout_queue.put_nowait(None)              # Stop queue consumers
 
     def _defunctdog(self):
