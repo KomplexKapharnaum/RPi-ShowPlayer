@@ -208,7 +208,7 @@ class ExternalProcessFlag(ExternalProcess):
     """
     def __init__(self, *args, **kwargs):
         ExternalProcess.__init__(self, *args, **kwargs)
-        self._stdout_to_flag_thread = threading.Thread(target=self._stdout_thread)
+        self._stdout_to_flag_thread = threading.Thread(target=self._stdout_to_flag)
 
     def start(self):
         ExternalProcess.start(self)
