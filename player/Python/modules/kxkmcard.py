@@ -135,7 +135,7 @@ class KXKMcard(ExternalProcessFlag):
         :param cmd:
         :return:
         """
-        log.log("raw", "Init HardWare on KxkmCard ..")
+        log.log("error", "Init HardWare on KxkmCard ..")
         path = settings.get_path('deviceslist')
         voltage = None
         titreur = None
