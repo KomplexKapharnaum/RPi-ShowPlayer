@@ -243,7 +243,7 @@ class ExternalProcessFlag(ExternalProcess):
 
     def onEvent(self, cmd=[]):        # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
-        self._log("cmd : {0}".format(cmd))
+        self._log("error", "cmd : {0}".format(cmd))
         doEmmit = True
         if cmd[0] in self.Filters.keys():
             for fn in self.Filters[cmd[0]]:
