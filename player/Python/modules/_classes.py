@@ -96,7 +96,7 @@ class ExternalProcess(object):
             self._log("warning", "try to start an already started process")
             return False
 
-        self._popen = Popen(shlex.split(self.command), bufsize=-1, executable=None, stdin=PIPE, stdout=self.stderr,
+        self._popen = Popen(shlex.split(self.command), bufsize=-1, executable=None, stdin=PIPE, stdout=PIPE,
                             stderr=self.stderr, close_fds=False, shell=False, cwd=None, env=None,
                             universal_newlines=True, startupinfo=None, creationflags=0,
                             preexec_fn=lambda: os.nice(self._priority))
@@ -163,7 +163,7 @@ class ExternalProcess(object):
                 break
             message += "\n"
             m = message.encode("utf-8")
-            self._log("error", "write to stdin : {0}".format(m.strip()))
+            self._log("error", "write to stdin : {0}".format(m))
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
