@@ -12,7 +12,6 @@ using std::string;
 #define PLAYING 3
 #define DONE 4
 
-
 class vlcPlayer 
 {
 	public:
@@ -20,7 +19,7 @@ class vlcPlayer
 		void play(string filepath);
 		void load(string filepath);
 		void play();
-		void pause();
+		void pause(); 
 		void resume();
 		void togglePause();
 		void stop();
@@ -32,7 +31,6 @@ class vlcPlayer
 		bool locked();
 		int getId();
 		void fullScreen();
-		void wait_preroll();
 		// void callbacks( const libvlc_event_t* event, void* ptr );
 		libvlc_media_player_t *player;
 
