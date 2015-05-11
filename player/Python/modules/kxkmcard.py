@@ -21,7 +21,7 @@ log = init_log("kxkmcard")
 FILTERS = dict()
 
 
-class KXKMcard(ExternalProcessFlag):
+class KxkmCard(ExternalProcessFlag):
     """
     This class define the KXKM card
     """
@@ -532,10 +532,10 @@ class KXKMcard(ExternalProcessFlag):
 #     }
 
 
-exposesignals(KXKMcard.Filters)
+exposesignals(KxkmCard.Filters)
 
 
-@module('KXKMcard')
+@module('KxkmCard')
 @link({"/hardware/ready": "kxkm_card"})
 def init_kxkm_card(flag, **kwargs):
     """
@@ -544,7 +544,7 @@ def init_kxkm_card(flag, **kwargs):
     :return:
     """
     if "kxkmcard" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["kxkmcard"] = KXKMcard()
+        kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
         kwargs["_fsm"].vars["kxkmcard"].start()
 
 # ETAPE AND SIGNALS
@@ -560,7 +560,7 @@ def init_kxkm_card(flag, **kwargs):
        "/lumiere/gyro [mode] [speed] [strob]": "kxkm_card_gyro"})
 def kxkm_card(flag, **kwargs):
     if "kxkmcard" not in kwargs["_fsm"].vars.keys():
-        kwargs["_fsm"].vars["kxkmcard"] = KXKMcard()
+        kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
         kwargs["_fsm"].vars["kxkmcard"].start()
 
 
