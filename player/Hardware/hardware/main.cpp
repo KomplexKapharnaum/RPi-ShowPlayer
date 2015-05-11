@@ -522,6 +522,7 @@ void killthread() {
 void beforekill(int signum)
 {
   killthread();
+  consumer.join();
   exit(signum);
 }
 
@@ -568,8 +569,7 @@ int main (int argc, char * argv[]){
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
   
   consumer.join();
-  
-  killthread();
+
   exit(0);
   
   return 0;
