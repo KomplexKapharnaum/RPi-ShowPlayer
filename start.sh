@@ -35,14 +35,14 @@ while (( running )); do
 	kill_zombies
 	echo "ShowPlayer Start"
     if ((DIRECT_INOUT)); then
-    	renice -n -20 ./player/Python/main.py
+    	nice -n -20 ./player/Python/main.py
     else
         echo "wait before start"
         sleep 15
     	mkdir -p /tmp/dnc
     	# echo '' > /tmp/dnc/stdin
     	touch /tmp/dnc/main.log
-	    renice -n -20 ./player/Python/main.py &> /tmp/dnc/main.log
+	    nice -n -20 ./player/Python/main.py &> /tmp/dnc/main.log
     	# ./player/Python/main.py < /tmp/dnc/stdin &> ./logs/main.log
     fi
     exitcode=$?
