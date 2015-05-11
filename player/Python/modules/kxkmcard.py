@@ -27,93 +27,15 @@ class KxkmCard(ExternalProcessFlag):
     """
 
     def __init__(self):
-        Filters = {
-            # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
-            # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
-            'INITHARDWARE': ['initHw'],
-            'HARDWAREREADY': ['transTo /hardware/ready'],
-            'TELECO_GET_INFO': ['sendInfo'],
-
-            'CARTE_PUSH_1': ['btnDown', True],
-            'CARTE_PUSH_2': ['btnDown', True],
-            'CARTE_PUSH_3': ['btnDown', True],
-            'CARTE_FLOAT': ['btnDown', True],
-
-            'CARTE_MESSAGE_POWEROFF': [True],
-
-            "CARTE_TENSION": ['transTo /device/sendInfoTension'],
-            "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
-
-            'TELECO_PUSH_A': ['btnDown', True],
-            'TELECO_PUSH_B': ['btnDown', True],
-            'TELECO_PUSH_OK': ['btnDown', True],
-
-            'TELECO_PUSH_REED': [True],
-            'TELECO_PUSH_FLOAT': [True],
-
-            #old version for compatibility
-
-            'TELECO_MESSAGE_BLINKGROUP': [],
-            'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
-
-            'TELECO_MESSAGE_PREVIOUSSCENE': ['transTo /scene/previous', True],
-            'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/restart', True],
-            'TELECO_MESSAGE_NEXTSCENE': ['transTo /scene/next', True],
-
-            'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
-            'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
-
-            "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
-            "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
-
-
-            # new version
-
-            "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True], #TODO need to parse argument for scope of signal
-            "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
-            "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
-
-
-            "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
-            "TELECO_MESSAGE_SETTINGS_LOG_ERROR": [],
-            "TELECO_MESSAGE_SETTINGS_VOLPLUS": [],
-            "TELECO_MESSAGE_SETTINGS_VOLMOINS": [],
-            "TELECO_MESSAGE_SETTINGS_VOLSAVE": [],
-            "TELECO_MESSAGE_SETTINGS_VOLBACK": [],
-
-            "TELECO_MESSAGE_MODE_SHOW": [],
-            "TELECO_MESSAGE_MODE_REPET": [],
-            "TELECO_MESSAGE_MODE_DEBUG": [],
-            "TELECO_MESSAGE_LOG_ERROR": [],
-            "TELECO_MESSAGE_LOG_DEBUG": [],
-
-            "TELECO_MESSAGE_BLINKGROUP": [],
-            "TELECO_MESSAGE_TESTROUTINE": ['testRoutine'],
-
-            "TELECO_MESSAGE_SYS_RESTARTPY": [],
-            "TELECO_MESSAGE_SYS_RESTARTWIFI": ['transTo /device/wifi/restart'],
-            "TELECO_MESSAGE_SYS_UPDATESYS": ['transTo /device/updatesys'],
-            "TELECO_MESSAGE_SYS_POWEROFF": ['transTo /device/poweroff'],
-            "TELECO_MESSAGE_SYS_REBOOT": ['transTo /device/reboot'],
-
-            "TELECO_MESSAGE_GET_INFO": [],
-
-            "TELECO_MESSAGE_MEDIA_VOLPLUS": [],
-            "TELECO_MESSAGE_MEDIA_VOLMOINS": [],
-            "TELECO_MESSAGE_MEDIA_MUTE": [],
-            "TELECO_MESSAGE_MEDIA_PAUSE": [],
-            "TELECO_MESSAGE_MEDIA_PLAY": [],
-            "TELECO_MESSAGE_MEDIA_STOP": []
-        }
         if not settings.get("sys", "raspi"):
             log.warning("KXKM Card should not be launched on no raspi device ")
             return None
         plateform = subprocess.check_output(["/usr/bin/gcc", "-dumpmachine"])
         if "armv6l" in plateform:
-            ExternalProcessFlag.__init__(self, 'kxkmcard-armv6l', filters=Filters)
+            ExternalProcessFlag.__init__(self, 'kxkmcard-armv6l', filters=self.Filters)
             log.debug('CARD: kxkmcard-armv6l')
         else:
-            ExternalProcessFlag.__init__(self, 'kxkmcard-armv7l', filters=Filters)
+            ExternalProcessFlag.__init__(self, 'kxkmcard-armv7l', filters=self.Filters)
             log.debug('CARD: kxkmcard-armv7l')
 
     def say(self, msg):
@@ -258,6 +180,85 @@ class KxkmCard(ExternalProcessFlag):
 
     def btnUp(self, cmd):
         return float(cmd[1]) == 0
+
+    Filters = {
+            # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
+            # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
+            'INITHARDWARE': ['initHw'],
+            'HARDWAREREADY': ['transTo /hardware/ready'],
+            'TELECO_GET_INFO': ['sendInfo'],
+
+            'CARTE_PUSH_1': ['btnDown', True],
+            'CARTE_PUSH_2': ['btnDown', True],
+            'CARTE_PUSH_3': ['btnDown', True],
+            'CARTE_FLOAT': ['btnDown', True],
+
+            'CARTE_MESSAGE_POWEROFF': [True],
+
+            "CARTE_TENSION": ['transTo /device/sendInfoTension'],
+            "CARTE_TENSION_BASSE": ['transTo /device/senWarningTension'],
+
+            'TELECO_PUSH_A': ['btnDown', True],
+            'TELECO_PUSH_B': ['btnDown', True],
+            'TELECO_PUSH_OK': ['btnDown', True],
+
+            'TELECO_PUSH_REED': [True],
+            'TELECO_PUSH_FLOAT': [True],
+
+            #old version for compatibility
+
+            'TELECO_MESSAGE_BLINKGROUP': [],
+            'TELECO_MESSAGE_TESTROUTINE': ['testRoutine'],
+
+            'TELECO_MESSAGE_PREVIOUSSCENE': ['transTo /scene/previous', True],
+            'TELECO_MESSAGE_RESTARTSCENE': ['transTo /scene/restart', True],
+            'TELECO_MESSAGE_NEXTSCENE': ['transTo /scene/next', True],
+
+            'TELECO_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
+            'TELECO_MESSAGE_REBOOT': ['transTo /device/reboot'],
+
+            "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
+            "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
+
+
+            # new version
+
+            "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True], #TODO need to parse argument for scope of signal
+            "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
+            "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
+
+
+            "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
+            "TELECO_MESSAGE_SETTINGS_LOG_ERROR": [],
+            "TELECO_MESSAGE_SETTINGS_VOLPLUS": [],
+            "TELECO_MESSAGE_SETTINGS_VOLMOINS": [],
+            "TELECO_MESSAGE_SETTINGS_VOLSAVE": [],
+            "TELECO_MESSAGE_SETTINGS_VOLBACK": [],
+
+            "TELECO_MESSAGE_MODE_SHOW": [],
+            "TELECO_MESSAGE_MODE_REPET": [],
+            "TELECO_MESSAGE_MODE_DEBUG": [],
+            "TELECO_MESSAGE_LOG_ERROR": [],
+            "TELECO_MESSAGE_LOG_DEBUG": [],
+
+            "TELECO_MESSAGE_BLINKGROUP": [],
+            "TELECO_MESSAGE_TESTROUTINE": ['testRoutine'],
+
+            "TELECO_MESSAGE_SYS_RESTARTPY": [],
+            "TELECO_MESSAGE_SYS_RESTARTWIFI": ['transTo /device/wifi/restart'],
+            "TELECO_MESSAGE_SYS_UPDATESYS": ['transTo /device/updatesys'],
+            "TELECO_MESSAGE_SYS_POWEROFF": ['transTo /device/poweroff'],
+            "TELECO_MESSAGE_SYS_REBOOT": ['transTo /device/reboot'],
+
+            "TELECO_MESSAGE_GET_INFO": [],
+
+            "TELECO_MESSAGE_MEDIA_VOLPLUS": [],
+            "TELECO_MESSAGE_MEDIA_VOLMOINS": [],
+            "TELECO_MESSAGE_MEDIA_MUTE": [],
+            "TELECO_MESSAGE_MEDIA_PAUSE": [],
+            "TELECO_MESSAGE_MEDIA_PLAY": [],
+            "TELECO_MESSAGE_MEDIA_STOP": []
+        }
 
 
 
