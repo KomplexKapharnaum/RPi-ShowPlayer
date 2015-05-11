@@ -522,6 +522,7 @@ void killthread() {
 void beforekill(int signum)
 {
   killthread();
+  consumer.join();
   exit(signum);
 }
 
@@ -551,7 +552,9 @@ int main (int argc, char * argv[]){
   cout << "#INITHARDWARE" << endl;
 
   //wait for init
-  while(!init);
+  while(!init){
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
   
   //init teleco if already connected // ISSUE HERE
   if (digitalRead(21)==HIGH) {
@@ -565,10 +568,8 @@ int main (int argc, char * argv[]){
   wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
   wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
   
-  //wait for input
-  while(live);
-  
-  killthread();
+  consumer.join();
+
   exit(0);
   
   return 0;

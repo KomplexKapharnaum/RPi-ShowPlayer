@@ -22,6 +22,9 @@ _Timeline = None
 _JSONtimeline = None
 _JSONScenario = list()
 
+timeline_version = None
+timeline_group = None
+
 def clear():
     """
     This function init pool variable before parsing a new scenario file

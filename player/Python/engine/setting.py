@@ -76,6 +76,7 @@ DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
 DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "devices.json"
+DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "devicesV2.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
 DEFAULT_SETTING["path"]["relative"]["video"] = "video"
 DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
@@ -326,6 +327,7 @@ class Settings(dict):
 
 settings = Settings(os.path.expanduser(DEFAULT_SETTING_PATH))
 devices = Settings(os.path.join(settings.get_path("deviceslist")))
+devicesV2 = Settings(os.path.join(settings.get_path("deviceslistV2")))
 # status = Settings(settings.get("path", "status"))
 if not os.path.exists(settings.get("path", "tmp")):
     os.makedirs(settings.get("path", "tmp"))
