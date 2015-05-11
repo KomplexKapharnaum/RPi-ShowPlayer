@@ -49,12 +49,6 @@ DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlc"] = "/usr/local/bin/cvlc"
-DEFAULT_SETTING["path"]["vlc"] += \
-    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache}"
-DEFAULT_SETTING["path"]["vlc"] += \
-    "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
-DEFAULT_SETTING["path"]["vlc"] += \
-    "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
 DEFAULT_SETTING["path"]["vlcvideo"] = "/usr/local/bin/cvlc --vout mmal_vout --aout alsa -I rc  --no-osd -f "
 DEFAULT_SETTING["path"][
     "vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd"  # --no-autoscale --zoom=0.7
@@ -75,6 +69,12 @@ DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv7l"] = "player/Hardware/hardwa
 DEFAULT_SETTING["path"]["relative"]["hplayer"] = "player/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["relative"]["interface"] = "player/Python/interface/bottleserver.py"
 DEFAULT_SETTING["path"]["relative"]["mvlc"] = "player/Multimedia/HPlayer-vlc/hplayer-vlc"
+DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
+    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache}"
+DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
+    "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
+DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
+    "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
 DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "devices.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
 DEFAULT_SETTING["path"]["relative"]["video"] = "video"
