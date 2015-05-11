@@ -201,6 +201,7 @@ DEFAULT_SETTING["sys"]["ref_volume"] = 0  # Set the default system volume to 0dB
 DEFAULT_SETTING["sys"]["volume"] = 0  # Set the volume difference with the reference (in dB) can be neg
 DEFAULT_SETTING["sys"]["vlc_volume"] = 512  # Default vlc volume. 512 = 100%
 
+DEFAULT_SETTING["speed"] = dict()
 DEFAULT_SETTING["speed"]["thread_check_interval"] = 0.1  # Check thread interval
 
 DEFAULT_SETTING["temp"] = dict()  # TEMP SETTINGS FOR TEST
