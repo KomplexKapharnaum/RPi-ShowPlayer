@@ -152,7 +152,7 @@ def video_play(flag, **kwargs):
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        log.debug('+++ SYNC PLAY')
+        log.debug('+++ SYNC PLAY {0}'.format(flag.args['abs_time_sync']))
     kwargs["_fsm"].process.play()
     # kwargs["_etape"].preemptible.set()
 
