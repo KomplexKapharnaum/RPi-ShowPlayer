@@ -170,7 +170,6 @@ class ExternalProcess(object):
         """
         This function read the stdout and put message to the stdout queue
         """
-        return
         self._is_launched.wait()
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
