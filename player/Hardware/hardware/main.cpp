@@ -552,7 +552,7 @@ int main (int argc, char * argv[]){
 
   //wait for init
   while(!init){
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   
   //init teleco if already connected // ISSUE HERE
@@ -569,7 +569,7 @@ int main (int argc, char * argv[]){
   
   //wait for input
   while(live){
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   
   killthread();
