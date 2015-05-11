@@ -502,6 +502,7 @@ void consume(Queue<string>& q) {
     if(!(item=="interrupt_carte" || item=="interrupt_teleco")) fprintf(stderr, "main - popped %s\n",item.c_str());
     if (item=="kill")loop_continue=false;
     parseInput(item);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
   }
 }
 
