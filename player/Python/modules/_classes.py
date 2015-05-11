@@ -163,6 +163,7 @@ class ExternalProcess(object):
                 break
             message += "\n"
             m = message.encode("utf-8")
+            self._log("error", "write to stdin : {0}".format(message.strip()))
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
