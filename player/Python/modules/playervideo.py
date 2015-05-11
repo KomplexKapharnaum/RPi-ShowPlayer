@@ -29,9 +29,7 @@ class VideoVLCPlayer(AbstractVLC):
         """:type: dict"""
         arguments.update(settings.get("vlc", "options", "video"))
         log.log("error", "Vlc arguments : {0}".format(arguments))
-        log.log("error", "Vlc command : {0}".format(command))
-        command = command.format(arguments)
-        AbstractVLC.__init__(self, name="videovlc", command=command)
+        AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments))
 
     Filters = {
         "MEDIA_END": ["transTo /video/end", True],
