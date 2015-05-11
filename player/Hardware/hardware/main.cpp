@@ -11,6 +11,7 @@
 #include "extSPI.h"
 
 #include <stdio.h>
+#include <cstdio>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -514,6 +515,7 @@ thread consumer(bind(&consume, ref(q)));
 void killthread() {
   produce(q,"kill");
   consumer.join();
+  //reader.join(); TODO: find way to kill reader before exit
 }
 
 //clean befor exit
