@@ -9,6 +9,7 @@
 import liblo
 import time
 import application
+import subprocess
 from scenario import pool
 from modules import link
 from _classes import module
@@ -75,9 +76,12 @@ def device_update_timeline(flag, **kwargs):
 
 @link({None: "device_control"})
 def device_send_info_tension(flag, **kwargs):
+    cpu_temperature = None
     with open("/sys/class/thermal/thermal_zone0/temp") as f
-        temp = float(f.read())/1000
-    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,temp,devicesV2.get(settings.get("uName"),"tension"),float(flag.args["args"][0]))
+        cpu_temperature = float(f.read())/1000
+    link_signal=subprocess.check_output("iw wlan0 link | grep signal | cut -d':' -f2")
+    link_channel=subprocess.check_output("iw wlan0 info | grep channel | cut -d',' -f1")
+    message = liblo.Message("/monitor",settings.get("uName"),settings.get("current_timeline"),pool.timeline_version,temp,cpu_temperature,link_channel,link_signal,devicesV2.get(settings.get("uName"),"tension"),float(flag.args["args"][0]))
     log.debug("get tension {0} and forward".format(flag.args["args"][0]))
     port = settings.get("log","tension","port")
     for dest in settings.get("log","tension","ip"):
