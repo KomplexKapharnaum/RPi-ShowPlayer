@@ -136,7 +136,7 @@ DEFAULT_SETTING["scenario"]["date_len"] = 24  # extension + date length + @
 DEFAULT_SETTING["scenario"]["dest_all"] = "All"  # string for all dest in a signal
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"  # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"  # string for self dest in a signal
-DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.500  # 500 ms : time delta before run sync between cards, if sync
+DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.800  # 500 ms : time delta before run sync between cards, if sync
 # fail try to increase this value
 
 DEFAULT_SETTING["media"] = dict()
