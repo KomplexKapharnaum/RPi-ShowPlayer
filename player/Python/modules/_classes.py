@@ -378,7 +378,8 @@ class AbstractVLC(ExternalProcessFlag):
         """
         Start VLC on the last added media
         """
-        self.stdin_queue.put("play")
+        # self.stdin_queue.put("play")
+        self._direct_stdin_writer("play")
 
     def toggle_pause(self):
         """
