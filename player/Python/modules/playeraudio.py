@@ -5,6 +5,7 @@
 #
 #
 import os
+import copy
 from _classes import ExternalProcess, module
 from modules import link, exposesignals
 from modules._classes import AbstractVLC
@@ -32,7 +33,25 @@ class AudioVLCPlayer(AbstractVLC):
     """
     This class define an audio player with VLC as backend
     """
-    Filters = {}
+    def __init__(self):
+        command = copy.copy(settings.get_path("mvlc"))
+        """:type: str"""
+        arguments = copy.copy(settings.get("vlc", "options", "default"))
+        """:type: dict"""
+        arguments.update(settings.get("vlc", "options", "audio"))
+        log.log("error", "Vlc arguments : {0}".format(arguments))
+        AbstractVLC.__init__(self, name="audiovlc", command=command.format(**arguments))
+
+    def check_media(self, media):
+        """
+        Add audio to the media path
+        """
+        return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "audio"), media))
+
+    Filters = {
+        "MEDIA_END": ["transTo /audio/end", True],
+        "AUDIO_END": [True]
+    }
 
 
 exposesignals(AudioVLCPlayer.Filters)
