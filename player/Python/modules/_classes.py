@@ -96,7 +96,7 @@ class ExternalProcess(object):
             self._log("warning", "try to start an already started process")
             return False
 
-        self._popen = Popen(shlex.split(self.command), bufsize=-1, executable=None, stdin=PIPE, stdout=PIPE,
+        self._popen = Popen(shlex.split(self.command), bufsize=-1, executable=None, stdin=PIPE, stdout=self.stderr,
                             stderr=self.stderr, close_fds=False, shell=False, cwd=None, env=None,
                             universal_newlines=True, startupinfo=None, creationflags=0,
                             preexec_fn=lambda: os.nice(self._priority))
@@ -170,7 +170,7 @@ class ExternalProcess(object):
         """
         This function read the stdout and put message to the stdout queue
         """
-        log.log("tmp", "")
+        return
         self._is_launched.wait()
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
