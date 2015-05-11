@@ -151,6 +151,7 @@ def video_play(flag, **kwargs):
     # repeat = flag.args["repeat"] if 'repeat' in flag.args else None
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
+        log.debug('+++ BEFORE SYNC PLAY {0}'.format(rtplib.get_time()))
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
         log.debug('+++ SYNC PLAY {0}'.format(flag.args['abs_time_sync']))
     kwargs["_fsm"].process.play()
