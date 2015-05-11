@@ -96,9 +96,9 @@ class ExternalProcess(object):
             self._log("warning", "try to start an already started process")
             return False
 
-        self._popen = Popen(shlex.split(self.command), bufsize=-1, executable=None, stdin=PIPE, stdout=PIPE,
+        self._popen = Popen(shlex.split(self.command), bufsize=0, executable=None, stdin=PIPE, stdout=PIPE,
                             stderr=self.stderr, close_fds=False, shell=False, cwd=None, env=None,
-                            universal_newlines=True, startupinfo=None, creationflags=0,
+                            universal_newlines=False, startupinfo=None, creationflags=0,
                             preexec_fn=lambda: os.nice(self._priority))
 
         self._defunctdog_thread.start()
