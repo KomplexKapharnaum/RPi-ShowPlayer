@@ -497,12 +497,14 @@ void readcin(Queue<string>& q) {
 
 void consume(Queue<string>& q) {
   bool loop_continue = true;
+  unsigned int microseconds=5;
   while (loop_continue) {
     auto item = q.pop();
     if(!(item=="interrupt_carte" || item=="interrupt_teleco")) fprintf(stderr, "main - popped %s\n",item.c_str());
     if (item=="kill")loop_continue=false;
     parseInput(item);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    usleep(microseconds);
   }
 }
 
