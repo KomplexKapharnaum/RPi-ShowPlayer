@@ -23,7 +23,7 @@ class VideoVLCPlayer(AbstractVLC):
     """
 
     def __init__(self):
-        commande = copy.copy(settings.get("path", "vlc"))
+        commande = copy.copy(settings.get_path("mvlc"))
         """:type: str"""
         arguments = copy.copy(settings.get("vlc", "option", "default"))
         """:type: dict"""

@@ -73,6 +73,7 @@ DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv6l"] = "player/Hardware/hardwa
 DEFAULT_SETTING["path"]["relative"]["kxkmcard-armv7l"] = "player/Hardware/hardware/hardware7"
 DEFAULT_SETTING["path"]["relative"]["hplayer"] = "player/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["relative"]["interface"] = "player/Python/interface/bottleserver.py"
+DEFAULT_SETTING["path"]["relative"]["mvlc"] = "player/Multimedia/HPlayer-vlc/hplayer-vlc"
 DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "devices.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
 DEFAULT_SETTING["path"]["relative"]["video"] = "video"
