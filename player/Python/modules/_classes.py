@@ -199,6 +199,62 @@ class ExternalProcess(object):
         log.log(lvl, "Proc[{0}] : {1}".format(self.name, msg))
 
 
+class ExternalProcessFlag(ExternalProcess):
+    """
+    This class provide a stdout consumer which emit signal on #MSG recv
+    """
+    def __init__(self, *args, **kwargs):
+        ExternalProcess.__init__(self, *args, **kwargs)
+        self._stdout_to_flag_thread = threading.Thread(target=self._stdout_thread)
+
+    def _stdout_to_flag(self):
+        """
+        This thread function consume stdout to create flag with it
+        """
+        self._is_running.wait()
+        while self._is_running.is_set():
+            msg = self.stdout_queue.get()
+            if msg is None or len(msg) < 1:                 # It's time to stop
+                break
+            if msg[0] == "#":                               # It's a signal from the kxkmcard program
+                self._emmit(msg[1:].split(' '))
+            else:
+                self._log("warning", "unknown stdout line {0}".format(msg))
+
+    def join(self):
+        """
+        Wait the process and thread to end
+        """
+        ExternalProcess.join()
+        self._stdout_thread.join()
+
+    def _emit(self, cmd=[]):        # TODO : doc or change implmentation
+        cmd[0] = cmd[0].lstrip('#')
+        doEmmit = True
+        if cmd[0] in self.Filters.keys():
+            for fn in self.Filters[cmd[0]]:
+                if isinstance(fn, str):
+                    filt = fn.split(' ')
+                    method = getattr(self, filt[0], None)
+                    if callable(method):
+                        if len(filt) > 1:
+                            doEmmit = method(cmd, filt[1:]) and doEmmit
+                        else:
+                            doEmmit = method(cmd) and doEmmit
+        if doEmmit:
+            self.emmit(cmd)
+
+    def emmit(self, args=[]):   # TODO : doc or change implementation
+        signal_name = args[0].upper()
+        if signal_name[0] == '/':
+            signal_name = signal_name.replace('/', '_')[1:].upper()
+        log.log("raw", signal_name + ' ' + ' '.join(args[1:]))
+        if signal_name == "DEVICE_SENDINFOTENSION" and not settings.get("log", "tension", "active"):
+            return  # Avoid patch flag if setting unactive send tension info
+        flag = Flag(signal_name).get(args={"args": args[1:]})
+        patcher.patch(flag)
+
+
 class ExternalProcessTemplate(object):
     """
     This class define an external processus template to generate ExternalProcess objects
@@ -254,16 +310,12 @@ class ExternalProcessTemplate(object):
             process.join()
 
 
-
-
-
-
-class AbstractVLC(ExternalProcess):
+class AbstractVLC(ExternalProcessFlag):
     """
     This class represent a VLC player
     """
     def __init__(self, *args, **kwargs):
-        self._first_play = False
+        ExternalProcessFlag.__init__(self, *args, **kwargs)
 
     def _stop_process(self):
         """
@@ -284,7 +336,7 @@ class AbstractVLC(ExternalProcess):
         else:
             return False
 
-    def add_media(self, media):
+    def load(self, media):
         """
         This function add a media to the play list
         :param media: relative media path from the media directory
@@ -294,23 +346,31 @@ class AbstractVLC(ExternalProcess):
         if path is False:
             self._log("warning", "Unknown media {0} => aborting".format(media))
             return False
-        self.stdin_queue.put_nowait("enqueue {0}".format(media))
+        self.stdin_queue.put_nowait("load {0}".format(media))
 
     def play(self):
         """
         Start VLC on the last added media
         """
-        if self._first_play:
-            self.stdin_queue.put("play")
-            self._first_play = True
-        else:
-            self.stdin_queue.put("next")
+        self.stdin_queue.put("play")
 
     def toggle_pause(self):
         """
         This function toggle the pause statue of the current played media
         """
+        self.stdin_queue.put("toggle")
+
+    def pause(self):
+        """
+        This function pause the current played media
+        """
         self.stdin_queue.put("pause")
+
+    def resume(self):
+        """
+        This function resume the current played media
+        """
+        self.stdin_queue.put("resume")
 
     def stop_media(self):
         """
@@ -318,8 +378,35 @@ class AbstractVLC(ExternalProcess):
         """
         self.stdin_queue.put("stop")
 
+    def _get_volume_value(self, volume):
+        """
+        This function return
+         :param volume: Relative volume value betwenn 0 and 200 ( percent )
+         :type volume: int
+         :return: Absolute volume for VLC between 0 and 1024
+         :rtype: int
+        """
+        return settings.get("vlc", "volume", "master") * (volume/100)
 
+    def set_volume(self, volume):
+        """
+        This function set the volume of the current played file
+         :param volume: Relative volume value betwenn 0 and 200 ( percent )
+         :type volume: int
+        """
+        self.stdin_queue.put_nowait("volume {0}".format(self._get_volume_value(volume)))
 
+    def volume_up(self):
+        """
+        This function add one step of volume. Volume step are defined in vlc command settings
+        """
+        self.stdin_queue.put("volup")
+
+    def volume_down(self):
+        """
+        This function sub one step of volume. Volume step are defined in vlc command settings
+        """
+        self.stdin_queue.put("voldown")
 
 
 # GENERIC THREAD TO HANDLE EXTERNAL PROCESS

@@ -5,10 +5,12 @@
 #
 import re
 import threading
-from _classes import ExternalProcess, module
+from _classes import ExternalProcessFlag, module
+from scenario import classes
 from modules import link, exposesignals
 from engine.log import init_log
 from engine.setting import settings
+from engine.threads import patcher
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
 import json
@@ -19,65 +21,12 @@ log = init_log("kxkmcard")
 FILTERS = dict()
 
 
-class KXKMcard(ExternalProcess):
+class KXKMcard(ExternalProcessFlag):
     """
     This class define the KXKM card
     """
 
-    def __init__(self, *args, **kwargs):
-        """
-        :param filters: Filtres to apply on the stdout outputs
-        :type filters: dict
-        """
-        ExternalProcess.__init__(self, *args, **kwargs)
-        self._stdout_to_flag_thread = threading.Thread(target=self._stdout_thread)
 
-    def _stdout_to_flag(self):
-        """
-        This thread function consume stdout to create flag with it
-        """
-        self._is_running.wait()
-        while self._is_running.is_set():
-            msg = self.stdout_queue.get()
-            if msg is None or len(msg) < 1:                 # It's time to stop
-                break
-            if msg[0] == "#":                               # It's a signal from the kxkmcard program
-                self._emmit(msg[1:].split(' '))
-            else:
-                self._log("warning", "unknown stdout line {0}".format(msg))
-
-    def join(self):
-        """
-        Wait the process and thread to end
-        """
-        ExternalProcess.join()
-        self._stdout_thread.join()
-
-    def _emit(self, cmd=[]):        # TODO : doc or change implmentation
-        cmd[0] = cmd[0].lstrip('#')
-        doEmmit = True
-        if cmd[0] in self.Filters.keys():
-            for fn in self.Filters[cmd[0]]:
-                if isinstance(fn, str):
-                    filt = fn.split(' ')
-                    method = getattr(self, filt[0], None)
-                    if callable(method):
-                        if len(filt) > 1:
-                            doEmmit = method(cmd, filt[1:]) and doEmmit
-                        else:
-                            doEmmit = method(cmd) and doEmmit
-        if doEmmit:
-            self.emmit(cmd)
-
-    def emmit(self, args=[]):   # TODO : doc or change implementation
-        signal_name = args[0].upper()
-        if signal_name[0] == '/':
-            signal_name = signal_name.replace('/', '_')[1:].upper()
-        log.log("raw", signal_name + ' ' + ' '.join(args[1:]))
-        if signal_name == "DEVICE_SENDINFOTENSION" and not settings.get("log", "tension", "active"):
-            return  # Avoid patch flag if setting unactive send tension info
-        flag = Flag(signal_name).get(args={"args": args[1:]})
-        patcher.patch(flag)
 
     # def _default_patch(self, signal_name, *args):
     #     """
@@ -256,7 +205,7 @@ class _KxkmCard(ExternalProcess):
                 rgb = str(rgb)
                 rgb = rgb.lstrip('#')
                 lv = len(rgb)
-                rgb = list(str(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))  # TODO DEBUG HERE value
+                rgb = list(rgb[i:i + lv // 3] for i in range(0, lv, lv // 3))
             if len(rgb) == 3:
                 cmd += ' -rgb {R} {G} {B}'.format(R=rgb[0], G=rgb[1], B=rgb[2])
         if led10w1 is not None:

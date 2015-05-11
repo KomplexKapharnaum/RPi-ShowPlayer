@@ -50,7 +50,7 @@ DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlc"] = "/usr/local/bin/cvlc"
 DEFAULT_SETTING["path"]["vlc"] += \
-    "--vout {vout} --aout {aout} -I rc --play-and-stop --rt-priority --rt-offset {priority} --file-caching {fcache}"
+    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache}"
 DEFAULT_SETTING["path"]["vlc"] += \
     "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
 DEFAULT_SETTING["path"]["vlc"] += \
@@ -79,6 +79,21 @@ DEFAULT_SETTING["path"]["relative"]["video"] = "video"
 DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
 DEFAULT_SETTING["path"]["relative"]["text"] = "text"
 DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
+
+DEFAULT_SETTING["vlc"] = dict()
+DEFAULT_SETTING["vlc"]["options"]["default"] = {
+    "vout": "mmal_vout",
+    "aout": "alsa",
+    "priority": -20,
+    "cache": 600,
+    "vstep": 25,
+    "gain": 1,
+    "again": 1
+}
+DEFAULT_SETTING["vlc"]["options"]["audio"] = {
+    "vout": "none"
+}
+DEFAULT_SETTING["vlc"]["volume"]["master"] = 256        # Master volume for VLC (256 seems to be the 100% volume)
 
 DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["scp"] = dict()
