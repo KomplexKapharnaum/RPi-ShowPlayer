@@ -94,7 +94,7 @@ def device_send_info_tension(flag, **kwargs):
     power = "undefined power"
     if settings.get("uName") in devicesV2:
         power = devicesV2.get(settings.get("uName"), "tension")
-    message = liblo.Message("/monitor", settings.get("uName"), settings.get("current_timeline"), pool.timeline_version, cpu_temperature, cpu_temperature, link_channel, link_signal, power, float(flag.args["args"][0]))
+    message = liblo.Message("/monitor", settings.get("uName"), settings.get("current_timeline"), pool.timeline_version, cpu_temperature, link_channel, link_signal, power, float(flag.args["args"][0]))
     #TODO add curent scene name
     log.debug("monitoring send {0}".format(message))
     port = settings.get("log", "tension", "port")
