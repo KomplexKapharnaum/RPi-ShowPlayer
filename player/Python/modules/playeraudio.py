@@ -32,6 +32,7 @@ class AudioVLCPlayer(AbstractVLC):
     """
     This class define an audio player with VLC as backend
     """
+    Filters = {}
 
 
 exposesignals(AudioVLCPlayer.Filters)
