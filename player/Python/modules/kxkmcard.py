@@ -560,7 +560,9 @@ def init_kxkm_card(flag, **kwargs):
        "/lumiere/led2 [led10w2] [strob] [fade]": "kxkm_card_lights",
        "/lumiere/gyro [mode] [speed] [strob]": "kxkm_card_gyro"})
 def kxkm_card(flag, **kwargs):
-    pass
+    if "kxkmcard" not in kwargs["_fsm"].vars.keys():
+        kwargs["_fsm"].vars["kxkmcard"] = KXKMcard()
+        kwargs["_fsm"].vars["kxkmcard"].start()
 
 
 @link({None: "kxkm_card"})
