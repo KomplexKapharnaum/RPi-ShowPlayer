@@ -85,7 +85,7 @@ DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
 DEFAULT_SETTING["vlc"] = dict()
 DEFAULT_SETTING["vlc"]["options"] = dict()
 DEFAULT_SETTING["vlc"]["options"]["default"] = {
-    "vout": "mmal_vout",
+    "vout": "none",
     "aout": "alsa",
     "priority": -20,
     "cache": 600,
@@ -95,6 +95,9 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
 }
 DEFAULT_SETTING["vlc"]["options"]["audio"] = {
     "vout": "none"
+}
+DEFAULT_SETTING["vlc"]["options"]["video"] = {
+    "vout": "mmal_vout"
 }
 
 DEFAULT_SETTING["vlc"]["volume"] = dict()
