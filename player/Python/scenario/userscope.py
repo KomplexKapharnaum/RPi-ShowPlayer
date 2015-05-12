@@ -10,5 +10,5 @@ log = init_log("public")
 
 def sendSignal(uid):
     signal = Flag(uid, TTL=settings.get("scenario", "TTL"), JTL=settings.get("scenario", "JTL"))
-    patcher.patch(signal.get())   # Removed get to improv perf (not necessary because it is generated just before
+    patcher.patch(signal)   # Removed get to improv perf (not necessary because it is generated just before
     log.log("debug", "user signal : {0}".format(uid))
