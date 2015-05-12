@@ -100,10 +100,11 @@ void testRoutine(int n){
 int parseInput(string input){
   if (input=="check_teleco_on_start"){
     //init teleco if already connected // ISSUE HERE
+    produce(q,"start_interrupt");
     if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
     }
-    produce(q,"start_interrupt");
+    
   }
 
   if(input=="start_interrupt"){
