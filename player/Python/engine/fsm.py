@@ -171,7 +171,7 @@ class FiniteStateMachine:
         evole when it get signals
     """
 
-    def __init__(self, name="FSM", flag_stack_len=256, fsmtype="fsm", source=None):
+    def __init__(self, name="FSM", flag_stack_len=settings.get("speed", "flag_queue_size"), fsmtype="fsm", source=None):
         """
         Init method
         :param name: optional name for the FSM, usefull for debug

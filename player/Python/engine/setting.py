@@ -215,7 +215,8 @@ DEFAULT_SETTING["sys"]["volume"] = 0  # Set the volume difference with the refer
 DEFAULT_SETTING["sys"]["vlc_volume"] = 512  # Default vlc volume. 512 = 100%
 
 DEFAULT_SETTING["speed"] = dict()
-DEFAULT_SETTING["speed"]["thread_check_interval"] = 0.1  # Check thread interval
+DEFAULT_SETTING["speed"]["thread_check_interval"] = 0.1     # Check thread interval
+DEFAULT_SETTING["speed"]["flag_queue_size"] = 64           # Lenght of the flag queue
 
 DEFAULT_SETTING["temp"] = dict()  # TEMP SETTINGS FOR TEST
 DEFAULT_SETTING["temp"]["wanted_media"] = ["text/blabla.txt", "drums.wav", "sintel.mp4", "drums.mp3", "mistake.mp3"]
