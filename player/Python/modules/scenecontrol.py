@@ -70,11 +70,13 @@ def scene_restart(flag, **kwargs):
     if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
         dest = [flag.args['args'][0], ]
     log.log("debug", "flag {0}, dest {1}".format(flag, dest))
-    patcher.patch(new_flag.get({"dest": dest}))
+    patcher.patch(new_flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
 
 @link({None: "scene_control"})
 def scene_start(flag, **kwargs):
+    if "keyframe" in flag.args.keys():
+        scenario.CURRENT_FRAME = flag.args['keyframe']
     if scenario.CURRENT_FRAME > len(scenario.pool.Frames):
         scenario.CURRENT_FRAME = 0
     scenario.start_scene()
@@ -82,12 +84,16 @@ def scene_start(flag, **kwargs):
 
 @link({None: "scene_control"})
 def scene_prev(flag, **kwargs):
+    if "keyframe" in flag.args.keys():
+        scenario.CURRENT_FRAME = flag.args['keyframe']
     if scenario.CURRENT_FRAME > 0:
         scenario.CURRENT_FRAME -= 1
         scenario.start_scene()
 
 @link({None: "scene_control"})
 def scene_next(flag, **kwargs):
+    if "keyframe" in flag.args.keys():
+        scenario.CURRENT_FRAME = flag.args['keyframe']
     if scenario.CURRENT_FRAME < (len(scenario.pool.Frames)-1):
         scenario.CURRENT_FRAME += 1
         scenario.start_scene()
