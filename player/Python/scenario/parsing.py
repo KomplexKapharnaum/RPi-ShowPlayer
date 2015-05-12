@@ -299,8 +299,12 @@ def parse_timeline(timeline):
     old_scenes = copy.copy(pool.Scenes)
     old_frames = copy.copy(pool.Frames)
 
+    for x in timeline['scenes']:
+        Timeline.append(None)
+
     for frame, scene in enumerate(timeline['scenes']):
-        Timeline.append(classes.Scene(scene['name']))
+        Timeline[scene['keyframe']] = classes.Scene(scene['name'])
+        # Timeline.append(classes.Scene(scene['name']))
         for dispo in timeline['pool']:
             # Add card in scene
             Timeline[frame].cartes[dispo['name']] = pool.Cartes[dispo['name']]
