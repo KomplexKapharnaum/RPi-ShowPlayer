@@ -428,7 +428,7 @@ class AbstractVLC(ExternalProcessFlag):
          :return: Absolute volume for VLC between 0 and 1024
          :rtype: int
         """
-        return int(settings.get("vlc", "volume", "master")) * (int(volume)/100)
+        return int(int(settings.get("vlc", "volume", "master")) * (int(volume)/100))
 
     def set_volume(self, volume):
         """
