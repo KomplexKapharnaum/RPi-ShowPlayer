@@ -68,9 +68,11 @@ while (( running )); do
     if [ $exitcode -eq 0 ]; then
         quit
     elif [ $exitcode -eq 2 ]; then
+        sleep 7     # Time for threads and others things to quit properly
         quit
         poweroff
     elif [ $exitcode -eq 3 ]; then
+        sleep 7     # Time for threads and others things to quit properly
         quit
         reboot
     fi
