@@ -81,7 +81,7 @@ class Etape(fsm.State):
         :param flag: flag wich cause the change
         :return:
         """
-        log.log("debug", "START ETAPE :: {0} on {1}".format(self.uid, flag))
+        log.log("info", "START ETAPE :: {0} on {1}".format(self.uid, flag))
         if len(self.actions) > 0:
             return self._run(_fsm, flag, self.actions)
 
