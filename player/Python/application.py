@@ -290,7 +290,10 @@ class inputThread(threading.Thread):
                         continue
                     log.log(cmd[1], " ".join(cmd[2:]))
                 elif cmd[0] == "eval":
-                    eval(" ".join(cmd[1:]))
+                    try:
+                        eval(" ".join(cmd[1:]))
+                    except Exception as e:
+                        log.info(log.show_exception(e))
                 else:
                     log.info("Unknown commad in prompt ..")
         except Exception as e:
