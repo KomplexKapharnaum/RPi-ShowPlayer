@@ -58,11 +58,11 @@ def forward_signal(*args, **kwargs):
     :return:
     """
     if args[0].args["path"] == '/signal':
-        if args[0].args["args"][2] != scenario.CURRENT_SCENE_FRAME:
-            log.warning("Ignore signal {0} because it was emit on an other keyframe".format(args[0].args["args"][0]))
-            return False
         flag = cPickle.loads(str(bytearray(args[0].args["args"][1]))).get()       # TODO assume TTL regen when recv
         """:type: Flag"""
+        if args[0].args["args"][2] != scenario.CURRENT_SCENE_FRAME and flag.uid not in ("SCENE_START", "SCENE_NEXT", "SECENE_PREV"):
+            log.warning("Ignore signal {0} because it was emit on an other keyframe".format(args[0].args["args"][0]))
+            return False
         log.debug('Forwarded signal received {0} date {1}'.format(flag.get_info(), datetime.datetime.fromtimestamp(rtplib.conv_time_to_timestamp(*flag.TTL))))
         patcher.serve(flag)
     else:
