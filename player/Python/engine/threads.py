@@ -31,10 +31,15 @@ def stop():
     log.debug("STOPPING THREADS")
     for thread in tools._to_stop_thread.values():
         th = thread()   # Get the reference
+        """:type: threading.Thread"""
         log.debug("  Try to stop thread : {0}".format(th))
         if th is not None:
             try:
                 th.stop()
+                th.join(timeout=1)
             except AttributeError as e:
                 log.error(e)
+            except RuntimeError as e:
+                log.error("Thread do not join unitl 1 seconde..")
+                log.error(log.show_exception(e))
 
