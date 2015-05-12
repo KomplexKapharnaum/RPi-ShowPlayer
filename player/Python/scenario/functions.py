@@ -5,11 +5,14 @@
 
 import os
 import cPickle
+import datetime
 
 CREATE_NEW_PROCESS_GROUP = 512
 
+
 import libs.oscack
 import scenario
+from libs import rtplib
 from libs.oscack import message
 from modules import globalfunction, oscpatcher
 from engine.setting import settings
@@ -60,7 +63,7 @@ def forward_signal(*args, **kwargs):
             return False
         flag = cPickle.loads(str(bytearray(args[0].args["args"][1]))).get()       # TODO assume TTL regen when recv
         """:type: Flag"""
-        log.debug('Forwarded signal received {0}'.format(flag.get_info()))
+        log.debug('Forwarded signal received {0} date {1}'.format(flag.get_info(), datetime.datetime.fromtimestamp(rtplib.con_time_to_timestamp(flag.TTL))))
         patcher.serve(flag)
     else:
         return False
