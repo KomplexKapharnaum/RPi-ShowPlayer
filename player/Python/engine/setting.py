@@ -137,6 +137,8 @@ DEFAULT_SETTING["scenario"]["dest_all"] = "All"  # string for all dest in a sign
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"  # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"  # string for self dest in a signal
 DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.800  # 500 ms : time delta before run sync between cards, if sync
+DEFAULT_SETTING["scenario"]["TTL"] = 1.5                # TTL default value for scenario
+DEFAULT_SETTING["scenario"]["JTL"] = 3                  # JTL default value for scenario
 # fail try to increase this value
 
 DEFAULT_SETTING["media"] = dict()
