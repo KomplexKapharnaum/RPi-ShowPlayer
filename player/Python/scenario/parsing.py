@@ -74,8 +74,12 @@ def load_files():
 
 
 def parse_file(path):
-    with open(path, 'r') as fp:
-        return json.load(fp, encoding="utf-8")
+    try:
+        with open(path, 'r') as fp:
+            return json.load(fp, encoding="utf-8")
+    except Exception as e:
+        log.error("Error during parsing JSON file {0}".format(path))
+        log.error(log.show_exception(e))
 
 
 def parse_arg_function(jfunction):
