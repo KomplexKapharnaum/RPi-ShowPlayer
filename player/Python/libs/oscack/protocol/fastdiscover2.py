@@ -54,7 +54,7 @@ def auto_add_here(path, args, types, src):
 msg_iamhere = network.UnifiedMessageInterpretation("/iamhere", values=(
     ('s', "uName"),
     ('i', "timetag")
-), flag_name="RECV_IAM_HERE", machine=machine, treatement=auto_add_here)
+), flag_name="RECV_IAM_HERE", machine=machine, treatement=auto_add_here, ACK=settings.get("rtp", "ackiamhere"))
 msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME", machine=machine)
 msg_ping = network.UnifiedMessageInterpretation("/rtp/ping", ACK=True, values=(
     ("i", "ping_1"),
@@ -134,8 +134,7 @@ def addhere(flag):
 def trans_recv_iamhere(flag):
     if flag.args["kwargs"]["uName"] == settings["uName"]:
         return None
-    elif flag.args["kwargs"][
-        "uName"] not in libs.oscack.DNCserver.networkmap.keys():  # globalContext.network_MAP.keys(): TODO check and remove
+    elif flag.args["kwargs"]["uName"] not in libs.oscack.DNCserver.networkmap.keys():  # globalContext.network_MAP.keys(): TODO check and remove
         return step_addhere
     else:
         return trans_sync_here
