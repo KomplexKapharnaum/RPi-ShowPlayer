@@ -72,6 +72,7 @@ byte inpinanalog[3] = {A6, A1, A0};
 byte gyropin[NGYRO] = {A2, A3, A4, A5};
 long unsigned lastGyroUpdate;
 int gyroStep;
+byte gyroAllOnTrick;
 
 
 long unsigned lastStrob;
@@ -251,7 +252,7 @@ void loop (void) {
   }
 
   if (Value[UBATT] == 0) readTensionBatt();
-  if (Value[GYROMODE] > GYROALLON) gyroRoutine();
+  if (Value[GYROMODE] > GYROALLOFF) gyroRoutine();
   if (Value[LEDRVBSTROBSPEED] > 0) strobRoutine(0);
   if (Value[LED10W1STROBSPEED] > 0) strob10wRoutine(0);
   if (Value[GYROSTROBSPEED] > 0) strobGyroRoutine();
@@ -354,6 +355,13 @@ void updateValue(byte i) {
 //gestion des gyro (clignotement)
 
 void gyroRoutine() {
+  if (Value[GYROMODE] == GYROALLON) {
+    gyroAllOnTrick=(gyroAllOnTrick+1)%2;
+      for (byte i = 0; i < NGYRO; i++) {
+        if(gyroAllOnTrick==1) digitalWrite(gyropin[i], HIGH);
+        else digitalWrite(gyropin[i], LOW);
+    }
+  }else{
   if (millis() > lastGyroUpdate + (100L * Value[GYROSPEED])) {
     //Serial.print("gyr ");
     //Serial.println(gyroStep,DEC);
@@ -363,12 +371,13 @@ void gyroRoutine() {
     digitalWrite(gyropin[gyroStep], HIGH);
     lastGyroUpdate += 100L * Value[GYROSPEED];
   }
+  }
 }
 
 //stob sur la sortie LED RVB
 
 void strobRoutine(byte force) {
-  if (millis() > lastStrob + (10L * Value[LEDRVBSTROBSPEED]) || force) {
+  if (millis() > lastStrob + (10L * Value[LEDRVBSTROBSPEED]*20*(1-strobStep)) || force) {
     strobStep = (strobStep + 1) % 2;
     if (force)strobStep = 1;
     for (byte i = 0; i < 3; i++) {
@@ -381,7 +390,7 @@ void strobRoutine(byte force) {
 //stob sur la sortie LED10W1
 
 void strob10wRoutine(byte force) {
-  if (millis() > last10wStrob + (10L * Value[LED10W1STROBSPEED]) || force) {
+  if (millis() > last10wStrob + (10L * Value[LED10W1STROBSPEED]*20L*(1-strob10wStep)) || force) {
     strob10wStep = (strob10wStep + 1) % 2;
     if (force)strob10wStep = 1;
     analogWrite(outpin[LED10W1VALUE], lightfunc(Value[LED10W1VALUE])*strob10wStep);
@@ -392,8 +401,7 @@ void strob10wRoutine(byte force) {
 //gestion des gyro (strob)
 
 void strobGyroRoutine() {
-
-  if (millis() > lastGyroStrob + (10L * Value[GYROSTROBSPEED])) {
+    if (millis() > lastGyroStrob + (10L * Value[GYROSTROBSPEED]*20L*(1-strobGyroStep))) {
     strobGyroStep = (strobGyroStep + 1) % 2;
     for (byte i = 0; i < NGYRO; i++) {
       digitalWrite(gyropin[i], strobGyroStep);
@@ -412,12 +420,9 @@ void gyroUpdate() {
     return;
   }
   if (Value[GYROMODE] == GYROALLON) {
-    for (byte i = 0; i < NGYRO; i++) {
-      digitalWrite(gyropin[i], HIGH);
-    }
-    return;
+    gyroAllOnTrick=0;
   }
-  if (Value[GYROMODE] > GYROALLON) lastGyroUpdate = millis();
+  if (Value[GYROMODE] > GYROALLOFF) lastGyroUpdate = millis();
 }
 
 
@@ -431,7 +436,9 @@ void readTensionBatt() {
   //if (batt <= 438) voltage = (long)batt * 54 + 206;
   //else  voltage = (long)batt * 765 - 312500;
   voltage = (long)batt * 54 + 206;
-  if(voltage>24600)voltage += (((long)batt)*732 - 328902);
+  if(voltage>24600)voltage += (((long)batt)*732 - 329000);
+  if (voltage<5000) voltage=5000;
+  if (voltage>30000) voltage=30000;
   newValue[UBATT] = (byte) ((voltage - 5000) / 100);
   Value[UBATT] = newValue[UBATT];
   Serial.print("bat ");
