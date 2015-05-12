@@ -67,7 +67,7 @@ class Flag:
         # JTL=self.JTL, TTL=self.TTL, ignore_cb=copy.deepcopy(self.ignore_cb),
         # ignore_cb_args=copy.deepcopy(self.ignore_cb_args), public_name=None)
         if args is not None:
-            flag.args = args
+            flag.args = copy.copy(args)
         for key, item in kwargs.items():
             flag.__dict__[key] = item
         flag._time_created = rtplib.get_time()
@@ -171,7 +171,7 @@ class FiniteStateMachine:
         evole when it get signals
     """
 
-    def __init__(self, name="FSM", flag_stack_len=256, fsmtype="fsm", source=None):
+    def __init__(self, name="FSM", flag_stack_len=settings.get("speed", "flag_queue_size"), fsmtype="fsm", source=None):
         """
         Init method
         :param name: optional name for the FSM, usefull for debug
@@ -209,11 +209,11 @@ class FiniteStateMachine:
         if self.process is not None:
             self.process.stop()
 
-    def join(self):
+    def join(self, *args, **kwargs):
         if self.main_thread is None:
             return True
         else:
-            return self.main_thread.join()
+            return self.main_thread.join(*args, **kwargs)
 
     def append_flag(self, flag):
         """

@@ -281,6 +281,20 @@ def parse_scenario(parsepool, name):
 #         self.groups = dict()
 
 
+def get_frame(olist, frame):
+    """
+    Get in dict by key frame
+    :param olist: list to parse
+    :param frame: frame number to search for
+    :type olist: list
+    :type frame: int
+    :return:
+    """
+    for elem in olist:
+        if elem['keyframe'] == frame:
+            return elem
+    return None
+
 # 4: TIMELINE
 def parse_timeline(timeline):
     """
@@ -299,28 +313,38 @@ def parse_timeline(timeline):
     old_scenes = copy.copy(pool.Scenes)
     old_frames = copy.copy(pool.Frames)
 
-    for frame, scene in enumerate(timeline['scenes']):
-        Timeline.append(classes.Scene(scene['name']))
+    for x in timeline['scenes']:
+        Timeline.append(None)
+        pool.Frames.append(None)
+
+    for scene in timeline['scenes']:
+        frame = scene['keyframe']
+        Timeline[frame] = classes.Scene(scene['name'])
+        # Timeline.append(classes.Scene(scene['name']))
         for dispo in timeline['pool']:
             # Add card in scene
-            Timeline[frame].cartes[dispo['name']] = pool.Cartes[dispo['name']]
-            if not len(dispo['blocks']) > frame or not isinstance(dispo['blocks'][frame], dict):
+            frame_block = get_frame(dispo['blocks'], frame)
+            if not isinstance(frame_block, dict):
                 log.warning("There is no frame {0}({1}) for {2}".format(frame, scene['name'], dispo['name']))
                 continue
+            Timeline[frame].cartes[dispo['name']] = pool.Cartes[dispo['name']]
             # Init group in scene
-            if dispo['blocks'][frame]['group'] not in Timeline[frame].groups.keys():
-                Timeline[frame].groups[dispo['blocks'][frame]['group']] = list()
+            if frame_block['group'] not in Timeline[frame].groups.keys():
+                Timeline[frame].groups[frame_block['group']] = list()
             # Add in group
-            if dispo['blocks'][frame]['group'] is not None:
-                Timeline[frame].groups[dispo['blocks'][frame]['group']].append(pool.Cartes[dispo['name']])
+            if frame_block['group'] is not None:
+                Timeline[frame].groups[frame_block['group']].append(pool.Cartes[dispo['name']])
             else:
                 log.warning("..There is no frame {0}({1}) for {2}".format(frame, scene['name'], dispo['name']))
                 continue
             # Init start_etape for dispo
             if dispo['name'] not in Timeline[frame].start_etapes.keys():
-                Timeline[frame].start_etapes[dispo['name']] = list()
+                if len(frame_block['scenarios']) == 0:
+                    Timeline[frame].start_etapes[dispo['name']] = None
+                else:
+                    Timeline[frame].start_etapes[dispo['name']] = list()
             # Search in all scenario launched by the card in the current scene
-            for scenario in dispo['blocks'][frame]['scenarios']:
+            for scenario in frame_block['scenarios']:
                 log.important("Read scenario {0} for {1}".format(scenario, dispo['name']))
                 if scenario not in SCENARIO.keys():         # Scenario doesn't exist
                     log.warning("{0} try to add scenario {1} but it doesn't exist".format(dispo['name'], scenario))
@@ -333,7 +357,7 @@ def parse_timeline(timeline):
                             pool.Etapes_and_Functions[boxname(scenario, etape)])
         # End parse scene
         pool.Scenes[scene['name']] = Timeline[frame]
-        pool.Frames.append(Timeline[frame]) # scene['name']
+        pool.Frames[frame] = Timeline[frame] # scene['name']
 
         pool._Timeline = Timeline
         pool._JSONtimeline = timeline

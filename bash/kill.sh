@@ -1,5 +1,8 @@
 #!/bin/bash
 
+killall hardware6
+killall hardware7
+
 #Kill start.sh (avoid respawn)
 killall start.sh
 kill $(ps -ejH w |grep start.sh |grep -v grep  | cut -d" " -f 3)

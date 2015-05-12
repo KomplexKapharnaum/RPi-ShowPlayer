@@ -102,12 +102,13 @@ DEFAULT_SETTING["vlc"]["options"]["video"] = {
 }
 
 DEFAULT_SETTING["vlc"]["volume"] = dict()
-DEFAULT_SETTING["vlc"]["volume"]["master"] = 256        # Master volume for VLC (256 seems to be the 100% volume)
+DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 % (~=256)
+DEFAULT_SETTING["vlc"]["volume"]["scenes"] = dict()     # Master scene volume for VLC 100 = 100 % (~=256) #TODO
 
 DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["scp"] = dict()
 DEFAULT_SETTING["sync"]["scp"]["recv"] = False  # Active or not the scp commande getting media on the network
-DEFAULT_SETTING["sync"]["scp"]["send"] = True  # Active or not the sending of media ist
+DEFAULT_SETTING["sync"]["scp"]["send"] = False  # Active or not the sending of media ist
 DEFAULT_SETTING["sync"]["video"] = True  # Explain if the scyn protocol must sync video or not
 DEFAULT_SETTING["sync"]["media"] = True  # GLOBAL Put False to disable only media sync
 DEFAULT_SETTING["sync"]["usb"] = True  # GLOBAL Put False to disable USB copy
@@ -138,6 +139,8 @@ DEFAULT_SETTING["scenario"]["dest_all"] = "All"  # string for all dest in a sign
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"  # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"  # string for self dest in a signal
 DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.800  # 500 ms : time delta before run sync between cards, if sync
+DEFAULT_SETTING["scenario"]["TTL"] = 1.5                # TTL default value for scenario
+DEFAULT_SETTING["scenario"]["JTL"] = 3                  # JTL default value for scenario
 # fail try to increase this value
 
 DEFAULT_SETTING["media"] = dict()
@@ -145,7 +148,7 @@ DEFAULT_SETTING["media"]["automove"] = "yes"
 DEFAULT_SETTING["media"]["usb_mount_timeout"] = 3  # 3 sec max for mount before killing it
 
 DEFAULT_SETTING["OSC"] = dict()
-DEFAULT_SETTING["OSC"]["iamhere_interval"] = 15
+DEFAULT_SETTING["OSC"]["iamhere_interval"] = 60
 DEFAULT_SETTING["OSC"]["checkneighbour_interval"] = 130
 DEFAULT_SETTING["OSC"]["classicport"] = 1781
 DEFAULT_SETTING["OSC"]["ackport"] = 1782
@@ -154,7 +157,8 @@ DEFAULT_SETTING["OSC"]["JTL"] = 1
 
 DEFAULT_SETTING["rtp"] = dict()
 DEFAULT_SETTING["rtp"]["enable"] = True  # Put False to unactive rtp
-DEFAULT_SETTING["rtp"]["timeout"] = 5
+DEFAULT_SETTING["rtp"]["ackiamhere"] = False
+DEFAULT_SETTING["rtp"]["timeout"] = 7.5
 DEFAULT_SETTING["rtp"]["stack_length"] = 3  # TODO this setting is useless, it's hard written in rtplib.c
 DEFAULT_SETTING["rtp"]["accuracy_start_ns"] = 3000000  # 3 ms
 DEFAULT_SETTING["rtp"]["accuracy_max_ns"] = 12000000  # 12 ms
@@ -214,7 +218,9 @@ DEFAULT_SETTING["sys"]["volume"] = 0  # Set the volume difference with the refer
 DEFAULT_SETTING["sys"]["vlc_volume"] = 512  # Default vlc volume. 512 = 100%
 
 DEFAULT_SETTING["speed"] = dict()
-DEFAULT_SETTING["speed"]["thread_check_interval"] = 0.1  # Check thread interval
+DEFAULT_SETTING["speed"]["thread_check_interval"] = 0.1     # Check thread interval
+DEFAULT_SETTING["speed"]["flag_queue_size"] = 64           # Lenght of the flag queue
+DEFAULT_SETTING["speed"]["wait_before_kill"] = 0.750       # Wait before send SIGTERM to a process
 
 DEFAULT_SETTING["temp"] = dict()  # TEMP SETTINGS FOR TEST
 DEFAULT_SETTING["temp"]["wanted_media"] = ["text/blabla.txt", "drums.wav", "sintel.mp4", "drums.mp3", "mistake.mp3"]

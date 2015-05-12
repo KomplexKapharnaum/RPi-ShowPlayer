@@ -69,26 +69,30 @@ def start_scene():
     log.debug("Look to a new scene ...")
     if CURRENT_FRAME < len(pool.Frames):
         scene = pool.Frames[CURRENT_FRAME]
-        log.log('important', '= SCENE ' + scene.name)
-        tools.log_teleco(("start scene", scene.name), "scenario")
-        if settings["uName"] in scene.cartes.keys():  # Fond scene !
-            log.debug("Found scene to launch : {0}".format(scene))
-            stop_scene()
-            global CURRENT_SCENE_FRAME
-            CURRENT_SCENE_FRAME = CURRENT_FRAME  # Real scene change
-            for etape in scene.start_etapes[settings["uName"]]:
-                for action in etape.actions:
-                    if len(action) > 1 and isinstance(action[1], dict) and "args" in action[1].keys() and "dest" in \
-                            action[1]["args"].keys() and (
-                                "Self" in action[1]["args"]["dest"] or settings.get("uName") in action[1]["args"]["dest"]):
-                        fsm = classes.ScenarioFSM(etape.uid, source=scene.name)
-                        fsm.start(etape)
-                        SCENE_FSM.append(fsm)
-                        break
-                    else:
-                        log.debug("Ignore etape {0} because it's not for us".format(etape))
+        if settings.get("uName") in scene.cartes.keys() and scene.start_etapes[settings.get("uName")] is not None:
+            log.log('important', '= SCENE ' + scene.name)
+            tools.log_teleco(("start scene", scene.name), "scenario")
+            if settings["uName"] in scene.cartes.keys():  # Fond scene !
+                log.debug("Found scene to launch : {0}".format(scene))
+                stop_scene()
+                global CURRENT_SCENE_FRAME
+                CURRENT_SCENE_FRAME = CURRENT_FRAME  # Real scene change
+                for etape in scene.start_etapes[settings["uName"]]:
+                    for action in etape.actions:
+                        if len(action) > 1 and isinstance(action[1], dict) and "args" in action[1].keys() and "dest" in \
+                                action[1]["args"].keys() and (
+                                    "Self" in action[1]["args"]["dest"] or settings.get("uName") in action[1]["args"]["dest"]):
+                            fsm = classes.ScenarioFSM(etape.uid, source=scene.name)
+                            fsm.start(etape)
+                            SCENE_FSM.append(fsm)
+                            break
+                        else:
+                            log.debug("Ignore etape {0} because it's not for us".format(etape))
+            else:
+                log.debug('Nothing to do on Scene {0} for card {1}'.format(scene.name, settings["uName"]))
         else:
-            log.debug('Nothing to do on Scene {0} for card {1}'.format(scene.name, settings["uName"]))
+            log.log("info", "Ignore {0} because there is no scenario active for {1}".format(scene.uid, settings.get("uName")))
+            log.log("info", "Current frame {0}, current_frame_scene {1}".format(CURRENT_FRAME, CURRENT_SCENE_FRAME))
     else:
         log.warning('KeyFrame {0} request doesn\'t exist'.format(CURRENT_FRAME))
 

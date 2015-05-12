@@ -52,3 +52,12 @@ class ThreadScheduler:
             timer.cancel()
             del timer
         unregister_thread(self)
+
+    def join(self, *args, **kwargs):
+        """
+        Emulate join function
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        return True

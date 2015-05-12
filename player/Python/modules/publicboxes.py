@@ -22,7 +22,7 @@ def sendSignal(flag, **kwargs):
     SENDSIGNAL Box: Emmit SIGNAL to DEST
     '''
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
-    signal = Flag(signal_uid, TTL=1, JTL=3)
+    signal = Flag(signal_uid, TTL=settings.get("scenario", "TTL"), JTL=settings.get("scenario", "JTL"))
     patcher.patch(signal.get(dict(kwargs["args"])))
     log.log("raw", "SEND BOX : "+signal_uid)
 
@@ -36,11 +36,11 @@ def sendSignalPlus(flag, **kwargs):
     if 'TTL' in kwargs['args'].keys() and kwargs['args']['TTL'] is not None:
         TTL = float(kwargs['args']['TTL'])
     else:
-        TTL = 1
+        TTL = settings.get("scenario", "TTL")
     if 'JTL' in kwargs['args'].keys() and kwargs['args']['JTL'] is not None:
         JTL = float(kwargs['args']['JTL'])
     else:
-        JTL = 3
+        JTL = settings.get("scenario", "JTL")
     signal = Flag(signal_uid, TTL=TTL, JTL=JTL)
     patcher.patch(signal.get(dict(kwargs["args"])))
     log.log("raw", "SEND BOX : "+signal_uid)
