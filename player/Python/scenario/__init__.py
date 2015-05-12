@@ -69,7 +69,7 @@ def start_scene():
     log.debug("Look to a new scene ...")
     if CURRENT_FRAME < len(pool.Frames):
         scene = pool.Frames[CURRENT_FRAME]
-        if settings.get("uName") in scene.cartes.keys():
+        if settings.get("uName") in scene.cartes.keys() and scene.start_etapes[settings.get("uName")] is not None:
             log.log('important', '= SCENE ' + scene.name)
             tools.log_teleco(("start scene", scene.name), "scenario")
             if settings["uName"] in scene.cartes.keys():  # Fond scene !

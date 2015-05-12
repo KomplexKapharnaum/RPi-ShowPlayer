@@ -339,7 +339,10 @@ def parse_timeline(timeline):
                 continue
             # Init start_etape for dispo
             if dispo['name'] not in Timeline[frame].start_etapes.keys():
-                Timeline[frame].start_etapes[dispo['name']] = list()
+                if len(frame_block['scenarios']) == 0:
+                    Timeline[frame].start_etapes[dispo['name']] = None
+                else:
+                    Timeline[frame].start_etapes[dispo['name']] = list()
             # Search in all scenario launched by the card in the current scene
             for scenario in frame_block['scenarios']:
                 log.important("Read scenario {0} for {1}".format(scenario, dispo['name']))
