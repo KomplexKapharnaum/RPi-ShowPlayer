@@ -92,8 +92,9 @@ def scene_prev(flag, **kwargs):
     if "keyframe" in flag.args.keys():
         scenario.CURRENT_FRAME = flag.args['keyframe']
         scenario.start_scene()
-    elif scenario.CURRENT_FRAME > 0:
-        scenario.CURRENT_FRAME -= 1
+    else:
+        if scenario.CURRENT_FRAME > 0:
+            scenario.CURRENT_FRAME -= 1
         dest = ["Self", ]
         if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
             dest = [flag.args['args'][0], ]
@@ -106,8 +107,9 @@ def scene_next(flag, **kwargs):
     if "keyframe" in flag.args.keys():
         scenario.CURRENT_FRAME = flag.args['keyframe']
         scenario.start_scene()
-    elif scenario.CURRENT_FRAME < (len(scenario.pool.Frames) - 1):
-        scenario.CURRENT_FRAME += 1
+    else:
+        if scenario.CURRENT_FRAME < (len(scenario.pool.Frames) - 1):
+            scenario.CURRENT_FRAME += 1
         dest = ["Self", ]
         if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
             dest = [flag.args['args'][0], ]
