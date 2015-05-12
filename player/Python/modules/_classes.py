@@ -139,7 +139,7 @@ class ExternalProcess(object):
         This function ask to stop the process : NOT BLOCKING
         """
         self._ask_to_stop.set()
-        self._log("debug", "asking to stop...")
+        # self._log("debug", "asking to stop...")
 
     def join(self, *args, **kwargs):
         """
