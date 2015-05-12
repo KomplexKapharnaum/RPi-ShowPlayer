@@ -155,7 +155,7 @@ DEFAULT_SETTING["OSC"]["JTL"] = 1
 
 DEFAULT_SETTING["rtp"] = dict()
 DEFAULT_SETTING["rtp"]["enable"] = True  # Put False to unactive rtp
-DEFAULT_SETTING["rtp"]["timeout"] = 5
+DEFAULT_SETTING["rtp"]["timeout"] = 7.5
 DEFAULT_SETTING["rtp"]["stack_length"] = 3  # TODO this setting is useless, it's hard written in rtplib.c
 DEFAULT_SETTING["rtp"]["accuracy_start_ns"] = 3000000  # 3 ms
 DEFAULT_SETTING["rtp"]["accuracy_max_ns"] = 12000000  # 12 ms
