@@ -199,6 +199,7 @@ class ExternalProcess(object):
             if self.return_code is not None:
                 break
             time.sleep(self._check_interval)
+        self._log("return code {0}".format(self.return_code))
         if self.return_code is None:  # If loop end by ask to stop
             self._stop_process()  # Really stop the thread
             self.return_code = self._popen.poll()
