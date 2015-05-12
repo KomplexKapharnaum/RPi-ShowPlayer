@@ -102,7 +102,7 @@ DEFAULT_SETTING["vlc"]["options"]["video"] = {
 }
 
 DEFAULT_SETTING["vlc"]["volume"] = dict()
-DEFAULT_SETTING["vlc"]["volume"]["master"] = 256        # Master volume for VLC (256 seems to be the 100% volume)
+DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 % (~=256)
 
 DEFAULT_SETTING["sync"] = dict()
 DEFAULT_SETTING["sync"]["scp"] = dict()
