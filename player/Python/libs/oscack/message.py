@@ -41,6 +41,12 @@ class Address():
     def get_hostname(self):
         return self.ip
 
+    def __str__(self):
+        return "Address : {0}".format(self.ip)
+
+    def __repr__(self):
+        return self.__str__(self)
+
 
 class Message(liblo.Message):
     """
