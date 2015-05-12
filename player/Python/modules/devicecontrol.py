@@ -94,8 +94,11 @@ def device_send_info_tension(flag, **kwargs):
     power = "undefined power"
     if settings.get("uName") in devicesV2:
         power = devicesV2.get(settings.get("uName"), "tension")
+    scene_name = "NoScene"
+    if len(scenario.pool.Frames) >= scenario.CURRENT_SCENE_FRAME + 1:
+        scene_name = scenario.pool.Frames[scenario.CURRENT_SCENE_FRAME].name
     message = liblo.Message("/monitor", settings.get("uName"),
-                            settings.get("current_timeline"), scenario.pool.timeline_version, scenario.pool.Frames[scenario.CURRENT_SCENE_FRAME].name,
+                            settings.get("current_timeline"), scenario.pool.timeline_version, scene_name,
                             cpu_temperature,
                             link_channel, link_signal,
                             power, float(flag.args["args"][0]))
