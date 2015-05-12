@@ -199,11 +199,12 @@ class ExternalProcess(object):
             self.return_code = self._popen.poll()
             if self.return_code is not None:
                 break
-            self._log("debug", "return code {0}".format(self.return_code))
             time.sleep(self._check_interval)
+        self._log("debug", "defunctdog loop end: return code {0}".format(self.return_code))
         if self.return_code is None:  # If loop end by ask to stop
             self._stop_process()  # Really stop the thread
             self.return_code = self._popen.poll()
+            self._log("debug", "after process stop: return code {0}".format(self.return_code))
         else:
             self._log("raw", "ended itself with {0} code".format(self.return_code))
         self._process_ended()
