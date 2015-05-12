@@ -120,7 +120,7 @@ def audio_play(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_stop(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
+    kwargs["_fsm"].process.stop_media()
 
 
 @link({None: "audio_player"})

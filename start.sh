@@ -26,13 +26,20 @@ quit()
 
 kill_zombies()
 {
-	fuser -k 1781/udp
+	echo "Kill zombies"
+	#/dnc/bash/kill.sh
+	pkill python2
+	#Free sockets
+	fuser -k 1783/udp
 	fuser -k 1782/udp
-	fuser -k 8080/tcp
-	fuser -k 8080/udp
+	fuser -k 1781/udp
+	fuser -k 2782/udp
+	fuser -k 2781/udp
+	#Remove others
 	pkill vlc
-	pkill hardware-arm6
-	pkill hardware-arm7
+	pkill hplayer-vlc
+	pkill hardware6
+	pkill hardware7
 }
 
 trap quit SIGINT
@@ -43,18 +50,14 @@ while (( running )); do
     if ((DIRECT_INOUT)); then
     	nice -n -20 ./player/Python/main.py
     else
-        echo "wait before start"
-        sleep 15
+        echo "."; sleep 1; echo "."; sleep 1; echo "."
     	mkdir -p /tmp/dnc
-    	# echo '' > /tmp/dnc/stdin
     	touch /tmp/dnc/main.log
 	    nice -n -20 ./player/Python/main.py &> /tmp/dnc/main.log
-    	# ./player/Python/main.py < /tmp/dnc/stdin &> ./logs/main.log
     fi
     exitcode=$?
     if [ $exitcode -eq 0 ]; then
-        echo "Exiting ... POWEROFF == 0"
-        break
+        quit
     elif [ $exitcode -eq 2 ]; then
         quit
         poweroff
@@ -63,11 +66,10 @@ while (( running )); do
         reboot
     fi
     echo "ShowPlayer exited $exitcode"
-    if (( running ))
-    	then
+    if (( running )); then
     		echo "Respawning.."
     fi
-    sleep 2
+    sleep 1
 done
 kill_zombies
 

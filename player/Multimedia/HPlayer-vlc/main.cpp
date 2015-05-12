@@ -60,8 +60,20 @@ int main(int argc, char* argv[])
 		else if (command == "pause") player->pause();
 		else if (command == "resume") player->resume();
 		else if (command == "toggle") player->togglePause();
+		else if (command == "repeat") {
+			if (argument == "1") player->setRepeat(true);
+			else if (argument == "0") player->setRepeat(false);
+			else cout << "#ERROR_REPEAT " << argument << "\n";
+		}
+		else if (command == "volume") 
+		{
+			std::string::size_type sz;
+			int vol = atoi(argument.c_str());
+			if (vol >= 0 and vol <= 200) player->setVolume(vol);
+			else cout << "#ERROR_VOLUME " << argument << "\n";
+		}
 		else {
-			cout << "Typed: " << command << " with arg: " << argument << "\n";
+			cout << "Unknown command: " << command << " with arg: " << argument << "\n";
 		}
 
 	}
@@ -88,6 +100,28 @@ int main(int argc, char* argv[])
 		done = true;
 	}*/
 }
+
+
+// RC Interface
+/*
++----[ CLI commands ]
+| play . . . . . . . . . . . . . . . . . . . . . . . . . . play stream
+| stop . . . . . . . . . . . . . . . . . . . . . . . . . . stop stream
+| repeat [on|off]  . . . . . . . . . . . . . .  toggle playlist repeat
+| loop [on|off]  . . . . . . . . . . . . . . . .  toggle playlist loop
+| seek X . . . . . . . . . . . seek in seconds, for instance `seek 12'
+| pause  . . . . . . . . . . . . . . . . . . . . . . . .  toggle pause
+| is_playing . . . . . . . . . . . .  1 if a stream plays, 0 otherwise
+| get_title  . . . . . . . . . . . . . the title of the current stream
+| get_length . . . . . . . . . . . .  the length of the current stream
+| 
+| volume [X] . . . . . . . . . . . . . . . . . .  set/get audio volume
+| volup [X]  . . . . . . . . . . . . . . .  raise audio volume X steps
+| voldown [X]  . . . . . . . . . . . . . .  lower audio volume X steps
+| quit . . . . . . . .  quit VLC (or logout if in a socket connection)
+| shutdown . . . . . . . . . . . . . . . . . . . . . . .  shutdown VLC
++----[ end of help ]
+*/
 
 
 /* INFO */
