@@ -184,6 +184,12 @@ class Scene:
     def __str__(self):
         return "Scene : {0}".format(self.uid)
 
+    def show_info(self):
+        """
+        Show information on scene
+        """
+        return "{0} :: \n\tcartes :{1}\n\tgroups :{2}\n\tstart_etapes :{3}".format(self, self.cartes, self.groups, self.start_etapes)
+
     def __repr__(self):
         return self.__str__()
 
