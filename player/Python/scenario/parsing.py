@@ -315,6 +315,7 @@ def parse_timeline(timeline):
 
     for x in timeline['scenes']:
         Timeline.append(None)
+        pool.Frames.append(None)
 
     for scene in timeline['scenes']:
         frame = scene['keyframe']
@@ -353,7 +354,7 @@ def parse_timeline(timeline):
                             pool.Etapes_and_Functions[boxname(scenario, etape)])
         # End parse scene
         pool.Scenes[scene['name']] = Timeline[frame]
-        pool.Frames.append(Timeline[frame]) # scene['name']
+        pool.Frames[frame] = Timeline[frame] # scene['name']
 
         pool._Timeline = Timeline
         pool._JSONtimeline = timeline
