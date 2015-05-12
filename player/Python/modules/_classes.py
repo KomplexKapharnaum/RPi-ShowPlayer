@@ -123,6 +123,7 @@ class ExternalProcess(object):
         This function terminate the process : BLOCKING
         """
         self._is_stopping = True
+        self._log("stop process..")
         try:
             self._popen.terminate()  # Send SIGTERM to the player, asking to stop
             self._log("debug", 'SIGTERM')
