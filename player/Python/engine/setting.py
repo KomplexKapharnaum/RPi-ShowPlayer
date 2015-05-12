@@ -146,7 +146,7 @@ DEFAULT_SETTING["media"]["automove"] = "yes"
 DEFAULT_SETTING["media"]["usb_mount_timeout"] = 3  # 3 sec max for mount before killing it
 
 DEFAULT_SETTING["OSC"] = dict()
-DEFAULT_SETTING["OSC"]["iamhere_interval"] = 25
+DEFAULT_SETTING["OSC"]["iamhere_interval"] = 60
 DEFAULT_SETTING["OSC"]["checkneighbour_interval"] = 130
 DEFAULT_SETTING["OSC"]["classicport"] = 1781
 DEFAULT_SETTING["OSC"]["ackport"] = 1782
