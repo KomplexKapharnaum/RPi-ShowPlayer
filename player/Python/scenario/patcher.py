@@ -105,7 +105,7 @@ class ThreadPatcher(threading.Thread):
         #     sendto = scenario.pool.Cartes.keys()
 
         # Add SYNC timestamp for multiple DEST
-        if len(sendto) > 1:  # or settings.get("scenario", "dest_all") in sendto:
+        if len(sendto) > 1 or "All" in sendto:  # or settings.get("scenario", "dest_all") in sendto:
             if "abs_time_sync" not in signal.args.keys():
                 s, ns = rtplib.get_time()
                 signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
