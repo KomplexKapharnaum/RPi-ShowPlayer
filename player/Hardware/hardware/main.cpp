@@ -152,7 +152,7 @@ int parseInput(string input){
   }
   
   if (input=="interrupt_carte") {
-    fprintf(stderr, "main - interrupt from carte\n");
+    //fprintf(stderr, "main - interrupt from carte\n");
     mycarte.readInterrupt();
     if(mycarte.needStatusUpdate) sendStatusTeleco();
     return 0;
