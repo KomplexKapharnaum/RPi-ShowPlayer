@@ -95,7 +95,7 @@ class Message(liblo.Message):
         self.uid = acklib.gen_uids()
 
     def get_new(self):
-        return Message(*self._args, **self._kwargs.update({"ACK": self.ACK}))
+        return Message(ACK=self.ACK, *self._args, **self._kwargs)
 
 
     def __str__(self):
