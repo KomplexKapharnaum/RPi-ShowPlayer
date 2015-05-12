@@ -67,7 +67,7 @@ class Flag:
         # JTL=self.JTL, TTL=self.TTL, ignore_cb=copy.deepcopy(self.ignore_cb),
         # ignore_cb_args=copy.deepcopy(self.ignore_cb_args), public_name=None)
         if args is not None:
-            flag.args = copy(args)
+            flag.args = copy.copy(args)
         for key, item in kwargs.items():
             flag.__dict__[key] = item
         flag._time_created = rtplib.get_time()
