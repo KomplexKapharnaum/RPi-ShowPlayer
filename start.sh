@@ -8,6 +8,7 @@ else
     exit 0
 fi
 
+
 running=1
 DIRECT_INOUT=0
 
@@ -46,14 +47,22 @@ trap quit SIGINT
 
 while (( running )); do
 	kill_zombies
+	
+	# NETCTL WATCHDOG
+    echo "NetCTL watchdog start"
+    /dnc/bash/netctl-watchdog.py & 
+    
+    # MAIN
 	echo "ShowPlayer Start"
     if ((DIRECT_INOUT)); then
     	nice -n -20 ./player/Python/main.py
-    else
+    else        
+        # MAIN PROGRAM
         echo "."; sleep 1; echo "."; sleep 1; echo "."
     	mkdir -p /tmp/dnc
     	touch /tmp/dnc/main.log
 	    nice -n -20 ./player/Python/main.py &> /tmp/dnc/main.log
+	     
     fi
     exitcode=$?
     if [ $exitcode -eq 0 ]; then
