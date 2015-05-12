@@ -209,11 +209,11 @@ class FiniteStateMachine:
         if self.process is not None:
             self.process.stop()
 
-    def join(self):
+    def join(self, *args, **kwargs):
         if self.main_thread is None:
             return True
         else:
-            return self.main_thread.join()
+            return self.main_thread.join(*args, **kwargs)
 
     def append_flag(self, flag):
         """

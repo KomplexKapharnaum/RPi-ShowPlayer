@@ -249,12 +249,12 @@ class ExternalProcessFlag(ExternalProcess):
             else:
                 self._log("warning", "unknown stdout line {0}".format(msg))
 
-    def join(self):
+    def join(self, *args, **kwargs):
         """
         Wait the process and thread to end
         """
-        ExternalProcess.join()
-        self._stdout_thread.join()
+        ExternalProcess.join(*args, **kwargs)
+        self._stdout_thread.join(*args, **kwargs)
 
     def onEvent(self, cmd=[]):        # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
@@ -332,12 +332,12 @@ class ExternalProcessTemplate(object):
         for process in self.process:
             process.stop()
 
-    def join(self):
+    def join(self, *args, **kwargs):
         """
         Join all launched process
         """
         for process in self.process:
-            process.join()
+            process.join(*args, **kwargs)
 
 
 class AbstractVLC(ExternalProcessFlag):
@@ -615,14 +615,14 @@ class _ExternalProcess(object):
         if self.stderr is not None:
             self.stderr.close()
 
-    def join(self, timeout=None):
+    def join(self, *args, **kwargs):
         """
         Join the video player to end
         :return:
         """
         if not self._watchdog:
             return True
-        return self._watchdog.join(timeout=timeout)
+        return self._watchdog.join(*args, **kwargs)
 
     def onEvent(self, cmd=[]):
         cmd[0] = cmd[0].lstrip('#')
