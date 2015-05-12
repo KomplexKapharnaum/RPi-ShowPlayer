@@ -63,7 +63,7 @@ def forward_signal(*args, **kwargs):
             return False
         flag = cPickle.loads(str(bytearray(args[0].args["args"][1]))).get()       # TODO assume TTL regen when recv
         """:type: Flag"""
-        log.debug('Forwarded signal received {0} date {1}'.format(flag.get_info(), datetime.datetime.fromtimestamp(rtplib.conv_time_to_timestamp(*flag.TTL))))
+        log.debug('Forwarded signal received {0} date {1}'.format(flag.get_info())) #, datetime.datetime.fromtimestamp(rtplib.conv_time_to_timestamp(*flag.TTL))))
         patcher.serve(flag)
     else:
         return False
