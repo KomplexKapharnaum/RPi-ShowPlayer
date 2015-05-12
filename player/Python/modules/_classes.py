@@ -128,7 +128,7 @@ class ExternalProcess(object):
             self._log("debug", 'SIGTERM')
         except Exception as e:
             self._log("debug", "Cannot sigterm")
-        self._stdout_thread.join(timeout=0.2)  # Waiting maximum of 250 ms before killing brutaly the processus
+        self._stdout_thread.join(timeout=settings.get("speed", "wait_before_kill"))  # Waiting maximum of 250 ms before killing brutaly the processus
         if self._stdout_thread.is_alive():
             self._popen.kill()  # Send SIGNKILL to brutaly kill the process
             self._log("debug", 'KILLED')
