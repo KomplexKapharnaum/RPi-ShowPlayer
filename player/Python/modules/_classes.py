@@ -253,7 +253,7 @@ class ExternalProcessFlag(ExternalProcess):
         """
         Wait the process and thread to end
         """
-        ExternalProcess.join(*args, **kwargs)
+        ExternalProcess.join(self, *args, **kwargs)
         self._stdout_thread.join(*args, **kwargs)
 
     def onEvent(self, cmd=[]):        # TODO : doc or change implmentation
