@@ -19,7 +19,7 @@ already_init = threading.Event()
 already_init.clear()
 
 def patch_msg(path, args, types, src,):
-    log.log("debug", "OSC WILD CARD get {0}".format(path))
+    # log.log("debug", "OSC WILD CARD get {0}".format(path))
     patcher.patch(libs.oscack.network.get_flag_from_msg(path, args, types, src))
 
 
