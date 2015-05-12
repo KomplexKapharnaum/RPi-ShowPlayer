@@ -195,11 +195,11 @@ DEFAULT_SETTING["log"]["tension"]["port"] = 1783
 DEFAULT_SETTING["log"]["tension"]["ip"] = ["255.255.255.255"]
 DEFAULT_SETTING["log"]["tension"]["active"] = True  # Active the propagation of info tension
 DEFAULT_SETTING["log"]["teleco"] = dict()
-DEFAULT_SETTING["log"]["teleco"]["active"] = False  # Unactive log teleco
+DEFAULT_SETTING["log"]["teleco"]["active"] = True  # Unactive log teleco
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5  # Block 1.5 s for assure error displaying
-DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 3  # Block 1.5 s before displaying an other message
+DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 2  # Block 1.5 s before displaying an other message
 DEFAULT_SETTING["log"]["teleco"]["linelength"] = 16  # Number of char per line
-DEFAULT_SETTING["log"]["teleco"]["level"] = "warning"  # For the teleco
+DEFAULT_SETTING["log"]["teleco"]["level"] = "error"  # For the teleco
 
 DEFAULT_SETTING["perf"] = dict()
 DEFAULT_SETTING["perf"]["enable"] = True  # Enable FSM register (need for history)
