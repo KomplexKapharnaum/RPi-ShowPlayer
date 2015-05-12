@@ -983,7 +983,7 @@ void waitforinit(){
   while(newValue[T_INIT]==0){
     setInterrupt(T_INIT);
     long time=millis();
-    while(millis()<time+500 && newValue[T_INIT]==0){
+    while(millis()<time+1000 && newValue[T_INIT]==0){
       lowleveRoutine();
     }
     freeInterrupt();
