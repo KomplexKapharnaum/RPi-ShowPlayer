@@ -201,6 +201,7 @@ def server_sync(flag):
             pong = pong_queue.get(True, 6)
         except Queue.Empty as e:
             # n_try += 1
+            log.warning("RTP : server sync failed to get pong response from {0}".format(target))
             log.exception(log.show_exception(e))
             # if n_try > 3:
             #     log.critical("Too much try to get pong after timeout ! quit loop => need to be fixed")
