@@ -233,7 +233,7 @@ class inputThread(threading.Thread):
                     log.info(scenario.pool._Timeline)
                 elif cmd[0] == "scene":
                     if len(cmd) > 1 and len(scenario.pool._Timeline) > int(cmd[1]):
-                        log.info(scenario.pool._Timeline[cmd[1]].show_info())
+                        log.info(scenario.pool._Timeline[int(cmd[1])].show_info())
                 elif cmd[0] == "timelinejson":
                     log.info(scenario.pool._JSONtimeline)
                 elif cmd[0] == "scenariojson":
