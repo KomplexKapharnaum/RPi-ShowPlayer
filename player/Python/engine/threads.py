@@ -28,8 +28,10 @@ def init():
 
 
 def stop():
+    log.debug("STOPPING THREADS")
     for thread in tools._to_stop_thread.values():
         th = thread()   # Get the reference
+        log.debug("  Try to stop thread : {0}".format(th))
         if th is not None:
             try:
                 th.stop()
