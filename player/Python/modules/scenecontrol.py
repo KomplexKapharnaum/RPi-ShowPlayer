@@ -5,7 +5,7 @@
 #
 #
 import threading
-from engine import fsm
+from engine import fsm, rtpsync
 from engine.threads import patcher
 import scenario
 import libs.oscack
@@ -79,6 +79,7 @@ def scene_start(flag, **kwargs):
         scenario.CURRENT_FRAME = flag.args['keyframe']
     if scenario.CURRENT_FRAME > len(scenario.pool.Frames):
         scenario.CURRENT_FRAME = 0
+    rtpsync.flag_wait_sync(flag)
     scenario.start_scene()
     log.log("debug", "Start SCENE {0}: {1}".format(scenario.CURRENT_FRAME, scenario.pool.Frames[scenario.CURRENT_FRAME]))
 
