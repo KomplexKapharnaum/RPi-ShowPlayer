@@ -67,8 +67,8 @@ def scene_restart(flag, **kwargs):
     log.error("flag : {0}, kwargs : {1}".format(flag, kwargs))
     new_flag = fsm.Flag("SCENE_START")
     dest = ["Self", ]
-    if len(flag.args) > 0 and flag.args[0] in ("Self", "Group", "All"):
-        dest = [flag.args[0], ]
+    if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
+        dest = [flag.args['args'][0], ]
     log.log("debug", "flag {0}, dest {1}".format(flag, dest))
     patcher.patch(new_flag.get({"dest": dest}))
 
