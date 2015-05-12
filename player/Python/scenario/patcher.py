@@ -56,11 +56,11 @@ class ThreadPatcher(threading.Thread):
         :return:
         """
         for fsm in scenario.SCENE_FSM:
-            fsm.append_flag(signal)
+            fsm.append_flag(signal.get())
         for fsm in scenario.MODULES_FSM:
-            fsm.append_flag(signal)
+            fsm.append_flag(signal.get())
         for fsm in engine.MODULES_FSM.values():
-            fsm.append_flag(signal)
+            fsm.append_flag(signal.get())
 
     def patch(self, signal):
         """
