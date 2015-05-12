@@ -88,8 +88,24 @@ int checkInputPeriod;
 long unsigned lastCheckTension;
 long checkTensionPeriod;
 
+long interruptTimeOn;
+int timeOutInterrupt=1500;
+
+boolean interruptPending(){
+  if(Value[INTERRUPT] == 0)return false;
+  return true;
+}
+
+
+void freeInterrupt(){
+  newValue[INTERRUPT] = 0;
+  Value[INTERRUPT] = newValue[INTERRUPT];
+  digitalWrite(outpin[INTERRUPT], LOW);
+}
+
+
 void setup (void) {
-  Serial.begin(19200);
+  Serial.begin(115200);
   clearRegister();
   initpin();
   initSPIslave();
@@ -97,6 +113,15 @@ void setup (void) {
   newValue[UBATT] = 1;
   checkInputPeriod = 100;
   checkTensionPeriod = 60000;
+}
+
+void setInterrupt(byte interrupt){
+  newValue[INTERRUPT] = interrupt;
+  Value[INTERRUPT] = newValue[INTERRUPT];
+  printf_P(PSTR("interupt %u\n"),Value[INTERRUPT]);
+  interruptTimeOn = millis();
+  digitalWrite(outpin[INTERRUPT], HIGH);
+  SPDR = interrupt;
 }
 
 void poweroff(){
@@ -165,7 +190,7 @@ ISR (SPI_STC_vect)
   else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
-      //Serial.println ("wv");
+      Serial.println ("wv");
       newValue[adress] = c;
       if (adress < DECINPIN)fadeInterval[adress] = 0;
       command = 1;
@@ -196,12 +221,10 @@ ISR (SPI_STC_vect)
     SPDR = Value[adress];
     command = 1;
     if (inputRange(adress) || adress==UBATT) {
-      newValue[INTERRUPT] = 0;
-      Value[INTERRUPT] = newValue[INTERRUPT];
-      digitalWrite(outpin[INTERRUPT], LOW);
+      freeInterrupt();
     }
-    //Serial.print("r ");
-    //Serial.println (Value[adress],DEC);
+    Serial.print("r ");
+    Serial.println (Value[adress],DEC);
   }
 
 
@@ -259,6 +282,10 @@ void loop (void) {
 
   checkInput();
   checkTension();
+  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt) {
+    printf_P(PSTR("warning interrupt read fail\n"));
+    freeInterrupt();
+  }
 
 }  // end of loop
 
@@ -277,14 +304,9 @@ bool outputRange(byte i){
 void updateInput(byte i) {
   if (Value[INTERRUPT] == 0) {
     Value[i] = newValue[i];
-    newValue[INTERRUPT] = i;
-    Value[INTERRUPT] = newValue[INTERRUPT];
-    Serial.println("interupt");
-    digitalWrite(outpin[INTERRUPT], HIGH);
-    SPDR = i;
+    setInterrupt(i);
   }
 }
-
 
 
 void checkInput() {
