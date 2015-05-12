@@ -92,6 +92,7 @@ def start_scene():
                 log.debug('Nothing to do on Scene {0} for card {1}'.format(scene.name, settings["uName"]))
         else:
             log.log("info", "Ignore {0} because there is no scenario active for {1}".format(scene.uid, settings.get("uName")))
+            log.log("info", "Current frame {0}, current_frame_scene {1}".format(CURRENT_FRAME, CURRENT_SCENE_FRAME))
     else:
         log.warning('KeyFrame {0} request doesn\'t exist'.format(CURRENT_FRAME))
 
