@@ -66,9 +66,9 @@ def scene_control(flag, **kwargs):
 def scene_restart(flag, **kwargs):
     log.error("flag : {0}, kwargs : {1}".format(flag, kwargs))
     flag = fsm.Flag("SCENE_START")
-    dest = "Self"
+    dest = ["Self", ]
     if len(flag.args) > 0 and flag.args[0] in ("Self", "Group", "All"):
-        dest = flag.args[0]
+        dest = [flag.args[0], ]
     patcher.patch(flag.get({"dest": dest}))
 
 
