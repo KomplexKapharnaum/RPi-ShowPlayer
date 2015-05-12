@@ -323,11 +323,11 @@ def parse_timeline(timeline):
         # Timeline.append(classes.Scene(scene['name']))
         for dispo in timeline['pool']:
             # Add card in scene
-            Timeline[frame].cartes[dispo['name']] = pool.Cartes[dispo['name']]
             frame_block = get_frame(dispo['blocks'], frame)
             if not isinstance(frame_block, dict):
                 log.warning("There is no frame {0}({1}) for {2}".format(frame, scene['name'], dispo['name']))
                 continue
+            Timeline[frame].cartes[dispo['name']] = pool.Cartes[dispo['name']]
             # Init group in scene
             if frame_block['group'] not in Timeline[frame].groups.keys():
                 Timeline[frame].groups[frame_block['group']] = list()
