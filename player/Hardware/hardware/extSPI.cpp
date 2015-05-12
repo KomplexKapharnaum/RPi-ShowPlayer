@@ -194,7 +194,7 @@ void extSPI::selectHC595csline(int _selectedCSofHC595){
 
 //cs is active thru 74ACT244
 void extSPI::activeCS(){
-  fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
+  //fprintf(stderr, "extspi - active spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
   //try only change speed
   //int fd=wiringPiSPISetupSpeed(spifile,chipSelect[selectedChip].speed);
   if(lastSpeed!=chipSelect[selectedChip].speed){
@@ -216,7 +216,7 @@ void extSPI::activeCS(){
 
 
 void extSPI::inactiveCS(){
-  fprintf(stderr, "extspi - unactive spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
+  //fprintf(stderr, "extspi - unactive spi, speed=%u for %u - gpio%u\n",chipSelect[selectedChip].speed,selectedChip, chipSelect[selectedChip].GPIO);
   if(keepSelect==0){
   for(int i=0;i<csmax;i++){
     if(chipSelect[i].HC595==-1)digitalWrite (chipSelect[i].GPIO, HIGH);
@@ -238,14 +238,6 @@ void extSPI::releaseSelect(){
   inactiveCS();
 }
 
-int extSPI::wiringPiSPISetupSpeed (int fd,int speed)
-{
-  
-  if (ioctl (fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed)   < 0)
-    return wiringPiFailure (WPI_ALMOST, "SPI Speed Change failure: %s\n", strerror (errno)) ;
-  
-  return fd ;
-}
 
 
 
