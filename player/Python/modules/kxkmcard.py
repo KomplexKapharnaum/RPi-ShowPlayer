@@ -89,8 +89,8 @@ FILTERS = {
 
     "TELECO_MESSAGE_GET_INFO": [],
 
-    "TELECO_MESSAGE_MEDIA_VOLPLUS": [], #argument Self / Group / All
-    "TELECO_MESSAGE_MEDIA_VOLMOINS": [], #argument Self / Group / All
+    "TELECO_MESSAGE_MEDIA_VOLPLUS": ['transTo /media/volup'], #argument Self / Group / All TODO : clean this
+    "TELECO_MESSAGE_MEDIA_VOLMOINS": ['transTo /media/voldown'], #argument Self / Group / All TODO : clean this
     "TELECO_MESSAGE_MEDIA_MUTE": [], #argument Self / Group / All
     "TELECO_MESSAGE_MEDIA_PAUSE": [], #argument Self / Group
     "TELECO_MESSAGE_MEDIA_PLAY": [], #argument Self / Group
