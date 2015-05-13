@@ -139,18 +139,21 @@ def log_teleco(lines, page="log", encode="utf-8"):
     :param encode: Encoding of input strings, if none, assume data are already encoded
     :return:
     """
-    if settings.get("log", "teleco", "active") is not True and page == "log":
-        return
-    if not isinstance(lines, (list, tuple)):
-        lines = [lines, ]
-    encoded_lines = list()
-    encode = None
-    if encode is not None:
-        for line in lines:
-            encoded_lines.append(remove_nonspacing_marks(line.decode(encode)))
-    else:
-        encoded_lines = lines
-    engine.threads.log_teleco.add_message(encoded_lines, page)
+    try:
+        if settings.get("log", "teleco", "active") is not True and page == "log":
+            return
+        if not isinstance(lines, (list, tuple)):
+            lines = [lines, ]
+        encoded_lines = list()
+        encode = None
+        if encode is not None:
+            for line in lines:
+                encoded_lines.append(remove_nonspacing_marks(line.decode(encode)))
+        else:
+            encoded_lines = lines
+        engine.threads.log_teleco.add_message(encoded_lines, page)
+    except Exception as e:
+        log.warning(log.show_exception(e))
 
 
 def update_system():
@@ -243,7 +246,7 @@ class ThreadTeleco(threading.Thread):
                 if len(message) >= n + 1:
                     time.sleep(settings.get("log", "teleco", "autoscroll"))
         except Exception as e:
-            log.exception(log.show_exception(e))
+            log.warning(log.show_exception(e))
 
 
 
@@ -270,7 +273,7 @@ class ThreadTeleco(threading.Thread):
                 blocs[-1].append(line)
             return blocs
         except Exception as e:
-            log.exception(log.show_exception(e))
+            log.warning(log.show_exception(e))
 
 def show_trace():
     traceback.print_stack()
