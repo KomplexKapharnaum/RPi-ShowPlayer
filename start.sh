@@ -46,5 +46,12 @@ fi
 
 screen -ls
 
+while getopts "o" opt; do
+    case "$opt" in
+    o)  screen -r dnc
+        ;;
+    esac
+done
+
 exit $?
 
