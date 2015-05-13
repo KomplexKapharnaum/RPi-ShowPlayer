@@ -125,7 +125,12 @@ def parse_arg_from_type(arg, types):
     try:
         log.debug("Parsing {0} of type {1} ..".format(arg, types))
         if types == "str":
-            log.warning("parsing str is not implemented")
+            # log.warning("parsing str is not implemented")
+            try:
+                arg = arg.encode("utf8")
+            except Exception:
+                log.warning("Unable to parse str arg.. (can't prompt it safely), remove utf-8 char")
+                arg = tools.remove_nonspacing_marks(arg)
         elif types == "int":
             arg = int(arg)
         elif types == "float":
