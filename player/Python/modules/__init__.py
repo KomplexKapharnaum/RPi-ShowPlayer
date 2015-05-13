@@ -92,50 +92,52 @@ class globaletape(object):
         return DECLARED_ETAPES[self.uid]
 
 
-class dec_parse_args_etape_function(object):
-    """
-    This decorator create a new function which parsed arguments
-    """
+# class dec_parse_args_etape_function(object):
+#     """
+#     This decorator create a new function which parsed arguments
+#     """
+#
+#     def __init__(self, args=None, types=None, default=None):
+#         """
+#         :param args: Args list to parsed
+#         :param types: Types list of args to parsed (same size)
+#         :param default: Dict where search default values
+#         :type args: list of str
+#         :type types: list of str
+#         :type default: dict
+#         """
+#         if args is None:
+#             args = dict()
+#         self.args = args
+#         if types is None:
+#             types = dict()
+#         self.types = types
 
-    def __init__(self, args=None, types=None, default=None):
-        """
-        :param args: Args list to parsed
-        :param types: Types list of args to parsed (same size)
-        :param default: Dict where search default values
-        :type args: list of str
-        :type types: list of str
-        :type default: dict
-        """
-        if args is None:
-            args = dict()
-        self.args = args
-        if types is None:
-            types = dict()
-        self.types = types
 
-
-def parse_arg_from_type(arg, type):
+def parse_arg_from_type(arg, types):
     """
     This function perform the parsing a the givent value in function of the givent type
     :param arg: Arg to parse
-    :param type: Type to parsed arg
-    :type type: str
+    :param types: Type to parsed arg
+    :type types: str
     :return:
     """
     try:
-        if type == "str":
+        log.debug("Parsing {0} of type {1} ..".format(arg, types))
+        if types == "str":
             log.warning("parsing str is not implemented")
-        elif type == "int":
+        elif types == "int":
             arg = int(arg)
-        elif type == "float":
+        elif types == "float":
             arg = float(arg)
-        elif type == "bool":
+        elif types == "bool":
             arg = bool(arg)
         else:
-            log.warning("parsing of {0} is not implemented at all".format(type))
+            log.warning("parsing of {0} is not implemented at all".format(types))
     except Exception as e:
-        log.error("Error during parsing {0} of type {1}".format(arg, type))
+        log.error("Error during parsing {0} of type {1}".format(arg, types))
         log.error(log.show_exception(e))
+    log.debug("End parsing {0} of type {1}".format(arg, types))
     return arg
 
 
