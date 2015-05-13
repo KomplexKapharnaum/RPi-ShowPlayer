@@ -119,8 +119,8 @@ def scene_next(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME < (len(scenario.pool.Frames) - 1):
             scenario.CURRENT_FRAME += 1
-        if 'args' in kwargs.keys() and 'dest' in kwargs['args'].keys():
-            dest = kwargs['args']['dest']
+        if 'dest' in flag.args.keys():
+            dest = flag.args['dest']
         else:
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
