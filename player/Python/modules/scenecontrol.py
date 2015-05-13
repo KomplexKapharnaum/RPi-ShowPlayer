@@ -68,9 +68,12 @@ def scene_control(flag, **kwargs):
 def scene_restart(flag, **kwargs):
     log.error("flag : {0}, kwargs : {1}".format(flag, kwargs))
     new_flag = fsm.Flag("SCENE_START")
-    dest = ["Self", ]
-    if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
-        dest = [flag.args['args'][0], ]
+    if 'dest' in kwargs['args'].keys():
+        dest = kwargs['args']['dest']
+    else:
+        dest = ["Self", ]
+        if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
+            dest = [flag.args['args'][0], ]
     log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
     patcher.patch(new_flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
@@ -97,9 +100,12 @@ def scene_prev(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME > 0:
             scenario.CURRENT_FRAME -= 1
-        dest = ["Self", ]
-        if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
-            dest = [flag.args['args'][0], ]
+        if 'dest' in kwargs['args'].keys():
+            dest = kwargs['args']['dest']
+        else:
+            dest = ["Self", ]
+            if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
+                dest = [flag.args['args'][0], ]
         log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
@@ -113,9 +119,12 @@ def scene_next(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME < (len(scenario.pool.Frames) - 1):
             scenario.CURRENT_FRAME += 1
-        dest = ["Self", ]
-        if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
-            dest = [flag.args['args'][0], ]
+        if 'dest' in kwargs['args'].keys():
+            dest = kwargs['args']['dest']
+        else:
+            dest = ["Self", ]
+            if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
+                dest = [flag.args['args'][0], ]
         log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
