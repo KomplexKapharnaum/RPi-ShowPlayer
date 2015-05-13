@@ -11,7 +11,7 @@ if [ $screen -eq 1 ]; then       # There isn't the GNU screen binary, try to ins
 fi
 
 if [ $screen -eq 0 ]; then      # There is the GNU screen binary
-    ehco "termcapinfo xterm* ti@:te@" > ~/.screenrc
+    echo "termcapinfo xterm* ti@:te@" > ~/.screenrc
     echo "Start in a GNU screen session named 'dnc'"
     screen -S dnc -d -m /dnc/dnc.sh -o
     screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
