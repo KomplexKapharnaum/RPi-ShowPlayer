@@ -80,7 +80,7 @@ def scene_restart(flag, **kwargs):
 
 @link({None: "scene_control"})
 def scene_start(flag, **kwargs):
-    log.debug("Scene_start at {1} with {0}".format(scenario.CURRENT_FRAME, flag))
+    log.debug("Scene_start at {1} with {0} kwargs {2}".format(scenario.CURRENT_FRAME, flag, kwargs))
     if "keyframe" in flag.args.keys():
         scenario.CURRENT_FRAME = flag.args['keyframe']
     if scenario.CURRENT_FRAME > len(scenario.pool.Frames):
@@ -93,7 +93,7 @@ def scene_start(flag, **kwargs):
 
 @link({None: "scene_control"})
 def scene_prev(flag, **kwargs):
-    log.debug("Scene_prev at {1} with {0}".format(scenario.CURRENT_FRAME, flag))
+    log.debug("Scene_prev at {1} with {0} kwargs {2}".format(scenario.CURRENT_FRAME, flag, kwargs))
     if "keyframe" in flag.args.keys():
         scenario.CURRENT_FRAME = flag.args['keyframe']
         scenario.start_scene()
@@ -112,7 +112,7 @@ def scene_prev(flag, **kwargs):
 
 @link({None: "scene_control"})
 def scene_next(flag, **kwargs):
-    log.debug("Scene_next at {1} with {0}".format(scenario.CURRENT_FRAME, flag))
+    log.debug("Scene_next at {1} with {0} kwargs {2}".format(scenario.CURRENT_FRAME, flag, kwargs))
     if "keyframe" in flag.args.keys():
         scenario.CURRENT_FRAME = flag.args['keyframe']
         scenario.start_scene()
