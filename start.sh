@@ -15,7 +15,7 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
 
     echo "Start in a GNU screen session named 'dnc'"
     screen -S dnc -d -m /dnc/dnc.sh -o
-    killall netctl-watchdog.py
+    screen -X -S netctl quit
     screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
 else
     echo "Start in a classic shell so without the -o option"
