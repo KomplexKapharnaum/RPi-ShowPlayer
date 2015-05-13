@@ -123,12 +123,13 @@ class ExternalProcess(object):
         This function terminate the process : BLOCKING
         """
         self._is_stopping = True
+        self._log("debug", "stop process..")
         try:
             self._popen.terminate()  # Send SIGTERM to the player, asking to stop
             self._log("debug", 'SIGTERM')
         except Exception as e:
             self._log("debug", "Cannot sigterm")
-        self._stdout_thread.join(timeout=0.2)  # Waiting maximum of 250 ms before killing brutaly the processus
+        self._stdout_thread.join(timeout=settings.get("speed", "wait_before_kill"))  # Waiting maximum of 250 ms before killing brutaly the processus
         if self._stdout_thread.is_alive():
             self._popen.kill()  # Send SIGNKILL to brutaly kill the process
             self._log("debug", 'KILLED')
@@ -138,6 +139,7 @@ class ExternalProcess(object):
         This function ask to stop the process : NOT BLOCKING
         """
         self._ask_to_stop.set()
+        # self._log("debug", "asking to stop...")
 
     def join(self, *args, **kwargs):
         """
@@ -162,7 +164,7 @@ class ExternalProcess(object):
                 if message is not None:
                     log.debug("Ignore {0} on process {1} because it's stopped".format(message, self.name))
                 break
-            self._log("error", "write to stdin : {0}".format(message))
+            self._log("important", "write to stdin : {0}".format(message))
             self._direct_stdin_writer(message)
 
     def _direct_stdin_writer(self, msg):
@@ -174,6 +176,7 @@ class ExternalProcess(object):
         with self._stdin_lock:
             msg += "\n"
             m = msg.encode("utf-8")
+            self._log("debug", "write to stdin : {0}".format(m))
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
@@ -183,7 +186,7 @@ class ExternalProcess(object):
         self._is_launched.wait()
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
-            self._log("error", "stdout : {0}".format(line.strip()))
+            self._log("important", "stdout : {0}".format(line.strip()))
             self.stdout_queue.put_nowait(line.strip())
         self.stdout_queue.put_nowait(None)              # Stop queue consumers
 
@@ -197,9 +200,11 @@ class ExternalProcess(object):
             if self.return_code is not None:
                 break
             time.sleep(self._check_interval)
+        self._log("debug", "defunctdog loop end: return code {0}".format(self.return_code))
         if self.return_code is None:  # If loop end by ask to stop
             self._stop_process()  # Really stop the thread
             self.return_code = self._popen.poll()
+            self._log("debug", "after process stop: return code {0}".format(self.return_code))
         else:
             self._log("raw", "ended itself with {0} code".format(self.return_code))
         self._process_ended()
@@ -245,23 +250,23 @@ class ExternalProcessFlag(ExternalProcess):
             else:
                 self._log("warning", "unknown stdout line {0}".format(msg))
 
-    def join(self):
+    def join(self, *args, **kwargs):
         """
         Wait the process and thread to end
         """
-        ExternalProcess.join()
-        self._stdout_thread.join()
+        ExternalProcess.join(self, *args, **kwargs)
+        self._stdout_thread.join(*args, **kwargs)
 
     def onEvent(self, cmd=[]):        # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
-        self._log("error", "cmd : {0}".format(cmd))
+        self._log("raw", "cmd : {0}".format(cmd))
         doEmmit = True
         if cmd[0] in self.Filters.keys():
             for fn in self.Filters[cmd[0]]:
                 if isinstance(fn, str):
                     filt = fn.split(' ')
                     method = getattr(self, filt[0], None)
-                    self._log("error", "filt : {0}, merhod {1}".format(filt, method))
+                    self._log("raw", "filt : {0}, merhod {1}".format(filt, method))
                     if callable(method):
                         if len(filt) > 1:
                             doEmmit = method(cmd, filt[1:]) and doEmmit
@@ -328,12 +333,12 @@ class ExternalProcessTemplate(object):
         for process in self.process:
             process.stop()
 
-    def join(self):
+    def join(self, *args, **kwargs):
         """
         Join all launched process
         """
         for process in self.process:
-            process.join()
+            process.join(*args, **kwargs)
 
 
 class AbstractVLC(ExternalProcessFlag):
@@ -423,7 +428,7 @@ class AbstractVLC(ExternalProcessFlag):
          :return: Absolute volume for VLC between 0 and 1024
          :rtype: int
         """
-        return settings.get("vlc", "volume", "master") * (volume/100)
+        return int(float(settings.get("vlc", "volume", "master")) * (float(volume)/100))
 
     def set_volume(self, volume):
         """
@@ -611,14 +616,14 @@ class _ExternalProcess(object):
         if self.stderr is not None:
             self.stderr.close()
 
-    def join(self, timeout=None):
+    def join(self, *args, **kwargs):
         """
         Join the video player to end
         :return:
         """
         if not self._watchdog:
             return True
-        return self._watchdog.join(timeout=timeout)
+        return self._watchdog.join(*args, **kwargs)
 
     def onEvent(self, cmd=[]):
         cmd[0] = cmd[0].lstrip('#')

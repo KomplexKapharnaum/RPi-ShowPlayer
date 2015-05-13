@@ -39,7 +39,7 @@ class AudioVLCPlayer(AbstractVLC):
         arguments = copy.copy(settings.get("vlc", "options", "default"))
         """:type: dict"""
         arguments.update(settings.get("vlc", "options", "audio"))
-        log.log("error", "Vlc arguments : {0}".format(arguments))
+        log.log("debug", "Vlc arguments : {0}".format(arguments))
         AbstractVLC.__init__(self, name="audiovlc", command=command.format(**arguments))
 
     def check_media(self, media):
@@ -120,7 +120,7 @@ def audio_play(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_stop(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
+    kwargs["_fsm"].process.stop_media()
 
 
 @link({None: "audio_player"})
