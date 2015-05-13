@@ -6,7 +6,7 @@ which screen
 screen=$?
 if [ $screen -eq 1 ]; then       # There isn't the GNU screen binary, try to install it
     echo "nameserver 8.8.4.4" > /etc/resolv.conf
-    pacman -Sy --no-confirm screen
+    pacman -Sy --noconfirm screen
     screen=$?
 fi
 
