@@ -20,14 +20,14 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
         screen -S dnc -X stuff "q$(printf \\r)"
         sleep 10
         screen -X -S netctl quit
-        sleep 1
+        sleep 3
     fi
     screen -S dnc -d -m /dnc/dnc.sh -o
     if [ "$(screen -ls | grep netctl)" = "" ]; then
-        sleep 0.01
+        sleep 0.2
     else
         screen -X -S netctl quit
-        sleep 1
+        sleep 3
     fi
     screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
 else
