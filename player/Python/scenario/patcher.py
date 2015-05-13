@@ -110,7 +110,7 @@ class ThreadPatcher(threading.Thread):
                 s, ns = rtplib.get_time()
                 signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
 
-        log.log("debug", "dispatch {0} to {1}".format(signal.uid, sendto))
+        log.log("debug", "dispatch {0} with {2} to {1}".format(signal.uid, sendto, signal.args))
 
         # Send to ALL - Broadcast
         # if settings.get("scenario", "dest_all") in sendto:
