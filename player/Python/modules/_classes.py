@@ -164,8 +164,8 @@ class ExternalProcess(object):
                 if message is not None:
                     log.debug("Ignore {0} on process {1} because it's stopped".format(message, self.name))
                 break
-            self._log("important", "write to stdin : {0}".format(message))
             self._direct_stdin_writer(message)
+            self._log("important", "write to stdin : {0}".format(message.encode("utf-8")))
 
     def _direct_stdin_writer(self, msg):
         """
