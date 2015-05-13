@@ -139,7 +139,7 @@ def log_teleco(lines, page="log", encode="utf-8"):
     :param encode: Encoding of input strings, if none, assume data are already encoded
     :return:
     """
-    if settings.get("log", "teleco", "active") is not True:
+    if settings.get("log", "teleco", "active") is not True and page == "log":
         return
     if not isinstance(lines, (list, tuple)):
         lines = [lines, ]
