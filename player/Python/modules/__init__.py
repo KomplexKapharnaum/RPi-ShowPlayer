@@ -82,10 +82,12 @@ class globaletape(object):
         if len(signal) > 0:
             signal = signal[0]
             def fn(flag, *args, **kwargs):
-                kwargs['args'] = parse_args_etape_function(kwargs['args'], signal['args'], signal['types'], signal['default'])
+                if 'args' in kwargs.keys():
+                    kwargs['args'] = parse_args_etape_function(kwargs['args'], signal['args'], signal['types'], signal['default'])
                 return f(flag, *args, **kwargs)
-            f = fn
-        DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
+        else:
+            fn = f
+        DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((fn, self.options),))
         DECLARED_TRANSITION[self.uid] = self.transitions
         return DECLARED_ETAPES[self.uid]
 
@@ -152,11 +154,12 @@ def parse_args_etape_function(kwargs, args, types, default):
         arg_name = args[arg_n]
         type_name = types[arg_n]
         if arg_name not in kwargs.keys():
-            log.log("warning", "search for {0} in parameters but not found in {1}".format(arg_name, kwargs))
+            if arg_name != "dispo":
+                log.log("warning", "search for {0} in parameters but not found in {1}".format(arg_name, kwargs))
             continue
         if kwargs[arg_name] is None:  # There is no value.. searching for a default one
             if arg_name in default.keys():  # There is one default
-                log.debug("Taking default {1} value for {0}".format(arg_name, default[arg_name]))
+                log.debug("Taking default value <{1}> for <{0}>".format(arg_name, default[arg_name]))
                 kwargs[arg_name] = default[arg_name]
                 continue
             elif type_name in settings.get("values", "types"):
@@ -203,7 +206,8 @@ class publicbox(object):
     def __call__(self, f):
         global DECLARED_PUBLICBOXES
         def fn(flag, *args, **kwargs):
-            kwargs['args'] = parse_args_etape_function(kwargs['args'], self.args, self.types, self.default)
+            if 'args' in kwargs.keys():
+                kwargs['args'] = parse_args_etape_function(kwargs['args'], self.args, self.types, self.default)
             return f(flag, *args, **kwargs)
         DECLARED_PUBLICBOXES[f.__name__.upper() + '_PUBLICBOX'] = {'function': fn,
                                                                    'args': self.args,

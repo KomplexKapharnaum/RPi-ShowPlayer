@@ -184,6 +184,9 @@ DEFAULT_SETTING["values"]["types"]["int"] = 0
 DEFAULT_SETTING["values"]["types"]["float"] = 0.0
 DEFAULT_SETTING["values"]["types"]["bool"] = False
 DEFAULT_SETTING["values"]["types"]["str"] = ""
+DEFAULT_SETTING["values"]["signaux"] = dict()
+DEFAULT_SETTING["values"]["signaux"]["TTL"] = 2
+DEFAULT_SETTING["values"]["signaux"]["JTL"] = 3
 
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
