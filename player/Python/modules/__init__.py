@@ -168,8 +168,8 @@ def parse_args_etape_function(kwargs, args, types, default):
                 kwargs[arg_name] = settings.get("values", "types", type_name)
                 continue
             else:
-                log.warning("Set parameter {0} to none, it's can be unwanted".format(arg_name))
-                kwargs[arg_name] = None
+                kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)
+                log.warning("Set parameter {0} to {1}, because he was nonn, it's can be unwanted".format(arg_name, kwargs[arg_name]))
                 continue
         else:
             kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)
