@@ -89,12 +89,12 @@ class Mpg123(ExternalProcess):
 
 # ETAPE AND SIGNALS
 @module('AudioPlayer')
-@link({"/audio/play [media] [repeat]": "audio_play",
+@link({"/audio/play [media:str] [repeat:bool]": "audio_play",
         "/audio/pause": "audio_pause",
         "/audio/stop": "audio_stop",
         "/audio/volumeup": "audio_volume_up",
         "/audio/volumedown": "audio_volume_down",
-        "/audio/set_volume [volume]": "audio_set_volume",
+        "/audio/set_volume [volume:int]": "audio_set_volume",
         "SCENE_STOPPING": "audio_stop"})
 def audio_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:

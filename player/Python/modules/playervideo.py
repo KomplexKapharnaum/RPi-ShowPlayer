@@ -127,14 +127,14 @@ exposesignals(VideoVLCPlayer.Filters)
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
-@link({"/video/play [media] [repeat]": "video_play",
+@link({"/video/play [media:str] [repeat:bool]": "video_play",
        "/video/pause": "video_pause",
        "/video/resume": "video_resume",
        "/video/toggle": "video_toggle",
        "/video/stop": "video_stop",
        "/video/volumeup": "video_volume_up",
        "/video/volumedown": "video_volume_down",
-       "/video/set_volume [volume]": "video_set_volume",
+       "/video/set_volume [volume:int]": "video_set_volume",
        "SCENE_STOPPING": "video_stop"})
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
