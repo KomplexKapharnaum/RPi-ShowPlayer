@@ -2,7 +2,7 @@
 import pool
 import classes
 import parsing
-from engine import log, tools
+from engine import log, tools, fsm
 from engine.setting import settings
 
 log = log.init_log("scenario")
@@ -11,7 +11,12 @@ CURRENT_FRAME = 0
 CURRENT_SCENE_FRAME = 0  # Represent the current scene frame (could be different from keyframe)
 
 MODULES_FSM = list()
+""":type: list of engine.fsm.FiniteStateMachine"""
 SCENE_FSM = list()
+""":type: list of engine.fsm.FiniteStateMachine"""
+
+
+
 
 
 def init():
@@ -99,9 +104,12 @@ def start_scene():
 
 
 def stop_scene():
+    stop_flag = fsm.Flag("STOP_SCENE", JTL=2, TTL=None)      # TODO : refactor this in an other place !
     for sfsm in SCENE_FSM:
         sfsm.stop()
         SCENE_FSM.remove(sfsm)
+    for mfsm in MODULES_FSM:
+        mfsm.append_flag(stop_flag.get())
 
 
 def start_modules():
