@@ -300,6 +300,10 @@ void switchLock(byte force){
 //-------------------------------------------------new menu system
 
 byte currentMenu=0;
+byte currentMenuNextMaster=0;
+byte currentMenuPrevMaster=0;
+byte currentMenuPrev=0;
+byte currentMenuNext=0;
 int displayNeedUpdate=0;
 byte popupNeedDisplay=0;
 byte currentPopup=0;
@@ -485,8 +489,15 @@ void initmenu(){
 
 //display menu
 void displayMenu(byte need=0){
-  if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate) || need){
-    if(need==0){if (switchlockCom(1))need=2;}
+  if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate  && command==0) || need){
+    
+    if(need==0){
+      if (switchlockCom(1)){
+        delay(10);
+        need=2;
+      }
+    }
+    
     if (need>0) {
       byte theMenu=currentMenu;
       if (popupNeedDisplay) {
@@ -528,6 +539,7 @@ void displayMenu(byte need=0){
       }
       printf_P(PSTR(" done\n"));
       displayNeedUpdate=0;
+      updateMenuScheme();
       //SPCR |= _BV(SPIE); //enable spi interrupt
       refreshMenu=millis();
       if(need==2)switchlockCom(0);
@@ -547,18 +559,17 @@ boolean displayShow(boolean menushow){
   }
 }
 
-
-//return to previous master menu
-void goprevMasterMenu(){
+//find previous master menu
+void findprevMasterMenu(){
   if (currentMenu>0) {
+    currentMenuPrevMaster=currentMenu;
     printf_P(PSTR("find prev master"));
     for (byte i=currentMenu-1; i>=0; i--) {
       memcpy_P (&temp, &menulist [i], sizeof(menutype));
       printf_P(PSTR(" - menu %u"),i);
       if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0 && displayShow(temp.show)){
         printf_P(PSTR(" master\n"));
-        currentMenu=i;
-        displayNeedUpdate=1;
+        currentMenuPrevMaster=i;
         return;
       }
     }
@@ -566,16 +577,33 @@ void goprevMasterMenu(){
   }
 }
 
-void goprevMenu(){
+//return to previous master menu
+void goprevMasterMenu(){
+  if (currentMenuPrevMaster != currentMenu) {
+  printf_P(PSTR("go prev master\n"));
+  currentMenu=currentMenuPrevMaster;
+  displayNeedUpdate=1;
+  }
+}
+
+void findprevMenu(){
+  currentMenuPrev=currentMenu;
   memcpy_P (&temp, &menulist[currentMenu-1], sizeof(menutype));
   if (temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu>0 && displayShow(temp.show)) {
-    currentMenu--;
+    currentMenuPrev--;
+  }
+}
+
+void goprevMenu(){
+  if(currentMenuPrev!=currentMenu){
+    currentMenu=currentMenuPrev;
     displayNeedUpdate=1;
   }
 }
 
-//go to next master menu
-void gonextMasterMenu(){
+//find next master menu
+void findnextMasterMenu(){
+  currentMenuNextMaster=currentMenu;
   if (currentMenu<T_MENU_LENGTH-1){
     printf_P(PSTR("find next master"));
     for (byte i=currentMenu+1; i<T_MENU_LENGTH; i++) {
@@ -583,8 +611,7 @@ void gonextMasterMenu(){
       printf_P(PSTR(" - menu %u"),i);
       if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0 && displayShow(temp.show)){
         printf_P(PSTR(" master\n"));
-        currentMenu=i;
-        displayNeedUpdate=1;
+        currentMenuNextMaster=i;
         return;
       }
     }
@@ -592,12 +619,37 @@ void gonextMasterMenu(){
   }
 }
 
-void gonextMenu(){
-  memcpy_P (&temp, &menulist[currentMenu+1], sizeof(menutype));
-  if (temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu+1<T_MENU_LENGTH && displayShow(temp.show)) {
-    currentMenu++;
+
+//go to next master menu
+void gonextMasterMenu(){
+  if (currentMenuNextMaster!=currentMenu){
+    printf_P(PSTR("go next master\n"));
+    currentMenu=currentMenuNextMaster;
     displayNeedUpdate=1;
   }
+}
+
+void findnext(){
+  currentMenuNext=currentMenu;
+  memcpy_P (&temp, &menulist[currentMenu+1], sizeof(menutype));
+  if (temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu+1<T_MENU_LENGTH && displayShow(temp.show)) {
+    currentMenuNext++;
+    displayNeedUpdate=1;
+  }
+}
+
+void gonextMenu(){
+  if(currentMenuNext!=currentMenu){
+    currentMenu=currentMenuNext;
+    displayNeedUpdate=1;
+  }
+}
+
+void updateMenuScheme(){
+  findnext();
+  findnextMasterMenu();
+  findprevMenu();
+  findprevMasterMenu();
 }
 
 void confirm(byte button,byte val){
@@ -658,8 +710,7 @@ void newcheckInput(){
                 printf_P(PSTR("get push rotary\n"));
                 switch (menu.behaviour) {
                   case T_MENU_BEHAVIOUR_MASTER:
-                    currentMenu++;
-                    displayNeedUpdate=1;
+                    gonextMenu();
                     break;
                   default:
                     goprevMasterMenu();
