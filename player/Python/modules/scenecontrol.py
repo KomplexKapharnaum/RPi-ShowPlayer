@@ -68,7 +68,7 @@ def scene_control(flag, **kwargs):
 def scene_restart(flag, **kwargs):
     log.error("flag : {0}, kwargs : {1}".format(flag, kwargs))
     new_flag = fsm.Flag("SCENE_START")
-    if 'dest' in kwargs['args'].keys():
+    if 'args' in kwargs.keys() and 'dest' in kwargs['args'].keys():
         dest = kwargs['args']['dest']
     else:
         dest = ["Self", ]
@@ -100,7 +100,7 @@ def scene_prev(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME > 0:
             scenario.CURRENT_FRAME -= 1
-        if 'dest' in kwargs['args'].keys():
+        if 'args' in kwargs.keys() and 'dest' in kwargs['args'].keys():
             dest = kwargs['args']['dest']
         else:
             dest = ["Self", ]
@@ -119,7 +119,7 @@ def scene_next(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME < (len(scenario.pool.Frames) - 1):
             scenario.CURRENT_FRAME += 1
-        if 'dest' in kwargs['args'].keys():
+        if 'args' in kwargs.keys() and 'dest' in kwargs['args'].keys():
             dest = kwargs['args']['dest']
         else:
             dest = ["Self", ]
