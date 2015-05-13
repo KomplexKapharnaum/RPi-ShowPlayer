@@ -335,7 +335,7 @@ typedef struct {
 #define T_MENU_BEHAVIOR_VOLUME 32
 #define T_MENU_BEHAVIOR_STATUTS 50
 
-#define T_MENU_LENGTH 45
+#define T_MENU_LENGTH 43
 
 //two variable objet to handle operation
 menutype menu;
@@ -361,7 +361,7 @@ typedef struct {
 
 #define T_MENU_NB_LOG 10
 
-#define T_MENU_VARIABLE_LENGTH 25
+#define T_MENU_VARIABLE_LENGTH 20
 
 #define TELECO_MESSAGE_PREVIOUSSCENE 1
 #define TELECO_MESSAGE_PREVIOUSSCENE_GROUP 2
@@ -417,7 +417,7 @@ typedef struct {
 
 
 const menutype menulist[T_MENU_LENGTH] PROGMEM = {
-  {" do not clean","     V1.4",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+  {" do not clean","     V1.5",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0,true},
   {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
@@ -425,8 +425,8 @@ const menutype menulist[T_MENU_LENGTH] PROGMEM = {
   {"move previous","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_PREVIOUSSCENE,TELECO_MESSAGE_PREVIOUSSCENE_GROUP,TELECO_MESSAGE_PREVIOUSSCENE_ALL_SYNC,false},
   {"restart scene","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_RESTARTSCENE,TELECO_MESSAGE_RESTARTSCENE_GROUP,TELECO_MESSAGE_RESTARTSCENE_ALL_SYNC,false},
   {"--commande","media",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
-  {"volume plus","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_VOLPLUS,TELECO_MESSAGE_MEDIA_VOLPLUS_GROUP,TELECO_MESSAGE_MEDIA_VOLPLUS_ALL_SYNC,true},
-  {"volume moins","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_VOLMOINS,TELECO_MESSAGE_MEDIA_VOLMOINS_GROUP,TELECO_MESSAGE_MEDIA_VOLMOINS_ALL_SYNC,true},
+  {"volume plus","solo group all",T_MENU_BEHAVIOR_SELECT,0,TELECO_MESSAGE_MEDIA_VOLPLUS,TELECO_MESSAGE_MEDIA_VOLPLUS_GROUP,TELECO_MESSAGE_MEDIA_VOLPLUS_ALL_SYNC,true},
+  {"volume moins","solo group all",T_MENU_BEHAVIOR_SELECT,0,TELECO_MESSAGE_MEDIA_VOLMOINS,TELECO_MESSAGE_MEDIA_VOLMOINS_GROUP,TELECO_MESSAGE_MEDIA_VOLMOINS_ALL_SYNC,true},
   {"mute","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_MUTE,TELECO_MESSAGE_MEDIA_MUTE_GROUP,TELECO_MESSAGE_MEDIA_MUTE_ALL_SYNC,true},
   {"stop","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_STOP,TELECO_MESSAGE_MEDIA_STOP_GROUP,0,false},
   {"pause","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_PAUSE,TELECO_MESSAGE_MEDIA_PAUSE_GROUP,0,false},
@@ -490,10 +490,9 @@ void initmenu(){
 //display menu
 void displayMenu(byte need=0){
   if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate  && command==0) || need){
-    
+    printf_P(PSTR("update menu %u "),currentMenu);
     if(need==0){
       if (switchlockCom(1)){
-        delay(10);
         need=2;
       }
     }
@@ -503,7 +502,7 @@ void displayMenu(byte need=0){
       if (popupNeedDisplay) {
         theMenu=currentPopup;
       }
-      printf_P(PSTR("update menu %u"),currentMenu);
+      
       //try
       //SPCR &= ~_BV(SPIE);//disable spi interrupt
       memcpy_P (&menu, &menulist[currentMenu], sizeof(menutype));
@@ -538,11 +537,12 @@ void displayMenu(byte need=0){
         lcd.print(menu.line2);
       }
       printf_P(PSTR(" done\n"));
-      displayNeedUpdate=0;
       updateMenuScheme();
+      displayNeedUpdate=0;
       //SPCR |= _BV(SPIE); //enable spi interrupt
       refreshMenu=millis();
       if(need==2)switchlockCom(0);
+      printf_P(PSTR("->done\n\n"));
       if (popupNeedDisplay){
         popupNeedDisplay=0;
         displayNeedUpdate=2000;
@@ -566,8 +566,8 @@ void findprevMasterMenu(){
     printf_P(PSTR("find prev master"));
     for (byte i=currentMenu-1; i>=0; i--) {
       memcpy_P (&temp, &menulist [i], sizeof(menutype));
-      printf_P(PSTR(" - menu %u"),i);
-      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0 && displayShow(temp.show)){
+      printf_P(PSTR(" - %u"),i);
+      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayShow(temp.show)){
         printf_P(PSTR(" master\n"));
         currentMenuPrevMaster=i;
         return;
@@ -609,7 +609,7 @@ void findnextMasterMenu(){
     for (byte i=currentMenu+1; i<T_MENU_LENGTH; i++) {
       memcpy_P (&temp, &menulist [i], sizeof(menutype));
       printf_P(PSTR(" - menu %u"),i);
-      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0 && displayShow(temp.show)){
+      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayShow(temp.show)){
         printf_P(PSTR(" master\n"));
         currentMenuNextMaster=i;
         return;
@@ -634,7 +634,6 @@ void findnext(){
   memcpy_P (&temp, &menulist[currentMenu+1], sizeof(menutype));
   if (temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu+1<T_MENU_LENGTH && displayShow(temp.show)) {
     currentMenuNext++;
-    displayNeedUpdate=1;
   }
 }
 
@@ -660,10 +659,11 @@ void confirm(byte button,byte val){
   boolean wait=true;
   
   while(wait){
+    delay(1);
     if(1-digitalRead(inpin[T_PUSHROTARY-T_DECINPIN])==1){
       onePushRotary=1;
       newValue[T_PUSHROTARY]=val;
-      updateInput(T_PUSHROTARY);
+      //updateInput(T_PUSHROTARY);
       printf_P(PSTR("yes %u\n"),menu.ok);
       lcd.print("OK");
       if (val==TELECO_MESSAGE_MODE_SHOW) {
@@ -736,7 +736,7 @@ void newcheckInput(){
                     newValue[T_PUSHROTARY]=menu.a;
                   }
                 }else{
-                  unselect();
+                  unselect(i);
                 }
                 break;
               case T_MENU_BEHAVIOR_SELECT_CONFIRM:
@@ -747,7 +747,7 @@ void newcheckInput(){
                     confirm(i,menu.a);
                   }
                 }else{
-                  unselect();
+                  unselect(i);
                 }
                 break;
               default:
@@ -769,7 +769,7 @@ void newcheckInput(){
                     newValue[T_PUSHROTARY]=menu.b;
                   }
                 }else{
-                  unselect();
+                  unselect(i);
                 }
                 break;
               case T_MENU_BEHAVIOR_SELECT_CONFIRM:
@@ -780,7 +780,7 @@ void newcheckInput(){
                     confirm(i,menu.b);
                   }
                 }else{
-                  unselect();
+                  unselect(i);
                 }
                 break;
               default:
@@ -802,7 +802,7 @@ void newcheckInput(){
                     newValue[T_PUSHROTARY]=menu.ok;
                   }
                 }else{
-                  unselect();
+                  unselect(i);
                 }
                 break;
               case T_MENU_BEHAVIOR_SELECT_CONFIRM:
@@ -813,7 +813,7 @@ void newcheckInput(){
                     confirm(i,menu.ok);
                   }
                 }else{
-                  unselect();
+                  unselect(i);
                 }
                 break;
               default:
@@ -852,11 +852,21 @@ void newcheckInput(){
 
 
 
-void unselect(){
-  newValue[T_PUSHROTARY]=0;
-  onePushOK=0;
-  onePushB=0;
-  onePushA=0;
+void unselect(byte i){
+  switch (T_DECINPIN+i){
+    case T_PUSHA:
+    onePushA=0;
+    if(Value[T_PUSHROTARY]==menu.a) newValue[T_PUSHROTARY]=0;
+    break;
+    case T_PUSHB:
+    onePushB=0;
+    if(Value[T_PUSHROTARY]==menu.b) newValue[T_PUSHROTARY]=0;
+    break;
+    case T_PUSHOK:
+    onePushOK=0;
+    if(Value[T_PUSHROTARY]==menu.ok) newValue[T_PUSHROTARY]=0;
+    break;
+  } 
 }
 
 void shiftlog(){
@@ -932,6 +942,7 @@ boolean switchlockCom(byte lock){
     while (interruptPending()) {
       lowleveRoutine();
     }
+    delay(15);
     printf_P(PSTR(" lock com ok\n"));
     return true;
   }
