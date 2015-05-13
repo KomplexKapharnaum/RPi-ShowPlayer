@@ -14,6 +14,13 @@ fi
 if [ $screen -eq 0 ]; then      # There is the GNU screen binary
 
     echo "Start in a GNU screen session named 'dnc'"
+    if [ "$(screen -ls | grep dnc)" = "" ]; then
+        sleep 0.01
+    else
+        screen -S dnc -X stuff "q$(printf \\r)"
+        sleep 10
+        screen -X -S netctl quit
+    fi
     screen -S dnc -d -m /dnc/dnc.sh -o
     screen -X -S netctl quit
     sleep 3
