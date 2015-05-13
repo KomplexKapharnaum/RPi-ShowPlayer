@@ -18,10 +18,14 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
     else
         echo "Stopping previous dnc prog..."
         screen -S dnc -X stuff "q$(printf \\r)"
-        sleep 10
-        echo "Stopping previous dnc screen session..."
-        screen -X -S netctl quit
-        sleep 3
+        sleep 7
+        if [ "$(screen -ls | grep dnc)" = "" ]; then
+            sleep 0.01
+        else
+            echo "Stopping previous dnc screen session..."
+            screen -X -S netctl quit
+            sleep 3
+        fi
     fi
     echo "Start in a GNU screen session named 'dnc'"
     screen -S dnc -d -m /dnc/dnc.sh -o
