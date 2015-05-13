@@ -12,29 +12,35 @@ if [ $screen -eq 1 ]; then       # There isn't the GNU screen binary, try to ins
 fi
 
 if [ $screen -eq 0 ]; then      # There is the GNU screen binary
-
-    echo "Start in a GNU screen session named 'dnc'"
+    echo "Using GNU screen.."
     if [ "$(screen -ls | grep dnc)" = "" ]; then
         sleep 0.01
     else
+        echo "Stopping previous dnc prog..."
         screen -S dnc -X stuff "q$(printf \\r)"
         sleep 10
+        echo "Stopping previous dnc screen session..."
         screen -X -S netctl quit
         sleep 3
     fi
+    echo "Start in a GNU screen session named 'dnc'"
     screen -S dnc -d -m /dnc/dnc.sh -o
     if [ "$(screen -ls | grep netctl)" = "" ]; then
         sleep 0.2
     else
+        echo "Stopping previous netctl session..."
         screen -X -S netctl quit
         sleep 3
     fi
+    echo "Start in a GNU screen session named 'netctl'"
     screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
 else
     echo "Start in a classic shell so without the -o option"
     netctl -d -m /dnc/bash/netctl-watchdog.py &
     /dnc/dnc.sh &
 fi
+
+screen -ls
 
 exit $?
 
