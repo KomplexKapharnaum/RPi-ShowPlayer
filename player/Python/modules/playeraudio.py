@@ -95,7 +95,7 @@ class Mpg123(ExternalProcess):
         "/audio/volumeup": "audio_volume_up",
         "/audio/volumedown": "audio_volume_down",
         "/audio/set_volume [volume]": "audio_set_volume",
-        "SCENE_STOP": "audio_stop"})
+        "SCENE_STOPPING": "audio_stop"})
 def audio_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = AudioVLCPlayer()

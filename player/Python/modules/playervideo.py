@@ -135,7 +135,7 @@ exposesignals(VideoVLCPlayer.Filters)
        "/video/volumeup": "video_volume_up",
        "/video/volumedown": "video_volume_down",
        "/video/set_volume [volume]": "video_set_volume",
-       "SCENE_STOP": "video_stop"})
+       "SCENE_STOPPING": "video_stop"})
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VideoVLCPlayer()
