@@ -55,9 +55,9 @@ def scene_init(flag, **kwargs):
 
 @link({"/scene/init": "scene_init",
        "/scene/start": "scene_start",
-       "/scene/restart": "scene_restart",
-       "/scene/previous": "scene_prev",
-       "/scene/next": "scene_next",
+       "/scene/restart [dispo]": "scene_restart",
+       "/scene/previous [dispo]": "scene_prev",
+       "/scene/next [dispo]": "scene_next",
        "/scene/stop": "scene_stop",
 })
 def scene_control(flag, **kwargs):
