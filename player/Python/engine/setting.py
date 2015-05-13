@@ -138,7 +138,7 @@ DEFAULT_SETTING["scenario"]["date_len"] = 24  # extension + date length + @
 DEFAULT_SETTING["scenario"]["dest_all"] = "All"  # string for all dest in a signal
 DEFAULT_SETTING["scenario"]["dest_group"] = "Group"  # string for group dest in a signal
 DEFAULT_SETTING["scenario"]["dest_self"] = "Self"  # string for self dest in a signal
-DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.800  # 500 ms : time delta before run sync between cards, if sync
+DEFAULT_SETTING["scenario"]["play_sync_delay"] = 0.850  # 500 ms : time delta before run sync between cards, if sync
 DEFAULT_SETTING["scenario"]["TTL"] = 1.5                # TTL default value for scenario
 DEFAULT_SETTING["scenario"]["JTL"] = 3                  # JTL default value for scenario
 # fail try to increase this value
@@ -170,7 +170,8 @@ DEFAULT_SETTING["ack"]["interval_critical"] = (0.010, 0.015, 0.020, 0.025, 0.050
 DEFAULT_SETTING["ack"]["interval_classical"] = (0.30, 0.50, 0.50, 0.50, 0.50, 0.100, 0.100, 0.100, 0.100, 0.250, 0.250)
 DEFAULT_SETTING["ack"]["interval_protocol"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 DEFAULT_SETTING["ack"]["interval_short"] = (0.100, 0.150, 0.200)
-DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.200, 0.500)
+DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.150, 0.200, 0.500, 0.750)
+DEFAULT_SETTING["ack"]["interval_default_broadcast"] = (0.75, 0.100, 0.125, 0.200, 0.250, 0.300, 0.300, 0.500)
 
 DEFAULT_SETTING["values"] = dict()  # Dictionary for default values
 DEFAULT_SETTING["values"]["gyro"] = dict()
@@ -185,8 +186,8 @@ DEFAULT_SETTING["values"]["types"]["float"] = 0.0
 DEFAULT_SETTING["values"]["types"]["bool"] = False
 DEFAULT_SETTING["values"]["types"]["str"] = ""
 DEFAULT_SETTING["values"]["signaux"] = dict()
-DEFAULT_SETTING["values"]["signaux"]["TTL"] = 2
-DEFAULT_SETTING["values"]["signaux"]["JTL"] = 3
+DEFAULT_SETTING["values"]["signaux"]["TTL"] = 5
+DEFAULT_SETTING["values"]["signaux"]["JTL"] = 2
 
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
