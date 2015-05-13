@@ -68,7 +68,9 @@ def scene_control(flag, **kwargs):
 def scene_restart(flag, **kwargs):
     log.error("flag : {0}, kwargs : {1}".format(flag, kwargs))
     new_flag = fsm.Flag("SCENE_START")
-    if 'dest' in flag.args.keys():
+    if 'args' in flag.args.keys():
+            dest = flag.args['args']
+    elif 'dest' in flag.args.keys():
             dest = flag.args['dest']
     else:
         dest = ["Self", ]
