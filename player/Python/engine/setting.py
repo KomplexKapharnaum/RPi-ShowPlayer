@@ -179,6 +179,11 @@ DEFAULT_SETTING["values"]["gyro"]["speed"] = 200
 DEFAULT_SETTING["values"]["lights"] = dict()
 DEFAULT_SETTING["values"]["lights"]["fade"] = 0
 DEFAULT_SETTING["values"]["lights"]["strob"] = 0
+DEFAULT_SETTING["values"]["types"] = dict()
+DEFAULT_SETTING["values"]["types"]["int"] = 0
+DEFAULT_SETTING["values"]["types"]["float"] = 0.0
+DEFAULT_SETTING["values"]["types"]["bool"] = False
+DEFAULT_SETTING["values"]["types"]["str"] = ""
 
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"

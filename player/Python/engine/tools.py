@@ -106,6 +106,7 @@ def search_in_or_default(key, indict, setting=False, default=None):
             return settings.get(*setting)
         except AttributeError, KeyError:
             log.log("raw", "Search for a setting value which doesn't exist")
+            return None
     return default
 
 
