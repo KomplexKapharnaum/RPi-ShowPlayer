@@ -60,9 +60,9 @@ FILTERS = {
 
     # new version
 
-    "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True],  #TODO need to parse argument for scope of signal
-    "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
-    "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
+    "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True],  #argument Self / Group / All
+    "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True], #argument Self / Group / All
+    "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True], #argument Self / Group / All
 
 
     "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
@@ -89,12 +89,12 @@ FILTERS = {
 
     "TELECO_MESSAGE_GET_INFO": [],
 
-    "TELECO_MESSAGE_MEDIA_VOLPLUS": [],
-    "TELECO_MESSAGE_MEDIA_VOLMOINS": [],
-    "TELECO_MESSAGE_MEDIA_MUTE": [],
-    "TELECO_MESSAGE_MEDIA_PAUSE": [],
-    "TELECO_MESSAGE_MEDIA_PLAY": [],
-    "TELECO_MESSAGE_MEDIA_STOP": []
+    "TELECO_MESSAGE_MEDIA_VOLPLUS": [], #argument Self / Group / All
+    "TELECO_MESSAGE_MEDIA_VOLMOINS": [], #argument Self / Group / All
+    "TELECO_MESSAGE_MEDIA_MUTE": [], #argument Self / Group / All
+    "TELECO_MESSAGE_MEDIA_PAUSE": [], #argument Self / Group
+    "TELECO_MESSAGE_MEDIA_PLAY": [], #argument Self / Group
+    "TELECO_MESSAGE_MEDIA_STOP": [] #argument Self / Group
 }
 
 

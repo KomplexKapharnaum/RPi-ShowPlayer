@@ -30,7 +30,7 @@
 void Titreur::initTitreur(int _nb_module, int _typeModule){
   nb_module=_nb_module;
   typeModule=_typeModule;
-  SPIspeed=500000;
+  SPIspeed=1000000;
   mySPI.initSPI();
   int patch[8] = {3, 1, 0, 2, 6, 7, 4, 5};
   
