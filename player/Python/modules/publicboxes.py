@@ -16,17 +16,17 @@ log = init_log("publicbox")
 # Imported in interface as NAME_PUBLICFUNC
 #
 
-@publicbox('[signal] [dispo]')
+@publicbox('[signal:str] [dispo]')
 def sendSignal(flag, **kwargs):
     '''
     SENDSIGNAL Box: Emmit SIGNAL to DEST
     '''
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
-    signal = Flag(signal_uid, TTL=1, JTL=3)
+    signal = Flag(signal_uid, TTL=settings.get("scenario", "TTL"), JTL=settings.get("scenario", "JTL"))
     patcher.patch(signal.get(dict(kwargs["args"])))
     log.log("raw", "SEND BOX : "+signal_uid)
 
-@publicbox('[signal] [TTL] [JTL] [dispo]')
+@publicbox('[signal:str] [TTL:float] [JTL:int] [dispo]', default=settings.get("values", "signaux"))
 def sendSignalPlus(flag, **kwargs):
     '''
     SENDSIGNAL Box: Emmit SIGNAL to DEST
@@ -36,11 +36,11 @@ def sendSignalPlus(flag, **kwargs):
     if 'TTL' in kwargs['args'].keys() and kwargs['args']['TTL'] is not None:
         TTL = float(kwargs['args']['TTL'])
     else:
-        TTL = 1
+        TTL = settings.get("scenario", "TTL")
     if 'JTL' in kwargs['args'].keys() and kwargs['args']['JTL'] is not None:
         JTL = float(kwargs['args']['JTL'])
     else:
-        JTL = 3
+        JTL = settings.get("scenario", "JTL")
     signal = Flag(signal_uid, TTL=TTL, JTL=JTL)
     patcher.patch(signal.get(dict(kwargs["args"])))
     log.log("raw", "SEND BOX : "+signal_uid)
@@ -68,7 +68,7 @@ def wait(flag, **kwargs):
     pass
 
 
-@publicbox('[duration]')
+@publicbox('[duration:float]')
 def delay(flag, **kwargs):
     """
     This function (box) delay for a givent time and be ready for a transition after that
@@ -80,7 +80,7 @@ def delay(flag, **kwargs):
     time.sleep(float(duration))
 
 
-@publicbox('[ip] [port] [msg]')
+@publicbox('[ip:str] [port:int] [msg:str]')
 def rawosc(flag, **kwargs):
     """
     This function send a raw OSC message to an IP : PORT

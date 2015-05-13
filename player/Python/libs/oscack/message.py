@@ -41,6 +41,12 @@ class Address():
     def get_hostname(self):
         return self.ip
 
+    def __str__(self):
+        return "Address : {0}".format(self.ip)
+
+    def __repr__(self):
+        return self.__str__(self)
+
 
 class Message(liblo.Message):
     """
@@ -95,7 +101,7 @@ class Message(liblo.Message):
         self.uid = acklib.gen_uids()
 
     def get_new(self):
-        return Message(*self._args, **self._kwargs)
+        return Message(ACK=self.ACK, *self._args, **self._kwargs)
 
 
     def __str__(self):
@@ -115,7 +121,10 @@ class ThreadSendMessage(threading.Thread):
         self._stop = threading.Event()
         self._n_send = 0
         if msg.ACKSPEED is None:
-            ack_speed = settings.get("ack", "interval_default")
+            if target.get_hostname != "255.255.255.255":
+                ack_speed = settings.get("ack", "interval_default")
+            else:
+                ack_speed = settings.get("ack", "interval_default_broadcast")
         else:
             try:
                 ack_speed = settings.get("ack", msg.ACKSPEED)

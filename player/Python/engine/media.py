@@ -18,6 +18,7 @@ import pyudev
 
 from modules._classes import ExternalProcess
 from libs import pyhashxx
+from scenario import pool
 from engine.setting import settings
 from engine import tools
 from engine.threads import network_scheduler
@@ -525,6 +526,8 @@ def load_scenario_from_fs(group, date_timestamp=None):
             shutil.rmtree(settings.get_path("scenario", "activescenario"))
         ##
         tar.extractall(path=settings.get_path("scenario"))  # path=settings.get("path", "scenario"))
+        pool.timeline_group = group
+        pool.timeline_version = newer.date
         return True
     # if here it's because we ca not open tar file
     log.warning("Error when opening scnario at {0}".format(os.path.join(path, group + "@" + newer.date + ".tar")))

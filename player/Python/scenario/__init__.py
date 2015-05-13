@@ -2,7 +2,8 @@
 import pool
 import classes
 import parsing
-from engine import log, tools
+import engine
+from engine import log, tools, fsm
 from engine.setting import settings
 
 log = log.init_log("scenario")
@@ -11,7 +12,12 @@ CURRENT_FRAME = 0
 CURRENT_SCENE_FRAME = 0  # Represent the current scene frame (could be different from keyframe)
 
 MODULES_FSM = list()
+""":type: list of engine.fsm.FiniteStateMachine"""
 SCENE_FSM = list()
+""":type: list of engine.fsm.FiniteStateMachine"""
+
+
+
 
 
 def init():
@@ -65,38 +71,65 @@ def stop():
     stop_modules()
 
 
+
+def get_sign(n):
+    """
+    :param n: Number to test
+    :type n: int or float
+    :return: Return + if n > 0, - if n < 0, "" else
+    :rtype: str
+    """
+    if n > 0:
+        return "+"
+    elif n < 0:
+        return "-"
+    else:
+        return ""
+
+
 def start_scene():
     log.debug("Look to a new scene ...")
     if CURRENT_FRAME < len(pool.Frames):
         scene = pool.Frames[CURRENT_FRAME]
-        log.log('important', '= SCENE ' + scene.name)
-        tools.log_teleco(("start scene", scene.name), "scenario")
-        if settings["uName"] in scene.cartes.keys():  # Fond scene !
-            log.debug("Found scene to launch : {0}".format(scene))
-            stop_scene()
-            global CURRENT_SCENE_FRAME
-            CURRENT_SCENE_FRAME = CURRENT_FRAME  # Real scene change
-            for etape in scene.start_etapes[settings["uName"]]:
-                for action in etape.actions:
-                    if len(action) > 1 and isinstance(action[1], dict) and "args" in action[1].keys() and "dest" in \
-                            action[1]["args"].keys() and (
-                                "Self" in action[1]["args"]["dest"] or settings.get("uName") in action[1]["args"]["dest"]):
-                        fsm = classes.ScenarioFSM(etape.uid, source=scene.name)
-                        fsm.start(etape)
-                        SCENE_FSM.append(fsm)
-                        break
-                    else:
-                        log.debug("Ignore etape {0} because it's not for us".format(etape))
+        if settings.get("uName") in scene.cartes.keys() and scene.start_etapes[settings.get("uName")] is not None:
+            log.log('important', '= SCENE ' + scene.name)
+            tools.log_teleco(("start scene", scene.name), "scenario")
+            if settings["uName"] in scene.cartes.keys():  # Fond scene !
+                log.debug("Found scene to launch : {0}".format(scene))
+                stop_scene()
+                global CURRENT_SCENE_FRAME
+                CURRENT_SCENE_FRAME = CURRENT_FRAME  # Real scene change
+                for etape in scene.start_etapes[settings["uName"]]:
+                    for action in etape.actions:
+                        if len(action) > 1 and isinstance(action[1], dict) and "args" in action[1].keys() and "dest" in \
+                                action[1]["args"].keys() and (
+                                    "Self" in action[1]["args"]["dest"] or settings.get("uName") in action[1]["args"]["dest"]):
+                            fsm = classes.ScenarioFSM(etape.uid, source=scene.name)
+                            fsm.start(etape)
+                            SCENE_FSM.append(fsm)
+                            break
+                        else:
+                            log.debug("Ignore etape {0} because it's not for us".format(etape))
+            else:
+                log.debug('Nothing to do on Scene {0} for card {1}'.format(scene.name, settings["uName"]))
         else:
-            log.debug('Nothing to do on Scene {0} for card {1}'.format(scene.name, settings["uName"]))
+            scene_diff = CURRENT_FRAME-CURRENT_SCENE_FRAME
+            tools.log_teleco(("start scene", "{0}{2}{1}".format(pool.Frames[CURRENT_SCENE_FRAME].name, scene_diff, get_sign(scene_diff))), "scenario")
+            log.log("info", "Ignore {0} because there is no scenario active for {1}".format(scene.uid, settings.get("uName")))
+            log.log("info", "Current frame {0}, current_frame_scene {1}".format(CURRENT_FRAME, CURRENT_SCENE_FRAME))
     else:
         log.warning('KeyFrame {0} request doesn\'t exist'.format(CURRENT_FRAME))
 
 
 def stop_scene():
+    stop_flag = fsm.Flag("SCENE_STOPPING", JTL=2, TTL=None)      # TODO : refactor this in an other place !
     for sfsm in SCENE_FSM:
         sfsm.stop()
         SCENE_FSM.remove(sfsm)
+    for mfsm in MODULES_FSM:
+        mfsm.append_flag(stop_flag.get())
+    for mfsm in engine.MODULES_FSM.values():           # TODO check what is that engine.MODULES_FSM.values() ??
+        mfsm.append_flag(stop_flag.get())
 
 
 def start_modules():

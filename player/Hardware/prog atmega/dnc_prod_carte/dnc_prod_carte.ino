@@ -88,15 +88,40 @@ int checkInputPeriod;
 long unsigned lastCheckTension;
 long checkTensionPeriod;
 
+long interruptTimeOn;
+int timeOutInterrupt=1500;
+
+boolean interruptPending(){
+  if(Value[INTERRUPT] == 0)return false;
+  return true;
+}
+
+
+void freeInterrupt(){
+  newValue[INTERRUPT] = 0;
+  Value[INTERRUPT] = newValue[INTERRUPT];
+  digitalWrite(outpin[INTERRUPT], LOW);
+}
+
+
 void setup (void) {
-  Serial.begin(19200);
+  Serial.begin(115200);
   clearRegister();
   initpin();
   initSPIslave();
   Serial.println("hello");
   newValue[UBATT] = 1;
-  checkInputPeriod = 100;
+  checkInputPeriod = 50;
   checkTensionPeriod = 60000;
+}
+
+void setInterrupt(byte interrupt){
+  newValue[INTERRUPT] = interrupt;
+  Value[INTERRUPT] = newValue[INTERRUPT];
+  printf_P(PSTR("interupt %u\n"),Value[INTERRUPT]);
+  interruptTimeOn = millis();
+  digitalWrite(outpin[INTERRUPT], HIGH);
+  SPDR = interrupt;
 }
 
 void poweroff(){
@@ -165,8 +190,11 @@ ISR (SPI_STC_vect)
   else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
-      //Serial.println ("wv");
-      newValue[adress] = c;
+      Serial.print  ("wv ");
+      Serial.println (adress);
+      Serial.print  (" - ");
+      Serial.println (c);
+      if(adress<REGISTERSIZE)newValue[adress] = c;
       if (adress < DECINPIN)fadeInterval[adress] = 0;
       command = 1;
       SPDR = 0;
@@ -174,7 +202,7 @@ ISR (SPI_STC_vect)
     }
     //fade
     if (command == WRITECOMMANDFADE) {
-      //Serial.println ("wf");
+      Serial.println ("wf");
       if (adress < DECINPIN) {
         int v = Value[adress];
         v = abs(v - newValue[adress]);
@@ -193,15 +221,14 @@ ISR (SPI_STC_vect)
   }
   //renvoie la valeur enregistree
   if (command == READCOMMAND) {
-    SPDR = Value[adress];
+    if(adress<REGISTERSIZE)SPDR = Value[adress];
     command = 1;
+    Serial.print("r ");
+    Serial.println (Value[adress],DEC);
     if (inputRange(adress) || adress==UBATT) {
-      newValue[INTERRUPT] = 0;
-      Value[INTERRUPT] = newValue[INTERRUPT];
-      digitalWrite(outpin[INTERRUPT], LOW);
+      freeInterrupt();
     }
-    //Serial.print("r ");
-    //Serial.println (Value[adress],DEC);
+
   }
 
 
@@ -259,6 +286,10 @@ void loop (void) {
 
   checkInput();
   checkTension();
+  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt) {
+    printf_P(PSTR("warning interrupt read fail\n"));
+    freeInterrupt();
+  }
 
 }  // end of loop
 
@@ -275,16 +306,11 @@ bool outputRange(byte i){
 
 //fonction pour generer une interuption sur le rpi
 void updateInput(byte i) {
-  if (Value[INTERRUPT] == 0) {
+  if (!interruptPending()) {
     Value[i] = newValue[i];
-    newValue[INTERRUPT] = i;
-    Value[INTERRUPT] = newValue[INTERRUPT];
-    Serial.println("interupt");
-    digitalWrite(outpin[INTERRUPT], HIGH);
-    SPDR = i;
+    setInterrupt(i);
   }
 }
-
 
 
 void checkInput() {
@@ -299,12 +325,9 @@ void checkInput() {
 }
 
 void checkTension() {
-  if ((millis() > lastCheckTension + checkTensionPeriod)  && Value[INTERRUPT] == 0) {
-    newValue[INTERRUPT]=UBATT;
-    Value[INTERRUPT] = newValue[INTERRUPT];
+  if ((millis() > lastCheckTension + checkTensionPeriod)  && !interruptPending()) {
     Serial.println("interupt tension");
-    digitalWrite(outpin[INTERRUPT], HIGH);
-    SPDR = UBATT;
+    setInterrupt(UBATT);
     lastCheckTension= millis();
   }
 }

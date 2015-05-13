@@ -1,64 +1,57 @@
 #!/bin/bash
-running=1
-DIRECT_INOUT=0
+# Raplace old start.sh to avoid changing rc.local
+# This script run old start.sh (now dnc.sh) on a detached GNU screen session
 
-# NAMED ARGUMENTS
+which screen
+screen=$?
+if [ $screen -eq 1 ]; then       # There isn't the GNU screen binary, try to install it
+    echo "nameserver 8.8.4.4" > /etc/resolv.conf
+    pacman -Sy --noconfirm screen
+    screen=$?
+    echo "termcapinfo xterm* ti@:te@" > ~/.screenrc
+fi
+
+if [ $screen -eq 0 ]; then      # There is the GNU screen binary
+    echo "Using GNU screen.."
+    if [ "$(screen -ls | grep dnc)" = "" ]; then
+        sleep 0.01
+    else
+        echo "Stopping previous dnc prog..."
+        screen -S dnc -X stuff "q$(printf \\r)"
+        sleep 7
+        if [ "$(screen -ls | grep dnc)" = "" ]; then
+            sleep 0.01
+        else
+            echo "Stopping previous dnc screen session..."
+            screen -X -S netctl quit
+            sleep 3
+        fi
+    fi
+    echo "Start in a GNU screen session named 'dnc'"
+    screen -S dnc -d -m /dnc/dnc.sh -o
+    if [ "$(screen -ls | grep netctl)" = "" ]; then
+        sleep 0.2
+    else
+        echo "Stopping previous netctl session..."
+        screen -X -S netctl quit
+        sleep 3
+    fi
+    echo "Start in a GNU screen session named 'netctl'"
+    screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
+else
+    echo "Start in a classic shell so without the -o option"
+    netctl -d -m /dnc/bash/netctl-watchdog.py &
+    /dnc/dnc.sh &
+fi
+
+screen -ls
+
 while getopts "o" opt; do
     case "$opt" in
-    o)  DIRECT_INOUT=1
+    o)  screen -r dnc
         ;;
     esac
 done
 
-quit()
-{
-    running=0
-}
-
-kill_zombies()
-{
-	fuser -k 1781/udp
-	fuser -k 1782/udp
-	fuser -k 8080/tcp
-	fuser -k 8080/udp
-	pkill vlc
-	pkill hardware-arm6
-	pkill hardware-arm7
-}
-
-trap quit SIGINT
-
-while (( running )); do
-	kill_zombies
-	echo "ShowPlayer Start"
-    if ((DIRECT_INOUT)); then
-    	./player/Python/main.py
-    else
-        echo "wait before start"
-        sleep 15
-    	mkdir -p /tmp/dnc
-    	# echo '' > /tmp/dnc/stdin
-    	touch /tmp/dnc/main.log
-	./player/Python/main.py &> /tmp/dnc/main.log
-    	# ./player/Python/main.py < /tmp/dnc/stdin &> ./logs/main.log
-    fi
-    exitcode=$?
-    if [ $exitcode -eq 0 ]; then
-        echo "Exiting ... POWEROFF == 0"
-        break
-    elif [ $exitcode -eq 2 ]; then
-        quit
-        poweroff
-    elif [ $exitcode -eq 3 ]; then
-        quit
-        reboot
-    fi
-    echo "ShowPlayer exited $exitcode"
-    if (( running ))
-    	then
-    		echo "Respawning.."
-    fi
-    sleep 2
-done
-kill_zombies
+exit $?
 

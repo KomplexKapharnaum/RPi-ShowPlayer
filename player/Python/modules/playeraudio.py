@@ -5,9 +5,10 @@
 #
 #
 import os
+import copy
 from _classes import ExternalProcess, module
 from modules import link, exposesignals
-from modules.playervideo import VlcPlayerOneShot                         
+from modules._classes import AbstractVLC
 from engine.setting import settings
 from engine.log import init_log
 from libs import rtplib
@@ -17,18 +18,43 @@ log = init_log("audio")
 # VLC AUDIO PLAYER CLASS
 ## FILE2FILE: GOOD
 ## LOOP: BAD
-class VlcAudio(VlcPlayerOneShot):
-    def __init__(self, *args, **kwargs):
-        VlcPlayerOneShot.__init__(self, name='vlcaudio', *args, **kwargs)
+# class VlcAudio(VlcPlayerOneShot):
+#     def __init__(self, *args, **kwargs):
+#         VlcPlayerOneShot.__init__(self, name='vlcaudio', *args, **kwargs)
+#
+#     def preload(self, *args, **kwargs):
+#         VlcPlayerOneShot.preload(self, *args, mediatype='audio', **kwargs)
+#
+#     Filters = {
+#         'AUDIO_END': [True]
+#     }
 
-    def preload(self, *args, **kwargs):
-        VlcPlayerOneShot.preload(self, *args, mediatype='audio', **kwargs)
+class AudioVLCPlayer(AbstractVLC):
+    """
+    This class define an audio player with VLC as backend
+    """
+    def __init__(self):
+        command = copy.copy(settings.get_path("mvlc"))
+        """:type: str"""
+        arguments = copy.copy(settings.get("vlc", "options", "default"))
+        """:type: dict"""
+        arguments.update(settings.get("vlc", "options", "audio"))
+        log.log("debug", "Vlc arguments : {0}".format(arguments))
+        AbstractVLC.__init__(self, name="audiovlc", command=command.format(**arguments))
+
+    def check_media(self, media):
+        """
+        Add audio to the media path
+        """
+        return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "audio"), media))
 
     Filters = {
-        'AUDIO_END': [True]
+        "MEDIA_END": ["transTo /audio/end", True],
+        "AUDIO_END": [True]
     }
 
-exposesignals(VlcAudio.Filters)
+
+exposesignals(AudioVLCPlayer.Filters)
 
 
 # MPG123 AUDIO PLAYER CLASS
@@ -63,39 +89,43 @@ class Mpg123(ExternalProcess):
 
 # ETAPE AND SIGNALS
 @module('AudioPlayer')
-@link({"/audio/play [media] [repeat]": "audio_play",
+@link({"/audio/play [media:str] [repeat:bool]": "audio_play",
         "/audio/pause": "audio_pause",
         "/audio/stop": "audio_stop",
         "/audio/volumeup": "audio_volume_up",
         "/audio/volumedown": "audio_volume_down",
-        "/audio/set_volume [volume]": "audio_set_volume"})
+        "/audio/set_volume [volume:int]": "audio_set_volume",
+        "SCENE_STOPPING": "audio_stop",
+        "/media/volup": "audio_volume_up",
+        "/media/voldown": "audio_volume_down"})
 def audio_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
-        kwargs["_fsm"].process = VlcAudio()
+        kwargs["_fsm"].process = AudioVLCPlayer()
+        kwargs["_fsm"].process.start()
 
 
 @link({None: "audio_player"})
 def audio_play(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
-    kwargs["_fsm"].process = VlcAudio()
+    if kwargs["_fsm"].process is None:
+        audio_player(flag, kwargs)
 
     media = flag.args["media"] if 'media' in flag.args else None
-    repeat = flag.args["repeat"] if 'repeat' in flag.args else None
+    kwargs["_fsm"].process.load(media)
+    repeat = bool(flag.args["repeat"]) if 'repeat' in flag.args else False
+    if repeat is None:
+        repeat = False
+    kwargs["_fsm"].process.repeat(repeat)
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
-        kwargs["_fsm"].process.preload(media, repeat)
+        log.debug('+++ BEFORE SYNC PLAY {0}'.format(rtplib.get_time()))
         rtplib.wait_abs_time(*flag.args['abs_time_sync'])
-        kwargs["_fsm"].process.play()
-        log.debug('+++ SYNC PLAY')
-    else:
-        kwargs["_fsm"].process.play(media, repeat)
-
-    kwargs["_etape"].preemptible.set()
+        log.debug('+++ SYNC PLAY {0}'.format(flag.args['abs_time_sync']))
+    kwargs["_fsm"].process.play()
 
 
 @link({None: "audio_player"})
 def audio_stop(flag, **kwargs):
-    kwargs["_fsm"].process.stop()
+    kwargs["_fsm"].process.stop_media()
 
 
 @link({None: "audio_player"})
@@ -109,7 +139,7 @@ def audio_pause(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_set_volume(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcAudio):
+    if isinstance(kwargs["_fsm"].process, AudioVLCPlayer):
         kwargs["_fsm"].process.set_volume(flag.args["volume"])
     else:
         log.warning("Ask to set volume on an unlauched process (VlcPlayer)")
@@ -117,7 +147,7 @@ def audio_set_volume(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_volume_up(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcAudio):
+    if isinstance(kwargs["_fsm"].process, AudioVLCPlayer):
         kwargs["_fsm"].process.volume_up()
     else:
         log.warning("Ask to volume up on an unlauched process (VlcPlayer)")
@@ -125,7 +155,7 @@ def audio_volume_up(flag, **kwargs):
 
 @link({None: "audio_player"})
 def audio_volume_down(flag, **kwargs):
-    if isinstance(kwargs["_fsm"].process, VlcAudio):
+    if isinstance(kwargs["_fsm"].process, AudioVLCPlayer):
         kwargs["_fsm"].process.volume_down()
     else:
         log.warning("Ask to volume down on an unlauched process (VlcPlayer)")

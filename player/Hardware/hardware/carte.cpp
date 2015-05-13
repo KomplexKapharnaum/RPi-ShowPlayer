@@ -124,7 +124,7 @@ float Carte::checkTension(){
   digitalWrite (GPIO_READ_BATT, HIGH);
   delay(10);
   writeValue(UBATT,0);
-  delay(20);
+  delay(60);
   tension = readValue(UBATT)+50;
   tension = tension/10;
   //strange behaviour
@@ -159,10 +159,10 @@ float Carte::checkTension(){
       if(tension>=23) count_tensioncoupure=0;
       break;
   }
-  if (count_tensionbasse>2) {
+  if (count_tensionbasse>1) {
     std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
   }
-  if (count_tensioncoupure>3) {
+  if (count_tensioncoupure>1) {
     std::cout << "#CARTE_MESSAGE_POWEROFF"<< std::endl;
   }
   return tension;

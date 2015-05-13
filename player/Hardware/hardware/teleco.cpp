@@ -42,8 +42,8 @@ int Teleco::fisrtView(){
 void Teleco::start(){
   fprintf(stderr, "\x1b[32mteleco - teleco start\n\x1b[0m");
   uninit=0;
-  setLedWarning(0);
   writeValue(T_INIT,1);
+  setLedWarning(0);
 }
 
 //reset remote
@@ -88,6 +88,7 @@ bool Teleco::sendString(char Str1[], char Str2[], int val){
   }
 }
 
+/*
 // no use
 void Teleco::sendButtonString(char Str1[]){
   unsigned char buff[19];
@@ -97,8 +98,8 @@ void Teleco::sendButtonString(char Str1[]){
   }
   fprintf(stderr, "teleco - teleco send button string : %s\n",buff);
   SPIcarte.send(0,buff,19);
-
 }
+*/
 
 //send lock status
 int Teleco::readOrSetTelecoLock(int val){
@@ -161,7 +162,7 @@ int Teleco::readInterrupt(){
           std::cout << "#TELECO_MESSAGE_RESTARTSCENE All" << std::endl;
           break;
         case TELECO_MESSAGE_NEXTSCENE :
-          std::cout << "#TELECO_MESSAGE_NEXTSCENE" << std::endl;
+          std::cout << "#TELECO_MESSAGE_NEXTSCENE Self" << std::endl;
           break;
         case TELECO_MESSAGE_NEXTSCENE_GROUP :
           std::cout << "#TELECO_MESSAGE_NEXTSCENE Group" << std::endl;
