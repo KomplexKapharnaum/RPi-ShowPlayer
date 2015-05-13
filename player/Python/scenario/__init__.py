@@ -2,7 +2,7 @@
 import pool
 import classes
 import parsing
-from engine import log, tools, fsm
+from engine import log, tools, fsm, MODULES_FSM
 from engine.setting import settings
 
 log = log.init_log("scenario")
@@ -109,6 +109,8 @@ def stop_scene():
         sfsm.stop()
         SCENE_FSM.remove(sfsm)
     for mfsm in MODULES_FSM:
+        mfsm.append_flag(stop_flag.get())
+    for mfsm in MODULES_FSM.values():           # TODO check what is that engine.MODULES_FSM.values() ??
         mfsm.append_flag(stop_flag.get())
 
 
