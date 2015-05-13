@@ -229,18 +229,21 @@ class ThreadTeleco(threading.Thread):
         :param page: page where the message must be displayed
         :return:
         """
-        message = ThreadTeleco.prepare_message(message)
-        for n, bloc in enumerate(message):
-            args = dict()
-            args["ligne1"] = str(bloc[0])
-            if len(bloc) > 1:
-                args["ligne2"] = str(bloc[1])
-            else:
-                args["ligne2"] = ""
-            args["page"] = page
-            engine.threads.patcher.patch(flag_popup.get(args=args))
-            if len(message) >= n + 1:
-                time.sleep(settings.get("log", "teleco", "autoscroll"))
+        try:
+            message = ThreadTeleco.prepare_message(message)
+            for n, bloc in enumerate(message):
+                args = dict()
+                args["ligne1"] = str(bloc[0])
+                if len(bloc) > 1:
+                    args["ligne2"] = str(bloc[1])
+                else:
+                    args["ligne2"] = ""
+                args["page"] = page
+                engine.threads.patcher.patch(flag_popup.get(args=args))
+                if len(message) >= n + 1:
+                    time.sleep(settings.get("log", "teleco", "autoscroll"))
+        except Exception as e:
+            log.exception(log.show_exception(e))
 
 
 
@@ -251,20 +254,23 @@ class ThreadTeleco(threading.Thread):
         :param message: message to prepare
         :return:
         """
-        linelength = settings.get("log", "teleco", "linelength")
-        lines = list()
-        blocs = list()
-        blocs.append(list())
-        for line in message:
-            while len(line) > linelength:
-                lines.append(line[:linelength])
-                line = line[linelength:]
-            lines.append(line)
-        for line in lines:
-            if len(blocs[-1]) == 2:
-                blocs.append(list())  # New block
-            blocs[-1].append(line)
-        return blocs
+        try:
+            linelength = settings.get("log", "teleco", "linelength")
+            lines = list()
+            blocs = list()
+            blocs.append(list())
+            for line in message:
+                while len(line) > linelength:
+                    lines.append(line[:linelength])
+                    line = line[linelength:]
+                lines.append(line)
+            for line in lines:
+                if len(blocs[-1]) == 2:
+                    blocs.append(list())  # New block
+                blocs[-1].append(line)
+            return blocs
+        except Exception as e:
+            log.exception(log.show_exception(e))
 
 def show_trace():
     traceback.print_stack()

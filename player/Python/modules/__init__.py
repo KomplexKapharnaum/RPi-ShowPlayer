@@ -78,9 +78,11 @@ class globaletape(object):
 
     def __call__(self, f):
         global DECLARED_ETAPES, DECLARED_TRANSITION, DECLARED_OSCROUTES
-        if [True for signal_name in DECLARED_OSCROUTES.values() if self.uid == signal_name['signal'].lower()]:
+        signal = [signal for signal in DECLARED_OSCROUTES.values() if self.uid == signal['signal']]
+        if len(signal) > 0:
+            signal = signal[0]
             def fn(flag, *args, **kwargs):
-                flag.args = parse_args_etape_function(flag.args, self.args, self.types, self.default)
+                kwargs['args'] = parse_args_etape_function(kwargs['args'], signal['args'], signal['types'], signal['default'])
                 return f(flag, *args, **kwargs)
             f = fn
         DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((f, self.options),))
@@ -146,32 +148,30 @@ def parse_args_etape_function(kwargs, args, types, default):
         :type types: list of str
         :type default: dict
         """
-    parsed_args = dict()
     for arg_n in xrange(len(args)):
         arg_name = args[arg_n]
         type_name = types[arg_n]
         if arg_name not in kwargs.keys():
-            log.log("warning", "search for {0} in parameters but not found in {1}".format(arg_name), kwargs)
+            log.log("warning", "search for {0} in parameters but not found in {1}".format(arg_name, kwargs))
             continue
         if kwargs[arg_name] is None:  # There is no value.. searching for a default one
             if arg_name in default.keys():  # There is one default
                 log.debug("Taking default {1} value for {0}".format(arg_name, default[arg_name]))
-                parsed_args[arg_name] = default[arg_name]
+                kwargs[arg_name] = default[arg_name]
                 continue
             elif type_name in settings.get("values", "types"):
                 log.debug("Taking default types {1} value for {0}".format(arg_name,
                                                                           settings.get("values", "types", type_name)))
-                parsed_args[arg_name] = settings.get("values", "types", type_name)
+                kwargs[arg_name] = settings.get("values", "types", type_name)
                 continue
             else:
                 log.warning("Set parameter {0} to none, it's can be unwanted".format(arg_name))
-                parsed_args[arg_name] = None
+                kwargs[arg_name] = None
                 continue
         else:
-            parsed_args = parse_arg_from_type(arg_name, type_name)
+            kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)
             continue
-    return parsed_args
-
+    return kwargs
 
 
 class publicbox(object):
@@ -203,7 +203,7 @@ class publicbox(object):
     def __call__(self, f):
         global DECLARED_PUBLICBOXES
         def fn(flag, *args, **kwargs):
-            flag.args = parse_args_etape_function(flag.args, self.args, self.types, self.default)
+            kwargs['args'] = parse_args_etape_function(kwargs['args'], self.args, self.types, self.default)
             return f(flag, *args, **kwargs)
         DECLARED_PUBLICBOXES[f.__name__.upper() + '_PUBLICBOX'] = {'function': fn,
                                                                    'args': self.args,

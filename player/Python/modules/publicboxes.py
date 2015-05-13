@@ -68,7 +68,7 @@ def wait(flag, **kwargs):
     pass
 
 
-@publicbox('[duration]')
+@publicbox('[duration:float]')
 def delay(flag, **kwargs):
     """
     This function (box) delay for a givent time and be ready for a transition after that
@@ -80,7 +80,7 @@ def delay(flag, **kwargs):
     time.sleep(float(duration))
 
 
-@publicbox('[ip] [port] [msg]')
+@publicbox('[ip:str] [port:int] [msg:str]')
 def rawosc(flag, **kwargs):
     """
     This function send a raw OSC message to an IP : PORT
