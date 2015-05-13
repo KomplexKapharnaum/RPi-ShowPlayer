@@ -71,6 +71,22 @@ def stop():
     stop_modules()
 
 
+
+def get_sign(n):
+    """
+    :param n: Number to test
+    :type n: int or float
+    :return: Return + if n > 0, - if n < 0, "" else
+    :rtype: str
+    """
+    if n > 0:
+        return "+"
+    elif n < 0:
+        return "-"
+    else:
+        return ""
+
+
 def start_scene():
     log.debug("Look to a new scene ...")
     if CURRENT_FRAME < len(pool.Frames):
@@ -97,7 +113,8 @@ def start_scene():
             else:
                 log.debug('Nothing to do on Scene {0} for card {1}'.format(scene.name, settings["uName"]))
         else:
-            tools.log_teleco(("start scene", "{0}+{1}".format(pool.Frames[CURRENT_SCENE_FRAME].name, CURRENT_FRAME-CURRENT_SCENE_FRAME)), "scenario")
+            scene_diff = CURRENT_FRAME-CURRENT_SCENE_FRAME
+            tools.log_teleco(("start scene", "{0}{2}{1}".format(pool.Frames[CURRENT_SCENE_FRAME].name, scene_diff, get_sign(scene_diff))), "scenario")
             log.log("info", "Ignore {0} because there is no scenario active for {1}".format(scene.uid, settings.get("uName")))
             log.log("info", "Current frame {0}, current_frame_scene {1}".format(CURRENT_FRAME, CURRENT_SCENE_FRAME))
     else:
