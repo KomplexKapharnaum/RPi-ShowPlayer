@@ -110,6 +110,8 @@ def audio_play(flag, **kwargs):
     media = flag.args["media"] if 'media' in flag.args else None
     kwargs["_fsm"].process.load(media)
     repeat = bool(flag.args["repeat"]) if 'repeat' in flag.args else False
+    if repeat is None:
+        repeat = False
     kwargs["_fsm"].process.repeat(repeat)
 
     if flag is not None and flag.args is not None and 'abs_time_sync' in flag.args:
