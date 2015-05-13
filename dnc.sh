@@ -3,9 +3,9 @@
 if [ $(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) -eq 2 ]; then
     echo "DNC starter begin .."
 else
-    echo "An instance is already running .."
-    echo "EXIT"
-    exit 0
+    echo "An instance is already running .. "$(ps -ejH w | grep dnc.sh | grep -v grep | wc -l )
+    #echo "EXIT"
+    #exit 0
 fi
 
 
