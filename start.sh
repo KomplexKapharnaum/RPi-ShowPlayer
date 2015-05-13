@@ -8,10 +8,11 @@ if [ $screen -eq 1 ]; then       # There isn't the GNU screen binary, try to ins
     echo "nameserver 8.8.4.4" > /etc/resolv.conf
     pacman -Sy --noconfirm screen
     screen=$?
+    echo "termcapinfo xterm* ti@:te@" > ~/.screenrc
 fi
 
 if [ $screen -eq 0 ]; then      # There is the GNU screen binary
-    echo "termcapinfo xterm* ti@:te@" > ~/.screenrc
+
     echo "Start in a GNU screen session named 'dnc'"
     screen -S dnc -d -m /dnc/dnc.sh -o
     screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
