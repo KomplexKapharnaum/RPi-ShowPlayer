@@ -152,7 +152,7 @@ def parse_args_etape_function(kwargs, args, types, default):
         :type types: list of str
         :type default: dict
         """
-    log.debug("Pre-parse {0} for {1} types {2} default {3]".format(kwargs, args, types, default))
+    log.debug("Pre-parse {0} for {1} types {2} default {3}".format(kwargs, args, types, default))
     for arg_n in xrange(len(args)):
         arg_name = args[arg_n]
         type_name = types[arg_n]
