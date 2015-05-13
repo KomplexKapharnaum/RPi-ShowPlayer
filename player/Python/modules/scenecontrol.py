@@ -74,7 +74,7 @@ def scene_restart(flag, **kwargs):
         dest = ["Self", ]
         if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
             dest = [flag.args['args'][0], ]
-    log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
+    log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
     patcher.patch(new_flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
 
