@@ -9,6 +9,8 @@
 *.wav
 *.m4v
 *.aac
+*.m4a
+*.ac3
 
 #SCENARIO ARCHIVES
 *.tar
@@ -29,7 +31,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.DS_Store
+*.DS_Store
 .xcuserstate
 .Python
 env/

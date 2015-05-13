@@ -8,6 +8,8 @@ using std::string;
 #include "vlcPlayer.h"
 #include "dualPlayer_cb.h"
 
+#define VOLUME_STEP 10
+
 class dualPlayer : public dualPlayerCallbacks
 {
 	public:
@@ -20,7 +22,10 @@ class dualPlayer : public dualPlayerCallbacks
 		void resume();
 		void togglePause();
 		void release();
+		void applyVolume();
 		void setVolume(int v);
+		void volumeUp();
+		void volumeDown();
 		void setRepeat(bool r);
 
 		void onPlayerStateChange(int playerID, int state);

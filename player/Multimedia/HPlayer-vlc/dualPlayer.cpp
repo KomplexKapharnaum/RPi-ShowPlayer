@@ -97,12 +97,32 @@ void dualPlayer::togglePause()
 	this->activePlayer()->togglePause();
 }
 
+void dualPlayer::applyVolume()
+{
+	this->activePlayer()->setVolume(this->volume);
+	this->sparePlayer()->setVolume(this->volume);
+}
+
 void dualPlayer::setVolume(int v)
 {
 	if (v >= 0 and v <= 200) this->volume = v;
-	this->activePlayer()->setVolume(v);
-	this->sparePlayer()->setVolume(v);
+	this->applyVolume();
 }
+
+void dualPlayer::volumeUp()
+{
+	this->volume += VOLUME_STEP;
+	if (this->volume > 200) this->volume = 200;
+	this->applyVolume();
+}
+
+void dualPlayer::volumeDown()
+{
+	this->volume -= VOLUME_STEP;
+	if (this->volume < 0) this->volume = 0;
+	this->applyVolume();
+}
+
 
 void dualPlayer::setRepeat(bool r)
 {
