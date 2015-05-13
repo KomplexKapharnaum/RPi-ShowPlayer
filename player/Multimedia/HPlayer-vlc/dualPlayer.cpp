@@ -148,7 +148,7 @@ void dualPlayer::onPlayerStateChange(int playerID, int state)
 	{
 		this->selector = playerID;
 		this->activePlayer()->fullScreen();
-		this->activePlayer()->applyVolume();
+		this->applyVolume();
 		this->sparePlayer()->stop();
 	}
 	if (state == DONE)
