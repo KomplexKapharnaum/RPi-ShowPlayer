@@ -23,7 +23,7 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
             sleep 0.01
         else
             echo "Stopping previous dnc screen session..."
-            screen -X -S netctl quit
+            screen -X -S dnc quit
             sleep 3
         fi
     fi
