@@ -190,7 +190,7 @@ DEFAULT_SETTING["values"]["signaux"]["TTL"] = 5
 DEFAULT_SETTING["values"]["signaux"]["JTL"] = 2
 
 DEFAULT_SETTING["log"] = dict()
-DEFAULT_SETTING["log"]["level"] = "debug"
+DEFAULT_SETTING["log"]["level"] = "info"
 DEFAULT_SETTING["log"]["output"] = "Console"
 DEFAULT_SETTING["log"]["symb"] = dict()
 DEFAULT_SETTING["log"]["symb"]["tension"] = "T"
