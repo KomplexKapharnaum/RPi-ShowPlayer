@@ -58,6 +58,11 @@ trap quit SIGINT
 while (( running )); do
 	kill_zombies
 
+    # Maintenance
+    echo "Run Maintenance"
+    ./player/Scripts/maintenance.sh
+    cd /dnc
+
     # MAIN
 	echo "ShowPlayer Start"
     if ((DIRECT_INOUT)); then
