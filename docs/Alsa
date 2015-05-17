@@ -1,4 +1,6 @@
 # install
+# https://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture
+
 x=`pacman -Qs alsaequal`
 if [ -n "$x" ];  then 
 	echo "ALSAequal Installed";  
