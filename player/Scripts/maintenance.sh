@@ -21,7 +21,9 @@ fi
 #############################
 # Install ALSAequal
 #############################
+: <<'COMMENT'
 x=`pacman -Qs alsaequal`
+if 
 if [ -n "$x" ];  then 
     echo "ALSAequal Installed";  
 else 
@@ -34,4 +36,5 @@ else
     runuser -l pi -c 'cd /tmp/alsaequal; makepkg -s'
     pacman -U alsaequal-0.6-12-armv7h.pkg.tar.xz --noconfirm
 fi
+COMMENT
 #############################

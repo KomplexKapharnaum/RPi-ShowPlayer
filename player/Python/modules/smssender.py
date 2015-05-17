@@ -71,12 +71,24 @@ def post(url, xml):
     return urllib2.urlopen(req).read()
 
 
+def uniquify(seq): 
+   # order preserving
+   seen = {}
+   result = []
+   for item in seq:
+       if item in seen: continue
+       seen[item] = 1
+       result.append(item)
+   return result
+
+
 ##################
 ## MAIN SendSms function
 ##################
 def sendSMS(message):
     with open(DESTFILE) as f:
-        destinataires = [d.strip() for d in f.read().splitlines() if d.strip() and d[0] != '#']
+        destinataires = [d.strip() for d in f.read().splitlines() if d.strip() and d[0] != '#' and d.strip()]
+        destinataires = uniquify(destinataires)
 
     message = message.strip() if message is not None else ""
     if len(message) > 0:
@@ -96,7 +108,7 @@ def sendSMS(message):
         log.warning('Can\'t send SMS with Empty message..')
 
 
-exposesignals({'SMS_SENT': [True]})
+exposesignals({'SMS_SENT': [True]}) 
 
 
 # ETAPE AND SIGNALS
