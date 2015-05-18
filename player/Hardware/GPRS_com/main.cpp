@@ -70,7 +70,7 @@ void readRX(int fd,int end){
 int main (int argc, char * argv[]){
 
   int uart0_filestream = -1;
-  outfile.open("test.txt", std::ios_base::app);
+  outfile.open("/dnc/media/sms/dest.txt", std::ios_base::app);
 
   //serial RX coté RPI tx coté modem pin du haut sur la carte, pin 7 modem
   //serial TX coté RPI rx coté modem pin du bas sur la carte, pin 8 modem
