@@ -51,7 +51,8 @@ void readRX(int fd,int end){
        }
        }
        */
-      input+=serialGetchar (fd);
+      int t = serialGetchar (fd);
+      input+=t;
 
 
       if(t==end){
