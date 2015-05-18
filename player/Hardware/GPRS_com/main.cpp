@@ -53,8 +53,8 @@ void readRX(int fd,int end){
        }
        */
       int t = serialGetchar (fd);
-      
-      cout <<  t;
+
+      cout <<  (char)t;
       if(t==end){
         break;
         
