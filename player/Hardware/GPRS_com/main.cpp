@@ -22,12 +22,13 @@ void readRX(int fd,int end){
   if (fd != -1)
   {
     string input = "";
+    cout <<  "read" << endl;
     
     while(1){
       while(!serialDataAvail(fd));
       int t = serialGetchar (fd);
       input+=t;
-      cout << (char)t;
+      //cout << (char)t;
 
 
       if(t==end){
@@ -35,6 +36,12 @@ void readRX(int fd,int end){
         stringstream ss(input);
         while(getline(ss,input,'\n')){
             cout << endl << "line " << input << endl;
+            istringstream iss(input);
+            string word="";
+            input>>word;
+            if(word=="+CMT:"){
+                cout << word << "new sms" << endl;
+            }
         }
 
         break;
@@ -64,7 +71,7 @@ int main (int argc, char * argv[]){
   readRX(uart0_filestream,(int)'K');
   //
   delay(50);*/
-  cout <<  "read" << endl;
+
   
   
   bool live=true;
