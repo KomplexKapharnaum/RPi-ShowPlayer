@@ -33,7 +33,7 @@ void readRX(int fd,int end){
       //cout << (char)t;
 
 
-      if(t==end){
+      if(t=='\n'){
 
         stringstream ss(input);
         while(getline(ss,input,'\n')){
@@ -55,7 +55,6 @@ void readRX(int fd,int end){
             }
         }
 
-        break;
         
       }
       
