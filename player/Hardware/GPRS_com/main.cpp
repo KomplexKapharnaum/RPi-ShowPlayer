@@ -37,7 +37,7 @@ void readRX(int fd,int end){
             cout << endl << "line " << input << endl;
         }
 
-        return;
+        break;
         
       }
       
