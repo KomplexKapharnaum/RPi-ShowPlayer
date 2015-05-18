@@ -2,8 +2,8 @@ UNAME := $(shell uname)
 $(warning $(UNAME))
 UNAME_P := $(shell gcc -dumpmachine)
 $(warning $(UNAME_P))
-CC=gcc
-CFLAGS= -Wall
+CC=g++
+CFLAGS=-std=c++11 -Wall
 LDFLAGS=-lwiringPi
 EXEC=hardware
 
@@ -15,9 +15,9 @@ $(warning rpiA+/B+ -> build gsm6)
 EXEC=gsm6
 endif
 
-SRC= $(wildcard *.c)
-OBJ= $(SRC:.c=.o)
-H= $(SRC:.c=.h)
+SRC= $(wildcard *.cpp)
+OBJ= $(SRC:.cpp=.o)
+H= $(SRC:.cpp=.h)
 
 all: $(EXEC)
 
@@ -31,7 +31,7 @@ endif
 
 main.o: $(H)
 
-%.o: %.c
+%.o: %.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 .PHONY: clean mrproper
