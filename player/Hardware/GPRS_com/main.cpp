@@ -7,6 +7,11 @@
 #include <cstring>
 #include <sstream>
 #include <string>
+#include <algorithm>
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 
 using namespace std;
 
