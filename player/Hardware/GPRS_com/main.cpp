@@ -22,44 +22,19 @@ void readRX(int fd,int end){
   if (fd != -1)
   {
     string input = "";
-
-    //printf("\nnew read\n");
     
     while(1){
       while(!serialDataAvail(fd));
-      /*
-       // Read up to 255 characters from the port if they are there
-       unsigned char rx_buffer[256];
-       int rx_length = read(fd, (void*)rx_buffer, 255);		//Filestream, buffer to store in, number of bytes to read (max)
-       if (rx_length < 0)
-       {
-       //An error occured (will occur if there are no bytes)
-       printf("pb");
-       break;
-       }
-       else if (rx_length == 0)
-       {
-       printf("no data");
-       //No data waiting
-       break;
-       }
-       else
-       {
-       //Bytes received
-       rx_buffer[rx_length] = '\0';
-       printf("%i bytes read : %s\n", rx_length, rx_buffer);
-       }
-       }
-       */
       int t = serialGetchar (fd);
       input+=t;
+      cout << (char)t;
 
 
       if(t==end){
-        cout << "raw " <<  input;
+
         stringstream ss(input);
         while(getline(ss,input,'\n')){
-            cout << "line " << input;
+            cout << endl << "line " << input << endl;
         }
 
         return;
@@ -94,7 +69,7 @@ int main (int argc, char * argv[]){
   
   bool live=true;
   while(live){
-    //readRX(uart0_filestream,(int)'K');
+    readRX(uart0_filestream,(int)'K');
 
 
 
