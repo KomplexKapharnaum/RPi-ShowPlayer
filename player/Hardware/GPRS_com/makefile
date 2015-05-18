@@ -8,10 +8,10 @@ LDFLAGS=-lwiringPi
 EXEC=hardware
 
 ifneq (,$(filter armv7%,$(UNAME_P)))
-$(warning rpiB2 -> build hardware7)
+$(warning rpiB2 -> build gsm7)
 EXEC=gsm7
 else
-$(warning rpiA+/B+ -> build hardware6)
+$(warning rpiA+/B+ -> build gsm6)
 EXEC=gsm6
 endif
 
@@ -22,10 +22,10 @@ H= $(SRC:.c=.h)
 all: $(EXEC)
 
 ifneq (,$(filter armv7%,$(UNAME_P)))
-hardware7: $(OBJ)
+gsm7: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 else
-hardware6: $(OBJ)
+gsm6: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 endif
 
