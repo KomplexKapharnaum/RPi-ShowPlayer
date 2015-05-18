@@ -35,12 +35,21 @@ void readRX(int fd,int end){
 
         stringstream ss(input);
         while(getline(ss,input,'\n')){
-            cout << endl << "line " << input << endl;
-            istringstream iss(input);
-            string word="";
-            iss>>word;
-            if(word=="+CMT:"){
-                cout << word << "new sms" << endl;
+            if(input.length()>3){
+                cout << endl << "line " << input << endl;
+                istringstream iss(input);
+                string word="";
+                iss>>word;
+                if(word=="+CMT:"){
+                    cout << "new sms" << endl;
+                    iss >> word;
+                    stringstream ss(word);
+                    getline(ss,word,'"');
+                    cout << 1 << word;
+                    getline(ss,word,'"');
+                    cout << 2 << word;
+
+                }
             }
         }
 
