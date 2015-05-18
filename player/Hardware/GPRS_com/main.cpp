@@ -18,6 +18,7 @@
 
 #include "main.h"
 using namespace std;
+ofstream outfile;
 
 void readRX(int fd,int end){
   //----- CHECK FOR ANY RX BYTES -----
