@@ -55,10 +55,10 @@ int main (int argc, char * argv[]){
 
   //serial RX coté RPI tx coté modem pin du haut sur la carte, pin 7 modem
   //serial TX coté RPI rx coté modem pin du bas sur la carte, pin 8 modem
-  /*cout <<  "start gsm reader" << endl;
+  cout <<  "start gsm reader" << endl;
   uart0_filestream = serialOpen ("/dev/ttyAMA0", 19200);
   //serialPrintf (uart0_filestream, "AT+CMGR=1\r\n") ;
-  delay(5);
+  /*delay(5);
   //check sim comm
   serialPrintf (uart0_filestream, "ATI\r\n");
   readRX(uart0_filestream,(int)'K');
@@ -70,8 +70,6 @@ int main (int argc, char * argv[]){
   bool live=true;
   while(live){
     readRX(uart0_filestream,(int)'K');
-
-
 
   }
   
