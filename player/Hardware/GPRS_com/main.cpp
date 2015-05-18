@@ -38,7 +38,7 @@ void readRX(int fd,int end){
             cout << endl << "line " << input << endl;
             istringstream iss(input);
             string word="";
-            input>>word;
+            iss>>word;
             if(word=="+CMT:"){
                 cout << word << "new sms" << endl;
             }
