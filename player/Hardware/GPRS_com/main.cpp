@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <wiringSerial.h>
+#include <wiringPi.h>
+#include <wiringPiSPI.h>
 
 #include <iostream>
 #include <fstream>
