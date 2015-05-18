@@ -21,9 +21,8 @@ void readRX(int fd,int end){
   //----- CHECK FOR ANY RX BYTES -----
   if (fd != -1)
   {
-    printf("IN %i : ",end);
-    int count =0;
-    int rx_buffer[256];
+    string input = "";
+
     //printf("\nnew read\n");
     
     while(1){
@@ -52,11 +51,17 @@ void readRX(int fd,int end){
        }
        }
        */
-      int t = serialGetchar (fd);
+      input+=serialGetchar (fd);
 
-      cout <<  (char)t;
+
       if(t==end){
-        break;
+        cout << "raw " <<  input;
+        stringstream ss(input);
+        while(getline(ss,input,'\n')){
+            cout << "line " << input;
+        }
+
+        return;
         
       }
       
@@ -89,9 +94,8 @@ int main (int argc, char * argv[]){
   bool live=true;
   while(live){
     //readRX(uart0_filestream,(int)'K');
-    string input;
-    getline(uart0_filestream,input);
-    cout << "in : " << input << endl;
+
+
 
   }
   
