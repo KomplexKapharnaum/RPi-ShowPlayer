@@ -79,7 +79,7 @@ int main (int argc, char * argv[]){
   //serialPrintf (uart0_filestream, "AT+CMGR=1\r\n") ;
   delay(5);
   //check sim comm
-  serialPrintf (uart0_filestream, "ATI\r");
+  serialPrintf (uart0_filestream, "ATI\r\n");
   readRX(uart0_filestream,(int)'K');
   //
   delay(50);
