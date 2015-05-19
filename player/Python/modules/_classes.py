@@ -259,6 +259,7 @@ class ExternalProcessFlag(ExternalProcess):
         self._stdout_thread.join(*args, **kwargs)
 
     def transTo(self, cmd=None, args=[]):
+        log.log("debug", "TransTo : {0}, {1}".format(cmd, args))
         if len(args) > 0:
             cmd[0] = args[0]
             self.emmit(cmd)
