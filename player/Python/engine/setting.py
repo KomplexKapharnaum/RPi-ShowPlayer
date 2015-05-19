@@ -178,6 +178,7 @@ DEFAULT_SETTING["values"]["types"]["str"] = ""
 DEFAULT_SETTING["values"]["signaux"] = dict()
 DEFAULT_SETTING["values"]["signaux"]["TTL"] = 5
 DEFAULT_SETTING["values"]["signaux"]["JTL"] = 2
+DEFAULT_SETTING["values"]["vlc"] = dict()
 DEFAULT_SETTING["values"]["vlc"]["mediavolume"] = 100
 DEFAULT_SETTING["values"]["vlc"]["media"] = ""
 DEFAULT_SETTING["values"]["vlc"]["repeat"] = False
