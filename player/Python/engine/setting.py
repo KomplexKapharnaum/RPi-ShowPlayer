@@ -103,6 +103,7 @@ DEFAULT_SETTING["vlc"]["options"]["video"] = {
 
 DEFAULT_SETTING["vlc"]["volume"] = dict()
 DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 % (~=256)
+DEFAULT_SETTING["vlc"]["volume"]["step"] = 10           # Step volume for volumeup volumedown
 DEFAULT_SETTING["vlc"]["volume"]["scenes"] = dict()     # Master scene volume for VLC 100 = 100 % (~=256) #TODO
 
 DEFAULT_SETTING["sync"] = dict()
@@ -188,6 +189,10 @@ DEFAULT_SETTING["values"]["types"]["str"] = ""
 DEFAULT_SETTING["values"]["signaux"] = dict()
 DEFAULT_SETTING["values"]["signaux"]["TTL"] = 5
 DEFAULT_SETTING["values"]["signaux"]["JTL"] = 2
+DEFAULT_SETTING["values"]["vlc"]["mediavolume"] = 100
+DEFAULT_SETTING["values"]["vlc"]["media"] = ""
+DEFAULT_SETTING["values"]["vlc"]["repeat"] = False
+DEFAULT_SETTING["values"]["vlc"]["volume"] = 100
 
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "info"

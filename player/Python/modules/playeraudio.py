@@ -89,7 +89,7 @@ class Mpg123(ExternalProcess):
 
 # ETAPE AND SIGNALS
 @module('AudioPlayer')
-@link({"/audio/play [media:str] [repeat:bool]": "audio_play",
+@link({"/audio/play [media:str] [repeat:bool] [volume:int]": ["audio_play", settings.get("values", "vlc")],
         "/audio/pause": "audio_pause",
         "/audio/stop": "audio_stop",
         "/audio/volumeup": "audio_volume_up",
