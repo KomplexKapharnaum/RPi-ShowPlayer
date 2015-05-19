@@ -11,6 +11,7 @@
 *.aac
 *.m4a
 *.ac3
+dest.txt
 
 #SCENARIO ARCHIVES
 *.tar

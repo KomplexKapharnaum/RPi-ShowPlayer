@@ -14,7 +14,8 @@ from libs import subprocess32
 
 log = init_log("setting")
 
-DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+# DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+DEFAULT_SETTING_PATH = "~/dnc_settings/"
 
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
@@ -27,25 +28,12 @@ DEFAULT_SETTING["localport"]["interface"] = 8080
 
 DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
-#DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
-#DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
-
-#DEFAULT_SETTING["path"]["media"] = "/dnc/media"
-#DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
-#DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
-#DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["cp"] = "/usr/bin/cp"
 DEFAULT_SETTING["path"]["umount"] = "/usr/bin/umount"
 DEFAULT_SETTING["path"]["mount"] = "/usr/bin/mount"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
-# DEFAULT_SETTING["path"]["usb"] = "/dnc/usb"
-# DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
-# DEFAULT_SETTING["path"]["activescenario"] = "/dnc/scenario/__active"
 DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
-# DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hardware6"
-# DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
-# DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlc"] = "/usr/local/bin/cvlc"
@@ -55,8 +43,6 @@ DEFAULT_SETTING["path"][
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["amixer"] = "/usr/bin/amixer set PCM"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
-# DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
-# DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
 
 DEFAULT_SETTING["path"]["relative"] = dict()  # Relatives path from path:main
 DEFAULT_SETTING["path"]["relative"]["usb"] = "usb"
@@ -75,14 +61,22 @@ DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
-DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "devices.json"
-DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "devicesV2.json"
+DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "settings/devices.json"
+DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "settings/devicesV2.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
 DEFAULT_SETTING["path"]["relative"]["video"] = "video"
 DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
 DEFAULT_SETTING["path"]["relative"]["text"] = "text"
 DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
 
+# SMS
+DEFAULT_SETTING["path"]["relative"]["sms_destlist"] = "media/sms/dest.txt"
+DEFAULT_SETTING["sms"] = dict()
+DEFAULT_SETTING["sms"]["server"] = "http://highpush-v50.hcnx.eu/api"
+DEFAULT_SETTING["sms"]["account"] = "EUREKA"
+DEFAULT_SETTING["sms"]["password"] = ""  # Set Me in Local config file to avoid GitHub Leak ;)
+
+# VLC
 DEFAULT_SETTING["vlc"] = dict()
 DEFAULT_SETTING["vlc"]["options"] = dict()
 DEFAULT_SETTING["vlc"]["options"]["default"] = {
@@ -94,13 +88,8 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
     "gain": 1,
     "again": 1
 }
-DEFAULT_SETTING["vlc"]["options"]["audio"] = {
-    "vout": "none"
-}
-DEFAULT_SETTING["vlc"]["options"]["video"] = {
-    "vout": "mmal_vout"
-}
-
+DEFAULT_SETTING["vlc"]["options"]["audio"] = {"vout": "none"}
+DEFAULT_SETTING["vlc"]["options"]["video"] = {"vout": "mmal_vout"}
 DEFAULT_SETTING["vlc"]["volume"] = dict()
 DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 % (~=256)
 DEFAULT_SETTING["vlc"]["volume"]["step"] = 10           # Step volume for volumeup volumedown
@@ -253,23 +242,53 @@ class Settings(dict):
         self._path = path
         self.correctly_load = None
         dict.__init__(self, DEFAULT_SETTING)
-        try:
-            with open(path, 'r') as fp:
+
+        ### NEW: scan le dossier de settings locaux et importe tous les json trouvés
+        
+        # Liste les fichiers à traiter (recursif si dossier fourni)
+        files = list()
+        if os.path.isdir(path):
+            for local_set in os.listdir(path):
+                if local_set.endswith(".json"):
+                    files.append(os.path.join(path,local_set))
+        elif os.path.isfile(path):
+            files.append(path)
+        else:
+            log.error("File not found : {0}".format(path))
+            self.correctly_load = False
+
+        # Importe les settings pour tous les fichiers concernés
+        for f_path in files:
+            with open(f_path, 'r') as fp:
                 try:
                     self.update(json.load(fp))
                     log.info("Settings loaded from {0}".format(path))
-                    self.correctly_load = True
+                    if self.correctly_load is None:
+                        self.correctly_load = True
                 except Exception as e:
                     log.error("Could not load settings at {0}".format(path))
                     log.exception(log.show_exception(e))
                     self.correctly_load = False
-        except IOError:
-            log.info("No settings found at path {0}, create one".format(path))
-            with open(path, 'wr') as fp:
-                Settings.__init__(self)  # Restart loading settings
-        except json.scanner.JSONDecodeError as e:
-            log.error("Could not load settings : {0}".format(e))
-            self.correctly_load = False
+
+        ### OLD: ancien fonctionnement avec un seul fichier local de setting
+        # try:
+        #     with open(path, 'r') as fp:
+        #         try:
+        #             self.update(json.load(fp))
+        #             log.info("Settings loaded from {0}".format(path))
+        #             self.correctly_load = True
+        #         except Exception as e:
+        #             log.error("Could not load settings at {0}".format(path))
+        #             log.exception(log.show_exception(e))
+        #             self.correctly_load = False
+        # except IOError:
+        #     log.info("No settings found at path {0}, create one".format(path))
+        #     with open(path, 'wr') as fp:
+        #         Settings.__init__(self)  # Restart loading settings
+        # except json.scanner.JSONDecodeError as e:
+        #     log.error("Could not load settings : {0}".format(e))
+        #     self.correctly_load = False
+
 
     def save(self):
         return self._save(self._path, "w")
