@@ -55,7 +55,7 @@ class AudioVLCPlayer(AbstractVLC):
         return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "audio"), media))
 
 
-exposesignals(AudioVLCPlayer.Filters)
+exposesignals(FILTERS)
 
 
 # MPG123 AUDIO PLAYER CLASS

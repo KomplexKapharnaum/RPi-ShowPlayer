@@ -122,7 +122,7 @@ class VideoVLCPlayer(AbstractVLC):
 #             self.command += self.media
 #             self.start()
 
-exposesignals(VideoVLCPlayer.Filters)
+exposesignals(FILTERS)
 
 
 
