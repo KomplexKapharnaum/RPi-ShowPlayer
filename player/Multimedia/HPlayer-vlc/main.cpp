@@ -11,6 +11,7 @@ using std::string;
 using std::getline;
 using std::cout;
 using std::cin;
+using std::endl;
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -63,19 +64,19 @@ int main(int argc, char* argv[])
 		else if (command == "repeat") {
 			if (argument == "1") player->setRepeat(true);
 			else if (argument == "0") player->setRepeat(false);
-			else cout << "#ERROR_REPEAT " << argument << "\n";
+			else cout << "#ERROR_REPEAT " << argument << endl;
 		}
 		else if (command == "volume") 
 		{
 			std::string::size_type sz;
 			int vol = atoi(argument.c_str());
 			if (vol >= 0 and vol <= 200) player->setVolume(vol);
-			else cout << "#ERROR_VOLUME " << argument << "\n";
+			else cout << "#ERROR_VOLUME " << argument << endl;
 		}
 		else if (command == "volup") player->volumeUp();
 		else if (command == "voldown") player->volumeDown();
 		else {
-			cout << "Unknown command: " << command << " with arg: " << argument << "\n";
+			cout << "Unknown command: " << command << " with arg: " << argument << endl;
 		}
 
 	}
