@@ -127,7 +127,7 @@ exposesignals(VideoVLCPlayer.Filters)
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
-@link({"/video/play [media:str] [repeat:bool]": "video_play",
+@link({"/video/play [media:str] [repeat:bool] [volume:int]": "video_play",
        "/video/pause": "video_pause",
        "/video/resume": "video_resume",
        "/video/toggle": "video_toggle",

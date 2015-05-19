@@ -129,7 +129,8 @@ class ExternalProcess(object):
             self._log("debug", 'SIGTERM')
         except Exception as e:
             self._log("debug", "Cannot sigterm")
-        self._stdout_thread.join(timeout=settings.get("speed", "wait_before_kill"))  # Waiting maximum of 250 ms before killing brutaly the processus
+        self._stdout_thread.join(timeout=settings.get("speed",
+                                                      "wait_before_kill"))  # Waiting maximum of 250 ms before killing brutaly the processus
         if self._stdout_thread.is_alive():
             self._popen.kill()  # Send SIGNKILL to brutaly kill the process
             self._log("debug", 'KILLED')
@@ -188,7 +189,7 @@ class ExternalProcess(object):
         for line in stdout_iterator:
             self._log("important", "stdout : {0}".format(line.strip()))
             self.stdout_queue.put_nowait(line.strip())
-        self.stdout_queue.put_nowait(None)              # Stop queue consumers
+        self.stdout_queue.put_nowait(None)  # Stop queue consumers
 
     def _defunctdog(self):
         """
@@ -243,9 +244,9 @@ class ExternalProcessFlag(ExternalProcess):
         self._is_running.wait()
         while self._is_running.is_set():
             msg = self.stdout_queue.get()
-            if msg is None or len(msg) < 1:                 # It's time to stop
+            if msg is None or len(msg) < 1:  # It's time to stop
                 break
-            if msg[0] == "#":                               # It's a signal from the kxkmcard program
+            if msg[0] == "#":  # It's a signal from the kxkmcard program
                 self.onEvent(msg[1:].split(' '))
             else:
                 self._log("warning", "unknown stdout line {0}".format(msg))
@@ -257,7 +258,7 @@ class ExternalProcessFlag(ExternalProcess):
         ExternalProcess.join(self, *args, **kwargs)
         self._stdout_thread.join(*args, **kwargs)
 
-    def onEvent(self, cmd=[]):        # TODO : doc or change implmentation
+    def onEvent(self, cmd=[]):  # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
         self._log("raw", "cmd : {0}".format(cmd))
         doEmmit = True
@@ -275,7 +276,7 @@ class ExternalProcessFlag(ExternalProcess):
         if doEmmit:
             self.emmit(cmd)
 
-    def emmit(self, args=[]):   # TODO : doc or change implementation
+    def emmit(self, args=[]):  # TODO : doc or change implementation
         signal_name = args[0].upper()
         if signal_name[0] == '/':
             signal_name = signal_name.replace('/', '_')[1:].upper()
@@ -345,7 +346,10 @@ class AbstractVLC(ExternalProcessFlag):
     """
     This class represent a VLC player
     """
+
     def __init__(self, *args, **kwargs):
+        self._volume = 100  # Set volume to 100 %
+        self._media_volume = 100  # Set volume media to 100 %
         ExternalProcessFlag.__init__(self, *args, **kwargs)
 
     def _stop_process(self):
@@ -389,12 +393,28 @@ class AbstractVLC(ExternalProcessFlag):
         """
         self._direct_stdin_writer("repeat {0}".format(int(value)))
 
-    def play(self):
+    def play(self, volume=100):
         """
         Start VLC on the last added media
+        :param volume: Volume to play the media (100 = 100%)
+        :type volume: int
         """
         # self.stdin_queue.put("play")
         self._direct_stdin_writer("play")
+        self._media_volume = volume
+        self._update_volume()
+
+    def _update_volume(self):
+        """
+        This function update the volume of the current VLC player with all volume level
+        :return:
+        """
+        volume = float(self._volume * self._media_volume * settings.get("vlc", "volume", "master") / 1000000)
+        if volume > 100:
+            volume = 100
+        elif volume < 0:
+            volume = 0
+        self.stdin_queue.put_nowait("volume {0}".format(volume))
 
     def toggle_pause(self):
         """
@@ -428,27 +448,32 @@ class AbstractVLC(ExternalProcessFlag):
          :return: Absolute volume for VLC between 0 and 1024
          :rtype: int
         """
-        return int(float(settings.get("vlc", "volume", "master")) * (float(volume)/100))
+        return int(float(settings.get("vlc", "volume", "master")) * (float(volume) / 100))
 
     def set_volume(self, volume):
         """
         This function set the volume of the current played file
-         :param volume: Relative volume value betwenn 0 and 200 ( percent )
+         :param volume: Relative volume value betwenn 0 and 100 ( percent )
          :type volume: int
         """
-        self.stdin_queue.put_nowait("volume {0}".format(self._get_volume_value(volume)))
+        self._volume = volume
+        self._update_volume()
 
     def volume_up(self):
         """
         This function add one step of volume. Volume step are defined in vlc command settings
         """
-        self.stdin_queue.put("volup")
+        self._volume += settings.get("vlc", "volume", "step")
+        self._update_volume()
+        # self.stdin_queue.put("volup")
 
     def volume_down(self):
         """
         This function sub one step of volume. Volume step are defined in vlc command settings
         """
-        self.stdin_queue.put("voldown")
+        self._volume -= settings.get("vlc", "volume", "step")
+        self._update_volume()
+        # self.stdin_queue.put("voldown")
 
 
 # GENERIC THREAD TO HANDLE EXTERNAL PROCESS
@@ -530,7 +555,6 @@ class _ExternalProcess(object):
         :return:
         """
         self._stdin_queue.put_nowait(None)  # Release thread
-
 
     def stop(self):
         """
