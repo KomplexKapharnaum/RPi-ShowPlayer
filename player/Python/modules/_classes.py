@@ -420,7 +420,7 @@ class AbstractVLC(ExternalProcessFlag):
         log.debug("self._volume : {0}, type : {1}".format(self._volume, type(self._volume)))
         log.debug("self._media_volume : {0}, type : {1}".format(self._media_volume, type(self._media_volume)))
         log.debug("setting volume : {0}, type : {1}".format(settings.get("vlc", "volume", "master"), type(settings.get("vlc", "volume", "master"))))
-        volume = float(self._volume * self._media_volume * settings.get("vlc", "volume", "master") / 10000)
+        volume = float(int(self._volume) * int(self._media_volume) * int(settings.get("vlc", "volume", "master")) / 10000)
         if volume > 100:
             volume = 100
         elif volume < 0:
