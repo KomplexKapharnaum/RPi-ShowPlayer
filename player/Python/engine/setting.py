@@ -42,6 +42,7 @@ DEFAULT_SETTING["path"][
     "vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd"  # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["amixer"] = "/usr/bin/amixer set PCM"
+DEFAULT_SETTING["path"]["alsaequal"] = "amixer -D equal"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 
 DEFAULT_SETTING["path"]["relative"] = dict()  # Relatives path from path:main
@@ -220,6 +221,9 @@ DEFAULT_SETTING["sys"]["raspi"] = True  # This settings is for debug, if raspi i
 DEFAULT_SETTING["sys"]["ref_volume"] = 0  # Set the default system volume to 0dB (no negative !)
 DEFAULT_SETTING["sys"]["volume"] = 0  # Set the volume difference with the reference (in dB) can be neg
 DEFAULT_SETTING["sys"]["vlc_volume"] = 512  # Default vlc volume. 512 = 100%
+DEFAULT_SETTING["sys"]["alsaequal"] = [65, 65, 65, 65, 65, 65, 65, 65, 65, 65]
+                                                # AlsaEqual profile / max:100 - FLAT: [65, 65, 65, 65, 65, 65, 65, 65, 65, 65]
+                                                # Replace value by a tuple to set different values for Right/Left
 
 DEFAULT_SETTING["speed"] = dict()
 DEFAULT_SETTING["speed"]["thread_check_interval"] = 0.1     # Check thread interval

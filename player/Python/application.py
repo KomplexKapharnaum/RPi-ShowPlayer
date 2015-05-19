@@ -28,6 +28,7 @@ def init(autoload=True):
     k.start()
     # SET SYSTEM VOLUME
     alsa.set_absolute_amixer()
+    alsa.set_alsaequal_profile()
     # INIT THREAD
     engine.threads.init()
     # LOAD SUPER-MODULES IN ENGINE
