@@ -417,6 +417,9 @@ class AbstractVLC(ExternalProcessFlag):
         This function update the volume of the current VLC player with all volume level
         :return:
         """
+        log.debug("self._volume : {0}, type : {1}".format(self._volume, type(self._volume)))
+        log.debug("self._media_volume : {0}, type : {1}".format(self._media_volume, type(self._media_volume)))
+        log.debug("setting volume : {0}, type : {1}".format(settings.get("vlc", "volume", "master"), type(settings.get("vlc", "volume", "master"))))
         volume = float(self._volume * self._media_volume * settings.get("vlc", "volume", "master") / 10000)
         if volume > 100:
             volume = 100
