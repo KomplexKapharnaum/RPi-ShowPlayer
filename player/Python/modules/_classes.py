@@ -425,7 +425,7 @@ class AbstractVLC(ExternalProcessFlag):
             volume = 100
         elif volume < 0:
             volume = 0
-        self.stdin_queue.put_nowait("volume {0}".format(volume))
+        self.stdin_queue.put_nowait("volume {0}".format(int(volume)))
 
     def toggle_pause(self):
         """
