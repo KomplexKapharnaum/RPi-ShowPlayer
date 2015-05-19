@@ -258,6 +258,13 @@ class ExternalProcessFlag(ExternalProcess):
         ExternalProcess.join(self, *args, **kwargs)
         self._stdout_thread.join(*args, **kwargs)
 
+    def transTo(self, cmd=None, args=[]):
+        if len(args) > 0:
+            cmd[0] = args[0]
+            self.emmit(cmd)
+            return False
+        return True
+
     def onEvent(self, cmd=[]):  # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
         self._log("raw", "cmd : {0}".format(cmd))

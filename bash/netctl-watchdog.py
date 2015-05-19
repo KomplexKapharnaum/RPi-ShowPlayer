@@ -30,16 +30,16 @@ def log(msg):
 
 def restart_netctl():
 	global no_signal, bad_signal, sleeptime
-	subprocess.Popen("systemctl restart netctl-auto@wlan0.service", shell=True)
+	subprocess.Popen("systemctl restart netctl-auto@wlan0.service", shell=True)      # TODO replace POPEN by check_output to avoid defunct
 	time.sleep(15)
 	no_signal=0
 	bad_signal=0
 	sleeptime=SleepTimeNormal
 	
-def physicals():
+def physicals():    # TODO replace POPEN by check_output to avoid defunct
 	return [x for x in subprocess.Popen("iw list | grep Wi", shell=True, stdout=subprocess.PIPE).stdout.read().split("\n") if x]
 	
-def devices():
+def devices():      # TODO replace POPEN by check_output to avoid defunct
 	return [x for x in subprocess.Popen("ifconfig | grep wlan | awk '{print $1}' | sed 's/.$//'", shell=True, stdout=subprocess.PIPE).stdout.read().split() if x]
 
 def goodSignal():
@@ -108,7 +108,7 @@ while not DONE:
 	# Check SIGNAL
 	else:
 		for d in dev:
-			signal = subprocess.Popen("iw wlan0 link | grep signal | awk '{print $2}'", shell=True, stdout=subprocess.PIPE).stdout.read()
+			signal = subprocess.Popen("iw wlan0 link | grep signal | awk '{print $2}'", shell=True, stdout=subprocess.PIPE).stdout.read()  # TODO replace POPEN by check_output to avoid defunct
 			if signal and int(signal) < 0:
 				if int(signal) >= SignalTreshold:
 					goodSignal()

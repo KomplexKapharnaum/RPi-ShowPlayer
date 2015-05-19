@@ -241,13 +241,6 @@ class KxkmCard(ExternalProcessFlag):
         self.say('info -status {status}'.format(status='yeah!'))
         return False
 
-    def transTo(self, cmd=None, args=[]):
-        if len(args) > 0:
-            cmd[0] = args[0]
-            self.emmit(cmd)
-            return False
-        return True
-
     def testRoutine(self, cmd=None):
         self.say('testroutine -nbr 2')
         return True
