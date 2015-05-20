@@ -235,7 +235,7 @@ class BaseLog:
             log_teleco(msg, "log")
         self.logger.info(msg)
 
-    def important(self, msg=""):
+    def raw(self, msg=""):
         """
         Pass an info level log message (Numeric value: 20)
 
