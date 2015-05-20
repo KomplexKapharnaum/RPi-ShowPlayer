@@ -339,7 +339,7 @@ def parse_timeline(timeline):
             if frame_block['group'] is not None:
                 Timeline[frame].groups[frame_block['group']].append(pool.Cartes[dispo['name']])
             else:
-                log.warning("..There is no frame {0}({1}) for {2}".format(frame, scene['name'], dispo['name']))
+                log.raw("..There is no frame {0}({1}) for {2}".format(frame, scene['name'], dispo['name']))
                 continue
             # Init start_etape for dispo
             if dispo['name'] not in Timeline[frame].start_etapes.keys():
