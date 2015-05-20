@@ -177,7 +177,7 @@ class ExternalProcess(object):
         with self._stdin_lock:
             msg += "\n"
             m = msg.encode("utf-8")
-            self._log("debug", "write to stdin : {0}".format(m))
+            self._log("raw", "write to stdin : {0}".format(m))
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
@@ -187,7 +187,7 @@ class ExternalProcess(object):
         self._is_launched.wait()
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
-            self._log("debug", "stdout : {0}".format(line.strip()))
+            self._log("raw", "stdout : {0}".format(line.strip()))
             self.stdout_queue.put_nowait(line.strip())
         self.stdout_queue.put_nowait(None)  # Stop queue consumers
 
