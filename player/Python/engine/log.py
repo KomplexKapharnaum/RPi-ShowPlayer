@@ -245,6 +245,20 @@ class BaseLog:
         """
 
         try:
+            self.logger.log(LEVELS['raw'], msg)
+        except KeyError:
+            self.debug("Level name " + 'raw' + " unknown. Message : " + str(msg))
+
+    def important(self, msg=""):
+        """
+        Pass an info level log message (Numeric value: 20)
+
+        @type   msg: string
+        @param  msg: The message to pass
+
+        """
+
+        try:
             self.logger.log(LEVELS['important'], msg)
         except KeyError:
             self.debug("Level name " + 'important' + " unknown. Message : " + str(msg))

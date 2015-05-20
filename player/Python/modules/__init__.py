@@ -124,7 +124,7 @@ def parse_arg_from_type(arg, types):
     :return:
     """
     try:
-        log.debug("Parsing {0} of type {1} ..".format(arg, types))
+        log.raw("Parsing {0} of type {1} ..".format(arg, types))
         if types == "str":
             # log.warning("parsing str is not implemented")
             try:
@@ -143,7 +143,7 @@ def parse_arg_from_type(arg, types):
     except Exception as e:
         log.error("Error during parsing {0} of type {1}".format(arg, types))
         log.error(log.show_exception(e))
-    log.debug("End parsing {0} of type {1}".format(arg, types))
+    log.raw("End parsing {0} of type {1}".format(arg, types))
     return arg
 
 
@@ -171,17 +171,17 @@ def parse_args_etape_function(kwargs, args, types, default):
             continue
         if kwargs[arg_name] is None:  # There is no value.. searching for a default one
             if arg_name in default.keys():  # There is one default
-                log.debug("Taking default value <{1}> for <{0}>".format(arg_name, default[arg_name]))
+                log.raw("Taking default value <{1}> for <{0}>".format(arg_name, default[arg_name]))
                 kwargs[arg_name] = default[arg_name]
                 continue
             elif type_name in settings.get("values", "types"):
-                log.debug("Taking default types {1} value for {0}".format(arg_name,
+                log.raw("Taking default types {1} value for {0}".format(arg_name,
                                                                           settings.get("values", "types", type_name)))
                 kwargs[arg_name] = settings.get("values", "types", type_name)
                 continue
             else:
                 kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)
-                log.warning("Set parameter {0} to {1}, because he was nonn, it's can be unwanted".format(arg_name, kwargs[arg_name]))
+                log.warning("Set parameter {0} to {1}, because he was none, it's can be unwanted".format(arg_name, kwargs[arg_name]))
                 continue
         else:
             kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)
