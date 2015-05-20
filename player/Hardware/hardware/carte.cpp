@@ -71,6 +71,7 @@ void Carte::writeValue(int valueType,int value, int fadetime){
     buff[3]= (char)fadetime;
   }
   SPIcarte.send(0,buff,size);
+  delay(1);
 }
 
 //read value from carte register
@@ -196,12 +197,9 @@ float Carte::checkTension(){
 void Carte::rgbValue(int r, int v, int b, int fadetime, int strob){
   if(strob!=0)fadetime=0; else writeValue(LEDRVBSTROBSPEED,0);
   writeValue(LEDRVALUE,r,fadetime);
-  delay(1);
   writeValue(LEDVVALUE,v,fadetime);
-  delay(1);
   writeValue(LEDBVALUE,b,fadetime);
   if(strob!=0){
-    delay(1);
     writeValue(LEDRVBSTROBSPEED,strob/10);
   }
 }
@@ -211,7 +209,6 @@ void Carte::led10WValue(int v, int fadetime, int strob){
   if(strob!=0)fadetime=0; else writeValue(LED10W1STROBSPEED,0);
   writeValue(LED10W1VALUE,v,fadetime);
   if(strob!=0){
-    delay(1);
     writeValue(LED10W1STROBSPEED,strob/10);
   }
 }
