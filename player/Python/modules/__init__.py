@@ -137,7 +137,7 @@ def parse_arg_from_type(arg, types):
         elif types == "float":
             arg = float(arg)
         elif types == "bool":
-            arg = bool(arg)
+            arg = arg.lower() in ['1','true','oui','yes','y','o']
         else:
             log.warning("parsing of {0} is not implemented at all".format(types))
     except Exception as e:
