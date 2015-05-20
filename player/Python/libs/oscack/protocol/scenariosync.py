@@ -54,7 +54,7 @@ def init_scenprotocol(flag):
     log.log("raw", "Parsed fs groups {0}".format(groups))
     if settings.get("current_timeline") in groups.keys() and len(groups[settings.get("current_timeline")]) > 0:
         current_newer_timeline = media.get_newer_scenario(groups[settings.get("current_timeline")])
-        log.log("debug", "Current timeline : {0}".format(current_newer_timeline))
+        log.log("important", "Current timeline : {0}".format(current_newer_timeline))
         message.send(BroadcastAddress, message.Message(OSC_PATH_SCENARIO_ASK,
                                                                         ('s', current_newer_timeline.group),
                                                                         ('s', current_newer_timeline.date)))
