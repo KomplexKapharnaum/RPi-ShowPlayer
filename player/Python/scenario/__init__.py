@@ -124,9 +124,12 @@ def start_scene():
 
 def stop_scene():
     stop_flag = fsm.Flag("SCENE_STOPPING", JTL=2, TTL=None)      # TODO : refactor this in an other place !
+    fsm_to_stop = list()
     for sfsm in SCENE_FSM:
         log.debug("stop and remove sfsm {0}".format(sfsm))
         sfsm.stop()
+        fsm_to_stop.append(sfsm)
+    for sfsm in fsm_to_stop:
         SCENE_FSM.remove(sfsm)
     for mfsm in MODULES_FSM:
         mfsm.append_flag(stop_flag.get())
