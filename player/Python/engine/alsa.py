@@ -32,10 +32,16 @@ def set_absolute_amixer():
     """
     if settings.get("sys", "raspi"):
         try:
+            FNULL = open(os.devnull, 'w')
             subprocess.check_call(shlex.split("{cmd} {value}dB".format(cmd=settings.get("path", "amixer"),
-                                                                       value=settings.get("sys", "ref_volume"))))
+                                                                       value=settings.get("sys", "ref_volume"))),
+                                                        stdout=FNULL)
+            FNULL.close()
+            FNULL = open(os.devnull, 'w')
             subprocess.check_call(shlex.split("{cmd} {value}".format(cmd=settings.get("path", "amixer"),
-                                                                     value=get_rel_dB(settings.get("sys", "volume")))))
+                                                                     value=get_rel_dB(settings.get("sys", "volume")))),
+                                                        stdout=FNULL)
+            FNULL.close()
         except subprocess.CalledProcessError as e:
             log.exception("Cannont set alsamixer volume")
             log.show_exception(e)
@@ -63,7 +69,7 @@ def set_alsaequal_profile():
                                                     .format(val=val, channel=chan, cmd=settings.get("path", "alsaequal"))),
                                                     stdout=FNULL)
                 chan+=1
-
+            FNULL.close()
         except subprocess.CalledProcessError as e:
             log.exception("Cannont set alsaequal EQ")
             log.show_exception(e)
