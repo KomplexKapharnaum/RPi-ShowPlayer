@@ -106,6 +106,7 @@ def start_scene():
                                     "Self" in action[1]["args"]["dest"] or settings.get("uName") in action[1]["args"]["dest"]):
                             fsm = classes.ScenarioFSM(etape.uid, source=scene.name)
                             fsm.start(etape)
+                            log.debug("add sfsm {0}".format(fsm))
                             SCENE_FSM.append(fsm)
                             break
                         else:
