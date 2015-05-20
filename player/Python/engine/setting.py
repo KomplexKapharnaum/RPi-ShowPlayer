@@ -57,11 +57,11 @@ DEFAULT_SETTING["path"]["relative"]["hplayer"] = "player/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["relative"]["interface"] = "player/Python/interface/bottleserver.py"
 DEFAULT_SETTING["path"]["relative"]["mvlc"] = "player/Multimedia/HPlayer-vlc/hplayer-vlc "
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
-    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache} "
+    "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache}"
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save "
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
-    "--gain {gain} --no-a52-dynrng --alsa-gain {again} "
+    "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
 DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "settings/devices.json"
 DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "settings/devicesV2.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"

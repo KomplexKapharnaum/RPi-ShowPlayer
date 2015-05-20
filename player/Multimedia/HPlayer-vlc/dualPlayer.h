@@ -44,4 +44,5 @@ class dualPlayer : public dualPlayerCallbacks
 		bool repeat;
 		libvlc_instance_t *instance;
 		pthread_t watcher;
+		pthread_t applyer;
 };
