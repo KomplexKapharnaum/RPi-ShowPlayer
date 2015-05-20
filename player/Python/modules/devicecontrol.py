@@ -81,16 +81,26 @@ def device_send_info_tension(flag, **kwargs):
     link_channel = "no channel"
     with open("/sys/class/thermal/thermal_zone0/temp") as file:
         cpu_temperature = float(file.read())/1000
-    link = subprocess.check_output(['iw', 'wlan0', 'link'])
-    links = link.splitlines()
-    for line in links:
-        if "signal:" in line:
-            link_signal=line
-    link = subprocess.check_output(['iw', 'wlan0', 'info'])
-    links = link.splitlines()
-    for line in links:
-        if "channel" in line:
-            link_channel = line
+    try:
+        link = subprocess.check_output(['iw', 'dev', 'wlan0', 'link'])
+        links = link.splitlines()
+        for line in links:
+            if "signal:" in line:
+                link_signal=line
+    except:
+        link_signal = ' ? '
+        log.warning('Can\'t retrieve Wlan0 signal power (iw dev wlan0 link)')
+
+    try:
+        link = subprocess.check_output(['iw', 'dev', 'wlan0', 'info'])
+        links = link.splitlines()
+        for line in links:
+            if "channel" in line:
+                link_channel = line
+    except:
+        link_channel = ' ? '
+        log.warning('Can\'t retrieve Wlan0 channel (iw dev wlan0 info)')
+
     power = "undefined power"
     if settings.get("uName") in devicesV2:
         power = devicesV2.get(settings.get("uName"), "tension")
