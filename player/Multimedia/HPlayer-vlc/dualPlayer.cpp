@@ -102,6 +102,7 @@ void dualPlayer::togglePause()
 
 void dualPlayer::applyVolume()
 {
+	
 	this->activePlayer()->setVolume(this->volume);
 	this->sparePlayer()->setVolume(this->volume);
 }
@@ -109,6 +110,7 @@ void dualPlayer::applyVolume()
 void dualPlayer::setVolume(int v)
 {
 	if (v >= 0 and v <= 200) this->volume = v;
+	cout << "#VOLUME" << this->volume << endl;
 	this->applyVolume();
 }
 
