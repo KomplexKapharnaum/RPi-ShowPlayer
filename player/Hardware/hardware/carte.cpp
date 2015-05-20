@@ -29,7 +29,7 @@
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   fprintf(stderr, "\n\x1b[32mcarte - add extension card dnc\n\x1b[0m");
   SPIcarte.initSPI();
-  SPIcarte.addChipSelect(13,1000000);
+  SPIcarte.addChipSelect(13,500000);
   gamme_tension=_gamme_tension;
   pwm_ledb_or_10w2=_pwm_ledb_or_10w2;
   wiringPiSetupGpio();
@@ -196,7 +196,9 @@ float Carte::checkTension(){
 void Carte::rgbValue(int r, int v, int b, int fadetime, int strob){
   if(strob!=0)fadetime=0; else writeValue(LEDRVBSTROBSPEED,0);
   writeValue(LEDRVALUE,r,fadetime);
+  delay(1);
   writeValue(LEDVVALUE,v,fadetime);
+  delay(1);
   writeValue(LEDBVALUE,b,fadetime);
   if(strob!=0){
     delay(1);
