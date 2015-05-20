@@ -128,7 +128,7 @@ exposesignals(FILTERS)
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
-@link({"/video/play [media:str] [repeat:bool]": "video_play", #do not set volume in play box because we do not want rewrite all the scenario
+@link({"/video/play [media:str] [repeat:bool] [volume:int]": "video_play",
        "/video/pause": "video_pause",
        "/video/resume": "video_resume",
        "/video/toggle": "video_toggle",
