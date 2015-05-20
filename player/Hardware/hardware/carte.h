@@ -81,6 +81,8 @@ private:
   float tension; //battery voltage
   int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT;
   int count_tensionbasse,count_tensioncoupure;
+  unsigned long long startchrono;
+  bool checkchrono;
 
   
 protected:
