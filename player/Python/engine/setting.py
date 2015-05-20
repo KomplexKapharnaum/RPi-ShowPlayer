@@ -14,8 +14,8 @@ from libs import subprocess32
 
 log = init_log("setting")
 
-DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
-# DEFAULT_SETTING_PATH = "~/dnc_settings/"
+# DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+DEFAULT_SETTING_PATH = "~/dnc_settings/"
 
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
