@@ -5,11 +5,11 @@ git fetch --all
 if [ $? -ne 0 ]; then
 WORKED="no";
 fi
-git checkout @1
+git reset --hard origin/@1
 if [ $? -ne 0 ]; then
 WORKED="no";
 fi
-git pull
+git pull origin/@1
 if [ $? -ne 0 ]; then
 WORKED="no";
 fi
