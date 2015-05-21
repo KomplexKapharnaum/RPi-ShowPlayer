@@ -92,7 +92,7 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
 DEFAULT_SETTING["vlc"]["options"]["audio"] = {"vout": "none"}
 DEFAULT_SETTING["vlc"]["options"]["video"] = {"vout": "mmal_vout"}
 DEFAULT_SETTING["vlc"]["volume"] = dict()
-DEFAULT_SETTING["vlc"]["volume"]["master"] = 50        # Master volume for VLC 100 = 100 % (~=256)
+DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 % (~=256)
 DEFAULT_SETTING["vlc"]["volume"]["step"] = 10           # Step volume for volumeup volumedown
 DEFAULT_SETTING["vlc"]["volume"]["scenes"] = dict()     # Master scene volume for VLC 100 = 100 % (~=256) #TODO
 
