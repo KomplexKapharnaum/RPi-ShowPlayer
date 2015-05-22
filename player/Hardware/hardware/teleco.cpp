@@ -310,5 +310,13 @@ int Teleco::readInterrupt(){
     default:
       break;
   }
+
+  buff[0]= (char)(READCOMMAND+T_INIT);
+  buff[1]=0;
+  SPIcarte.sendWithPause(0,buff,2);
+  if (buff[1]==0){
+    needstart=1;
+  }
+
   return valeur;
 }
