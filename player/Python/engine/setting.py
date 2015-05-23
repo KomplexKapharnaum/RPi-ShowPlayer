@@ -114,7 +114,7 @@ DEFAULT_SETTING["sync"]["usb_mount_timeout"] = 5  # 5 seconds max for mounting/u
 DEFAULT_SETTING["sync"]["netctl_autorestart"] = False  # 5 seconds max for mounting/unmounting usb device
 DEFAULT_SETTING["sync"]["usb_speed_min"] = 5000  # (Ko/s) Behind 5 Mo/s it's not intresting to usb usb sync
 DEFAULT_SETTING["sync"]["scp_speed_min"] = 500  # (Ko/s) Behind 100 Ko/s it's too slow for scp
-DEFAULT_SETTING["sync"]["protected_space"] = 20000  # (Ko) Space protected to keep the rest of the project safe
+DEFAULT_SETTING["sync"]["protected_space"] = 50000  # (Ko) Space protected to keep the rest of the project safe
 DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3  # Wait 3 sec, if no newer flag, we are update
 DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2  # 2 sec before remove mount point
 DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 15 sec before restart netctl after unplug usb storage device
@@ -136,7 +136,7 @@ DEFAULT_SETTING["scenario"]["JTL"] = 3                  # JTL default value for 
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
-DEFAULT_SETTING["media"]["usb_mount_timeout"] = 3  # 3 sec max for mount before killing it
+DEFAULT_SETTING["media"]["usb_mount_timeout"] = 5  # 3 sec max for mount before killing it
 
 DEFAULT_SETTING["OSC"] = dict()
 DEFAULT_SETTING["OSC"]["iamhere_interval"] = 60
@@ -156,13 +156,13 @@ DEFAULT_SETTING["rtp"]["accuracy_max_ns"] = 12000000  # 12 ms
 DEFAULT_SETTING["rtp"]["accuracy_factor"] = 1.05  # 5% per try
 
 DEFAULT_SETTING["ack"] = dict()
-DEFAULT_SETTING["ack"]["stack_recv"] = 256
+DEFAULT_SETTING["ack"]["stack_recv"] = 512
 DEFAULT_SETTING["ack"]["interval_critical"] = (0.010, 0.015, 0.020, 0.025, 0.050, 0.100, 0.100, 0.100, 0.100, 0.100)
 DEFAULT_SETTING["ack"]["interval_classical"] = (0.30, 0.50, 0.50, 0.50, 0.50, 0.100, 0.100, 0.100, 0.100, 0.250, 0.250)
 DEFAULT_SETTING["ack"]["interval_protocol"] = (0.75, 0.100, 0.125, 0.200, 0.500)
 DEFAULT_SETTING["ack"]["interval_short"] = (0.100, 0.150, 0.200)
-DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.150, 0.200, 0.500, 0.750)
-DEFAULT_SETTING["ack"]["interval_default_broadcast"] = (0.75, 0.100, 0.125, 0.200, 0.250, 0.300, 0.300, 0.500)
+DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.150, 0.200, 0.500, 0.750, 1.5,5,10)
+DEFAULT_SETTING["ack"]["interval_default_broadcast"] = (0.75, 0.100, 0.125, 0.200, 0.250, 0.300, 0.300, 0.500, 1.0, 1.5,5,10)
 
 DEFAULT_SETTING["values"] = dict()  # Dictionary for default values
 DEFAULT_SETTING["values"]["gyro"] = dict()
