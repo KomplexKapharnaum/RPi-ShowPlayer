@@ -140,6 +140,7 @@ def log_teleco(lines, page="log", encode="utf-8"):
     :return:
     """
     try:
+        log.warning("test log = {0},{1}".format(page,settings.get("log", "teleco", "active")))
         if settings.get("log", "teleco", "active") is not True and page == "log":
             return
         if not isinstance(lines, (list, tuple)):
