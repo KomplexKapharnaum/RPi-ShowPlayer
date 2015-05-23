@@ -101,7 +101,7 @@ def device_send_info_tension(flag, **kwargs):
         link_channel = ' ? '
         log.warning('Can\'t retrieve Wlan0 channel (iw dev wlan0 info)')
 
-    power = "undefined power"
+    power = "?"
     if settings.get("uName") in devicesV2:
         power = devicesV2.get(settings.get("uName"), "tension")
     scene_name = "NoScene"
