@@ -14,7 +14,6 @@ from engine.setting import settings
 from engine.log import init_log
 from engine.threads import patcher
 from engine.fsm import Flag
-from libs.unidecode import unidecode
 log = init_log("sms")
 
 URL = settings.get("sms", "server")
@@ -48,7 +47,7 @@ def makeXmlPush(destinataires, text, name="DO NOT CLEAN", mode=1, pretty=False):
     ## MESSAGE 
     message = SubElement(push, 'message', {'class_type': "{0}".format(mode)}) # Class Type : 0 = Flash // 1 = Normal
     content = SubElement(message, 'text')
-    content.text = text
+    content.text = unicode(text, "utf-8")
     for num in destinataires:
         to = SubElement(message, 'to', {'ret_id': "TO_"+num})
         to.text = num
