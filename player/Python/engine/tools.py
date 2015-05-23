@@ -140,7 +140,6 @@ def log_teleco(lines, page="log", encode="utf-8"):
     :return:
     """
     try:
-        log.warning("test log = {0},{1}".format(page,settings.get("log", "teleco", "active")))
         if settings.get("log", "teleco", "active") is not True and page == "log":
             return
         if not isinstance(lines, (list, tuple)):
@@ -245,6 +244,9 @@ class ThreadTeleco(threading.Thread):
                         else:
                             args["ligne2"] = ""
                         args["page"] = page
+                        if page == "error":     #TODO process error in fsm of popup rather than here
+                            args["ligne1"]="error"
+                            args["ligne2"]="no show"
                         engine.threads.patcher.patch(flag_popup.get(args=args))
                         if len(message) >= n + 1:
                             time.sleep(settings.get("log", "teleco", "autoscroll"))
