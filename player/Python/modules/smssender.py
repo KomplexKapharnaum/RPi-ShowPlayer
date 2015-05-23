@@ -16,6 +16,7 @@ from engine.threads import patcher
 from engine.fsm import Flag
 log = init_log("sms")
 
+
 URL = settings.get("sms", "server")
 ACCOUNT = settings.get("sms", "account")
 PASSWORD = settings.get("sms", "password")
@@ -47,7 +48,7 @@ def makeXmlPush(destinataires, text, name="DO NOT CLEAN", mode=1, pretty=False):
     ## MESSAGE 
     message = SubElement(push, 'message', {'class_type': "{0}".format(mode)}) # Class Type : 0 = Flash // 1 = Normal
     content = SubElement(message, 'text')
-    content.text = unicode(text, "utf-8")
+    content.text = text
     for num in destinataires:
         to = SubElement(message, 'to', {'ret_id': "TO_"+num})
         to.text = num
