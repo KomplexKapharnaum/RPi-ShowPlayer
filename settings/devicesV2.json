@@ -80,5 +80,7 @@
     "pl_57":{
         "ip":"2.0.2.57","infos":"poids lourd n°57","pi":"-","sd":"-","tension":"pb24","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"no"},
     "odeurs_58":{
-        "ip":"2.0.2.58","infos":"diffuseur odeur n°58","pi":"-","sd":"-","tension":"lipo12","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes"}
+        "ip":"2.0.2.58","infos":"diffuseur odeur n°58","pi":"-","sd":"-","tension":"lipo12","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes"},
+    "raspi2mgr":{
+        "ip":"2.0.2.138","infos":"carte de test ip de base","pi":"-","sd":"-","tension":"-","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes"}
 }
