@@ -14,6 +14,8 @@ from engine.setting import settings
 from engine.log import init_log
 from engine.threads import patcher
 from engine.fsm import Flag
+from libs.unidecode import unidecode
+
 log = init_log("sms")
 
 URL = settings.get("sms", "server")
@@ -91,7 +93,7 @@ def sendSMS(message):
         destinataires = [d.strip() for d in f.read().splitlines() if d.strip() and d[0] != '#' and d.strip()]
         destinataires = uniquify(destinataires)
 
-    message = message.strip() if message is not None else ""
+    message = message.decode("utf-8").strip() if message is not None else ""
     if len(message) > 0:
         if len(destinataires) > 0:
             ans = ""
