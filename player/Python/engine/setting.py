@@ -76,6 +76,7 @@ DEFAULT_SETTING["sms"] = dict()
 DEFAULT_SETTING["sms"]["server"] = "http://highpush-v50.hcnx.eu/api"
 DEFAULT_SETTING["sms"]["account"] = "EUREKA"
 DEFAULT_SETTING["sms"]["password"] = ""  # Set Me in Local config file to avoid GitHub Leak ;)
+DEFAULT_SETTING["sms"]["send"] = False #only one sender false by default
 
 # VLC
 DEFAULT_SETTING["vlc"] = dict()

@@ -20,6 +20,7 @@ URL = settings.get("sms", "server")
 ACCOUNT = settings.get("sms", "account")
 PASSWORD = settings.get("sms", "password")
 DESTFILE = settings.get_path("sms_destlist")
+SEND = settings.get("sms", "send")
 
 
 ############
@@ -86,26 +87,30 @@ def uniquify(seq):
 ## MAIN SendSms function
 ##################
 def sendSMS(message):
-    with open(DESTFILE) as f:
-        destinataires = [d.strip() for d in f.read().splitlines() if d.strip() and d[0] != '#' and d.strip()]
-        destinataires = uniquify(destinataires)
+    if SEND:
+        with open(DESTFILE) as f:
+            destinataires = [d.strip() for d in f.read().splitlines() if d.strip() and d[0] != '#' and d.strip()]
+            destinataires = uniquify(destinataires)
 
-    message = message.strip() if message is not None else ""
-    if len(message) > 0:
-        if len(destinataires) > 0:
-            ans = post(URL, makeXmlPush(destinataires, message))
-            ans = '{0}'.format(ans)
-            if ans.isdigit():
-                log.log('important', 'SMS sent successfully with code: {0}'.format(ans))
-                patcher.patch( Flag('SMS_SENT').get() )
+        message = message.strip() if message is not None else ""
+        if len(message) > 0:
+            if len(destinataires) > 0:
+                ans = post(URL, makeXmlPush(destinataires, message))
+                ans = '{0}'.format(ans)
+                if ans.isdigit():
+                    log.log('important', 'SMS sent successfully with code: {0}'.format(ans))
+                    patcher.patch( Flag('SMS_SENT').get() )
+                else:
+                    log.warning('SMS failed to send: {0}'.format(ans))
+                    if ans == 'BAD PASSWORD':
+                        log.warning('Don\'t forget to set password in the local config file! (sms->password)')
             else:
-                log.warning('SMS failed to send: {0}'.format(ans))
-                if ans == 'BAD PASSWORD':
-                    log.warning('Don\'t forget to set password in the local config file! (sms->password)')
+                log.warning('Can\'t send SMS, no dest found in {0}'.format(DESTFILE))
         else:
-            log.warning('Can\'t send SMS, no dest found in {0}'.format(DESTFILE))
+            log.warning('Can\'t send SMS with Empty message..')
+
     else:
-        log.warning('Can\'t send SMS with Empty message..')
+        log.warning('Sending is disable')
 
 
 exposesignals({'SMS_SENT': [True]}) 
