@@ -1,1 +1,1 @@
-{"boxes":[],"connections":[],"origins":[]}
+{"boxes":[{"name":"TEMP","boxname":"box1","category":"AUDIO","positionX":111,"positionY":46,"dispoBOO":false,"arguments":{"arg1":null,"arg2":null,"arg3":null},"allArgs":{"arg1":null,"arg2":null,"arg3":null}},{"name":"TEMP","boxname":"box2","category":"AUDIO","positionX":340,"positionY":45,"dispoBOO":false,"arguments":{"arg1":null,"arg2":null,"arg3":null},"allArgs":{"arg1":null,"arg2":null,"arg3":null}}],"connections":[{"connectionLabel":"D","From":"TEMP","To":"TEMP","SourceId":"Connector_box1","TargetId":"box2"}],"origins":["box1"]}

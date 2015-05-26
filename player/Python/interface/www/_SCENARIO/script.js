@@ -1,5 +1,6 @@
 	jsPlumb.ready(function() {
 
+
     /////////////////////////  GLOBAL  //////////////////////////////
 
     jsPlumb.registerConnectionType("selected", {
@@ -1134,6 +1135,7 @@
 			// loadGraphAfter = true;
 			// loadScenario();
 		});
+		document.title = scenarioName;
 
 
 
