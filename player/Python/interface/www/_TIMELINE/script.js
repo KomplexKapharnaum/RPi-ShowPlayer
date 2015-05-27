@@ -560,15 +560,15 @@
         thisblock.actuPosition();
       }
 
-      //Move after prev (if prev is a block)
-      if (thisblock.blockbox.prev().hasClass("block")) {
-        var prev = thisblock.blockbox.prev();
-        var blockpos = thisblock.blockbox.offset();
-        var prevpos = prev.offset();
-        var prevwidth = prev.width();
-        blockpos.left = prevpos.left + prevwidth;
-        thisblock.blockbox.offset(blockpos);
-      }
+      //Move after last one ! (not after prev())
+      var allPositions = new Array();
+      $.each(thispi.allBlocks, function(index,block){
+        allPositions.push(block.end);
+      });
+      var lastBlockEnd = Math.max.apply(Math,allPositions);
+      var blockpos = thisblock.blockbox.offset();
+      blockpos.left = lastBlockEnd;
+      thisblock.blockbox.offset(blockpos);
 
       this.actuPosition = function(){
       var w = thisblock.blockbox.width();
@@ -694,6 +694,8 @@
           }
         });
         refreshscenariosList();
+        actuScenarios();
+        recheckScenarios();
       });
     }
     getScenarios();
@@ -842,7 +844,7 @@
       allScenarios.push(newscenario);
       refreshscenariosList();
       $("#scenarioname").val("New...");
-      recheckscenarios();
+      recheckScenarios();
     });
 
     $('#delscenariobtn').click( function(){
@@ -863,7 +865,6 @@
       });
       getScenarios();
       $("#scenarioname").val("New...");
-      recheckscenarios();
     });
 
     $('#modifscenariobtn').click( function(){
@@ -883,14 +884,15 @@
         });
       });
       getScenarios();
-      //recheckscenarios();
     });
 
-    function recheckscenarios(){
+    function recheckScenarios(){
       // Re-Check les bonnes Cases
-      var tempcheck = new Array();
-      $.each(pool.getActiveBlock(), function(index,block) {tempcheck = block.scenarios;});
-      $("#scenariosms").multipleSelect('setSelects', tempcheck);
+      $.each(pool.getActiveBlock(), function(index,block) {block.editInfos();});
+      // var tempcheck = new Array();
+      // $.each(pool.getActiveBlock(), function(index,block) {tempcheck = block.scenarios;});
+      // console.log(tempcheck);
+      // $("#scenariosms").multipleSelect('setSelects', tempcheck);
     }
 
 
