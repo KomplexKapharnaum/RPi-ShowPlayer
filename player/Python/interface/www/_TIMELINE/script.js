@@ -560,15 +560,15 @@
         thisblock.actuPosition();
       }
 
-      //Move after prev (if prev is a block)
-      if (thisblock.blockbox.prev().hasClass("block")) {
-        var prev = thisblock.blockbox.prev();
-        var blockpos = thisblock.blockbox.offset();
-        var prevpos = prev.offset();
-        var prevwidth = prev.width();
-        blockpos.left = prevpos.left + prevwidth;
-        thisblock.blockbox.offset(blockpos);
-      }
+      //Move after last one ! (not after prev())
+      var allPositions = new Array();
+      $.each(thispi.allBlocks, function(index,block){
+        allPositions.push(block.end);
+      });
+      var lastBlockEnd = Math.max.apply(Math,allPositions);
+      var blockpos = thisblock.blockbox.offset();
+      blockpos.left = lastBlockEnd;
+      thisblock.blockbox.offset(blockpos);
 
       this.actuPosition = function(){
       var w = thisblock.blockbox.width();
