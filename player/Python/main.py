@@ -29,7 +29,7 @@ try:
     application.start()
 
     try:
-        while application.POWEROFF == 0:
+        while application.POWEROFF is False:
             time.sleep(1)
     except KeyboardInterrupt:
         log.debug("KeyboardException received")

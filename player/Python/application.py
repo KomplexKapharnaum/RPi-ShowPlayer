@@ -20,7 +20,7 @@ import threading
 import time
 
 
-POWEROFF = 0    # 1: STOP PROGRAM   2: POWEROFF AFTER STOP  3: REBOOT AFTER STOP
+POWEROFF = False    # 1: STOP PROGRAM   2: POWEROFF AFTER STOP  3: REBOOT AFTER STOP
 
 def init(autoload=True):
     # LOAD INPUT KEYBOARD THREAD
@@ -28,6 +28,7 @@ def init(autoload=True):
     k.start()
     # SET SYSTEM VOLUME
     alsa.set_absolute_amixer()
+    alsa.set_alsaequal_profile()
     # INIT THREAD
     engine.threads.init()
     # LOAD SUPER-MODULES IN ENGINE
@@ -174,12 +175,12 @@ class inputThread(threading.Thread):
         if not alone:
             log.info("--- SCENARIO FSM ---")
 
-        if scenario.SCENARIO_FSM is not None:
-            log.info(scenario.SCENARIO_FSM.current_state)
-        for f in scenario.FSM:
+        # if scenario. is not None:
+        #     log.info(scenario.SCENE_FSM.current_state)
+        for f in scenario.MODULES_FSM:
             log.info(f.current_state)
             log.info(f._flag_stack)
-        for f in scenario.DEVICE_FSM:
+        for f in scenario.SCENE_FSM:
             log.info(f.current_state)
             log.info(f._flag_stack)
 
@@ -206,10 +207,15 @@ class inputThread(threading.Thread):
                     log.debug("There is no input sleep 10 and continue...")
                     time.sleep(10)
                     continue
+                if c in ("r", "rs", "respawn", "reload"):
+                    if c == "rs":   # Prompt all fsm history and quit
+                        engine.perf.all_history()
+                    POWEROFF = 1
+                    break
                 if c in ("q", "Q", "quit", "exit", "qs"):
                     if c == "qs":   # Prompt all fsm history and quit
                         engine.perf.all_history()
-                    POWEROFF = 1
+                    POWEROFF = 0
                     break
                 if c == "":
                     continue
@@ -224,6 +230,15 @@ class inputThread(threading.Thread):
                     tmpfsm.start(tmpstate)
                 elif cmd[0] == "history":
                     engine.perf.prompt_history()
+                elif cmd[0] == "timeline":
+                    log.info(scenario.pool._Timeline)
+                elif cmd[0] == "scene":
+                    if len(cmd) > 1 and len(scenario.pool._Timeline) > int(cmd[1]):
+                        log.info(scenario.pool._Timeline[int(cmd[1])].show_info())
+                elif cmd[0] == "timelinejson":
+                    log.info(scenario.pool._JSONtimeline)
+                elif cmd[0] == "scenariojson":
+                    log.info(scenario.pool._JSONScenario)
                 elif cmd[0] == "mhistory":
                     engine.perf.multiplex_history(cmd[1:])
                 elif cmd[0] == "_log":
@@ -275,12 +290,17 @@ class inputThread(threading.Thread):
                         log.warning("Need at least a page number an a message")
                         continue
                     log.log(cmd[1], " ".join(cmd[2:]))
+                elif cmd[0] == "eval":
+                    try:
+                        eval(" ".join(cmd[1:]))
+                    except Exception as e:
+                        log.info(log.show_exception(e))
                 else:
                     log.info("Unknown commad in prompt ..")
         except Exception as e:
             log.exception("Unblocking exception in prompt : \n"+log.show_exception(e))
         # BACKUP EXIT
-        time.sleep(5)
+        time.sleep(2)
         log.log("debug", "Exit by backupexit, should not be that")
         os._exit(POWEROFF)
 

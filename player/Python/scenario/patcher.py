@@ -56,11 +56,11 @@ class ThreadPatcher(threading.Thread):
         :return:
         """
         for fsm in scenario.SCENE_FSM:
-            fsm.append_flag(signal)
+            fsm.append_flag(signal.get())
         for fsm in scenario.MODULES_FSM:
-            fsm.append_flag(signal)
+            fsm.append_flag(signal.get())
         for fsm in engine.MODULES_FSM.values():
-            fsm.append_flag(signal)
+            fsm.append_flag(signal.get())
 
     def patch(self, signal):
         """
@@ -97,21 +97,20 @@ class ThreadPatcher(threading.Thread):
             log.debug("Send to group in scene")
             log.log("raw", "add GROUP in dispatch list")
             sendto.remove("Group")
-            sendto += [x for x in scenario.pool.Scenes[scenario.pool.Frames[scenario.CURRENT_FRAME]].cartes if
-                       x not in sendto]
+            sendto += [x.uid for x in scenario.get_group_members() if x not in sendto]
 
         # Replace ALL in DEST list by uNames        # TODO : Replace by BROADCAST
-        if settings.get("scenario", "dest_all") in signal.args["dest"]:
-            log.log("raw", "add ALL in dispatch list")
-            sendto = scenario.pool.Cartes.keys()
+        # if settings.get("scenario", "dest_all") in signal.args["dest"]:
+        # log.log("raw", "add ALL in dispatch list")
+        #     sendto = scenario.pool.Cartes.keys()
 
         # Add SYNC timestamp for multiple DEST
-        if len(sendto) > 1:  # or settings.get("scenario", "dest_all") in sendto:
+        if len(sendto) > 1 or "All" in sendto:  # or settings.get("scenario", "dest_all") in sendto:
             if "abs_time_sync" not in signal.args.keys():
                 s, ns = rtplib.get_time()
                 signal.args["abs_time_sync"] = rtplib.add_time(s, ns, settings.get("scenario", "play_sync_delay"))
 
-        log.log("debug", "dispatch {0} to {1}".format(signal.uid, sendto))
+        log.log("debug", "dispatch {0} with {2} to {1}".format(signal.uid, sendto, signal.args))
 
         # Send to ALL - Broadcast
         # if settings.get("scenario", "dest_all") in sendto:
@@ -123,7 +122,13 @@ class ThreadPatcher(threading.Thread):
         # else:
 
         # Send to Others
-        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)), ACK=True)
+        msg_to_send = message.Message("/signal", signal.uid, ('b', cPickle.dumps(signal, 2)),
+                                      ('i', scenario.CURRENT_SCENE_FRAME), ACK=True)
+        # If All just Broad cast
+        if "All" in sendto:
+            message.send(message.Address("255.255.255.255"), msg_to_send)
+            return
+        # Else, send one by one
         for dest in sendto:
             if dest == settings["uName"]:
                 continue
@@ -132,7 +137,7 @@ class ThreadPatcher(threading.Thread):
                 log.warning("Try to send to {0} but not finc in networkmap AND devices list".format(dest))
                 log.warning('Unknown Dest <{0}> for signal <{1}>'.format(dest, signal.uid))
                 continue
-            message.send(target.target, msg_to_send)
+            message.send(target.target, msg_to_send.get_new())
 
         # Send to Himself (via local pacther)
         if settings["uName"] in sendto:

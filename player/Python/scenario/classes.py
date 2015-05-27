@@ -81,7 +81,7 @@ class Etape(fsm.State):
         :param flag: flag wich cause the change
         :return:
         """
-        log.log("debug", "START ETAPE :: {0} on {1}".format(self.uid, flag))
+        log.log("info", "START ETAPE :: {0} on {1}".format(self.uid, flag))
         if len(self.actions) > 0:
             return self._run(_fsm, flag, self.actions)
 
@@ -164,17 +164,31 @@ class Scene:
     """
     This class describe a scene in the scenario system
     """
-    def __init__(self, uid, cartes):
+    def __init__(self, uid, cartes=None, groups=None):
         """
         :param uid: Unique ID
         :param cartes: foreach Carte present in the Scene define which Etapes must be start
+        :param groups: dict of groups.  "goupname" : list(cartes)
         :return:
         """
+        if cartes is None:
+            cartes = dict()
+        if groups is None:
+            groups = dict()
         self.uid = uid
+        self.name = uid
         self.cartes = cartes
+        self.groups = groups
+        self.start_etapes = dict()
 
     def __str__(self):
         return "Scene : {0}".format(self.uid)
+
+    def show_info(self):
+        """
+        Show information on scene
+        """
+        return "{0} :: \n\tcartes :{1}\n\tgroups :{2}\n\tstart_etapes :{3}".format(self, self.cartes, self.groups, self.start_etapes)
 
     def __repr__(self):
         return self.__str__()

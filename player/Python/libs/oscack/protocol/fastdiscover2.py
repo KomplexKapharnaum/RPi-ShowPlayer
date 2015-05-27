@@ -54,7 +54,7 @@ def auto_add_here(path, args, types, src):
 msg_iamhere = network.UnifiedMessageInterpretation("/iamhere", values=(
     ('s', "uName"),
     ('i', "timetag")
-), flag_name="RECV_IAM_HERE", machine=machine, treatement=auto_add_here)
+), flag_name="RECV_IAM_HERE", machine=machine, treatement=auto_add_here, ACK=settings.get("rtp", "ackiamhere"))
 msg_asktime = network.UnifiedMessageInterpretation("/rtp/asktime", ACK=True, flag_name="RECV_ASKTIME", machine=machine)
 msg_ping = network.UnifiedMessageInterpretation("/rtp/ping", ACK=True, values=(
     ("i", "ping_1"),
@@ -134,8 +134,7 @@ def addhere(flag):
 def trans_recv_iamhere(flag):
     if flag.args["kwargs"]["uName"] == settings["uName"]:
         return None
-    elif flag.args["kwargs"][
-        "uName"] not in libs.oscack.DNCserver.networkmap.keys():  # globalContext.network_MAP.keys(): TODO check and remove
+    elif flag.args["kwargs"]["uName"] not in libs.oscack.DNCserver.networkmap.keys():  # globalContext.network_MAP.keys(): TODO check and remove
         return step_addhere
     else:
         return trans_sync_here
@@ -202,6 +201,7 @@ def server_sync(flag):
             pong = pong_queue.get(True, 6)
         except Queue.Empty as e:
             # n_try += 1
+            log.warning("RTP : server sync failed to get pong response from {0}".format(target))
             log.exception(log.show_exception(e))
             # if n_try > 3:
             #     log.critical("Too much try to get pong after timeout ! quit loop => need to be fixed")
@@ -231,6 +231,16 @@ def server_sync(flag):
     machine.append_flag(flag_timeout_task_sync.get(TTL=settings.get("OSC", "TTL"), JTL=settings.get("OSC", "JTL")))
 
 
+def add_asksync_timeout():
+    """
+    This function add a timeout
+    :return:
+    """
+    if machine.current_state == step_asktime:
+        log.warning("Add timeout ASK SYNC because time sync is too long")
+        machine.append_flag(flag_timeout_wait_sync.get(TTL=settings.get("rtp", "timeout") * 0.5, JTL=None))
+
+
 def client_sync(flag):
     target = message.Address(flag.args["src"].get_hostname())
     # msg = msg_pong.get(**kwargs_pong)
@@ -245,9 +255,10 @@ def client_sync(flag):
     # libs.oscack.DNCserver.ackServer.add_method("/rtp/sync", None, client_get_sync)
     add_method_before_patcher("/rtp/ping", None, catch_ping)
     add_method_before_patcher("/rtp/sync", None, client_get_sync)
-    network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
-                            flag_timeout_wait_sync.get(
-                                TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
+    # network_scheduler.enter(settings.get("rtp", "timeout"), machine.append_flag,
+    #                         flag_timeout_wait_sync.get(
+    #                             TTL=settings.get("rtp", "timeout") * 1.5, JTL=None))
+    network_scheduler.enter(settings.get("rtp", "timeout"), add_asksync_timeout)
     machine.current_state.preemptible.set()
     #log.log("error", "Just before sending asktime")
     message.send(target, msg_asktime.get())

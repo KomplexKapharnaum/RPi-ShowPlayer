@@ -7,6 +7,10 @@
 #include "MemoryFree.h"
 
 
+
+
+
+
 boolean simpleRemote =false;
 
 //function for reset
@@ -296,31 +300,42 @@ void switchLock(byte force){
 //-------------------------------------------------new menu system
 
 byte currentMenu=0;
+byte currentMenuNextMaster=0;
+byte currentMenuPrevMaster=0;
+byte currentMenuPrev=0;
+byte currentMenuNext=0;
 int displayNeedUpdate=0;
 byte popupNeedDisplay=0;
 byte currentPopup=0;
 long refreshMenu;
+boolean show=true;
 
 //menu struct saved in PROGMEM
 typedef struct {
-  char line1 [17]; //will be the same for all on the same hc595
-  char line2 [17];
+  char line1 [15]; //will be the same for all on the same hc595
+  char line2 [15];
   byte behaviour;
   byte id;
   byte ok;
   byte b;
   byte a;
+  boolean show;
   
   
 } menutype;
 
-#define T_MENU_BEHAVIOUR_MASTER 10
+#define T_MENU_BEHAVIOUR_MASTER 100
 #define T_MENU_BEHAVIOUR_SHOW 1
-#define T_MENU_BEHAVIOUR_LOG 2
-#define T_MENU_BEHAVIOR_SELECT 3
-#define T_MENU_BEHAVIOR_STATUTS 4
+#define T_MENU_BEHAVIOUR_SHOW2 2
+#define T_MENU_BEHAVIOUR_LOG 20
+#define T_MENU_BEHAVIOR_SELECT 30
+#define T_MENU_BEHAVIOR_SELECT_DIFF 31
+#define T_MENU_BEHAVIOR_SELECT_CONFIRM 32
+#define T_MENU_BEHAVIOR_SETTINGS 31
+#define T_MENU_BEHAVIOR_VOLUME 32
+#define T_MENU_BEHAVIOR_STATUTS 50
 
-#define T_MENU_LENGTH 37
+#define T_MENU_LENGTH 43
 
 //two variable objet to handle operation
 menutype menu;
@@ -344,48 +359,107 @@ typedef struct {
 
 #define T_MENU_ID_LOG_0 10
 
-#define T_MENU_NB_LOG 15
+#define T_MENU_NB_LOG 10
 
-#define T_MENU_VARIABLE_LENGTH 25
+#define T_MENU_VARIABLE_LENGTH 20
+
+#define TELECO_MESSAGE_PREVIOUSSCENE 1
+#define TELECO_MESSAGE_PREVIOUSSCENE_GROUP 2
+#define TELECO_MESSAGE_PREVIOUSSCENE_ALL_SYNC 3
+#define TELECO_MESSAGE_RESTARTSCENE 4
+#define TELECO_MESSAGE_RESTARTSCENE_GROUP 5
+#define TELECO_MESSAGE_RESTARTSCENE_ALL_SYNC 6
+#define TELECO_MESSAGE_NEXTSCENE 7
+#define TELECO_MESSAGE_NEXTSCENE_GROUP 8
+#define TELECO_MESSAGE_NEXTSCENE_ALL_SYNC 9
+
+#define TELECO_MESSAGE_SETTINGS_LOG_DEBUG 20
+#define TELECO_MESSAGE_SETTINGS_LOG_ERROR 21
+#define TELECO_MESSAGE_SETTINGS_VOLPLUS 22
+#define TELECO_MESSAGE_SETTINGS_VOLMOINS 23
+#define TELECO_MESSAGE_SETTINGS_VOLSAVE 24
+#define TELECO_MESSAGE_SETTINGS_VOLBACK 25
+
+#define TELECO_MESSAGE_MODE_SHOW 30
+#define TELECO_MESSAGE_MODE_REPET 31
+#define TELECO_MESSAGE_MODE_DEBUG 32
+#define TELECO_MESSAGE_LOG_ERROR 33
+#define TELECO_MESSAGE_LOG_DEBUG 34
+
+#define TELECO_MESSAGE_BLINKGROUP 40
+#define TELECO_MESSAGE_TESTROUTINE 41
+
+#define TELECO_MESSAGE_SYS_RESTARTPY 50
+#define TELECO_MESSAGE_SYS_RESTARTWIFI 51
+#define TELECO_MESSAGE_SYS_UPDATESYS 52
+#define TELECO_MESSAGE_SYS_POWEROFF 53
+#define TELECO_MESSAGE_SYS_REBOOT 54
+
+#define TELECO_MESSAGE_GET_INFO 60
+
+#define TELECO_MESSAGE_MEDIA_VOLPLUS 70
+#define TELECO_MESSAGE_MEDIA_VOLPLUS_GROUP 71
+#define TELECO_MESSAGE_MEDIA_VOLPLUS_ALL_SYNC 72
+#define TELECO_MESSAGE_MEDIA_VOLMOINS 73
+#define TELECO_MESSAGE_MEDIA_VOLMOINS_GROUP 74
+#define TELECO_MESSAGE_MEDIA_VOLMOINS_ALL_SYNC 75
+#define TELECO_MESSAGE_MEDIA_MUTE 76
+#define TELECO_MESSAGE_MEDIA_MUTE_GROUP 77
+#define TELECO_MESSAGE_MEDIA_MUTE_ALL_SYNC 78
+#define TELECO_MESSAGE_MEDIA_PAUSE 79
+#define TELECO_MESSAGE_MEDIA_PAUSE_GROUP 80
+#define TELECO_MESSAGE_MEDIA_PLAY 81
+#define TELECO_MESSAGE_MEDIA_PLAY_GROUP 82
+#define TELECO_MESSAGE_MEDIA_STOP 83
+#define TELECO_MESSAGE_MEDIA_STOP_GROUP 84
+
+
+
 
 const menutype menulist[T_MENU_LENGTH] PROGMEM = {
-  {"  do not clean  ","     V1.3",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
-  {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
-  {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0},
-  {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
-  {"scene","back res next",T_MENU_BEHAVIOR_SELECT,0,1,2,3},
-  {"media","play pause ",T_MENU_BEHAVIOR_SELECT,0,11,12,0},
-  {"mute","video audio ",T_MENU_BEHAVIOR_SELECT,0,14,15,0},
-  {"--commande","syteme",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
-  {"restart","PY wifi reboot",T_MENU_BEHAVIOR_SELECT,0,5,6,9},
-  {"system","update  poweroff",T_MENU_BEHAVIOR_SELECT,0,7,0,8},
-  {"test","routine  ",T_MENU_BEHAVIOR_SELECT,0,10,0,0},
-  {"--settings","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
-  {"--statuts","view info",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
-  {"need_stat","name ip v",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE,0,0,0},
-  {"need_stat","git version",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_GIT_VERSION,0,0,0},
-  {"need_stat","scene",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_SCENE,0,0,0},
-  {"need_stat","usb",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USB,0,0,0},
-  {"need_stat","media",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_MEDIA,0,0,0},
-  {"need_stat","sync",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_SYNC,0,0,0},
-  {"need_stat","user",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USER,0,0,0},
-  {"need_stat","error",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_ERROR,0,0,0},
-  {"--logs","view history",T_MENU_BEHAVIOUR_MASTER,0,0,0,0},
-  {"log","1",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0,0,0,0},
-  {"log","2",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+1,0,0,0},
-  {"log","3",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+2,0,0,0},
-  {"log","4",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+3,0,0,0},
-  {"log","5",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+4,0,0,0},
-  {"log","6",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+5,0,0,0},
-  {"log","7",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+6,0,0,0},
-  {"log","8",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+7,0,0,0},
-  {"log","9",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+8,0,0,0},
-  {"log","10",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+9,0,0,0},
-  {"log","11",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+10,0,0,0},
-  {"log","12",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+11,0,0,0},
-  {"log","13",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+12,0,0,0},
-  {"log","14",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+13,0,0,0},
-  {"log","15",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+14,0,0,0}
+  {" do not clean","     V1.6",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+  {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+  {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0,true},
+  {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+  {"move next","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_NEXTSCENE,TELECO_MESSAGE_NEXTSCENE_GROUP,TELECO_MESSAGE_NEXTSCENE_ALL_SYNC,true},
+  {"move previous","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_PREVIOUSSCENE,TELECO_MESSAGE_PREVIOUSSCENE_GROUP,TELECO_MESSAGE_PREVIOUSSCENE_ALL_SYNC,false},
+  {"restart scene","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_RESTARTSCENE,TELECO_MESSAGE_RESTARTSCENE_GROUP,TELECO_MESSAGE_RESTARTSCENE_ALL_SYNC,false},
+  {"--commande","media",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+  {"volume plus","solo group all",T_MENU_BEHAVIOR_SELECT,0,TELECO_MESSAGE_MEDIA_VOLPLUS,TELECO_MESSAGE_MEDIA_VOLPLUS_GROUP,TELECO_MESSAGE_MEDIA_VOLPLUS_ALL_SYNC,true},
+  {"volume moins","solo group all",T_MENU_BEHAVIOR_SELECT,0,TELECO_MESSAGE_MEDIA_VOLMOINS,TELECO_MESSAGE_MEDIA_VOLMOINS_GROUP,TELECO_MESSAGE_MEDIA_VOLMOINS_ALL_SYNC,true},
+  {"mute","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_MUTE,TELECO_MESSAGE_MEDIA_MUTE_GROUP,TELECO_MESSAGE_MEDIA_MUTE_ALL_SYNC,true},
+  {"stop","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_STOP,TELECO_MESSAGE_MEDIA_STOP_GROUP,0,false},
+  {"pause","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_PAUSE,TELECO_MESSAGE_MEDIA_PAUSE_GROUP,0,false},
+  {"play","solo group all",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MEDIA_PLAY,TELECO_MESSAGE_MEDIA_PLAY_GROUP,0,false},
+  {"--settings","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+    {"modes","show repe debu",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_MODE_SHOW,TELECO_MESSAGE_MODE_REPET,TELECO_MESSAGE_MODE_DEBUG,true},
+    {"volume","    plus moins",T_MENU_BEHAVIOR_SELECT,0,0,TELECO_MESSAGE_SETTINGS_VOLPLUS,TELECO_MESSAGE_SETTINGS_VOLMOINS,false},
+    {"volume memory","save back",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_SETTINGS_VOLSAVE,TELECO_MESSAGE_SETTINGS_VOLBACK,0,false},
+    {"log level","error    debug",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_LOG_ERROR,0,TELECO_MESSAGE_LOG_DEBUG,false},
+  {"--statuts","view info",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+  {"need_stat","name ip v",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE,0,0,0,true},
+  {"need_stat","git version",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_GIT_VERSION,0,0,0,true},
+  {"need_stat","scene",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_SCENE,0,0,0,true},
+  {"need_stat","usb",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USB,0,0,0,true},
+  {"need_stat","media",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_MEDIA,0,0,0,true},
+  {"need_stat","sync",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_SYNC,0,0,0,true},
+  {"need_stat","user",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_USER,0,0,0,true},
+  {"need_stat","error",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_ERROR,0,0,0,true},
+    {"--commande","syteme",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,false},
+    {"restart","PY wifi reboot",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_SYS_RESTARTPY,TELECO_MESSAGE_SYS_RESTARTWIFI,TELECO_MESSAGE_SYS_REBOOT,false},
+    {"system","update     off",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_SYS_UPDATESYS,0,TELECO_MESSAGE_SYS_POWEROFF,false},
+    {"test","routine  blink",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_TESTROUTINE,0,TELECO_MESSAGE_BLINKGROUP,false},
+  {"--logs","view history",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,false},
+  {"log","1",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0,0,0,0,false},
+  {"log","2",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+1,0,0,0,false},
+  {"log","3",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+2,0,0,0,false},
+  {"log","4",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+3,0,0,0,false},
+  {"log","5",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+4,0,0,0,false},
+  {"log","6",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+5,0,0,0,false},
+  {"log","7",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+6,0,0,0,false},
+  {"log","8",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+7,0,0,0,false},
+  {"log","9",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+8,0,0,0,false},
+  {"log","10",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+9,0,0,0,false}
 };
 
 variableMenu variableMenulist[T_MENU_VARIABLE_LENGTH];
@@ -415,14 +489,20 @@ void initmenu(){
 
 //display menu
 void displayMenu(byte need=0){
-  if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate) || need){
-    if(need==0){if (switchlockCom(1))need=2;}
+  if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate  && command==0) || need){
+    printf_P(PSTR("update menu %u "),currentMenu);
+    if(need==0){
+      if (switchlockCom(1)){
+        need=2;
+      }
+    }
+    
     if (need>0) {
       byte theMenu=currentMenu;
       if (popupNeedDisplay) {
         theMenu=currentPopup;
       }
-      printf_P(PSTR("update menu %u"),currentMenu);
+      
       //try
       //SPCR &= ~_BV(SPIE);//disable spi interrupt
       memcpy_P (&menu, &menulist[currentMenu], sizeof(menutype));
@@ -457,10 +537,12 @@ void displayMenu(byte need=0){
         lcd.print(menu.line2);
       }
       printf_P(PSTR(" done\n"));
+      updateMenuScheme();
       displayNeedUpdate=0;
       //SPCR |= _BV(SPIE); //enable spi interrupt
       refreshMenu=millis();
       if(need==2)switchlockCom(0);
+      printf_P(PSTR("->done\n\n"));
       if (popupNeedDisplay){
         popupNeedDisplay=0;
         displayNeedUpdate=2000;
@@ -469,19 +551,25 @@ void displayMenu(byte need=0){
   }
 }
 
+boolean displayShow(boolean menushow){
+  if (show) {
+    return menushow;
+  } else {
+    return true;
+  }
+}
 
-
-//return to previous master menu
-void goprevMasterMenu(){
+//find previous master menu
+void findprevMasterMenu(){
   if (currentMenu>0) {
+    currentMenuPrevMaster=currentMenu;
     printf_P(PSTR("find prev master"));
     for (byte i=currentMenu-1; i>=0; i--) {
       memcpy_P (&temp, &menulist [i], sizeof(menutype));
-      printf_P(PSTR(" - menu %u"),i);
-      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0){
+      printf_P(PSTR(" - %u"),i);
+      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayShow(temp.show)){
         printf_P(PSTR(" master\n"));
-        currentMenu=i;
-        displayNeedUpdate=1;
+        currentMenuPrevMaster=i;
         return;
       }
     }
@@ -489,21 +577,119 @@ void goprevMasterMenu(){
   }
 }
 
-//go to next master menu
-void gonextMasterMenu(){
+//return to previous master menu
+void goprevMasterMenu(){
+  if (currentMenuPrevMaster != currentMenu) {
+  printf_P(PSTR("go prev master\n"));
+  currentMenu=currentMenuPrevMaster;
+  displayNeedUpdate=1;
+  }
+}
+
+void findprevMenu(){
+  currentMenuPrev=currentMenu;
+  memcpy_P (&temp, &menulist[currentMenu-1], sizeof(menutype));
+  if (temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu>0 && displayShow(temp.show)) {
+    currentMenuPrev--;
+  }
+}
+
+void goprevMenu(){
+  if(currentMenuPrev!=currentMenu){
+    currentMenu=currentMenuPrev;
+    displayNeedUpdate=1;
+  }
+}
+
+//find next master menu
+void findnextMasterMenu(){
+  currentMenuNextMaster=currentMenu;
   if (currentMenu<T_MENU_LENGTH-1){
     printf_P(PSTR("find next master"));
     for (byte i=currentMenu+1; i<T_MENU_LENGTH; i++) {
       memcpy_P (&temp, &menulist [i], sizeof(menutype));
       printf_P(PSTR(" - menu %u"),i);
-      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayNeedUpdate==0){
+      if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayShow(temp.show)){
         printf_P(PSTR(" master\n"));
-        currentMenu=i;
-        displayNeedUpdate=1;
+        currentMenuNextMaster=i;
         return;
       }
     }
     printf_P(PSTR("\n"));
+  }
+}
+
+
+//go to next master menu
+void gonextMasterMenu(){
+  if (currentMenuNextMaster!=currentMenu){
+    printf_P(PSTR("go next master\n"));
+    currentMenu=currentMenuNextMaster;
+    displayNeedUpdate=1;
+  }
+}
+
+void findnext(){
+  currentMenuNext=currentMenu;
+  memcpy_P (&temp, &menulist[currentMenu+1], sizeof(menutype));
+  if (temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu+1<T_MENU_LENGTH && displayShow(temp.show)) {
+    currentMenuNext++;
+  }
+}
+
+void gonextMenu(){
+  if(currentMenuNext!=currentMenu){
+    currentMenu=currentMenuNext;
+    displayNeedUpdate=1;
+  }
+}
+
+void updateMenuScheme(){
+  findnext();
+  findnextMasterMenu();
+  findprevMenu();
+  findprevMasterMenu();
+}
+
+void confirm(byte button,byte val){
+  lcd.setCursor(0, 1);
+  lcd.print("               ");
+  lcd.setCursor(0, 1);
+  lcd.print("  confirm  ");
+  boolean wait=true;
+  
+  while(wait){
+    delay(1);
+    if(1-digitalRead(inpin[T_PUSHROTARY-T_DECINPIN])==1){
+      onePushRotary=1;
+      newValue[T_PUSHROTARY]=val;
+      //updateInput(T_PUSHROTARY);
+      printf_P(PSTR("yes %u\n"),menu.ok);
+      lcd.print("OK");
+      if (val==TELECO_MESSAGE_MODE_SHOW) {
+        printf_P(PSTR("switch to show mode \n"));
+        show=true;
+      }
+      if (val==TELECO_MESSAGE_MODE_REPET || val==TELECO_MESSAGE_MODE_DEBUG) {
+        printf_P(PSTR("switch to no show mode \n"));
+        show=false;
+      }
+      while(wait){
+        if(1-digitalRead(inpin[button])==0) {
+          lcd.setCursor(0, 1);
+          lcd.print(menu.line2);
+          wait=false;
+        }
+      }
+    }else {
+      if(1-digitalRead(inpin[button])==0){
+          printf_P(PSTR("no\n"));
+          lcd.setCursor(0, 1);
+          lcd.print(menu.line2);
+          wait=false;
+        }
+    }
+    
   }
 }
 
@@ -524,8 +710,7 @@ void newcheckInput(){
                 printf_P(PSTR("get push rotary\n"));
                 switch (menu.behaviour) {
                   case T_MENU_BEHAVIOUR_MASTER:
-                    currentMenu++;
-                    displayNeedUpdate=1;
+                    gonextMenu();
                     break;
                   default:
                     goprevMasterMenu();
@@ -551,7 +736,18 @@ void newcheckInput(){
                     newValue[T_PUSHROTARY]=menu.a;
                   }
                 }else{
-                  onePushA=0;
+                  unselect(i);
+                }
+                break;
+              case T_MENU_BEHAVIOR_SELECT_CONFIRM:
+                if(1-digitalRead(inpin[i])==1){
+                  if (onePushA==0){
+                    onePushA=1;
+                    printf_P(PSTR("get pushA want confirm %u\n"),menu.a);
+                    confirm(i,menu.a);
+                  }
+                }else{
+                  unselect(i);
                 }
                 break;
               default:
@@ -573,7 +769,18 @@ void newcheckInput(){
                     newValue[T_PUSHROTARY]=menu.b;
                   }
                 }else{
-                  onePushB=0;
+                  unselect(i);
+                }
+                break;
+              case T_MENU_BEHAVIOR_SELECT_CONFIRM:
+                if(1-digitalRead(inpin[i])==1){
+                  if (onePushB==0){
+                    onePushB=1;
+                    printf_P(PSTR("get pushB want confirm %u - "),menu.b);
+                    confirm(i,menu.b);
+                  }
+                }else{
+                  unselect(i);
                 }
                 break;
               default:
@@ -595,7 +802,18 @@ void newcheckInput(){
                     newValue[T_PUSHROTARY]=menu.ok;
                   }
                 }else{
-                  onePushOK=0;
+                  unselect(i);
+                }
+                break;
+              case T_MENU_BEHAVIOR_SELECT_CONFIRM:
+                if(1-digitalRead(inpin[i])==1){
+                  if (onePushOK==0){
+                    onePushOK=1;
+                    printf_P(PSTR("get pushOK want confirm %u\n"),menu.ok);
+                    confirm(i,menu.ok);
+                  }
+                }else{
+                  unselect(i);
                 }
                 break;
               default:
@@ -622,22 +840,33 @@ void newcheckInput(){
           if (newLeft<positionLeft) goprevMasterMenu();
           else gonextMasterMenu();
         } else {
-          memcpy_P (&temp, &menulist[currentMenu-1], sizeof(menutype));
-          if (newLeft<positionLeft && temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu>0) {
-            currentMenu--;
-            displayNeedUpdate=1;
-          }
-          memcpy_P (&temp, &menulist [currentMenu+1], sizeof(menutype));
-          if (newLeft>positionLeft && temp.behaviour!=T_MENU_BEHAVIOUR_MASTER && currentMenu+1<T_MENU_LENGTH) {
-            currentMenu++;
-            displayNeedUpdate=1;
-          }
+          if (newLeft<positionLeft) goprevMenu();
+          else gonextMenu();
         }
         positionLeft=newLeft;
       }
     }
     lastCheckInput = millis();
   }
+}
+
+
+
+void unselect(byte i){
+  switch (T_DECINPIN+i){
+    case T_PUSHA:
+    onePushA=0;
+    if(Value[T_PUSHROTARY]==menu.a) newValue[T_PUSHROTARY]=0;
+    break;
+    case T_PUSHB:
+    onePushB=0;
+    if(Value[T_PUSHROTARY]==menu.b) newValue[T_PUSHROTARY]=0;
+    break;
+    case T_PUSHOK:
+    onePushOK=0;
+    if(Value[T_PUSHROTARY]==menu.ok) newValue[T_PUSHROTARY]=0;
+    break;
+  } 
 }
 
 void shiftlog(){
@@ -713,6 +942,7 @@ boolean switchlockCom(byte lock){
     while (interruptPending()) {
       lowleveRoutine();
     }
+    delay(15);
     printf_P(PSTR(" lock com ok\n"));
     return true;
   }
@@ -815,7 +1045,7 @@ void waitforinit(){
   while(newValue[T_INIT]==0){
     setInterrupt(T_INIT);
     long time=millis();
-    while(millis()<time+500 && newValue[T_INIT]==0){
+    while(millis()<time+1000 && newValue[T_INIT]==0){
       lowleveRoutine();
     }
     freeInterrupt();
@@ -828,7 +1058,7 @@ void lowleveRoutine(){
   //if slave select not active
   if (digitalRead (SS) == HIGH) command = 0;
   //timeout if prog do not answer to interrupt
-  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt && Value[T_INIT]==1) {
+  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt && Value[T_INIT]==1 && command == 0) {
     printf_P(PSTR("warning interrupt read fail\n"));
     newValue[T_LEDRVALUE] = 0;
     freeInterrupt();
@@ -864,11 +1094,13 @@ void loop (void) {
       }
     }
   }
-  if (Value[T_STROBLRSPEED] > 0) strobLRRoutine(0);
-  if (Value[T_STROBLVSPEED] > 0) strobLVRoutine(0);
+  if (command == 0){
+    if (Value[T_STROBLRSPEED] > 0) strobLRRoutine(0);
+    if (Value[T_STROBLVSPEED] > 0) strobLVRoutine(0);
   
-  newcheckInput();
-  displayMenu();
+    newcheckInput();
+    displayMenu();
+  }
   
 }  // end of loop
 

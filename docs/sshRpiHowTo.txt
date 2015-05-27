@@ -1,0 +1,52 @@
+# Se connecter sur un raspi
+ssh root@2.0.2.XXX  # XXX = fin de l'ip
+# Rentrer le mot de passe : root
+# On est sur la raspi (ça se voit) [root@raspi2trash $DIR]# 
+
+# On se met dans le repertoir dnc
+cd /dnc
+
+# On kill tout pour avoir la paix
+./bash/kill.sh
+
+# On met bien tout à jour
+git pull
+
+# On check les settings
+nano ~/.dnc_settings.json
+
+# Là on check bien le current_timeline (par défaut c'est bien d'être sur test_trash)
+# Plein (vraiment plein) d'autres réglagles possibles : venir me voir
+# Dans l'éditeur nano pour enregistrer : Ctrl + O (puis entrer) 
+# ................... pour quitter     : Ctrl + X 
+
+# Si on à changer de current_timeline il faut cleaner le repertoir de scenario 
+# rm /dnc/scenario/__active/*
+
+# On lance le programme 
+./start.sh -o
+
+# Dans le programme pour quitter :
+# q 		: quitte
+# r		: redemmare
+
+#####
+# Sur le raspi (sur le systeme)
+
+# Pour le son :
+alsamixer 
+
+# Pour arrêter
+poweroff
+
+# Pour redemarrer
+reboot
+
+# Pour quitter ssh mais pas arrêter le raspi
+exit
+
+
+
+
+
+

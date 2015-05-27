@@ -56,6 +56,29 @@ byte adress = 0;
 #define GYRORIGHT 2
 #define GYROLEFT 3
 
+#define BOARDMODE_MANUALLIGHT 0
+#define BOARDMODE_AUTOLIGHT 1
+
+byte manuallightPos=0;
+byte manuallightPosGyro=0;
+byte manuallightPos10w=0;
+byte manuallightPosStep=9;
+byte manuallightPosGyroStep=2;
+byte manuallightPos10wStep=2;
+
+
+byte manuallightConduite[9][3]={
+  {0,0,0},
+  {0,0,255}, //bleu
+  {255,75,0}, //orange
+  {0,255,255}, //cyan
+  {255,0,0},//rouge
+  {0,0,0},
+  {0,255,0}, //vert
+  {128,37,5},//sépia
+  {110,50,30}//blanc faible
+};
+
 byte Value[REGISTERSIZE];
 byte newValue[REGISTERSIZE];
 
@@ -72,6 +95,7 @@ byte inpinanalog[3] = {A6, A1, A0};
 byte gyropin[NGYRO] = {A2, A3, A4, A5};
 long unsigned lastGyroUpdate;
 int gyroStep;
+byte gyroAllOnTrick;
 
 
 long unsigned lastStrob;
@@ -87,15 +111,41 @@ int checkInputPeriod;
 long unsigned lastCheckTension;
 long checkTensionPeriod;
 
+long interruptTimeOn;
+int timeOutInterrupt=1500;
+
+boolean interruptPending(){
+  if(Value[INTERRUPT] == 0)return false;
+  return true;
+}
+
+
+void freeInterrupt(){
+  newValue[INTERRUPT] = 0;
+  Value[INTERRUPT] = newValue[INTERRUPT];
+  digitalWrite(outpin[INTERRUPT], LOW);
+}
+
+
 void setup (void) {
-  Serial.begin(19200);
+  Serial.begin(115200);
   clearRegister();
   initpin();
   initSPIslave();
   Serial.println("hello");
   newValue[UBATT] = 1;
-  checkInputPeriod = 100;
+  newValue[BOARDMODE] = BOARDMODE_MANUALLIGHT;
+  checkInputPeriod = 50;
   checkTensionPeriod = 60000;
+}
+
+void setInterrupt(byte interrupt){
+  newValue[INTERRUPT] = interrupt;
+  Value[INTERRUPT] = newValue[INTERRUPT];
+  printf_P(PSTR("interupt %u\n"),Value[INTERRUPT]);
+  interruptTimeOn = millis();
+  digitalWrite(outpin[INTERRUPT], HIGH);
+  SPDR = interrupt;
 }
 
 void poweroff(){
@@ -164,8 +214,11 @@ ISR (SPI_STC_vect)
   else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
-      //Serial.println ("wv");
-      newValue[adress] = c;
+      Serial.print  ("wv ");
+      Serial.println (adress);
+      Serial.print  (" - ");
+      Serial.println (c);
+      if(adress<REGISTERSIZE)newValue[adress] = c;
       if (adress < DECINPIN)fadeInterval[adress] = 0;
       command = 1;
       SPDR = 0;
@@ -173,7 +226,7 @@ ISR (SPI_STC_vect)
     }
     //fade
     if (command == WRITECOMMANDFADE) {
-      //Serial.println ("wf");
+      Serial.println ("wf");
       if (adress < DECINPIN) {
         int v = Value[adress];
         v = abs(v - newValue[adress]);
@@ -192,15 +245,14 @@ ISR (SPI_STC_vect)
   }
   //renvoie la valeur enregistree
   if (command == READCOMMAND) {
-    SPDR = Value[adress];
+    if(adress<REGISTERSIZE)SPDR = Value[adress];
     command = 1;
+    Serial.print("r ");
+    Serial.println (Value[adress],DEC);
     if (inputRange(adress) || adress==UBATT) {
-      newValue[INTERRUPT] = 0;
-      Value[INTERRUPT] = newValue[INTERRUPT];
-      digitalWrite(outpin[INTERRUPT], LOW);
+      freeInterrupt();
     }
-    //Serial.print("r ");
-    //Serial.println (Value[adress],DEC);
+
   }
 
 
@@ -243,7 +295,7 @@ void loop (void) {
             lastGyroStrob = millis();
           }
           if (i == GYROSTROBSPEED && Value[i] == 0)   gyroUpdate();
-
+          
         }
 
       }
@@ -251,13 +303,17 @@ void loop (void) {
   }
 
   if (Value[UBATT] == 0) readTensionBatt();
-  if (Value[GYROMODE] > GYROALLON) gyroRoutine();
+  if (Value[GYROMODE] > GYROALLOFF) gyroRoutine();
   if (Value[LEDRVBSTROBSPEED] > 0) strobRoutine(0);
   if (Value[LED10W1STROBSPEED] > 0) strob10wRoutine(0);
   if (Value[GYROSTROBSPEED] > 0) strobGyroRoutine();
 
   checkInput();
   checkTension();
+  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt) {
+    printf_P(PSTR("warning interrupt read fail\n"));
+    freeInterrupt();
+  }
 
 }  // end of loop
 
@@ -274,23 +330,40 @@ bool outputRange(byte i){
 
 //fonction pour generer une interuption sur le rpi
 void updateInput(byte i) {
-  if (Value[INTERRUPT] == 0) {
+  if (!interruptPending()) {
     Value[i] = newValue[i];
-    newValue[INTERRUPT] = i;
-    Value[INTERRUPT] = newValue[INTERRUPT];
-    Serial.println("interupt");
-    digitalWrite(outpin[INTERRUPT], HIGH);
-    SPDR = i;
+    setInterrupt(i);
   }
 }
-
 
 
 void checkInput() {
   if (millis() > lastCheckInput + checkInputPeriod) {
     //boutons
     for (byte i = 0; i < DECALALOGPIN - DECINPIN; i++) {
-      newValue[DECINPIN + i] = 1 - digitalRead(inpin[i]);
+      byte buttonState = 1 - digitalRead(inpin[i]);
+      //check for manual light
+      if (Value[BOARDMODE]==BOARDMODE_MANUALLIGHT){
+        if(DECINPIN + i == PUSH1 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+          manuallightPos=(manuallightPos+1)%manuallightPosStep;
+          newValue[LEDRVALUE]=manuallightConduite[manuallightPos][0];
+          newValue[LEDVVALUE]=manuallightConduite[manuallightPos][1];
+          newValue[LEDBVALUE]=manuallightConduite[manuallightPos][2];
+        }
+        if(DECINPIN + i == PUSH2 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+          manuallightPosGyro=(manuallightPosGyro+1)%manuallightPosGyroStep;
+          if(manuallightPosGyro==0) newValue[GYROMODE]=GYROALLOFF;
+          else {newValue[GYROMODE]=GYROLEFT;
+            newValue[GYROSPEED]=1;}
+          
+        }
+        if(DECINPIN + i == PUSH3 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+          manuallightPos10w=(manuallightPos10w+1)%manuallightPos10wStep;
+          newValue[LED10W1VALUE]=manuallightPos10w*255;
+        }
+      }
+      //get value of button to raise interrupt
+      newValue[DECINPIN + i] = buttonState;
     }
     if (Value[BOARDCHECKFLOAT] == 1) newValue[FLOAT] = map(analogRead(inpinanalog[FLOAT - DECALALOGPIN]), 0, 1024, 0, 255);
     lastCheckInput = millis();
@@ -298,12 +371,9 @@ void checkInput() {
 }
 
 void checkTension() {
-  if ((millis() > lastCheckTension + checkTensionPeriod)  && Value[INTERRUPT] == 0) {
-    newValue[INTERRUPT]=UBATT;
-    Value[INTERRUPT] = newValue[INTERRUPT];
-    Serial.println("interupt tension");
-    digitalWrite(outpin[INTERRUPT], HIGH);
-    SPDR = UBATT;
+  if ((millis() > lastCheckTension + checkTensionPeriod)  && !interruptPending()) {
+    Serial.println("interrupt tension");
+    setInterrupt(UBATT);
     lastCheckTension= millis();
   }
 }
@@ -354,6 +424,13 @@ void updateValue(byte i) {
 //gestion des gyro (clignotement)
 
 void gyroRoutine() {
+  if (Value[GYROMODE] == GYROALLON) {
+    gyroAllOnTrick=(gyroAllOnTrick+1)%2;
+      for (byte i = 0; i < NGYRO; i++) {
+        if(gyroAllOnTrick==1) digitalWrite(gyropin[i], HIGH);
+        else digitalWrite(gyropin[i], LOW);
+    }
+  }else{
   if (millis() > lastGyroUpdate + (100L * Value[GYROSPEED])) {
     //Serial.print("gyr ");
     //Serial.println(gyroStep,DEC);
@@ -363,12 +440,13 @@ void gyroRoutine() {
     digitalWrite(gyropin[gyroStep], HIGH);
     lastGyroUpdate += 100L * Value[GYROSPEED];
   }
+  }
 }
 
 //stob sur la sortie LED RVB
 
 void strobRoutine(byte force) {
-  if (millis() > lastStrob + (10L * Value[LEDRVBSTROBSPEED]) || force) {
+  if (millis() > lastStrob + (10L * Value[LEDRVBSTROBSPEED]*20*(1-strobStep)) || force) {
     strobStep = (strobStep + 1) % 2;
     if (force)strobStep = 1;
     for (byte i = 0; i < 3; i++) {
@@ -381,7 +459,7 @@ void strobRoutine(byte force) {
 //stob sur la sortie LED10W1
 
 void strob10wRoutine(byte force) {
-  if (millis() > last10wStrob + (10L * Value[LED10W1STROBSPEED]) || force) {
+  if (millis() > last10wStrob + (10L * Value[LED10W1STROBSPEED]*20L*(1-strob10wStep)) || force) {
     strob10wStep = (strob10wStep + 1) % 2;
     if (force)strob10wStep = 1;
     analogWrite(outpin[LED10W1VALUE], lightfunc(Value[LED10W1VALUE])*strob10wStep);
@@ -392,8 +470,7 @@ void strob10wRoutine(byte force) {
 //gestion des gyro (strob)
 
 void strobGyroRoutine() {
-
-  if (millis() > lastGyroStrob + (10L * Value[GYROSTROBSPEED])) {
+    if (millis() > lastGyroStrob + (10L * Value[GYROSTROBSPEED]*20L*(1-strobGyroStep))) {
     strobGyroStep = (strobGyroStep + 1) % 2;
     for (byte i = 0; i < NGYRO; i++) {
       digitalWrite(gyropin[i], strobGyroStep);
@@ -412,12 +489,9 @@ void gyroUpdate() {
     return;
   }
   if (Value[GYROMODE] == GYROALLON) {
-    for (byte i = 0; i < NGYRO; i++) {
-      digitalWrite(gyropin[i], HIGH);
-    }
-    return;
+    gyroAllOnTrick=0;
   }
-  if (Value[GYROMODE] > GYROALLON) lastGyroUpdate = millis();
+  if (Value[GYROMODE] > GYROALLOFF) lastGyroUpdate = millis();
 }
 
 
@@ -431,7 +505,9 @@ void readTensionBatt() {
   //if (batt <= 438) voltage = (long)batt * 54 + 206;
   //else  voltage = (long)batt * 765 - 312500;
   voltage = (long)batt * 54 + 206;
-  if(voltage>24600)voltage += (((long)batt)*732 - 328902);
+  if(voltage>24600)voltage += (((long)batt)*732 - 329000);
+  if (voltage<5000) voltage=5000;
+  if (voltage>30000) voltage=30000;
   newValue[UBATT] = (byte) ((voltage - 5000) / 100);
   Value[UBATT] = newValue[UBATT];
   Serial.print("bat ");

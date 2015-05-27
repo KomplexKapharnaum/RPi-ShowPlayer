@@ -114,7 +114,7 @@ class ChangeFSM(HistoryEvent):
         else:
             r += "=>"
         flag = self.flag
-        if flag in (None, True):
+        if flag in (None, True, False):
             flag = str(flag)
         else:
             flag = flag.uid
@@ -349,26 +349,29 @@ def prompt_history(list_all=True):
     :param list_all: If True list undeclared fsm
     :return:
     """
-    log.info("Which FSM history do you want to see ? (* for all)\n{0}".format(list_fsm(list_all)))
-    selected = raw_input("Chose one or * for all : ")
-    if selected == "*":
-        all_history(stopped=True)
-    else:
-        try:
-            selected = int(selected)
-        except TypeError:
-            log.info("Incorrect.. {0} (we need an int)".format(selected))
-            return False
-        to_show = fsm_declared
-        if selected >= len(fsm_declared):
-            log.debug("It's will be an old fsm (selected {2}, declared : {0}, stopped {1})".format(
-                len(fsm_declared, old_fsm_declared, selected)))
-            selected -= len(fsm_declared)
-            to_show = old_fsm_declared
-            if selected >= len(old_fsm_declared):
-                log.warning("Too high, choose a correct number")
+    try:
+        log.info("Which FSM history do you want to see ? (* for all)\n{0}".format(list_fsm(list_all)))
+        selected = raw_input("Chose one or * for all : ")
+        if selected == "*":
+            all_history(stopped=True)
+        else:
+            try:
+                selected = int(selected)
+            except TypeError:
+                log.info("Incorrect.. {0} (we need an int)".format(selected))
                 return False
-        log.info("History for {0} :\n".format(to_show[selected]) + str(to_show[selected].get_history()))
+            to_show = fsm_declared
+            if selected >= len(fsm_declared):
+                log.debug("It's will be an old fsm (selected {2}, declared : {0}, stopped {1})".format(
+                    len(fsm_declared, old_fsm_declared, selected)))
+                selected -= len(fsm_declared)
+                to_show = old_fsm_declared
+                if selected >= len(old_fsm_declared):
+                    log.warning("Too high, choose a correct number")
+                    return False
+            log.info("History for {0} :\n".format(to_show[selected]) + str(to_show[selected].get_history()))
+    except Exception as e:
+        log.info(log.show_exception(e))
 
 
 def all_history(stopped=False):
@@ -390,28 +393,31 @@ def multiplex_history(fsm_list):
     :param fsm_list: list of FSM to show, if * it takes all declared, if ** takes old fsm with declared
     :return:
     """
-    to_show = list()
-    if fsm_list == list("*"):
-        to_show = fsm_declared
-    elif fsm_list == list("**"):
-        to_show = fsm_declared + old_fsm_declared
-    else:
-        for n in fsm_list:
-            if int(n) < len(fsm_declared):
-                to_show.append(fsm_declared[int(n)])
-            else:
-                to_show.append(old_fsm_declared[int(n)-len(fsm_declared)])
-    global_history = []
-    for fsm in to_show:
-        global_history += fsm.get_raw_history()
-    global_history.sort(key=lambda x: x.get_raw_time())
-    r = ""
-    for i, entry in enumerate(global_history):
-        uid = entry.parent_fsm()
-        if uid is not None:
-            uid = uid.name
-        r += "[{i:<3}] in {fsm:<20} [{indice:<3}] {change}".format(i=i, fsm=uid, indice=entry.indice, change=entry.prompt()) + "\n"
-    log.info(r)
+    try:
+        to_show = list()
+        if fsm_list == list("*"):
+            to_show = fsm_declared
+        elif fsm_list == list("**"):
+            to_show = fsm_declared + old_fsm_declared
+        else:
+            for n in fsm_list:
+                if int(n) < len(fsm_declared):
+                    to_show.append(fsm_declared[int(n)])
+                else:
+                    to_show.append(old_fsm_declared[int(n)-len(fsm_declared)])
+        global_history = []
+        for fsm in to_show:
+            global_history += fsm.get_raw_history()
+        global_history.sort(key=lambda x: x.get_raw_time())
+        r = ""
+        for i, entry in enumerate(global_history):
+            uid = entry.parent_fsm()
+            if uid is not None:
+                uid = uid.name
+            r += "[{i:<3}] in {fsm:<20} [{indice:<3}] {change}".format(i=i, fsm=uid, indice=entry.indice, change=entry.prompt()) + "\n"
+        log.info(r)
+    except Exception as e:
+        log.info(log.show_exception(e))
 
 
 

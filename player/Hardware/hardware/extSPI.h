@@ -52,6 +52,7 @@ private:
   int spiWRMode;
   int spiRDMode;
   int spiBitsPerWord;
+  int lastSpeed;
   
   ChipSelect chipSelect[12];
   int csmax;

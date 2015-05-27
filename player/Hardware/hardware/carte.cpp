@@ -19,13 +19,17 @@
 #include <iostream>
 #include <string>
 
+#include <sys/time.h>
+#include <unistd.h>
+#include <inttypes.h>
+
 
 
 //init carte
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
-  fprintf(stderr, "\ncarte - add extension card dnc\n");
+  fprintf(stderr, "\n\x1b[32mcarte - add extension card dnc\n\x1b[0m");
   SPIcarte.initSPI();
-  SPIcarte.addChipSelect(13,1000000);
+  SPIcarte.addChipSelect(13,500000);
   gamme_tension=_gamme_tension;
   pwm_ledb_or_10w2=_pwm_ledb_or_10w2;
   wiringPiSetupGpio();
@@ -67,6 +71,7 @@ void Carte::writeValue(int valueType,int value, int fadetime){
     buff[3]= (char)fadetime;
   }
   SPIcarte.send(0,buff,size);
+  delay(1);
 }
 
 //read value from carte register
@@ -78,6 +83,19 @@ int Carte::readValue(int valueType){
   SPIcarte.sendWithPause(0,buff,2);
   //fprintf(stderr, "%u \n",buff[1]);
   return buff[1];
+}
+
+/* TIME MEASURE */
+unsigned long long mstime() {
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+
+	unsigned long long millisecondsSinceEpoch =
+	    (unsigned long long)(tv.tv_sec) * 1000 +
+	    (unsigned long long)(tv.tv_usec) / 1000;
+
+	return millisecondsSinceEpoch;
 }
 
 //read carte interrupt and out corresponding message
@@ -97,6 +115,13 @@ int Carte::readInterrupt(){
       //@todo : faire un tableau et l'envoyer
     case PUSH1:
       std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
+      if (valeur==1){
+        startchrono = mstime();
+        checkchrono = true;
+      }
+      if (checkchrono && valeur==0){
+        if(mstime()-startchrono>10000) system ("sudo reboot");
+      }
       break;
     case PUSH2:
       std::cout << "#CARTE_PUSH_2 "<< valeur << std::endl;
@@ -113,7 +138,7 @@ int Carte::readInterrupt(){
     default:
       break;
   }
-  
+  return valeur;
 }
 
 //read tension from carte
@@ -124,7 +149,7 @@ float Carte::checkTension(){
   digitalWrite (GPIO_READ_BATT, HIGH);
   delay(10);
   writeValue(UBATT,0);
-  delay(20);
+  delay(60);
   tension = readValue(UBATT)+50;
   tension = tension/10;
   //strange behaviour
@@ -159,10 +184,10 @@ float Carte::checkTension(){
       if(tension>=23) count_tensioncoupure=0;
       break;
   }
-  if (count_tensionbasse>2) {
+  if (count_tensionbasse>1) {
     std::cout << "#CARTE_TENSION_BASSE"<< std::endl;
   }
-  if (count_tensioncoupure>3) {
+  if (count_tensioncoupure>1) {
     std::cout << "#CARTE_MESSAGE_POWEROFF"<< std::endl;
   }
   return tension;
@@ -175,7 +200,6 @@ void Carte::rgbValue(int r, int v, int b, int fadetime, int strob){
   writeValue(LEDVVALUE,v,fadetime);
   writeValue(LEDBVALUE,b,fadetime);
   if(strob!=0){
-    delay(1);
     writeValue(LEDRVBSTROBSPEED,strob/10);
   }
 }
@@ -185,7 +209,6 @@ void Carte::led10WValue(int v, int fadetime, int strob){
   if(strob!=0)fadetime=0; else writeValue(LED10W1STROBSPEED,0);
   writeValue(LED10W1VALUE,v,fadetime);
   if(strob!=0){
-    delay(1);
     writeValue(LED10W1STROBSPEED,strob/10);
   }
 }

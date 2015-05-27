@@ -1,0 +1,2 @@
+cd /dnc
+./start.sh
