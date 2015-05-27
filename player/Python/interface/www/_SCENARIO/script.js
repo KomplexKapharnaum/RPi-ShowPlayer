@@ -442,12 +442,26 @@
               args[arg] = null;
             });
             allStates.push(new state(name,boxname,category,px,py,dispoBOO,dispositifs,medias,args) );
+
+						if (autoConnect == true) connectLastElements();
+
             }
           }
     });
     }
     draggable();
 
+		// CONNECT LAST ELEMENTS OPTION
+		var autoConnect = false;
+    $('#autoConnect').change(function(){
+      autoConnect = $('#autoConnect').prop('checked');
+    });
+
+		function connectLastElements(){
+			var lastOne = allStates[allStates.length-2];
+			var newOne = allStates[allStates.length-1];
+			jsPlumb.connect({source:lastOne.connect, target:newOne.boxname});
+		}
 
 
 
@@ -732,7 +746,7 @@
         unselectConnections();
 
         this.box.css('background-color','lawngreen');
-        $("#signalEdit").hide();
+        if (autoConnect == false) $("#signalEdit").hide();
 
 				if (this.category == 'TITREUR' && mediaBOO == true){
 					 console.log('loading txt...');
