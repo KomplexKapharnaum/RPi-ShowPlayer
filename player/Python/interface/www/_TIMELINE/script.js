@@ -694,6 +694,8 @@
           }
         });
         refreshscenariosList();
+        actuScenarios();
+        recheckScenarios();
       });
     }
     getScenarios();
@@ -842,7 +844,7 @@
       allScenarios.push(newscenario);
       refreshscenariosList();
       $("#scenarioname").val("New...");
-      recheckscenarios();
+      recheckScenarios();
     });
 
     $('#delscenariobtn').click( function(){
@@ -863,7 +865,6 @@
       });
       getScenarios();
       $("#scenarioname").val("New...");
-      recheckscenarios();
     });
 
     $('#modifscenariobtn').click( function(){
@@ -883,14 +884,15 @@
         });
       });
       getScenarios();
-      //recheckscenarios();
     });
 
-    function recheckscenarios(){
+    function recheckScenarios(){
       // Re-Check les bonnes Cases
-      var tempcheck = new Array();
-      $.each(pool.getActiveBlock(), function(index,block) {tempcheck = block.scenarios;});
-      $("#scenariosms").multipleSelect('setSelects', tempcheck);
+      $.each(pool.getActiveBlock(), function(index,block) {block.editInfos();});
+      // var tempcheck = new Array();
+      // $.each(pool.getActiveBlock(), function(index,block) {tempcheck = block.scenarios;});
+      // console.log(tempcheck);
+      // $("#scenariosms").multipleSelect('setSelects', tempcheck);
     }
 
 
