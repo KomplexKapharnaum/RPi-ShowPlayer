@@ -598,32 +598,6 @@
 
       this.sourceAndtarget();
 
-  		this.box.click(function(e) {
-				$('#editText').hide();
-
-        $.each(allStates, function(index, state){
-          state.active = false;
-					this.resetColor();
-        });
-        thisState. active = true;
-				selected='box';
-        connectionSelected = null;
-        listening = true;
-        unselectConnections();
-
-        thisState.box.css('background-color','lawngreen');
-        $("#signalEdit").hide();
-
-				if (thisState.category == 'TITREUR' && mediaBOO == true){
-					 console.log('loading txt...');
-					$('#editText').fadeIn(200);
-					console.log ('titreur Edit');
-					thisState.loadText();
-					}
-
-
-  		});
-
 			this.loadText = function(){
 				console.log('LOADING TEXT'+thisState.media);
         $.ajax({
@@ -744,6 +718,35 @@
         this.box.css('background-color','#'+this.color);
       }
 
+			this.select = function(){
+				$('#editText').hide();
+
+        $.each(allStates, function(index, state){
+          state.active = false;
+					this.resetColor();
+        });
+        this.active = true;
+				selected='box';
+        connectionSelected = null;
+        listening = true;
+        unselectConnections();
+
+        this.box.css('background-color','lawngreen');
+        $("#signalEdit").hide();
+
+				if (this.category == 'TITREUR' && mediaBOO == true){
+					 console.log('loading txt...');
+					$('#editText').fadeIn(200);
+					console.log ('titreur Edit');
+					this.loadText();
+					}
+			}
+			this.select();
+
+  		this.box.click(function(e) {
+				thisState.select();
+  		});
+
 			//REPAINT ??
 			//jsPlumb.repaint(thisState.box);
 			//jsPlumb.recalculateOffsets(thisState.box)
@@ -758,18 +761,7 @@
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
 
-
-    jsPlumb.bind("connection", function (info) {
-        //info.connection.setLabel(info.connection.id);
-				var Z = "dededede";
-				info.connection.setLabel(Z);
-				info.connection.setType("generic");
-
-    });
-
-
-    jsPlumb.bind("click", function(connection) {
-
+		selectConnection = function(connection){
 			selected = 'connection';
       connectionSelected = connection;
       $.each(allStates, function(index, state){
@@ -794,8 +786,20 @@
 	    unselectConnections();
       connection.setType("selected");
       if (label !== null) connection.setLabel(label);
+		}
 
+    jsPlumb.bind("connection", function (info) {
+        //info.connection.setLabel(info.connection.id);
+				var Z = "dededede";
+				info.connection.setLabel(Z);
+				info.connection.setType("generic");
+				selectConnection(info.connection);
     });
+
+    jsPlumb.bind("click", function(connection) {
+			selectConnection(connection);
+    });
+
 
     $("#signalName").keyup(function(e) {
       listening = false;
