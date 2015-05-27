@@ -409,7 +409,7 @@
         },
       stop: function (e,ui) {
           $(this).offset(draggablePos);
-          if ((e.pageX < 900)&&(e.pageY < 2000)){
+          if ((e.pageX < 900)&&(e.pageY < 3900)){
 
 						////// FILL counter technique
 						boxCount++;
@@ -770,10 +770,21 @@
 			$('#editText').hide();
       var label = connectionSelected.getLabel();
 			$("#signalEdit").fadeIn(400);
+
+			//Actu selector
 			$('#signalselector').val(
 				$('#signalselector option').filter(function(){ return $(this).html() == label; }).val()
 			);
+			//Actu raccourci
+			var indexlist = parseInt($('#signalselector option:selected').val())+65;
+			$("#hotkey").html("Raccourci: alt+"+String.fromCharCode(indexlist)+"");
+
+
 			$("#signalselector").change(function(){
+				//show hotkey
+				var indexlist = parseInt($('#signalselector option:selected').val())+65;
+				$("#hotkey").html("Raccourci: alt+"+String.fromCharCode(indexlist)+"");
+				//set label
 				var newval = $('#signalselector option:selected').text();
 				connectionSelected.setLabel(newval);
 			});
@@ -786,10 +797,27 @@
 	    unselectConnections();
       connection.setType("selected");
       if (label !== null) connection.setLabel(label);
+
+			//Hotkeys
+			$(document).keyup(function(e){
+			  if((e.altKey)&&(selected=='connection')&&(connectionSelected != null)){
+						if((e.keyCode >= 65)&&(e.keyCode <= 91)){
+							var touche = e.keyCode-65;
+							$("#signalselector option:eq("+touche+")").attr('selected', 'selected');
+							//Actu raccourci, only si ca correspond à une option du signalselector
+							var length = $('#signalselector').children('option').length;
+							if (touche < length){ $("#hotkey").html("Raccourci: alt+"+String.fromCharCode(e.keyCode)+""); }
+						}
+						var newval = $('#signalselector option:selected').text();
+						connectionSelected.setLabel(newval);
+			   }
+			});
+
 		}
 
+
+
     jsPlumb.bind("connection", function (info) {
-        //info.connection.setLabel(info.connection.id);
 				var Z = "dededede";
 				info.connection.setLabel(Z);
 				info.connection.setType("generic");
@@ -1055,6 +1083,9 @@
 				if($.inArray(connection.connectionLabel, allSignals)===-1){allSignals.push(connection.connectionLabel);}
 				updateSignals();
       });
+
+			unselectAll();
+			$("#signalEdit").hide();
 
 			//jsPlumb.repaintEverything();
 			// $.each(allStates, function( index, state ) {
