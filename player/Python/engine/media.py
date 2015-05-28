@@ -520,7 +520,7 @@ def load_scenario_from_fs(group, date_timestamp=None):
     path = os.path.join(settings.get_path("scenario"), group)
     tar_path = os.path.join(path, group + "@" + newer.date + ".tar")
     log.log("raw", "Ask to load {0} from fs to update scenario ".format(tar_path))
-    with tarfile.open(tar_path, "r") as tar:
+    with tarfile.open(tar_path, "r:gz") as tar:
         # RM current scenario active directory ! #
         if os.path.exists(settings.get_path("scenario", "activescenario")):
             shutil.rmtree(settings.get_path("scenario", "activescenario"))
