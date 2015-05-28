@@ -5,7 +5,13 @@
       location = "container:"
       name = "gsm">
       <FileRef
-         location = "group:../GPRS_com/main.c">
+         location = "group:../GPRS_com/main.cpp">
+      </FileRef>
+      <FileRef
+         location = "group:../GPRS_com/main.h">
+      </FileRef>
+      <FileRef
+         location = "group:../GPRS_com/makefile">
       </FileRef>
    </Group>
    <Group

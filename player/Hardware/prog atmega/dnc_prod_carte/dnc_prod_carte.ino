@@ -56,6 +56,29 @@ byte adress = 0;
 #define GYRORIGHT 2
 #define GYROLEFT 3
 
+#define BOARDMODE_MANUALLIGHT 0
+#define BOARDMODE_AUTOLIGHT 1
+
+byte manuallightPos=0;
+byte manuallightPosGyro=0;
+byte manuallightPos10w=0;
+byte manuallightPosStep=9;
+byte manuallightPosGyroStep=2;
+byte manuallightPos10wStep=2;
+
+
+byte manuallightConduite[9][3]={
+  {0,0,0},
+  {0,0,255}, //bleu
+  {255,75,0}, //orange
+  {0,255,255}, //cyan
+  {255,0,0},//rouge
+  {0,0,0},
+  {0,255,0}, //vert
+  {128,37,5},//sépia
+  {110,50,30}//blanc faible
+};
+
 byte Value[REGISTERSIZE];
 byte newValue[REGISTERSIZE];
 
@@ -111,6 +134,7 @@ void setup (void) {
   initSPIslave();
   Serial.println("hello");
   newValue[UBATT] = 1;
+  newValue[BOARDMODE] = BOARDMODE_MANUALLIGHT;
   checkInputPeriod = 50;
   checkTensionPeriod = 60000;
 }
@@ -271,7 +295,7 @@ void loop (void) {
             lastGyroStrob = millis();
           }
           if (i == GYROSTROBSPEED && Value[i] == 0)   gyroUpdate();
-
+          
         }
 
       }
@@ -317,7 +341,29 @@ void checkInput() {
   if (millis() > lastCheckInput + checkInputPeriod) {
     //boutons
     for (byte i = 0; i < DECALALOGPIN - DECINPIN; i++) {
-      newValue[DECINPIN + i] = 1 - digitalRead(inpin[i]);
+      byte buttonState = 1 - digitalRead(inpin[i]);
+      //check for manual light
+      if (Value[BOARDMODE]==BOARDMODE_MANUALLIGHT){
+        if(DECINPIN + i == PUSH1 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+          manuallightPos=(manuallightPos+1)%manuallightPosStep;
+          newValue[LEDRVALUE]=manuallightConduite[manuallightPos][0];
+          newValue[LEDVVALUE]=manuallightConduite[manuallightPos][1];
+          newValue[LEDBVALUE]=manuallightConduite[manuallightPos][2];
+        }
+        if(DECINPIN + i == PUSH2 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+          manuallightPosGyro=(manuallightPosGyro+1)%manuallightPosGyroStep;
+          if(manuallightPosGyro==0) newValue[GYROMODE]=GYROALLOFF;
+          else {newValue[GYROMODE]=GYROLEFT;
+            newValue[GYROSPEED]=1;}
+          
+        }
+        if(DECINPIN + i == PUSH3 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+          manuallightPos10w=(manuallightPos10w+1)%manuallightPos10wStep;
+          newValue[LED10W1VALUE]=manuallightPos10w*255;
+        }
+      }
+      //get value of button to raise interrupt
+      newValue[DECINPIN + i] = buttonState;
     }
     if (Value[BOARDCHECKFLOAT] == 1) newValue[FLOAT] = map(analogRead(inpinanalog[FLOAT - DECALALOGPIN]), 0, 1024, 0, 255);
     lastCheckInput = millis();
@@ -326,7 +372,7 @@ void checkInput() {
 
 void checkTension() {
   if ((millis() > lastCheckTension + checkTensionPeriod)  && !interruptPending()) {
-    Serial.println("interupt tension");
+    Serial.println("interrupt tension");
     setInterrupt(UBATT);
     lastCheckTension= millis();
   }

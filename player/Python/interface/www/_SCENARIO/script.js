@@ -1,5 +1,6 @@
 	jsPlumb.ready(function() {
 
+
     /////////////////////////  GLOBAL  //////////////////////////////
 
     jsPlumb.registerConnectionType("selected", {
@@ -408,7 +409,7 @@
         },
       stop: function (e,ui) {
           $(this).offset(draggablePos);
-          if ((e.pageX < 900)&&(e.pageY < 2000)){
+          if ((e.pageX < 900)&&(e.pageY < 3900)){
 
 						////// FILL counter technique
 						boxCount++;
@@ -441,12 +442,26 @@
               args[arg] = null;
             });
             allStates.push(new state(name,boxname,category,px,py,dispoBOO,dispositifs,medias,args) );
+
+						if (autoConnect == true) connectLastElements();
+
             }
           }
     });
     }
     draggable();
 
+		// CONNECT LAST ELEMENTS OPTION
+		var autoConnect = false;
+    $('#autoConnect').change(function(){
+      autoConnect = $('#autoConnect').prop('checked');
+    });
+
+		function connectLastElements(){
+			var lastOne = allStates[allStates.length-2];
+			var newOne = allStates[allStates.length-1];
+			jsPlumb.connect({source:lastOne.connect, target:newOne.boxname});
+		}
 
 
 
@@ -597,32 +612,6 @@
 
       this.sourceAndtarget();
 
-  		this.box.click(function(e) {
-				$('#editText').hide();
-
-        $.each(allStates, function(index, state){
-          state.active = false;
-					this.resetColor();
-        });
-        thisState. active = true;
-				selected='box';
-        connectionSelected = null;
-        listening = true;
-        unselectConnections();
-
-        thisState.box.css('background-color','lawngreen');
-        $("#signalEdit").hide();
-
-				if (thisState.category == 'TITREUR' && mediaBOO == true){
-					 console.log('loading txt...');
-					$('#editText').fadeIn(200);
-					console.log ('titreur Edit');
-					thisState.loadText();
-					}
-
-
-  		});
-
 			this.loadText = function(){
 				console.log('LOADING TEXT'+thisState.media);
         $.ajax({
@@ -743,6 +732,35 @@
         this.box.css('background-color','#'+this.color);
       }
 
+			this.select = function(){
+				$('#editText').hide();
+
+        $.each(allStates, function(index, state){
+          state.active = false;
+					this.resetColor();
+        });
+        this.active = true;
+				selected='box';
+        connectionSelected = null;
+        listening = true;
+        unselectConnections();
+
+        this.box.css('background-color','lawngreen');
+        if (autoConnect == false) $("#signalEdit").hide();
+
+				if (this.category == 'TITREUR' && mediaBOO == true){
+					 console.log('loading txt...');
+					$('#editText').fadeIn(200);
+					console.log ('titreur Edit');
+					this.loadText();
+					}
+			}
+			this.select();
+
+  		this.box.click(function(e) {
+				thisState.select();
+  		});
+
 			//REPAINT ??
 			//jsPlumb.repaint(thisState.box);
 			//jsPlumb.recalculateOffsets(thisState.box)
@@ -757,18 +775,7 @@
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
 
-
-    jsPlumb.bind("connection", function (info) {
-        //info.connection.setLabel(info.connection.id);
-				var Z = "dededede";
-				info.connection.setLabel(Z);
-				info.connection.setType("generic");
-
-    });
-
-
-    jsPlumb.bind("click", function(connection) {
-
+		selectConnection = function(connection){
 			selected = 'connection';
       connectionSelected = connection;
       $.each(allStates, function(index, state){
@@ -777,10 +784,21 @@
 			$('#editText').hide();
       var label = connectionSelected.getLabel();
 			$("#signalEdit").fadeIn(400);
+
+			//Actu selector
 			$('#signalselector').val(
 				$('#signalselector option').filter(function(){ return $(this).html() == label; }).val()
 			);
+			//Actu raccourci
+			var indexlist = parseInt($('#signalselector option:selected').val())+65;
+			$("#hotkey").html("Raccourci: alt+"+String.fromCharCode(indexlist)+"");
+
+
 			$("#signalselector").change(function(){
+				//show hotkey
+				var indexlist = parseInt($('#signalselector option:selected').val())+65;
+				$("#hotkey").html("Raccourci: alt+"+String.fromCharCode(indexlist)+"");
+				//set label
 				var newval = $('#signalselector option:selected').text();
 				connectionSelected.setLabel(newval);
 			});
@@ -794,7 +812,36 @@
       connection.setType("selected");
       if (label !== null) connection.setLabel(label);
 
+			//Hotkeys
+			$(document).keyup(function(e){
+			  if((e.altKey)&&(selected=='connection')&&(connectionSelected != null)){
+						if((e.keyCode >= 65)&&(e.keyCode <= 91)){
+							var touche = e.keyCode-65;
+							$("#signalselector option:eq("+touche+")").attr('selected', 'selected');
+							//Actu raccourci, only si ca correspond à une option du signalselector
+							var length = $('#signalselector').children('option').length;
+							if (touche < length){ $("#hotkey").html("Raccourci: alt+"+String.fromCharCode(e.keyCode)+""); }
+						}
+						var newval = $('#signalselector option:selected').text();
+						connectionSelected.setLabel(newval);
+			   }
+			});
+
+		}
+
+
+
+    jsPlumb.bind("connection", function (info) {
+				var Z = "dededede";
+				info.connection.setLabel(Z);
+				info.connection.setType("generic");
+				selectConnection(info.connection);
     });
+
+    jsPlumb.bind("click", function(connection) {
+			selectConnection(connection);
+    });
+
 
     $("#signalName").keyup(function(e) {
       listening = false;
@@ -1051,6 +1098,9 @@
 				updateSignals();
       });
 
+			unselectAll();
+			$("#signalEdit").hide();
+
 			//jsPlumb.repaintEverything();
 			// $.each(allStates, function( index, state ) {
 			// 			jsPlumb.repaint(state.box);
@@ -1134,6 +1184,7 @@
 			// loadGraphAfter = true;
 			// loadScenario();
 		});
+		document.title = scenarioName;
 
 
 

@@ -22,7 +22,7 @@
     "sacvp_11":{
         "ip":"2.0.2.11","infos":"sac tati video n°11","pi":"b2.4","sd":"32go","tension":"lipo12","titreur":"0","video":"yes","sound":"yes","ext":"yes","active":"yes"},
     "sacvp_12":{
-        "ip":"2.0.2.12","infos":"sac tati video n°12","pi":"b2.9","sd":"32go","tension":"lipo12","titreur":"0","video":"yes","sound":"yes","ext":"yes","active":"yes"},
+        "ip":"2.0.2.12","infos":"sac tati video n°12","pi":"b2.9","sd":"32go","tension":"life12","titreur":"0","video":"yes","sound":"yes","ext":"yes","active":"yes"},
     "sacvp_13":{
         "ip":"2.0.2.13","infos":"sac tati video n°13","pi":"b2.","sd":"32go","tension":"lipo24","titreur":"0","video":"yes","sound":"yes","ext":"yes","active":"yes"},
     "caddie_14":{
@@ -30,7 +30,7 @@
     "caddie_15":{
         "ip":"2.0.2.15","infos":"sac tati video n°15","pi":"b2.","sd":"16go","tension":"lipo24","titreur":"0","video":"yes","sound":"yes","ext":"yes","active":"yes"},
     "charsncf_16":{
-        "ip":"2.0.2.16","infos":"chariot sncf video et matieres n°16","pi":"b2.8","sd":"32go","tension":"pb12","titreur":"0","video":"yes","sound":"yes","ext":"yes","active":"yes"},
+        "ip":"2.0.2.16","infos":"chariot sncf video et matieres n°16","pi":"b2.8","sd":"32go","tension":"lipo24","titreur":"0","video":"yes","sound":"yes","ext":"yes","active":"yes"},
     "pico_17":{
         "ip":"2.0.2.17","infos":"pico balais n°17","pi":"-","sd":"-","tension":"-","titreur":"0","video":"yes","sound":"yes","ext":"no","active":"yes"},
     "pico_18":{
@@ -80,5 +80,7 @@
     "pl_57":{
         "ip":"2.0.2.57","infos":"poids lourd n°57","pi":"-","sd":"-","tension":"pb24","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"no"},
     "odeurs_58":{
-        "ip":"2.0.2.58","infos":"diffuseur odeur n°58","pi":"-","sd":"-","tension":"lipo12","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes"}
+        "ip":"2.0.2.58","infos":"diffuseur odeur n°58","pi":"-","sd":"-","tension":"lipo12","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes"},
+    "raspi2mgr":{
+        "ip":"2.0.2.138","infos":"carte de test ip de base","pi":"-","sd":"-","tension":"-","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes"}
 }

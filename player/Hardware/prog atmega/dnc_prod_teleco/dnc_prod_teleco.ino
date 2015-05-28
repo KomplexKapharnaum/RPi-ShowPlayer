@@ -417,7 +417,7 @@ typedef struct {
 
 
 const menutype menulist[T_MENU_LENGTH] PROGMEM = {
-  {" do not clean","     V1.5",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+  {" do not clean","     V1.6",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0,true},
   {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
@@ -1058,7 +1058,7 @@ void lowleveRoutine(){
   //if slave select not active
   if (digitalRead (SS) == HIGH) command = 0;
   //timeout if prog do not answer to interrupt
-  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt && Value[T_INIT]==1) {
+  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt && Value[T_INIT]==1 && command == 0) {
     printf_P(PSTR("warning interrupt read fail\n"));
     newValue[T_LEDRVALUE] = 0;
     freeInterrupt();
@@ -1094,11 +1094,13 @@ void loop (void) {
       }
     }
   }
-  if (Value[T_STROBLRSPEED] > 0) strobLRRoutine(0);
-  if (Value[T_STROBLVSPEED] > 0) strobLVRoutine(0);
+  if (command == 0){
+    if (Value[T_STROBLRSPEED] > 0) strobLRRoutine(0);
+    if (Value[T_STROBLVSPEED] > 0) strobLVRoutine(0);
   
-  newcheckInput();
-  displayMenu();
+    newcheckInput();
+    displayMenu();
+  }
   
 }  // end of loop
 

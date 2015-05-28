@@ -18,7 +18,8 @@
 
 #include "main.h"
 using namespace std;
-ofstream outfile;
+ofstream outfilenum;
+ofstream outfiletext;
 
 void readRX(int fd,int end){
   //----- CHECK FOR ANY RX BYTES -----
@@ -50,8 +51,11 @@ void readRX(int fd,int end){
                     getline(ss,word,'"');
                     getline(ss,word,'"');
                     cout << "num = " << word;
-                    outfile << word << endl;
+                    outfilenum << word << endl;
 
+                }
+                else {
+                    outfiletext << input << endl << endl;
                 }
             }
         }
@@ -70,7 +74,8 @@ void readRX(int fd,int end){
 int main (int argc, char * argv[]){
 
   int uart0_filestream = -1;
-  outfile.open("/dnc/media/sms/dest.txt", std::ios_base::app);
+  outfilenum.open("/dnc/media/sms/dest.txt", std::ios_base::app);
+  outfiletext.open("/dnc/media/sms/sms.txt", std::ios_base::app);
 
   //serial RX coté RPI tx coté modem pin du haut sur la carte, pin 7 modem
   //serial TX coté RPI rx coté modem pin du bas sur la carte, pin 8 modem

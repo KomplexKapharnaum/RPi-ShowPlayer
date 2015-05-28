@@ -5,7 +5,6 @@
 # This file provide some Etapes which are accessible from the scenario scope
 #
 #
-
 import liblo
 import time
 import application
@@ -13,31 +12,33 @@ import subprocess
 import scenario
 from modules import link
 from _classes import module
-from engine import tools
+from engine import tools, threads, fsm
 from engine.log import init_log
-from engine.setting import settings,devicesV2
+from engine.setting import settings, devicesV2
 from engine.media import load_scenario_from_fs
 log = init_log("devicecontrol")
 
+TENSION = 0
 
 @module('DeviceControl')
-@link({"/device/reload": "device_do_reload",
-       "/device/do_reload": "device_do_reload",
+@link({"/device/reload": "device_reload",
+       "/device/do_reload": "device_reload",
         "/device/poweroff": "device_poweroff",
         "/device/reboot": "device_reboot",
         "/device/restart": "device_restart",
         "/device/updatesys": "device_update_system",
         "/device/wifi/restart": "device_restart_wifi",
-        "FS_TIMELINE_UPDATED": "device_restart",         # TODO : replace by do_reload, but in replacement...
-        "/device/sendInfoTension": "device_send_info_tension",
-        "/device/senWarningTension": "device_send_warning_tension"})
+        "FS_TIMELINE_UPDATED": "device_restart",         # TODO : replace by device_update_timeline, but seems broken...
+        "/device/updateTension": "device_update_tension",
+        "/device/info": "device_send_info",
+        "/device/warningTension": "device_send_warning_tension"})
 
 def device_control(flag, **kwargs):
     pass
 
 
 @link({None: "device_control"})
-def device_do_reload(flag, **kwargs):
+def device_reload(flag, **kwargs):
     application.reload()
 
 @link({None: "device_control"})
@@ -75,12 +76,21 @@ def device_update_timeline(flag, **kwargs):
     load_scenario_from_fs(settings["current_timeline"])
 
 @link({None: "device_control"})
-def device_send_info_tension(flag, **kwargs):
+def device_send_info(flag, **kwargs):
     cpu_temperature = 0
     link_signal = "no signal"
     link_channel = "no channel"
-    with open("/sys/class/thermal/thermal_zone0/temp") as file:
-        cpu_temperature = float(file.read())/1000
+    power = "-"
+    scene_name = "NoScene"
+
+    # TEMPERATURE
+    try:
+        with open("/sys/class/thermal/thermal_zone0/temp") as file:
+            cpu_temperature = float(file.read())/1000
+    except:
+        log.warning('Can\'t retrieve temperature')
+
+    # WIFI SIGNAL
     try:
         link = subprocess.check_output(['iw', 'dev', 'wlan0', 'link'])
         links = link.splitlines()
@@ -88,9 +98,9 @@ def device_send_info_tension(flag, **kwargs):
             if "signal:" in line:
                 link_signal=line
     except:
-        link_signal = ' ? '
         log.warning('Can\'t retrieve Wlan0 signal power (iw dev wlan0 link)')
 
+    # WIFI CHANNEL
     try:
         link = subprocess.check_output(['iw', 'dev', 'wlan0', 'info'])
         links = link.splitlines()
@@ -98,51 +108,38 @@ def device_send_info_tension(flag, **kwargs):
             if "channel" in line:
                 link_channel = line
     except:
-        link_channel = ' ? '
         log.warning('Can\'t retrieve Wlan0 channel (iw dev wlan0 info)')
 
-    power = "undefined power"
+    # TENSION
     if settings.get("uName") in devicesV2:
         power = devicesV2.get(settings.get("uName"), "tension")
-    scene_name = "NoScene"
+
+    # SCENE
     if len(scenario.pool.Frames) >= scenario.CURRENT_SCENE_FRAME + 1:
         scene_name = scenario.pool.Frames[scenario.CURRENT_SCENE_FRAME].name
+    
+    # MESSAGE
     message = liblo.Message("/monitor", settings.get("uName"),
                             settings.get("current_timeline"), scenario.pool.timeline_version, scene_name,
                             cpu_temperature,
                             link_channel, link_signal,
-                            power, float(flag.args["args"][0]))
-    #TODO add curent scene name
-    log.debug("monitoring send {0}".format(message))
-    port = settings.get("log", "tension", "port")
-    for dest in settings.get("log", "tension", "ip"):
-        liblo.send(liblo.Address(dest, port), message)
+                            power, TENSION)
+
+    log.raw("monitoring send {0}".format(message))
+    tools.send_monitoring_message(message)
+
+
+@link({None: "device_send_info"})
+def device_update_tension(flag, **kwargs):
+    if len(flag.args["args"]) > 0:
+        global TENSION
+        TENSION = float(flag.args["args"][0])
+
 
 @link({None: "device_control"})
 def device_send_warning_tension(flag, **kwargs):
     message = liblo.Message("/warningTension",settings.get("uName"))
     log.debug("get warning tension and forward")
-    port = settings.get("log","tension","port")
-    for dest in settings.get("log","tension","ip"):
-        liblo.send(liblo.Address(dest,port),message)
+    tools.send_monitoring_message(message)
 
 
-
-
-# 'TELECO_MESSAGE_BLINKGROUP': [],
-# 'TELECO_MESSAGE_TESTROUTINE': ['testRoutine']
-
-
-# @globaletape("DEVICE_MANAGER_CONTROL", {
-#                 None: "DEVICE_MANAGER"})
-# def main_device_control(flag, **kwargs):
-#     """
-#     This function provide main control on the device
-#     :param flag:
-#     :param kwargs:
-#     :return:
-#     """
-#     log.debug("=> Device control : {0}".format(flag.args["args"][0]))
-#     if flag.args["args"][0] == "reboot_manager":
-#         log.log("raw", "call reboot_manager")
-#         functions.reboot_manager()

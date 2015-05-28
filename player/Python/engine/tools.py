@@ -3,7 +3,7 @@
 # Define some basic tools for the project
 #
 #
-
+import liblo
 import weakref
 import sys
 import traceback
@@ -179,6 +179,19 @@ def restart_netctl():
         log.debug("Don't restart netctl because we are not on a raspi")
 
 
+# TOOLS 
+def send_monitoring_message(oscMessage):
+    port = settings.get("log", "monitor", "port")
+    for dest in settings.get("log", "monitor", "ip"):
+        liblo.send(liblo.Address(dest, port), oscMessage)
+
+
+def sendPing():
+    message = liblo.Message("/ping", settings.get("uName"))
+    send_monitoring_message(message)
+    log.raw("send ping")
+
+
 class ThreadTeleco(threading.Thread):
     """
     This thread is here to display messages in teleco. If the given message his too large it will be cut in smaller
@@ -244,6 +257,9 @@ class ThreadTeleco(threading.Thread):
                         else:
                             args["ligne2"] = ""
                         args["page"] = page
+                        if page == "error":     #TODO process error in fsm of popup rather than here
+                            args["ligne1"]="error"
+                            args["ligne2"]="no show"
                         engine.threads.patcher.patch(flag_popup.get(args=args))
                         if len(message) >= n + 1:
                             time.sleep(settings.get("log", "teleco", "autoscroll"))

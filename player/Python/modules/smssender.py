@@ -16,10 +16,12 @@ from engine.threads import patcher
 from engine.fsm import Flag
 log = init_log("sms")
 
+
 URL = settings.get("sms", "server")
 ACCOUNT = settings.get("sms", "account")
 PASSWORD = settings.get("sms", "password")
 DESTFILE = settings.get_path("sms_destlist")
+SEND = settings.get("sms", "send")
 
 
 ############
@@ -30,7 +32,7 @@ def makeXmlPush(destinataires, text, name="DO NOT CLEAN", mode=1, pretty=False):
     # PUSH
     push = Element('push', {'accountid':    ACCOUNT,
                             'password':     PASSWORD,
-                            'email':        "thomas.bohl@gmail.com",
+                            'email':        "pierre.hoezelle@gmail.com",
                             'class_type':   "{0}".format(mode),
                             'name':         "{0}".format(name),
                             'userdata':     "DNC",
@@ -46,7 +48,7 @@ def makeXmlPush(destinataires, text, name="DO NOT CLEAN", mode=1, pretty=False):
     ## MESSAGE 
     message = SubElement(push, 'message', {'class_type': "{0}".format(mode)}) # Class Type : 0 = Flash // 1 = Normal
     content = SubElement(message, 'text')
-    content.text = unicode(text, "utf-8")
+    content.text = text
     for num in destinataires:
         to = SubElement(message, 'to', {'ret_id': "TO_"+num})
         to.text = num
@@ -93,11 +95,15 @@ def sendSMS(message):
     message = message.strip() if message is not None else ""
     if len(message) > 0:
         if len(destinataires) > 0:
-            ans = post(URL, makeXmlPush(destinataires, message))
+            ans = ""
+            if SEND:
+                ans = post(URL, makeXmlPush(destinataires, message))
+            else:
+                ans = "disable"
             ans = '{0}'.format(ans)
             if ans.isdigit():
                 log.log('important', 'SMS sent successfully with code: {0}'.format(ans))
-                patcher.patch( Flag('SMS_SENT').get() )
+                patcher.patch(Flag('SMS_SENT').get())
             else:
                 log.warning('SMS failed to send: {0}'.format(ans))
                 if ans == 'BAD PASSWORD':
@@ -106,6 +112,8 @@ def sendSMS(message):
             log.warning('Can\'t send SMS, no dest found in {0}'.format(DESTFILE))
     else:
         log.warning('Can\'t send SMS with Empty message..')
+
+
 
 
 exposesignals({'SMS_SENT': [True]}) 
