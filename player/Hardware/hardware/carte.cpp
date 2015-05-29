@@ -120,8 +120,8 @@ int Carte::readInterrupt(){
         checkchrono = true;
       }
       if (checkchrono && valeur==0){
-        if(mstime()-startchrono>10000 && mstime()-startchrono<20000) system ("sudo reboot");
-        if(mstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
+        //if(mstime()-startchrono>10000 && mstime()-startchrono<20000) system ("sudo reboot");
+        //if(mstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
       }
       break;
     case PUSH2:
