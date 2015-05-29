@@ -845,7 +845,18 @@
       refreshscenariosList();
       $("#scenarioname").val("New...");
       recheckScenarios();
-
+      // AND create EMPTY scenario file
+      $.ajax({
+          url: "../../_SCENARIO/data/save.php",
+          dataType: "json",
+          type: "POST",
+          data: {
+              contents: JSON.stringify({"boxes":[],"connections":[],"origins":[]}),
+              filename: scenarioname,
+              timestamp: $.now(),
+              type: 'scenario'
+          }
+      });
     });
 
     $('#delscenariobtn').click( function(){
