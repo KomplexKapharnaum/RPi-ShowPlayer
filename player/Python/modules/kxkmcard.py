@@ -221,13 +221,14 @@ class KxkmCard(ExternalProcessFlag):
         # BRANCH
         try:
             branch = subprocess.check_output(['git', 'branch'])
+            branch = branch.split(' ')[1]
         except:
             log.warning('Can\'t retrieve branch')
 
         self.say(
             'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit} -ins {ins}'.format(
-                name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status=branch,
-                volt=voltage, tit=titreur, ins=invertedSwitch))
+                name=settings.get("uName"), ip=get_ip(), v=settings.get("version"),
+                volt=voltage, tit=titreur, ins=invertedSwitch, status=branch))
         return False
 
     def sendInfo(self, cmd=None):
