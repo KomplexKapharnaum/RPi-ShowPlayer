@@ -9,7 +9,7 @@ from _classes import ExternalProcessFlag, module
 from scenario import classes
 from modules import link, exposesignals
 from engine.log import init_log
-from engine.setting import settings
+from engine.setting import settings, devicesV2
 from engine.threads import patcher
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
@@ -213,25 +213,10 @@ class KxkmCard(ExternalProcessFlag):
         :return:
         """
         log.log("important", "Init HardWare on KxkmCard ..")
-        path = settings.get_path('deviceslist')
-        voltage = None
-        titreur = None
-        invertedSwitch = None
+        voltage = devicesV2.get(settings.get("uName"), "tension")
+        titreur = devicesV2.get(settings.get("uName"), "titreur")
+        invertedSwitch = devicesV2.get(settings.get("uName"), "inverted_switch")
 
-        try:
-            answer = dict()
-            with open(path, 'r') as f:  # Use file to refer to the file object
-                answer = json.loads(f.read())
-            answer['status'] = 'success'
-            for device in answer["devices"]:
-                if device["hostname"] == settings.get("uName"):
-                    voltage = device["tension"]
-                    titreur = device["titreur"]
-                    invertedSwitch = device["inverted_switch"]
-                    break
-        except OSError as e:
-            log.exception(log.show_exception(e))
-            log.log("debug", "devices.json not found")
 
         # BRANCH
         try:
