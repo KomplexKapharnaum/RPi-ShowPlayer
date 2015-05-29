@@ -216,6 +216,7 @@ class KxkmCard(ExternalProcessFlag):
         path = settings.get_path('deviceslist')
         voltage = None
         titreur = None
+        invertedSwitch = None
 
         try:
             answer = dict()
@@ -226,15 +227,16 @@ class KxkmCard(ExternalProcessFlag):
                 if device["hostname"] == settings.get("uName"):
                     voltage = device["tension"]
                     titreur = device["titreur"]
+                    invertedSwitch = device["titreur"]
                     break
         except OSError as e:
             log.exception(log.show_exception(e))
             log.log("debug", "devices.json not found")
 
         self.say(
-            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit}'.format(
+            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit} -ins {ins}'.format(
                 name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
-                volt=voltage, tit=titreur))
+                volt=voltage, tit=titreur, ins=invertedSwitch))
         return False
 
     def sendInfo(self, cmd=None):

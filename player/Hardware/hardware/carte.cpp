@@ -55,6 +55,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   needStatusUpdate=0;
   count_tensionbasse=0;
   count_tensioncoupure=0;
+  inverted_switch=0;
 }
 
 
@@ -110,7 +111,9 @@ int Carte::readInterrupt(){
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "carte - interrupt %u read %u\n",address,buff[1]);
-  int valeur =buff[1];
+  int valeur;
+  if(inverted_switch==0) valeur = buff[1];
+  else valeur = 1 - buff[1];
   switch (address) {
       //@todo : faire un tableau et l'envoyer
     case PUSH1:
@@ -120,8 +123,8 @@ int Carte::readInterrupt(){
         checkchrono = true;
       }
       if (checkchrono && valeur==0){
-        //if(mstime()-startchrono>10000 && mstime()-startchrono<20000) system ("sudo reboot");
-        //if(mstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
+        if(mstime()-startchrono>10000 && mstime()-startchrono<20000) system ("sudo reboot");
+        if(mstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
       }
       break;
     case PUSH2:
@@ -235,6 +238,11 @@ void Carte::setRelais(int val){
 void Carte::setledG(int val){
   fprintf(stderr, "carte - set led green %u",val);
   digitalWrite (GPIO_LED_GREEN, val);
+}
+
+void Carte::setInvertedSwitch(int val){
+  inverted_switch=val;
+  fprintf(stderr, "carte - inverted switch value %u \n",val);
 }
 
 

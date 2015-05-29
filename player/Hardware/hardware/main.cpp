@@ -241,6 +241,10 @@ int parseInput(string input){
           ss>>parsedInput;
           status=parsedInput;
         }
+        if ("-ins"==parsedInput){
+          ss>>inverted_switch;
+          mycarte.setInvertedSwitch(inverted_switch);          
+        }
       }
       init=1;
       
