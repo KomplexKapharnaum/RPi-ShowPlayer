@@ -221,7 +221,7 @@ class KxkmCard(ExternalProcessFlag):
         # BRANCH
         try:
             branch = subprocess.check_output(['git', 'branch'])
-            branch = branch.split(' ')[1]
+            branch = branch.split(' ')[1].rstrip()
         except:
             log.warning('Can\'t retrieve branch')
 
