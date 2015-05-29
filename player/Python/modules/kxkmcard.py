@@ -226,7 +226,7 @@ class KxkmCard(ExternalProcessFlag):
             log.warning('Can\'t retrieve branch')
 
         self.say(
-            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit} -ins {ins}'.format(
+            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -titreurNbr {tit} -ins {ins} -status {status}'.format(
                 name=settings.get("uName"), ip=get_ip(), v=settings.get("version"),
                 volt=voltage, tit=titreur, ins=invertedSwitch, status=branch))
         return False
