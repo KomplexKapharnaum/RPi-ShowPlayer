@@ -227,15 +227,21 @@ class KxkmCard(ExternalProcessFlag):
                 if device["hostname"] == settings.get("uName"):
                     voltage = device["tension"]
                     titreur = device["titreur"]
-                    invertedSwitch = device["titreur"]
+                    invertedSwitch = device["inverted_switch"]
                     break
         except OSError as e:
             log.exception(log.show_exception(e))
             log.log("debug", "devices.json not found")
 
+        # BRANCH
+        try:
+            branch = subprocess.check_output(['git', 'branch'])
+        except:
+            log.warning('Can\'t retrieve branch')
+
         self.say(
             'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit} -ins {ins}'.format(
-                name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
+                name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status=branch,
                 volt=voltage, tit=titreur, ins=invertedSwitch))
         return False
 
