@@ -2,6 +2,8 @@
 # Raplace old start.sh to avoid changing rc.local
 # This script run old start.sh (now dnc.sh) on a detached GNU screen session
 
+/dnc/bash/kill.sh
+
 which screen
 screen=$?
 if [ $screen -eq 1 ]; then       # There isn't the GNU screen binary, try to install it
