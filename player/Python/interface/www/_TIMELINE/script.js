@@ -845,6 +845,18 @@
       refreshscenariosList();
       $("#scenarioname").val("New...");
       recheckScenarios();
+      // AND create EMPTY scenario file
+      $.ajax({
+          url: "../../_SCENARIO/data/save.php",
+          dataType: "json",
+          type: "POST",
+          data: {
+              contents: JSON.stringify({"boxes":[],"connections":[],"origins":[]}),
+              filename: scenarioname,
+              timestamp: $.now(),
+              type: 'scenario'
+          }
+      });
     });
 
     $('#delscenariobtn').click( function(){
@@ -855,7 +867,10 @@
           //dataType: "json",
           type: "POST",
           data: { fileName: scenarDelete, type: 'scenario'}
-      });
+      }).done(function(reponse) {
+        getScenarios();
+  		});
+      // update pi.blocks.scenarios
       $.each(allPi,function(keypi,pi){
         $.each(pi.allBlocks, function(keyblock, block) {
           $.each(block.scenarios, function(key, scenario){
@@ -863,7 +878,6 @@
           });
         });
       });
-      getScenarios();
       $("#scenarioname").val("New...");
     });
 
@@ -875,7 +889,9 @@
           type: "POST",
           data: { oldname: oldName, newname: newName, type: 'scenario' }
       }).done(function(reponse){
+        getScenarios();
       });
+      // update pi.blocks.scenarios
       $.each(allPi,function(keypi,pi){
         $.each(pi.allBlocks, function(keyblock, block) {
           $.each(block.scenarios, function(key, scenario){
@@ -883,16 +899,11 @@
           });
         });
       });
-      getScenarios();
     });
 
     function recheckScenarios(){
       // Re-Check les bonnes Cases
       $.each(pool.getActiveBlock(), function(index,block) {block.editInfos();});
-      // var tempcheck = new Array();
-      // $.each(pool.getActiveBlock(), function(index,block) {tempcheck = block.scenarios;});
-      // console.log(tempcheck);
-      // $("#scenariosms").multipleSelect('setSelects', tempcheck);
     }
 
 
