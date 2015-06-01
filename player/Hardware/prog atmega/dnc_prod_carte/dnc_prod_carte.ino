@@ -134,19 +134,21 @@ void setup (void) {
   initSPIslave();
   Serial.println("hello");
   newValue[UBATT] = 1;
-  newValue[BOARDMODE] = BOARDMODE_AUTOLIGHT;
+  newValue[BOARDMODE] = BOARDMODE_MANUALLIGHT;
   Value[BOARDMODE] = newValue[BOARDMODE];
   checkInputPeriod = 50;
   checkTensionPeriod = 60000;
 }
 
+
+
 void setInterrupt(byte interrupt){
-  newValue[INTERRUPT] = interrupt;
-  Value[INTERRUPT] = newValue[INTERRUPT];
-  printf_P(PSTR("interupt %u\n"),Value[INTERRUPT]);
-  interruptTimeOn = millis();
-  digitalWrite(outpin[INTERRUPT], HIGH);
-  SPDR = interrupt;
+    newValue[INTERRUPT] = interrupt;
+    Value[INTERRUPT] = newValue[INTERRUPT];
+    printf_P(PSTR("interupt %u\n"),Value[INTERRUPT]);
+    interruptTimeOn = millis();
+    digitalWrite(outpin[INTERRUPT], HIGH);
+    SPDR = interrupt;
 }
 
 void poweroff(){
@@ -366,7 +368,9 @@ void checkInput() {
       //get value of button to raise interrupt
       newValue[DECINPIN + i] = buttonState;
     }
-    if (Value[BOARDCHECKFLOAT] == 1) newValue[FLOAT] = map(analogRead(inpinanalog[FLOAT - DECALALOGPIN]), 0, 1024, 0, 255);
+    if (Value[BOARDCHECKFLOAT] == 1) {
+      newValue[FLOAT] = map(analogRead(inpinanalog[FLOAT - DECALALOGPIN]), 0, 1024, 0, 255);
+    }
     lastCheckInput = millis();
   }
 }

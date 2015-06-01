@@ -107,7 +107,7 @@ int Carte::readInterrupt(){
   SPIcarte.sendWithPause(0,buff,2);
   //fprintf(stderr, "carte - read i %u\n",buff[1]);
   int address = buff[1];
-  if (adress<POWERDOWN) {
+  if (address<POWERDOWN && address>INTERRUPT) {
   buff[0]= (char)(READCOMMAND+buff[1]);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
@@ -144,6 +144,8 @@ int Carte::readInterrupt(){
       break;
   }
   return valeur;
+  }else {
+    fprintf(stderr, ".");
   }
   return 0;
 }
