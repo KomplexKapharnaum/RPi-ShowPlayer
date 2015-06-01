@@ -2,7 +2,7 @@
 # Raplace old start.sh to avoid changing rc.local
 # This script run old start.sh (now dnc.sh) on a detached GNU screen session
 
-/dnc/bash/kill.sh
+/dnc/bash/kill.sh;
 
 which screen
 screen=$?
