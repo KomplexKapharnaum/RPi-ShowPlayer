@@ -2,7 +2,6 @@
 # Raplace old start.sh to avoid changing rc.local
 # This script run old start.sh (now dnc.sh) on a detached GNU screen session
 
-/dnc/bash/kill.sh;
 
 which screen
 screen=$?
@@ -36,7 +35,8 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
         else
             echo "Stopping previous dnc screen session..."
             screen -X -S dnc quit
-            sleep 3
+            sleep 5
+            pkill python2
         fi
     fi
 
