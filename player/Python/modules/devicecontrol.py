@@ -95,7 +95,7 @@ def device_send_info(flag, **kwargs):
     try:
         branch = subprocess.check_output(['git', 'branch'])
         branch = "branch {0}".format(branch)
-        branch = branch.split('* ')[0]
+        branch = branch.split('* ')[1]
         branch = branch.split(' ')[0]
     except:
         log.warning('Can\'t retrieve branch')
