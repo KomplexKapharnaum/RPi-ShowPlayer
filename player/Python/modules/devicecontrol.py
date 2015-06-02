@@ -82,6 +82,7 @@ def device_send_info(flag, **kwargs):
     link_channel = "no channel"
     power = "-"
     scene_name = "NoScene"
+    branch = "git ?"
 
     # TEMPERATURE
     try:
@@ -92,7 +93,8 @@ def device_send_info(flag, **kwargs):
 
     # BRANCH
     try:
-        branch = "branch {0}".format(subprocess.check_output(['git', 'branch']))
+        branch = subprocess.check_output(['git', 'branch'])
+        branch = "branch {0}".format(branch)
         branch = branch.split('* ')[0]
         branch = branch.split(' ')[0]
     except:
