@@ -147,6 +147,7 @@ def scene_next(flag, **kwargs):
         log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
+@link({None: "scene_control"})
 def scene_go(flag, **kwargs):
     log.debug("Scene_go at {1} with {0} kwargs {2}".format(scenario.CURRENT_FRAME, flag, kwargs))
     if "keyframe" in flag.args.keys():
