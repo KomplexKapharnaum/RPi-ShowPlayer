@@ -124,6 +124,8 @@ int parseInput(string input){
       //fprintf(stderr, "main - reel interrupt\n");
     }
     if (digitalRead(21)==LOW) return 2;
+    delay(1);
+    if (digitalRead(21)==LOW) return 2;
     myteleco.readInterrupt();
 
     if(myteleco.needtestroutine){
@@ -154,6 +156,8 @@ int parseInput(string input){
   
   if (input=="interrupt_carte") {
     //fprintf(stderr, "main - interrupt from carte\n");
+    if (digitalRead(20)==LOW) return 2;
+    delay(1);
     if (digitalRead(20)==LOW) return 2;
     mycarte.readInterrupt();
     if(mycarte.needStatusUpdate) sendStatusTeleco();
