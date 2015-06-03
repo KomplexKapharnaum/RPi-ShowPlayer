@@ -89,7 +89,7 @@ def get_sign(n):
 
 def start_scene():
     log.debug("Look to a new scene ... Exist {1} scene(s) : {0}".format(pool.Frames, len(pool.Frames)))
-    if CURRENT_FRAME < len(pool.Frames):
+    if int(CURRENT_FRAME) < int(len(pool.Frames)):
         scene = pool.Frames[CURRENT_FRAME]
         if settings.get("uName") in scene.cartes.keys() and scene.start_etapes[settings.get("uName")] is not None:
             log.log('important', '= SCENE ' + scene.name)
