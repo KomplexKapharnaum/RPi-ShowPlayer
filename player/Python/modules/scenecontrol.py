@@ -119,7 +119,7 @@ def scene_prev(flag, **kwargs):
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
-        log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
+        log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
 
@@ -144,7 +144,7 @@ def scene_next(flag, **kwargs):
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
-        log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
+        log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
 @link({None: "scene_control"})
@@ -154,9 +154,9 @@ def scene_go(flag, **kwargs):
         scenario.CURRENT_FRAME = flag.args['keyframe']
         scenario.start_scene()
     else:
-        if 'frame' in flag.args.keys():
-            if flag.args['frame'] < len(scenario.pool.Frames):
-                scenario.CURRENT_FRAME = flag.args['frame']
+        if 'frame' in flag.args.keys() and 0 <= flag.args['frame'] <= len(scenario.pool.Frames):
+            log.debug("found scene {0} from init scene {1}".format(flag.args['frame'],scenario.CURRENT_FRAME))
+            scenario.CURRENT_FRAME = flag.args['frame']
         already_dest = False
         dest = list()
         if 'args' in flag.args.keys():
@@ -169,7 +169,7 @@ def scene_go(flag, **kwargs):
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
-        log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
+        log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
 @link({None: "scene_control"})
