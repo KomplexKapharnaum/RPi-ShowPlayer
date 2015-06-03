@@ -151,8 +151,11 @@ def scene_next(flag, **kwargs):
 def scene_go(flag, **kwargs):
     log.debug("Scene_go at {1} with {0} kwargs {2}".format(scenario.CURRENT_FRAME, flag, kwargs))
     if "frame" in flag.args.keys():
-        scenario.CURRENT_FRAME = int(flag.args['frame'])
-        scenario.start_scene()
+        if scenario.CURRENT_FRAME != int(flag.args['frame']):
+            scenario.CURRENT_FRAME = int(flag.args['frame'])
+            scenario.start_scene()
+        else:
+            log.debug("ignore frame {0} because we are already inside".format(flag.args['frame']))
     else:
         if 'frame' in flag.args.keys() and 0 <= flag.args['frame'] <= len(scenario.pool.Frames):
             log.debug("found scene {0} from init scene {1}".format(flag.args['frame'],scenario.CURRENT_FRAME))
