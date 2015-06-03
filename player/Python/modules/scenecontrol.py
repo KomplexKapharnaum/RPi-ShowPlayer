@@ -58,7 +58,7 @@ def scene_init(flag, **kwargs):
        "/scene/restart [dispo]": "scene_restart",
        "/scene/previous [dispo]": "scene_prev",
        "/scene/next [dispo]": "scene_next",
-       "/scene/go [dispo] [frame]": "scene_go",
+       "/scene/go [dispo] [keyframe]": "scene_go",
        "/scene/stop": "scene_stop",
 })
 def scene_control(flag, **kwargs):
@@ -154,9 +154,9 @@ def scene_go(flag, **kwargs):
         scenario.CURRENT_FRAME = flag.args['keyframe']
         scenario.start_scene()
     else:
-        if 'frame' in flag.args.keys() and 0 <= flag.args['frame'] <= len(scenario.pool.Frames):
-            log.debug("found scene {0} from init scene {1}".format(flag.args['frame'],scenario.CURRENT_FRAME))
-            scenario.CURRENT_FRAME = flag.args['frame']
+        if 'keyframe' in flag.args.keys() and 0 <= flag.args['keyframe'] <= len(scenario.pool.Frames):
+            log.debug("found scene {0} from init scene {1}".format(flag.args['keyframe'],scenario.CURRENT_FRAME))
+            scenario.CURRENT_FRAME = flag.args['keyframe']
         already_dest = False
         dest = list()
         if 'args' in flag.args.keys():
