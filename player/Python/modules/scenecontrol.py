@@ -58,7 +58,7 @@ def scene_init(flag, **kwargs):
        "/scene/restart [dispo]": "scene_restart",
        "/scene/previous [dispo]": "scene_prev",
        "/scene/next [dispo]": "scene_next",
-       "/scene/go [dispo] [keyframe]": "scene_go",
+       "/scene/go [dispo] [frame]": "scene_go",
        "/scene/stop": "scene_stop",
 })
 def scene_control(flag, **kwargs):
@@ -150,13 +150,13 @@ def scene_next(flag, **kwargs):
 @link({None: "scene_control"})
 def scene_go(flag, **kwargs):
     log.debug("Scene_go at {1} with {0} kwargs {2}".format(scenario.CURRENT_FRAME, flag, kwargs))
-    if "keyframe" in flag.args.keys():
-        scenario.CURRENT_FRAME = flag.args['keyframe']
+    if "frame" in flag.args.keys():
+        scenario.CURRENT_FRAME = flag.args['frame']
         scenario.start_scene()
     else:
-        if 'keyframe' in flag.args.keys() and 0 <= flag.args['keyframe'] <= len(scenario.pool.Frames):
-            log.debug("found scene {0} from init scene {1}".format(flag.args['keyframe'],scenario.CURRENT_FRAME))
-            scenario.CURRENT_FRAME = flag.args['keyframe']
+        if 'frame' in flag.args.keys() and 0 <= flag.args['frame'] <= len(scenario.pool.Frames):
+            log.debug("found scene {0} from init scene {1}".format(flag.args['frame'],scenario.CURRENT_FRAME))
+            scenario.CURRENT_FRAME = flag.args['frame']
         already_dest = False
         dest = list()
         if 'args' in flag.args.keys():
@@ -170,7 +170,7 @@ def scene_go(flag, **kwargs):
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
         log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
-        patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
+        patcher.patch(flag.get({"dest": dest, "frame": scenario.CURRENT_FRAME}))
 
 @link({None: "scene_control"})
 def scene_stop(flag, **kwargs):
