@@ -48,7 +48,7 @@
     "radio_29":{
         "ip":"2.0.2.29","infos":"emmeteur son fm n°29","pi":"-","sd":"-","tension":"lipo12","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"no","inverted_switch":"0"},
     "occulte_30":{
-        "ip":"2.0.2.30","infos":"chariot occultation n°30","pi":"-","sd":"-","tension":"life12","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"no","inverted_switch":"0"},
+        "ip":"2.0.2.30","infos":"chariot occultation n°30","pi":"-","sd":"-","tension":"life12","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"no","inverted_switch":"1"},
     "pieuvre_31":{
         "ip":"2.0.2.31","infos":"pieuvre lumiere n°31","pi":"-","sd":"-","tension":"pb12","titreur":"0","video":"no","sound":"no","ext":"yes","active":"no","inverted_switch":"0"},
     "titreurR_44":{
