@@ -183,18 +183,15 @@ int parseInput(string input){
   
   if (input=="kill") {
     //turn off light
-    mycarte.setGyro(0,200);
-    mycarte.led10WValue(0);
-    mycarte.rgbValue(0,0,0);
     mycarte.setRelais(0);
     //turn off titreur
     mytitreur.allLedOff();
     mytitreur.powerdown();
     //update status
     status="noC";
-    delay(5);
     //power off hardware
     mycarte.writeValue(POWERDOWN,100);
+    delay(50);
     //power off remote
     myteleco.reset();
     //myteleco.readOrSetTelecoLock(T_POWEROFF);

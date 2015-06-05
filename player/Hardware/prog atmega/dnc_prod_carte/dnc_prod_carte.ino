@@ -3,8 +3,11 @@
 
 
 // what to do with incoming data
-byte command = 0;
-byte adress = 0;
+volatile byte command = 0;
+volatile byte adress = 0;
+volatile byte value = 0;
+volatile byte fadeValue =0;
+volatile byte post=0;
 
 
 //VALUE FOR PINOUT
@@ -121,6 +124,8 @@ boolean interruptPending(){
 
 
 void freeInterrupt(){
+  Serial.println("free interrupt");
+  delay(1);
   newValue[INTERRUPT] = 0;
   Value[INTERRUPT] = newValue[INTERRUPT];
   digitalWrite(outpin[INTERRUPT], LOW);
@@ -143,15 +148,22 @@ void setup (void) {
 
 
 void setInterrupt(byte interrupt){
-    newValue[INTERRUPT] = interrupt;
-    Value[INTERRUPT] = newValue[INTERRUPT];
-    printf_P(PSTR("interupt %u\n"),Value[INTERRUPT]);
-    interruptTimeOn = millis();
-    digitalWrite(outpin[INTERRUPT], HIGH);
-    SPDR = interrupt;
+  newValue[INTERRUPT] = interrupt;
+  Value[INTERRUPT] = newValue[INTERRUPT];
+  printf_P(PSTR("interupt %u\n"),Value[INTERRUPT]);
+  interruptTimeOn = millis();
+  digitalWrite(outpin[INTERRUPT], HIGH);
+  SPDR = interrupt;
 }
 
 void poweroff(){
+  for (byte i=0; i<DECINPIN; i++) {
+    newValue[i]=0;
+    fadeInterval[i]=0;
+    updateValue(i);
+  }
+  //disable interrupt
+  cli();
   // disable ADC
   ADCSRA = 0;
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);
@@ -168,11 +180,11 @@ void initpin() {
     steps[i] = 0;
     updateValue(i);
   }
-
+  
   for (i = DECINPIN; i < DECALALOGPIN; i++) {
     pinMode(inpin[i - DECINPIN], INPUT);
   }
-
+  
   for (i = 0; i < NGYRO; i++) {
     pinMode(gyropin[i], OUTPUT);
     digitalWrite(gyropin[i], LOW);
@@ -205,7 +217,7 @@ ISR (SPI_STC_vect)
 {
   byte c = SPDR;
   //Serial.println(c, HEX);
-
+  
   if (command < 10) {
     //Serial.print("R add");
     adress = c & ~COMMANDMASK;
@@ -217,58 +229,81 @@ ISR (SPI_STC_vect)
   else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
-      Serial.print  ("wv ");
-      Serial.println (adress);
-      Serial.print  (" - ");
-      Serial.println (c);
-      if(adress<REGISTERSIZE)newValue[adress] = c;
-      if (adress < DECINPIN)fadeInterval[adress] = 0;
+      /*Serial.print  ("wv ");
+       Serial.println (adress);
+       Serial.print  (" - ");
+       Serial.println (c);*/
+      //if(adress<REGISTERSIZE)newValue[adress] = c;
+      //if (adress<DECINPIN)fadeInterval[adress] = 0;
+      if(adress<REGISTERSIZE)value = c;
       command = 1;
+      post=1;
       SPDR = 0;
       return;
     }
     //fade
     if (command == WRITECOMMANDFADE) {
-      Serial.println ("wf");
+      //Serial.println ("wf");
       if (adress < DECINPIN) {
-        int v = Value[adress];
-        v = abs(v - newValue[adress]);
-        float f = c;
-        f = f / v * 1000;
-        //Serial.println(f, 2);
-        fadeInterval[adress] = (int)f;
-        initTimeChange[adress] = millis();
-        steps[adress] = 0;
+        fadeValue=c;
         command = 1;
+        post=2;
       }
       SPDR = 0;
       return;
     }
-
   }
   //renvoie la valeur enregistree
   if (command == READCOMMAND) {
     if(adress<REGISTERSIZE)SPDR = Value[adress];
     command = 1;
-    Serial.print("r ");
-    Serial.println (Value[adress],DEC);
-    if (inputRange(adress) || adress==UBATT) {
-      freeInterrupt();
-    }
-
+    post=3;
+    //Serial.print("r ");
+    //Serial.println (Value[adress],DEC);
   }
-
-
 }  // end of interrupt service routine (ISR) SPI_STC_vect
 
+
+void checkEndSPI(){
+  if (digitalRead (SS) == HIGH && command!=0){
+    
+    if (post==1) {
+      newValue[adress]=value;
+      if (adress<DECINPIN)fadeInterval[adress] = 0;
+    }
+    
+    if(post==2){
+      int v = Value[adress];
+      v = abs(v - newValue[adress]);
+      float f = fadeValue;
+      f = f / v * 1000;
+      //Serial.println(f, 2);
+      fadeInterval[adress] = (int)f;
+      initTimeChange[adress] = millis();
+      steps[adress] = 0;
+    }
+    
+    if(post==3){
+      if (inputRange(adress) || adress == UBATT) {
+        freeInterrupt();
+      }
+    }
+    
+    post=0;
+    value=0;
+    fadeValue=0;
+    adress=0;
+    command=0;
+  }
+}
 
 //boucle principale
 
 void loop (void) {
-
+  
   // if SPI not active, clear current command
-  if (digitalRead (SS) == HIGH) command = 0;
-
+  checkEndSPI();
+  
   //verification changement de valeur
   if (command == 0) {
     for (byte i = 0; i < REGISTERSIZE; i++) {
@@ -278,13 +313,13 @@ void loop (void) {
         else {
           //cas autre valeur (sans fade)
           Value[i] = newValue[i];
-          /*Serial.print(millis(), DEC);
+          Serial.print(millis(), DEC);
           Serial.print(" new ");
           Serial.print(i, DEC);
           Serial.print(" - v ");
-          Serial.println(Value[i], DEC);*/
-
-
+          Serial.println(Value[i], DEC);
+          
+          
           //cas particulier
           if (i == GYROMODE) gyroUpdate();
           if (i == LEDRVBSTROBSPEED)lastStrob = millis();
@@ -300,24 +335,24 @@ void loop (void) {
           if (i == GYROSTROBSPEED && Value[i] == 0)   gyroUpdate();
           
         }
-
       }
     }
+    //end loop
   }
-
+  
   if (Value[UBATT] == 0) readTensionBatt();
   if (Value[GYROMODE] > GYROALLOFF) gyroRoutine();
   if (Value[LEDRVBSTROBSPEED] > 0) strobRoutine(0);
   if (Value[LED10W1STROBSPEED] > 0) strob10wRoutine(0);
   if (Value[GYROSTROBSPEED] > 0) strobGyroRoutine();
-
+  
   checkInput();
   checkTension();
   if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt) {
     printf_P(PSTR("warning interrupt read fail\n"));
     freeInterrupt();
   }
-
+  
 }  // end of loop
 
 bool inputRange(byte i){
@@ -347,20 +382,20 @@ void checkInput() {
       byte buttonState = 1 - digitalRead(inpin[i]);
       //check for manual light
       if (Value[BOARDMODE]==BOARDMODE_MANUALLIGHT){
-        if(DECINPIN + i == PUSH1 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+        if(DECINPIN + i == PUSH1 && newValue[DECINPIN + i] == 0 && buttonState == 1){
           manuallightPos=(manuallightPos+1)%manuallightPosStep;
           newValue[LEDRVALUE]=manuallightConduite[manuallightPos][0];
           newValue[LEDVVALUE]=manuallightConduite[manuallightPos][1];
           newValue[LEDBVALUE]=manuallightConduite[manuallightPos][2];
         }
-        if(DECINPIN + i == PUSH2 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+        if(DECINPIN + i == PUSH2 && newValue[DECINPIN + i] == 0 && buttonState == 1){
           manuallightPosGyro=(manuallightPosGyro+1)%manuallightPosGyroStep;
           if(manuallightPosGyro==0) newValue[GYROMODE]=GYROALLOFF;
           else {newValue[GYROMODE]=GYROLEFT;
             newValue[GYROSPEED]=1;}
           
         }
-        if(DECINPIN + i == PUSH3 && newValue[DECINPIN + i] == 0 && buttonState ==1){
+        if(DECINPIN + i == PUSH3 && newValue[DECINPIN + i] == 0 && buttonState == 1){
           manuallightPos10w=(manuallightPos10w+1)%manuallightPos10wStep;
           newValue[LED10W1VALUE]=manuallightPos10w*255;
         }
@@ -403,26 +438,26 @@ void updateValue(byte i) {
   //because 10W2 do not work in current version
   if (fadeInterval[i] == 0) {
     Value[i] = newValue[i];
-    /*Serial.print(millis(), DEC);
+    Serial.print(millis(), DEC);
     Serial.print(" new ");
     Serial.print(i, DEC);
     Serial.print(" - v ");
-    Serial.println(Value[i], DEC);*/
+    Serial.println(Value[i], DEC);
     analogWrite(outpin[i], lightfunc(Value[i]));
   } else if (outputRange(i)  && millis() > (initTimeChange[i] + (long)steps[i] * (long)fadeInterval[i])) {
-
+    
     if (newValue[i] > Value[i])Value[i]++; else Value[i]--;
     steps[i]++;
     analogWrite(outpin[i], lightfunc(Value[i]));
     /*Serial.print(millis(), DEC);
-    Serial.print(" new ");
-    Serial.print(i, DEC);
-    Serial.print(" - v ");
-    Serial.print(Value[i], DEC);
-    Serial.print(" - fi ");
-    Serial.print(fadeInterval[i], DEC);
-    Serial.print(" s ");
-    Serial.println(steps[i], DEC);*/
+     Serial.print(" new ");
+     Serial.print(i, DEC);
+     Serial.print(" - v ");
+     Serial.print(Value[i], DEC);
+     Serial.print(" - fi ");
+     Serial.print(fadeInterval[i], DEC);
+     Serial.print(" s ");
+     Serial.println(steps[i], DEC);*/
   }
 }
 
@@ -431,20 +466,20 @@ void updateValue(byte i) {
 void gyroRoutine() {
   if (Value[GYROMODE] == GYROALLON) {
     gyroAllOnTrick=(gyroAllOnTrick+1)%2;
-      for (byte i = 0; i < NGYRO; i++) {
-        if(gyroAllOnTrick==1) digitalWrite(gyropin[i], HIGH);
-        else digitalWrite(gyropin[i], LOW);
+    for (byte i = 0; i < NGYRO; i++) {
+      if(gyroAllOnTrick==1) digitalWrite(gyropin[i], HIGH);
+      else digitalWrite(gyropin[i], LOW);
     }
   }else{
-  if (millis() > lastGyroUpdate + (100L * Value[GYROSPEED])) {
-    //Serial.print("gyr ");
-    //Serial.println(gyroStep,DEC);
-    digitalWrite(gyropin[gyroStep], LOW);
-    if (Value[GYROMODE] == 2)gyroStep = (gyroStep + 1) % NGYRO;
-    if (Value[GYROMODE] == 3)gyroStep = (gyroStep + NGYRO - 1) % NGYRO;
-    digitalWrite(gyropin[gyroStep], HIGH);
-    lastGyroUpdate += 100L * Value[GYROSPEED];
-  }
+    if (millis() > lastGyroUpdate + (100L * Value[GYROSPEED])) {
+      //Serial.print("gyr ");
+      //Serial.println(gyroStep,DEC);
+      digitalWrite(gyropin[gyroStep], LOW);
+      if (Value[GYROMODE] == 2)gyroStep = (gyroStep + 1) % NGYRO;
+      if (Value[GYROMODE] == 3)gyroStep = (gyroStep + NGYRO - 1) % NGYRO;
+      digitalWrite(gyropin[gyroStep], HIGH);
+      lastGyroUpdate += 100L * Value[GYROSPEED];
+    }
   }
 }
 
@@ -475,7 +510,7 @@ void strob10wRoutine(byte force) {
 //gestion des gyro (strob)
 
 void strobGyroRoutine() {
-    if (millis() > lastGyroStrob + (10L * Value[GYROSTROBSPEED]*20L*(1-strobGyroStep))) {
+  if (millis() > lastGyroStrob + (10L * Value[GYROSTROBSPEED]*20L*(1-strobGyroStep))) {
     strobGyroStep = (strobGyroStep + 1) % 2;
     for (byte i = 0; i < NGYRO; i++) {
       digitalWrite(gyropin[i], strobGyroStep);
@@ -498,9 +533,6 @@ void gyroUpdate() {
   }
   if (Value[GYROMODE] > GYROALLOFF) lastGyroUpdate = millis();
 }
-
-
-
 
 
 

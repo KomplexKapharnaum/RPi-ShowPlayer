@@ -12,7 +12,7 @@
     "bacson4R_6":{
         "ip":"2.0.2.6","infos":"bac son 4 roues gris n°6","pi":"b2.3","sd":"16go","tension":"pb12","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"yes","inverted_switch":"1"},
     "bacson4R_7":{
-        "ip":"2.0.2.7","infos":"bac son 4 roues gris n°7","pi":"-","sd":"-","tension":"pb12","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"no","inverted_switch":"1"},
+        "ip":"2.0.2.7","infos":"bac son 4 roues gris n°7","pi":"-","sd":"-","tension":"pb12","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"yes","inverted_switch":"1"},
     "bacson2R_8":{
         "ip":"2.0.2.8","infos":"bac son 2 roues gris n°8","pi":"-","sd":"-","tension":"pb12","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"no","inverted_switch":"1"},
     "bacson2R_9":{
