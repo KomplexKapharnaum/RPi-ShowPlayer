@@ -297,7 +297,7 @@ class inputThread(threading.Thread):
         except Exception as e:
             log.exception("Unblocking exception in prompt : \n"+log.show_exception(e))
         # BACKUP EXIT
-        time.sleep(2)
+        time.sleep(5)
         log.log("debug", "Exit by backupexit, should not be that")
         os._exit(POWEROFF)
 
