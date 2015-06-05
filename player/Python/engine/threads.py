@@ -35,10 +35,7 @@ def start():
 
 def stop():
     log.debug("STOPPING THREADS")
-    to_stop = tools._to_stop_thread.values()
-        #th = thread()
-       # """:type: threading.Thread"""
-       # log.debug("running : {0}".format(th)) #TODO find why sometime hardware (cf kxkmcard module) do not stop
+    to_stop = tools._to_stop_thread.values() #local dict to avoid size index change in for loop
     for thread in to_stop:
         th = thread()   # Get the reference
         """:type: threading.Thread"""
