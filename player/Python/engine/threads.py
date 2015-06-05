@@ -39,6 +39,10 @@ def stop():
     for thread in to_stop:
         th = thread()   # Get the reference
         """:type: threading.Thread"""
+        log.debug("  running thread : {0}".format(th))
+    for thread in to_stop:
+        th = thread()   # Get the reference
+        """:type: threading.Thread"""
         log.debug("  Try to stop thread : {0}".format(th))
         if th is not None:
             try:
