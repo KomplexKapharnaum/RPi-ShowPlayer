@@ -61,7 +61,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
 
 //write value in carte register
 void Carte::writeValue(int valueType,int value, int fadetime){
-  //fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
+  fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
   int size;
   if(fadetime==0){size=2; }else {size=4;}
   unsigned char buff[5];
@@ -72,7 +72,7 @@ void Carte::writeValue(int valueType,int value, int fadetime){
     buff[3]= (char)fadetime;
   }
   SPIcarte.send(0,buff,size);
-  delay(1);
+  //delay(1);
 }
 
 //read value from carte register
