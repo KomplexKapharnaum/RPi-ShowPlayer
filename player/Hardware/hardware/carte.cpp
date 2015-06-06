@@ -113,8 +113,10 @@ int Carte::readInterrupt(){
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "carte - interrupt %u read %u\n",address,buff[1]);
   int valeur;
-  if(inverted_switch==0) valeur = buff[1];
-  else valeur = 1 - buff[1];
+  //if(inverted_switch==0) valeur = buff[1];
+  //else valeur = 1 - buff[1];
+  //now this is check at init of the atmega. ie : you could have only one inverted switch
+  valeur = buff[1];
   switch (address) {
       //@todo : faire un tableau et l'envoyer
     case PUSH1:

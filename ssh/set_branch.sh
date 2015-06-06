@@ -1,15 +1,19 @@
 WORKED="yes"
+cd /etc
+sudo sed -i "1inameserver 8.8.8.8\ " resolv.conf
+echo "force resolv.conf "
+
 echo "Change branch to @1 "
 cd /dnc
 git fetch --all
 if [ $? -ne 0 ]; then
 WORKED="no";
 fi
-git reset --hard origin/@1
+git checkout @1
 if [ $? -ne 0 ]; then
 WORKED="no";
 fi
-git pull origin/@1
+git pull
 if [ $? -ne 0 ]; then
 WORKED="no";
 fi
