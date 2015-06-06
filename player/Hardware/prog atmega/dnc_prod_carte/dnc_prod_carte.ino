@@ -22,6 +22,7 @@ volatile byte adress = 0;
 volatile byte value = 0;
 volatile byte fadeValue = 0;
 volatile byte post= 0;
+volatile boolean SPIwaiting = false;
 
 
 
@@ -286,16 +287,17 @@ ISR (SPI_STC_vect)
     command = 1;
     post=3;
   }
+  SPIwaiting=true;
 }  // end of interrupt service routine (ISR) SPI_STC_vect
 
 
 void checkEndSPI(){
-  if (digitalRead (SS) == HIGH && command!=0){
-    
+  if (SPIwaiting){
+    while(digitalRead (SS) == LOW);
     if (post==1) {
       newValue[adress]=value;
       if (adress<DECINPIN)fadeInterval[adress] = 0;
-      M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - write %u = %u\n"),millis(),adress,value));
+      //M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - write %u = %u\n"),millis(),adress,value));
     }
     
     if(post==2){
@@ -307,11 +309,11 @@ void checkEndSPI(){
       fadeInterval[adress] = (int)f;
       initTimeChange[adress] = millis();
       steps[adress] = 0;
-      M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - write %u = %u with fade = %u\n"),millis(),adress,value,fadeValue));
+      //M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - write %u = %u with fade = %u\n"),millis(),adress,value,fadeValue));
     }
     
     if(post==3){
-      M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - read %u = %u\n"),millis(),adress,Value[adress]));
+      //M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - read %u = %u\n"),millis(),adress,Value[adress]));
       if (inputRange(adress) || adress == UBATT) {
         freeInterrupt();
       }
@@ -322,8 +324,10 @@ void checkEndSPI(){
     fadeValue=0;
     adress=0;
     command=0;
+    SPIwaiting=false;
   }
 }
+
 
 //boucle principale
 
@@ -360,19 +364,20 @@ void loop (void) {
           
         }
       }
+      if (SPIwaiting) break;
+       //end loop
     }
-    //end loop
   }
+
+  if (Value[UBATT] == 0 && !SPIwaiting) readTensionBatt();
+  if (Value[GYROMODE] > GYROALLOFF && !SPIwaiting) gyroRoutine();
+  if (Value[LEDRVBSTROBSPEED] > 0 && !SPIwaiting) strobRoutine(0);
+  if (Value[LED10W1STROBSPEED] > 0 && !SPIwaiting) strob10wRoutine(0);
+  if (Value[GYROSTROBSPEED] > 0 && !SPIwaiting) strobGyroRoutine();
   
-  if (Value[UBATT] == 0) readTensionBatt();
-  if (Value[GYROMODE] > GYROALLOFF) gyroRoutine();
-  if (Value[LEDRVBSTROBSPEED] > 0) strobRoutine(0);
-  if (Value[LED10W1STROBSPEED] > 0) strob10wRoutine(0);
-  if (Value[GYROSTROBSPEED] > 0) strobGyroRoutine();
-  
-  checkInput();
-  checkTension();
-  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt) {
+  if (!SPIwaiting) checkInput();
+  if (!SPIwaiting) checkTension();
+  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt  && !SPIwaiting) {
     M_IF_SERIAL_DEBUG(printf_P(PSTR("warning interrupt read fail => ")));;
     freeInterrupt();
   }
