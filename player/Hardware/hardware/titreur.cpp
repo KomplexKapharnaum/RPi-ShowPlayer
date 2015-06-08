@@ -24,14 +24,28 @@
 
 #include <string.h>
 
-
+/* TIME MEASURE */
+unsigned long long mstime() {
+	struct timeval tv;
+  
+	gettimeofday(&tv, NULL);
+  
+	unsigned long long millisecondsSinceEpoch =
+  (unsigned long long)(tv.tv_sec) * 1000 +
+  (unsigned long long)(tv.tv_usec) / 1000;
+  
+	return millisecondsSinceEpoch;
+}
 
 //init titreur
 void Titreur::initTitreur(int _nb_module, int _typeModule){
-  nb_module=_nb_module;
-  typeModule=_typeModule;
-  SPIspeed=1000000;
-  mySPI.initSPI();
+  nb_module = _nb_module;
+  typeModule = _typeModule;
+  SPIspeed = 1000000;
+  type = NO_SCROLL_NORMAL;
+  needUpdate = 0;
+  lastRefresh = mstime();
+  scrollSpeed = 500;
   int patch[8] = {3, 1, 0, 2, 6, 7, 4, 5};
   
   for (int i=0; i<nb_module; i++) {
@@ -46,6 +60,8 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
     *(matrix+i)=0;
   }
 }
+
+
 
 
 
@@ -124,13 +140,112 @@ void Titreur::putChar(int x, int y, char c){
 //text on matrix + print on screen
 void Titreur::text(int x, int y,char Str1[]){
   messageLength = cleanCharArray(Str1);
-  fprintf(stderr,"titreur - drawtext %u -",messageLength);
   for (int i =0; i<messageLength ; i++){
     putChar(x+(i)*6, y,Str1[i]);
   }
     fprintf(stderr, "\n");
   printScreen();
 }
+
+void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
+  line1 = _line1;
+  line2 = _line2;
+  type = _type;
+  needUpdate = 1;
+  xpos=;ypos=0
+  fprintf(stderr,"titreur - drawtext type %u \n1:%s \n2:%s\n",type, line1.c_str(),line2.c_str());
+}
+
+
+void Titreur::updateScrollText(){
+  if (needUpdate) {
+    switch (type) {
+      case NO_SCROLL_NORMAL:
+        buff[mytitreur.charbyline()];
+        strncpy(buff, line1.c_str(), sizeof(buff));
+        mytitreur.text(0,0,buff);
+        strncpy(buff, line2.c_str(), sizeof(buff));
+        mytitreur.text(0,8,buff);
+        needUpdate=false;
+        break;
+       
+      case NO_SCROLL_BIG:
+        buff[mytitreur.charbyline()];
+        strncpy(buff, line1.c_str(), sizeof(buff));
+        mytitreur.text(0,0,buff);
+        needUpdate=false;
+        break;
+        
+      case SCROLL_NORMAL:
+        if (mstime()>lastRefresh+delaytime) {
+          int max = max(line1.length(),line2.length());
+          if(xpos + 6 * max> 0){
+            buff[line1.length()];
+            strncpy(buff, line1.c_str(), sizeof(buff));
+            mytitreur.text(xpos,0,buff);
+            buff2[line2.length()];
+            strncpy(buff2, line2.c_str(), sizeof(buff2));
+            mytitreur.text(xpos,8,buff2);
+            xpos--;
+          }else{
+            needUpdate = false;
+          }
+        }
+        break;
+          
+      case NO_SCROLL_BIG:
+        if (mstime()>lastRefresh+delaytime) {
+          int max = line1.length();
+          if(xpos + 6 * max> 0){
+            buff[line1.length()];
+            strncpy(buff, line1.c_str(), sizeof(buff));
+            mytitreur.text(xpos,0,buff);
+            xpos--;
+          }else{
+            needUpdate = false;
+          }
+        }
+        break;
+        
+      case SCROLL_LOOP_NORMAL:
+        if (mstime()>lastRefresh+delaytime) {
+          int max = max(line1.length(),line2.length());
+          if(xpos + 6 * max> 0){
+            buff[line1.length()];
+            strncpy(buff, line1.c_str(), sizeof(buff));
+            mytitreur.text(xpos,0,buff);
+            buff2[line2.length()];
+            strncpy(buff2, line2.c_str(), sizeof(buff2));
+            mytitreur.text(xpos,8,buff2);
+            xpos--;
+          }else{
+            xpos=0;
+          }
+        }
+        break;
+        
+      case SCROLL_LOOP_BIG:
+        if (mstime()>lastRefresh+delaytime) {
+          int max = line1.length());
+          if(xpos + 6 * max> 0){
+            buff[line1.length()];
+            strncpy(buff, line1.c_str(), sizeof(buff));
+            mytitreur.text(xpos,0,buff);
+            xpos--;
+          }else{
+            xpos=0;
+          }
+        }
+        break;
+        
+      default:
+        break;
+    }
+  }
+}
+
+
+
 
 //do some trick with special char
 int Titreur::cleanCharArray(char Str1[]){
@@ -213,7 +328,15 @@ void Titreur::powerdown(){
 
 //nb of char by line
 int Titreur::charbyline(){
-  return nb_module*typeModule/6;
+  if(type<100)return nb_module*typeModule/6;
+  else return nb_module*typeModule/12;
+}
+int Titreur::pixelbyline(){
+    return nb_module*typeModule;
+}
+int Titreur::pixelHeight(){
+  if(nb_module==MODULE_24x16)return 16;
+  if(nb_module==MODULE_32x8)return 8;
 }
 
 

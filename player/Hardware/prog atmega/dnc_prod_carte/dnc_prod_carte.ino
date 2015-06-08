@@ -19,10 +19,6 @@ int state = MCUSR;
 // what to do with incoming data
 volatile byte command = 0;
 volatile byte adress = 0;
-volatile byte value = 0;
-volatile byte fadeValue = 0;
-volatile byte post= 0;
-volatile boolean SPIwaiting = false;
 
 
 
@@ -79,13 +75,12 @@ volatile boolean SPIwaiting = false;
 byte manuallightPos=0;
 byte manuallightPosGyro=0;
 byte manuallightPos10w=0;
-byte manuallightPosStep=10;
+byte manuallightPosStep=9;
 byte manuallightPosGyroStep=2;
 byte manuallightPos10wStep=2;
 
 
-byte manuallightConduite[10][3]={
-  {0,0,0},
+byte manuallightConduite[9][3]={
   {0,0,0},
   {0,0,255}, //bleu
   {255,75,0}, //orange
@@ -264,18 +259,25 @@ ISR (SPI_STC_vect)
   else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
-      if(adress<REGISTERSIZE)value = c;
+      if(adress<REGISTERSIZE){
+        newValue[adress]=c;
+        fadeInterval[adress] = 0;
+      }
       command = 1;
-      post=1;
       SPDR = 0;
       return;
     }
     //fade
     if (command == WRITECOMMANDFADE) {
       if (adress < DECINPIN) {
-        fadeValue=c;
         command = 1;
-        post=2;
+        int v = Value[adress];
+        v = abs(v - newValue[adress]);
+        float f = c;
+        f = f / v * 1000;
+        fadeInterval[adress] = (int)f;
+        initTimeChange[adress] = millis();
+        steps[adress] = 0;
       }
       SPDR = 0;
       return;
@@ -283,50 +285,15 @@ ISR (SPI_STC_vect)
   }
   //renvoie la valeur enregistree
   if (command == READCOMMAND) {
-    if(adress<REGISTERSIZE)SPDR = Value[adress];
-    command = 1;
-    post=3;
-  }
-  SPIwaiting=true;
-}  // end of interrupt service routine (ISR) SPI_STC_vect
-
-
-void checkEndSPI(){
-  if (SPIwaiting){
-    while(digitalRead (SS) == LOW);
-    if (post==1) {
-      newValue[adress]=value;
-      if (adress<DECINPIN)fadeInterval[adress] = 0;
-      //M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - write %u = %u\n"),millis(),adress,value));
-    }
-    
-    if(post==2){
-      newValue[adress]=value;
-      int v = Value[adress];
-      v = abs(v - newValue[adress]);
-      float f = fadeValue;
-      f = f / v * 1000;
-      fadeInterval[adress] = (int)f;
-      initTimeChange[adress] = millis();
-      steps[adress] = 0;
-      //M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - write %u = %u with fade = %u\n"),millis(),adress,value,fadeValue));
-    }
-    
-    if(post==3){
-      //M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - read %u = %u\n"),millis(),adress,Value[adress]));
+    if(adress<REGISTERSIZE){
+      SPDR = Value[adress];
       if (inputRange(adress) || adress == UBATT) {
         freeInterrupt();
       }
     }
-    
-    post=0;
-    value=0;
-    fadeValue=0;
-    adress=0;
-    command=0;
-    SPIwaiting=false;
+    command = 1;
   }
-}
+}  // end of interrupt service routine (ISR) SPI_STC_vect
 
 
 //boucle principale
@@ -334,7 +301,9 @@ void checkEndSPI(){
 void loop (void) {
   
   // if SPI not active, clear current command
-  checkEndSPI();
+  if(command!=0 && digitalRead (SS) == HIGH){
+    command=0;
+  }
   
   //verification changement de valeur
   if (command == 0) {
@@ -364,20 +333,19 @@ void loop (void) {
           
         }
       }
-      if (SPIwaiting) break;
        //end loop
     }
   }
 
-  if (Value[UBATT] == 0 && !SPIwaiting) readTensionBatt();
-  if (Value[GYROMODE] > GYROALLOFF && !SPIwaiting) gyroRoutine();
-  if (Value[LEDRVBSTROBSPEED] > 0 && !SPIwaiting) strobRoutine(0);
-  if (Value[LED10W1STROBSPEED] > 0 && !SPIwaiting) strob10wRoutine(0);
-  if (Value[GYROSTROBSPEED] > 0 && !SPIwaiting) strobGyroRoutine();
+  if (Value[UBATT] == 0) readTensionBatt();
+  if (Value[GYROMODE] > GYROALLOFF) gyroRoutine();
+  if (Value[LEDRVBSTROBSPEED] > 0) strobRoutine(0);
+  if (Value[LED10W1STROBSPEED] > 0) strob10wRoutine(0);
+  if (Value[GYROSTROBSPEED] > 0) strobGyroRoutine();
   
-  if (!SPIwaiting) checkInput();
-  if (!SPIwaiting) checkTension();
-  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt  && !SPIwaiting) {
+  checkInput();
+  checkTension();
+  if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt) {
     M_IF_SERIAL_DEBUG(printf_P(PSTR("warning interrupt read fail => ")));;
     freeInterrupt();
   }
@@ -421,19 +389,27 @@ void checkInput() {
           newValue[LEDRVALUE]=manuallightConduite[manuallightPos][0];
           newValue[LEDVVALUE]=manuallightConduite[manuallightPos][1];
           newValue[LEDBVALUE]=manuallightConduite[manuallightPos][2];
+          fadeInterval[LEDRVALUE] = 0;
+          fadeInterval[LEDVVALUE] = 0;
+          fadeInterval[LEDBVALUE] = 0;
+          Value[LEDRVBSTROBSPEED]=0;
         }
         if(DECINPIN + i == PUSH2 && newValue[DECINPIN + i] == 0 && buttonState == 1){
           M_IF_SERIAL_DEBUG(printf_P(PSTR("update manual gyro\n")));
           manuallightPosGyro=(manuallightPosGyro+1)%manuallightPosGyroStep;
           if(manuallightPosGyro==0) newValue[GYROMODE]=GYROALLOFF;
           else {newValue[GYROMODE]=GYROLEFT;
-            newValue[GYROSPEED]=1;}
+            newValue[GYROSPEED]=1;
+          }
+          Value[GYROSTROBSPEED]=0;
           
         }
         if(DECINPIN + i == PUSH3 && newValue[DECINPIN + i] == 0 && buttonState == 1){
           M_IF_SERIAL_DEBUG(printf_P(PSTR("update manual 10w \n")));
           manuallightPos10w=(manuallightPos10w+1)%manuallightPos10wStep;
           newValue[LED10W1VALUE]=manuallightPos10w*255;
+          fadeInterval[LED10W1VALUE] = 0;
+          Value[LED10W1STROBSPEED]=0;
         }
       }
       //get value of button to raise interrupt

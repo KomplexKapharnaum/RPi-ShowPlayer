@@ -72,7 +72,7 @@ void Carte::writeValue(int valueType,int value, int fadetime){
     buff[3]= (char)fadetime;
   }
   SPIcarte.send(0,buff,size);
-  delay(5);
+  delay(2);
 }
 
 //read value from carte register

@@ -336,31 +336,58 @@ int parseInput(string input){
     if ("texttitreur"==parsedInput) {
       //write on titreur
       mytitreur.allLedOff();
+      string line1="";
+      string line2="";
+      int type;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-line1"==parsedInput){
-          ss>>parsedInput;
-          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          strncpy(buff, parsedInput.c_str(), sizeof(buff));
-          mytitreur.text(0,0,buff);
+          ss>>line1;
+          replace( line1.begin(), line1.end(), '_', ' ');
         }
         if ("-line2"==parsedInput){
-          ss>>parsedInput;
-          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          strncpy(buff, parsedInput.c_str(), sizeof(buff));
-          mytitreur.text(0,8,buff);
+          ss>>line2;
+          replace( line2.begin(), line2.end(), '_', ' ');
         }
         if ("-allon"==parsedInput){
           mytitreur.allLedOn();
+          return 0;
         }
         if ("-alloff"==parsedInput){
           mytitreur.allLedOff();
+          return 0;
         }
-        if ("-scroll"==parsedInput){
-          // todo mytitreur.scroll();
+        if ("-type"==parsedInput){
+          ss>>parsedInput;
+          type = NO_SCROLL_NORMAL;
+          if ("SCROLL_NORMAL"==parsedInput) {
+            type=SCROLL_NORMAL;
+          }
+          if ("SCROLL_LOOP_NORMAL"==parsedInput) {
+            type=SCROLL_LOOP_NORMAL;
+          }
+          if ("SCROLL_VERTICAL_NORMAL"==parsedInput) {
+            type=SCROLL_VERTICAL_NORMAL;
+          }
+          if ("SCROLL_VERTICAL_LOOP_NORMAL"==parsedInput) {
+            type=SCROLL_VERTICAL_LOOP_NORMAL;
+          }
+          if ("SCROLL_BIG"==parsedInput) {
+            type=SCROLL_BIG;
+          }
+          if ("SCROLL_LOOP_BIG"==parsedInput) {
+            type=SCROLL_LOOP_BIG;
+          }
+          if ("SCROLL_VERTICAL_BIG"==parsedInput) {
+            type=SCROLL_VERTICAL_BIG;
+          }
+          if ("SCROLL_VERTICAL_LOOP_BIG"==parsedInput) {
+            type=SCROLL_VERTICAL_LOOP_BIG;
+          }
         }
       }
+      mytitreur.twolineText(line1,line2,type);
     }
+    
     
     if ("setlight"==parsedInput) {
       //change light
