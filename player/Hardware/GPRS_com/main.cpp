@@ -21,6 +21,17 @@ using namespace std;
 ofstream outfilenum;
 ofstream outfiletext;
 
+string lastnum="";
+
+#include <lo/lo.h>
+#include <lo/lo_cpp.h>
+
+#define SENDOSC true
+
+lo::Address ph("2.0.2.100", "1783");
+lo::Address regie("2.0.0.100", "2225");
+lo::Address regiebis("2.0.0.101", "2225");
+
 void readRX(int fd,int end){
   //----- CHECK FOR ANY RX BYTES -----
   if (fd != -1)
@@ -29,12 +40,14 @@ void readRX(int fd,int end){
     cout <<  "read" << endl;
     
     while(1){
-      while(!serialDataAvail(fd));
+      while(!serialDataAvail(fd)){
+        sleep(1);
+      }
       int t = serialGetchar (fd);
       input+=t;
       //cout << (char)t;
 
-
+      
       if(t=='\n'){
 
         stringstream ss(input);
@@ -51,15 +64,21 @@ void readRX(int fd,int end){
                     getline(ss,word,'"');
                     getline(ss,word,'"');
                     cout << "num = " << word;
+                    lastnum = word;
                     outfilenum << word << endl;
 
                 }
                 else {
+                    lo::Message m;
+                    m.add_string(input.c_str());
+                    regie.send("/smsFL",m);
+                    regiebis.send("/smsFL",m);
+                    m.add_string(lastnum.c_str());
+                    ph.send("/monitor_sms",m);
                     outfiletext << input << endl << endl;
                 }
             }
         }
-
         
       }
       
@@ -90,11 +109,16 @@ int main (int argc, char * argv[]){
   delay(50);*/
 
   
+  if(SENDOSC){
+    cout <<  "send osc mode" << endl;
+    ph.send("/monitor_sms", "s", "start service");
+  }
+  
   
   bool live=true;
   while(live){
     readRX(uart0_filestream,(int)'K');
-
+    
   }
   
   serialClose(uart0_filestream);
