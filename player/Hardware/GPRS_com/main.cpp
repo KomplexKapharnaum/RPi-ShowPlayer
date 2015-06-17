@@ -21,6 +21,11 @@ using namespace std;
 ofstream outfilenum;
 ofstream outfiletext;
 
+#include <lo/lo.h>
+#include <lo/lo_cpp.h>
+
+#define SENDOSC true
+
 void readRX(int fd,int end){
   //----- CHECK FOR ANY RX BYTES -----
   if (fd != -1)
@@ -89,7 +94,11 @@ int main (int argc, char * argv[]){
   //
   delay(50);*/
 
-  
+  if(SENDOSC){
+    cout <<  "send osc mode" << endl;
+    lo::Address a("2.0.2.100", "9000");
+    a.send("example", "i", 7890987);
+  }
   
   bool live=true;
   while(live){
