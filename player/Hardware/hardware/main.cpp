@@ -517,7 +517,7 @@ int parseInput(string input){
     if ("DR"==parsedInput) {
       //direct access of carte register for debug
       int reg = 0;
-      int val = 0;
+      int val = -1;
       int fade = 0;
       while (ss>>parsedInput){
         if ("-reg"==parsedInput){
@@ -530,8 +530,13 @@ int parseInput(string input){
           ss>>fade;
         }
       }
-      fprintf(stderr, "main - direct acces %u %u %u\n",reg,val,fade);
-      mycarte.writeValue(reg,val,fade);
+      if (val==-1){
+        val = mycarte.readValue(reg);
+        fprintf(stderr, "main - direct read acces %u = %u\n",reg,val);
+      }else {
+        fprintf(stderr, "main - direct acces %u = %u f%u\n",reg,val,fade);
+        mycarte.writeValue(reg,val,fade);
+      }
     }// end directaccess
     
     if ("testroutine"==parsedInput) {
