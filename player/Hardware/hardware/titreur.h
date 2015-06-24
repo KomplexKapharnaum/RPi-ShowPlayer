@@ -46,6 +46,7 @@ private:
   unsigned long long lastRefresh;
   int scrollSpeed;
   int xpos,ypos;
+  int delaytime;
 
   
 protected:
@@ -60,8 +61,7 @@ protected:
   int pixelHeight();
   
   
-  
-  public :
+public :
   void text(int x, int y,char Str1[]);
   void putChar(int x, int y, char c);
   void initTitreur(int _nb_module, int _typeModule);
@@ -71,7 +71,7 @@ protected:
   void allLedOn();
   void allLedOff();
   void powerdown();
-  void twolineText(std::string _line1,std::string _line2,int _type)
+  void twolineText(std::string _line1,std::string _line2,int _type);
   void updateScrollText();
   ~Titreur();
 

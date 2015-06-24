@@ -27,7 +27,7 @@
 //VALUE FOR PININ ANALOG
 #define FLOAT 9
 #define UBATT 10
-#define CODE 11
+#define VERSION 11
 //RVB
 #define LEDRVBSTROBSPEED 12
 #define LEDRVBMODE 13
