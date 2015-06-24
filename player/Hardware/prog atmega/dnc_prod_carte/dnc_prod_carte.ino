@@ -270,6 +270,7 @@ ISR (SPI_STC_vect)
       if(adress<REGISTERSIZE){
         newValue[adress]=c;
         fadeInterval[adress] = 0;
+        M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - new write %u = %u\n"),millis(),adress,c));
       }
       command = 1;
       SPDR = 0;
@@ -317,34 +318,38 @@ void loop (void) {
   if (command == 0) {
     for (byte i = 0; i < REGISTERSIZE; i++) {
       if (Value[i] != newValue[i]) {
-        if (outputRange(i)) {updateValue(i);} //cas valeur led RVB et led10w (fade possible)
-        else if (inputRange(i)) {updateInput(i);}
-        else {
-          //cas autre valeur (sans fade)
-          Value[i] = newValue[i];
-          M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - new other %u = %u\n"),millis(),i,Value[i]));
-          
-          
-          //cas particulier
-          if (i == GYROMODE) gyroUpdate();
-          if (i == LEDRVBSTROBSPEED)lastStrob = millis();
-          if (i == LEDRVBSTROBSPEED && Value[i] == 0) strobRoutine(1);
-          if (i == LED10W1STROBSPEED)last10wStrob = millis();
-          if (i == LED10W1STROBSPEED && Value[i] == 0) strob10wRoutine(1);
-          if (i == POWERDOWN && Value[i] == 100) poweroff();
-          if (i == GYROSTROBSPEED) {
-            newValue[GYROMODE] = 0;
-            Value[GYROMODE] = 0;
-            lastGyroStrob = millis();
+        M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - find diff %u = %u => %u\n"),millis(),i,Value[i], newValue[i]));
+        
+        if (outputRange(i)) {
+          updateValue(i); //cas valeur led RVB et led10w (fade possible)
+        } else {
+          if (inputRange(i)) {
+            updateInput(i);
+          } else {
+            //cas autre valeur (sans fade)
+            Value[i] = newValue[i];
+            M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - new other %u = %u\n"),millis(),i,Value[i]));
+            
+            //cas particulier
+            if (i == GYROMODE) gyroUpdate();
+            if (i == LEDRVBSTROBSPEED)lastStrob = millis();
+            if (i == LEDRVBSTROBSPEED && Value[i] == 0) strobRoutine(1);
+            if (i == LED10W1STROBSPEED)last10wStrob = millis();
+            if (i == LED10W1STROBSPEED && Value[i] == 0) strob10wRoutine(1);
+            if (i == POWERDOWN && Value[i] == 100) poweroff();
+            if (i == GYROSTROBSPEED) {
+              newValue[GYROMODE] = 0;
+              Value[GYROMODE] = 0;
+              lastGyroStrob = millis();
+            }
+            if (i == GYROSTROBSPEED && Value[i] == 0)   gyroUpdate();
+            
           }
-          if (i == GYROSTROBSPEED && Value[i] == 0)   gyroUpdate();
-          
         }
       }
-       //end loop
     }
   }
-
+  
   if (Value[UBATT] == 0) readTensionBatt();
   if (Value[GYROMODE] > GYROALLOFF) gyroRoutine();
   if (Value[LEDRVBSTROBSPEED] > 0) strobRoutine(0);
@@ -361,7 +366,7 @@ void loop (void) {
 }  // end of loop
 
 bool inputRange(byte i){
-  if(i>= DECINPIN && i < DECALALOGPIN + 1) return true;
+  if(i >= DECINPIN && i < DECALALOGPIN + 1) return true;
   return false;
 }
 
@@ -389,7 +394,7 @@ void checkInput() {
       byte buttonState = digitalRead(inpin[i]);
       if (buttonState != inpinOffValue[i]) buttonState=1;
       else buttonState=0;
-        //check for manual light
+      //check for manual light
       if (Value[BOARDMODE]==BOARDMODE_MANUALLIGHT){
         if(DECINPIN + i == PUSH1 && newValue[DECINPIN + i] == 0 && buttonState == 1){
           M_IF_SERIAL_DEBUG(printf_P(PSTR("update manual RGB\n")));
@@ -466,7 +471,7 @@ void updateValue(byte i) {
     steps[i]++;
     analogWrite(outpin[i], lightfunc(Value[i]));
     M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - update output %u = %u -fade %u -step %u\n"),millis(),i,Value[i],fadeInterval[i],steps[i]));
-    }
+  }
 }
 
 //gestion des gyro (clignotement)

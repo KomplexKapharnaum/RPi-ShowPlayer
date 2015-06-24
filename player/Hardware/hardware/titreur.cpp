@@ -48,9 +48,9 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
   type = NO_SCROLL_NORMAL;
   needUpdate = 0;
   lastRefresh = mstime();
+  mySPI.initSPI(SPIspeed);
   scrollSpeed = 500;
   int patch[8] = {3, 1, 0, 2, 6, 7, 4, 5};
-  
   for (int i=0; i<nb_module; i++) {
     mySPI.addChipSelectWithHC595Buffer(17,patch[i],SPIspeed);
     initModule(i);
