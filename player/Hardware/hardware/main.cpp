@@ -38,8 +38,6 @@
 #include "timer.h"
 #include "main.h"
 
-#include <agents.h>
-#include <ppltasks.h>
 
 
 
