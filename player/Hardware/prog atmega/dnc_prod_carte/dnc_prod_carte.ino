@@ -268,9 +268,10 @@ ISR (SPI_STC_vect)
     //valeur
     if (command == WRITECOMMANDVALUE) {
       if(adress<REGISTERSIZE){
-        newValue[adress]=c;
+        newValue[adress] = c;
         fadeInterval[adress] = 0;
-        M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - new write %u = %u\n"),millis(),adress,c));
+        //M_IF_SERIAL_DEBUG(printf_P(PSTR("%lu - new write %u = %u (nv=%u ; v=%u)\n"),millis(),adress,c,newValue[adress], Value[adress]));
+        newValue[adress] = c;
       }
       command = 1;
       SPDR = 0;

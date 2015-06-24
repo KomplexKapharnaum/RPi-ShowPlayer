@@ -47,17 +47,17 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   digitalWrite (GPIO_RESET, LOW);
   delay(5);
   digitalWrite (GPIO_RESET, HIGH);
-  delay(50);
-  core_version = readValue(VERSION);
+  delay(100);
   writeValue(VOLTAGEMODE,gamme_tension);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
   writeValue(INTERRUPT,0);
-  fprintf(stderr, "carte - core version : %u\n",core_version);
   needStatusUpdate=0;
   count_tensionbasse=0;
   count_tensioncoupure=0;
   inverted_switch=0;
+  core_version = readValue(VERSION);
+  fprintf(stderr, "carte - core version : %u\n",core_version);
 }
 
 
