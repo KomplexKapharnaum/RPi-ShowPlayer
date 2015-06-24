@@ -20,7 +20,7 @@
 
 #include "ht1632.h"
 #include "font2.h"
-
+#include <algorithm>
 
 #include <string.h>
 
@@ -191,7 +191,7 @@ void Titreur::updateScrollText(){
         }
         break;
           
-      case NO_SCROLL_BIG:
+      case SCROLL_BIG:
         if (mstime()>lastRefresh+delaytime) {
           int maxline = line1.length();
           if(xpos + 6 * maxline> 0){
@@ -335,8 +335,8 @@ int Titreur::pixelbyline(){
 }
 
 int Titreur::pixelHeight(){
-  if(nb_module==MODULE_24x16)return 16;
   if(nb_module==MODULE_32x8)return 8;
+  return 16;
 }
 
 
