@@ -84,6 +84,7 @@ private:
   unsigned long long startchrono;
   bool checkchrono;
   int inverted_switch;
+  int core_version;
 
   
 protected:

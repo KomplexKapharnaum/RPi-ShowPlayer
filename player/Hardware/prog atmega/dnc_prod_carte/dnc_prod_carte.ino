@@ -1,3 +1,6 @@
+#define CURRENT_VERSION 2
+
+
 #include <avr/pgmspace.h>
 int state = MCUSR;
 #include "pins_arduino.h"
@@ -37,7 +40,7 @@ volatile byte adress = 0;
 //VALUE FOR PININ ANALOG
 #define FLOAT 9
 #define UBATT 10
-#define CODE 11
+#define VERSION 11
 //RVB
 #define LEDRVBSTROBSPEED 12
 #define LEDRVBMODE 13
@@ -55,6 +58,8 @@ volatile byte adress = 0;
 #define VOLTAGEMODE 22
 #define BOARDCHECKFLOAT 23
 #define POWERDOWN 24
+
+
 
 //size of table
 #define REGISTERSIZE 25
@@ -234,6 +239,9 @@ void clearRegister() {
       steps[i]=0;
     }
   }
+  newValue[VERSION] = CURRENT_VERSION;
+  Value[VERSION] = newValue[VERSION];
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("core version %u\n"),Value[VERSION]));
 }
 
 void initSPIslave() {

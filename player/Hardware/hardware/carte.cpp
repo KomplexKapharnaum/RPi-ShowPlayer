@@ -52,6 +52,8 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
   writeValue(INTERRUPT,0);
+  core_version = readValue(VERSION);
+  fprintf(stderr, "carte - core version : %u\n",core_version);
   needStatusUpdate=0;
   count_tensionbasse=0;
   count_tensioncoupure=0;
