@@ -157,20 +157,21 @@ void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
 
 void Titreur::updateScrollText(){
   if (needUpdate) {
+    char buff_noscroll[charbyline()];
+    char buff_line1[line1.length()];
+    char buff_line2[line2.length()];
     switch (type) {
       case NO_SCROLL_NORMAL:
-        char buff[charbyline()];
-        strncpy(buff, line1.c_str(), sizeof(buff));
-        mytitreur.text(0,0,buff);
-        strncpy(buff, line2.c_str(), sizeof(buff));
-        mytitreur.text(0,8,buff);
+        strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
+        mytitreur.text(0,0,buff_noscroll);
+        strncpy(buff_noscroll, line2.c_str(), sizeof(buff_noscroll));
+        mytitreur.text(0,8,buff_noscroll);
         needUpdate=false;
         break;
        
       case NO_SCROLL_BIG:
-        char buff[charbyline()];
-        strncpy(buff, line1.c_str(), sizeof(buff));
-        mytitreur.text(0,0,buff);
+        strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
+        mytitreur.text(0,0,buff_noscroll);
         needUpdate=false;
         break;
         
@@ -178,12 +179,10 @@ void Titreur::updateScrollText(){
         if (mstime()>lastRefresh+delaytime) {
           int maxline = max(line1.length(),line2.length());
           if(xpos + 6 * maxline> 0){
-            char buff[line1.length()];
-            strncpy(buff, line1.c_str(), sizeof(buff));
-            mytitreur.text(xpos,0,buff);
-            char buff2[line2.length()];
-            strncpy(buff2, line2.c_str(), sizeof(buff2));
-            mytitreur.text(xpos,8,buff2);
+            strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
+            mytitreur.text(xpos,0,buff_line1);
+            strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
+            mytitreur.text(xpos,8,buff_line2);
             xpos--;
           }else{
             needUpdate = false;
@@ -195,9 +194,8 @@ void Titreur::updateScrollText(){
         if (mstime()>lastRefresh+delaytime) {
           int maxline = line1.length();
           if(xpos + 6 * maxline> 0){
-            char buff[line1.length()];
-            strncpy(buff, line1.c_str(), sizeof(buff));
-            mytitreur.text(xpos,0,buff);
+            strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
+            mytitreur.text(xpos,0,buff_line1);
             xpos--;
           }else{
             needUpdate = false;
@@ -209,12 +207,10 @@ void Titreur::updateScrollText(){
         if (mstime()>lastRefresh+delaytime) {
           int maxline = max(line1.length(),line2.length());
           if(xpos + 6 * maxline> 0){
-            char buff[line1.length()];
-            strncpy(buff, line1.c_str(), sizeof(buff));
-            mytitreur.text(xpos,0,buff);
-            char buff2[line2.length()];
-            strncpy(buff2, line2.c_str(), sizeof(buff2));
-            mytitreur.text(xpos,8,buff2);
+            strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
+            mytitreur.text(xpos,0,buff_line1);
+            strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
+            mytitreur.text(xpos,8,buff_line2);
             xpos--;
           }else{
             xpos=0;
