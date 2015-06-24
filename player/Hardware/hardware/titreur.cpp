@@ -163,7 +163,9 @@ void Titreur::updateScrollText(){
     char buff_noscroll[charbyline()];
     char buff_line1[line1.length()];
     char buff_line2[line2.length()];
-    int maxline = max((int)line1.length(),(int)line2.length());
+    int maxline = 0;
+    if (line1.length()>line2.length()) maxline = line1.length();
+    else maxline = line2.length();
     switch (type) {
       case NO_SCROLL_NORMAL:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
