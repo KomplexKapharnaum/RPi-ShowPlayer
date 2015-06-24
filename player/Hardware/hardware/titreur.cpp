@@ -24,6 +24,9 @@
 
 #include <string.h>
 
+#include <time.h>
+#include <sys/time.h>
+
 /* TIME MEASURE */
 unsigned long long mstime() {
 	struct timeval tv;
@@ -163,7 +166,7 @@ void Titreur::updateScrollText(){
     switch (type) {
       case NO_SCROLL_NORMAL:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
-        mytitreur.text(0,0,buff_noscroll);
+        text(0,0,buff_noscroll);
         strncpy(buff_noscroll, line2.c_str(), sizeof(buff_noscroll));
         mytitreur.text(0,8,buff_noscroll);
         needUpdate=false;
@@ -171,7 +174,7 @@ void Titreur::updateScrollText(){
        
       case NO_SCROLL_BIG:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
-        mytitreur.text(0,0,buff_noscroll);
+        text(0,0,buff_noscroll);
         needUpdate=false;
         break;
         
@@ -180,9 +183,9 @@ void Titreur::updateScrollText(){
           int maxline = max(line1.length(),line2.length());
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
-            mytitreur.text(xpos,0,buff_line1);
+            text(xpos,0,buff_line1);
             strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
-            mytitreur.text(xpos,8,buff_line2);
+            text(xpos,8,buff_line2);
             xpos--;
           }else{
             needUpdate = false;
@@ -195,7 +198,7 @@ void Titreur::updateScrollText(){
           int maxline = line1.length();
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
-            mytitreur.text(xpos,0,buff_line1);
+            text(xpos,0,buff_line1);
             xpos--;
           }else{
             needUpdate = false;
@@ -208,9 +211,9 @@ void Titreur::updateScrollText(){
           int maxline = max(line1.length(),line2.length());
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
-            mytitreur.text(xpos,0,buff_line1);
+            text(xpos,0,buff_line1);
             strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
-            mytitreur.text(xpos,8,buff_line2);
+            text(xpos,8,buff_line2);
             xpos--;
           }else{
             xpos=0;
@@ -224,7 +227,7 @@ void Titreur::updateScrollText(){
           if(xpos + 6 * maxline> 0){
             char buff[line1.length()];
             strncpy(buff, line1.c_str(), sizeof(buff));
-            mytitreur.text(xpos,0,buff);
+            text(xpos,0,buff);
             xpos--;
           }else{
             xpos=0;
