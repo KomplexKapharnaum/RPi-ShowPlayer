@@ -35,7 +35,11 @@
 #include <signal.h>
 
 #include "Queue.h"
+#include "timer.h"
 #include "main.h"
+
+#include <agents.h>
+#include <ppltasks.h>
 
 
 
@@ -199,6 +203,17 @@ int parseInput(string input){
     fprintf(stderr, "\x1b[32mbye bye\n\x1b[0m");
     live=false;
     delay(10);
+  }
+  
+  if (input=="start_timer_for_titreur") {
+    t.create(0, 500,
+             []() {
+               produce(q, "update_titreur");
+             });
+  }
+  
+  if (input=="update_titreur") {
+    mytitreur.updateText();
   }
   
   //other message from main program or stdin
@@ -386,8 +401,8 @@ int parseInput(string input){
         }
       }
       mytitreur.twolineText(line1,line2,type);
+      produce(q,"update_titreur");
     }
-    
     
     if ("setlight"==parsedInput) {
       //change light
@@ -542,6 +557,7 @@ void produce(Queue<string>& q, string message) {
     if(!(message=="interrupt_carte" || message=="interrupt_teleco"))fprintf(stderr, "main - prog push %s\n",message.c_str());
     q.push(message);
 }
+
 
 void readcin(Queue<string>& q) {
   string input;

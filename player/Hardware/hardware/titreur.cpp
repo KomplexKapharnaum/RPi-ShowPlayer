@@ -158,7 +158,7 @@ void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
 }
 
 
-void Titreur::updateScrollText(){
+void Titreur::updateText(){
   if (needUpdate) {
     char buff_noscroll[charbyline()];
     char buff_line1[line1.length()];
@@ -197,7 +197,6 @@ void Titreur::updateScrollText(){
           
       case SCROLL_BIG:
         if (mstime()>lastRefresh+delaytime) {
-          int maxline = line1.length();
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
             text(xpos,0,buff_line1);
@@ -210,7 +209,6 @@ void Titreur::updateScrollText(){
         
       case SCROLL_LOOP_NORMAL:
         if (mstime()>lastRefresh+delaytime) {
-          int maxline = max(line1.length(),line2.length());
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
             text(xpos,0,buff_line1);

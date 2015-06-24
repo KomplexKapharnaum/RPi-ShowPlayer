@@ -72,7 +72,7 @@ public :
   void allLedOff();
   void powerdown();
   void twolineText(std::string _line1,std::string _line2,int _type);
-  void updateScrollText();
+  void updateText();
   ~Titreur();
 
   

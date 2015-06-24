@@ -32,6 +32,7 @@ int init=0;
 
 //safe queue to put message in
 Queue<string> q;
+Timer t;
 
 
 //C object of hardware
