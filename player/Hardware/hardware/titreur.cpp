@@ -163,12 +163,13 @@ void Titreur::updateScrollText(){
     char buff_noscroll[charbyline()];
     char buff_line1[line1.length()];
     char buff_line2[line2.length()];
+    int maxline = max((int)line1.length(),(int)line2.length());
     switch (type) {
       case NO_SCROLL_NORMAL:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
         text(0,0,buff_noscroll);
         strncpy(buff_noscroll, line2.c_str(), sizeof(buff_noscroll));
-        mytitreur.text(0,8,buff_noscroll);
+        text(0,8,buff_noscroll);
         needUpdate=false;
         break;
        
@@ -180,7 +181,6 @@ void Titreur::updateScrollText(){
         
       case SCROLL_NORMAL:
         if (mstime()>lastRefresh+delaytime) {
-          int maxline = max(line1.length(),line2.length());
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
             text(xpos,0,buff_line1);
@@ -223,7 +223,6 @@ void Titreur::updateScrollText(){
         
       case SCROLL_LOOP_BIG:
         if (mstime()>lastRefresh+delaytime) {
-          int maxline = line1.length();
           if(xpos + 6 * maxline> 0){
             char buff[line1.length()];
             strncpy(buff, line1.c_str(), sizeof(buff));
