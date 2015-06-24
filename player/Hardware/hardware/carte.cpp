@@ -89,7 +89,7 @@ int Carte::readValue(int valueType){
 }
 
 /* TIME MEASURE */
-unsigned long long mstime() {
+unsigned long long cmstime() {
 	struct timeval tv;
 
 	gettimeofday(&tv, NULL);
@@ -124,12 +124,12 @@ int Carte::readInterrupt(){
     case PUSH1:
       std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
       if (valeur==1){
-        startchrono = mstime();
+        startchrono = cmstime();
         checkchrono = true;
       }
       if (checkchrono && valeur==0){
-        if(mstime()-startchrono>10000 && mstime()-startchrono<20000) system ("sudo reboot");
-        if(mstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
+        if(cmstime()-startchrono>10000 && cmstime()-startchrono<20000) system ("sudo reboot");
+        if(cmstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
       }
       break;
     case PUSH2:
