@@ -93,7 +93,7 @@ void readRX(int fd){
     bool live = true;
     while(live){
       while(!serialDataAvail(fd)){
-        sleep(1);
+        usleep(10000);
         if (startReceive + waitingdelay < mstime()) {
           sendOsc();
         }

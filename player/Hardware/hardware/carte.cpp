@@ -52,7 +52,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   digitalWrite (GPIO_RESET, HIGH);
   while (digitalRead(GPIO_INTERRUPT)==LOW) {
     fprintf(stderr, ".");
-    sleep(10);
+    usleep(5000);
   }
   writeValue(VOLTAGEMODE,gamme_tension);
   writeValue(GYROSPEED,2);
