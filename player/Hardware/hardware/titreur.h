@@ -39,7 +39,6 @@ private:
   int typeModule;
   void cleanCharArray(char Str1[]);
   int type;
-  //char Str1[];
   std::string line1, line2;
   int needUpdate;
   unsigned long long lastRefresh;
@@ -62,7 +61,7 @@ protected:
   
   
 public :
-  void text(int x, int y,char Str1[]);
+  void text(int x, int y,char Str1[], int messageLength);
   void putChar(int x, int y, char c);
   void initTitreur(int _nb_module, int _typeModule);
   void testScreen();

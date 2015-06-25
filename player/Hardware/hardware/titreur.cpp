@@ -181,15 +181,15 @@ void Titreur::updateText(){
     switch (type) {
       case NO_SCROLL_NORMAL:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
-        text(0,0,buff_noscroll);
+        text(0,0,buff_noscroll,charbyline());
         strncpy(buff_noscroll, line2.c_str(), sizeof(buff_noscroll));
-        text(0,8,buff_noscroll);
+        text(0,8,buff_noscroll,charbyline());
         needUpdate=false;
         break;
        
       case NO_SCROLL_BIG:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
-        text(0,0,buff_noscroll);
+        text(0,0,buff_noscroll,charbyline());
         needUpdate=false;
         break;
         
@@ -209,9 +209,9 @@ void Titreur::updateText(){
           
       case SCROLL_BIG:
         if (mstime()>lastRefresh+delaytime) {
-          if(xpos + 6 * maxline> 0){
+          if(xpos + 12 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
-            text(xpos,0,buff_line1);
+            text(xpos,0,buff_line1,line1.length());
             xpos--;
           }else{
             needUpdate = false;
@@ -223,9 +223,9 @@ void Titreur::updateText(){
         if (mstime()>lastRefresh+delaytime) {
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
-            text(xpos,0,buff_line1);
+            text(xpos,0,buff_line1,line1.length());
             strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
-            text(xpos,8,buff_line2);
+            text(xpos,8,buff_line2,line2.length());
             xpos--;
           }else{
             xpos=0;
@@ -235,10 +235,10 @@ void Titreur::updateText(){
         
       case SCROLL_LOOP_BIG:
         if (mstime()>lastRefresh+delaytime) {
-          if(xpos + 6 * maxline> 0){
+          if(xpos + 12 * maxline> 0){
             char buff[line1.length()];
             strncpy(buff, line1.c_str(), sizeof(buff));
-            text(xpos,0,buff);
+            text(xpos,0,buff,line1.length());
             xpos--;
           }else{
             xpos=0;
