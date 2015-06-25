@@ -218,7 +218,7 @@ class KxkmCard(ExternalProcessFlag):
         log.log("important", "Init HardWare on KxkmCard ..")
         voltage = devicesV2.get(settings.get("uName"), "tension")
         titreur = devicesV2.get(settings.get("uName"), "titreur")
-        invertedSwitch = devicesV2.get(settings.get("uName"), "inverted_switch")
+        manualLightMode = devicesV2.get(settings.get("uName"), "manualLightMode")
 
 
         # BRANCH
@@ -229,9 +229,9 @@ class KxkmCard(ExternalProcessFlag):
             log.warning('Can\'t retrieve branch')
 
         self.say(
-            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -titreurNbr {tit} -ins {ins} -status {status}'.format(
+            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -titreurNbr {tit} -manualmode {ml} -status {status}'.format(
                 name=settings.get("uName"), ip=get_ip(), v=settings.get("version"),
-                volt=voltage, tit=titreur, ins=invertedSwitch, status=branch))
+                volt=voltage, tit=titreur, ml=manualLightMode, status=branch))
         return False
 
     def sendInfo(self, cmd=None):

@@ -83,7 +83,6 @@ private:
   int count_tensionbasse,count_tensioncoupure;
   unsigned long long startchrono;
   bool checkchrono;
-  int inverted_switch;
   int core_version;
 
   
@@ -102,7 +101,7 @@ public :
   void setGyro(int mode, int speed, int strob=0);
   void setRelais(int val);
   void setledG(int val);
-  void setInvertedSwitch(int val);
+  void setManualLightMode(int val);
 
   
   ~Carte();

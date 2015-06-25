@@ -256,9 +256,9 @@ int parseInput(string input){
           ss>>parsedInput;
           status=parsedInput;
         }
-        if ("-ins"==parsedInput){
-          ss>>inverted_switch;
-          mycarte.setInvertedSwitch(inverted_switch);          
+        if ("-manualmode"==parsedInput){
+          ss>>manualLightMode;
+          mycarte.setManualLightMode(manualLightMode);
         }
       }
       init=1;

@@ -164,8 +164,6 @@ void setup (void) {
   initpin();
   initSPIslave();
   newValue[UBATT] = 1;
-  newValue[BOARDMODE] = BOARDMODE_MANUALLIGHT;
-  Value[BOARDMODE] = newValue[BOARDMODE];
   checkInputPeriod = 50;
   checkTensionPeriod = 60000;
   setInterrupt(10);

@@ -261,9 +261,15 @@ void Carte::setledG(int val){
   digitalWrite (GPIO_LED_GREEN, val);
 }
 
-void Carte::setInvertedSwitch(int val){
-  inverted_switch=val;
-  fprintf(stderr, "carte - inverted switch value %u \n",val);
+void Carte::setManualLightMode(int val){
+  if(val==1){
+    mycarte.writeValue(BOARDMODE,0);
+    fprintf(stderr, "carte - manual light activated (by default) \n",val);
+  }else{
+    mycarte.writeValue(BOARDMODE,1);
+    fprintf(stderr, "carte - manual light desactivated \n",val);
+  }
+  
 }
 
 
