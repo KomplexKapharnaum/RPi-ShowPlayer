@@ -277,6 +277,7 @@ int parseInput(string input){
       carte_name="TEST STAND";
       carte_ip="2.0.2.XXX";
       init=1;
+      mycarte.setManualLightMode(0);
       //mytitreur.putChar(0,0,'S');
       produce(q,"initcarte_local");
     }

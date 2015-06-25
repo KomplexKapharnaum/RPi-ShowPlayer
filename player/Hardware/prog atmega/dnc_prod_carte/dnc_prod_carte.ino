@@ -9,8 +9,8 @@ int state = MCUSR;
 
 
 //For lighter program, if undef M_SERIAL_DEBUG, do not include debug code line.
-#define M_SERIAL_DEBUG
-//#undef M_SERIAL_DEBUG
+//#define M_SERIAL_DEBUG
+#undef M_SERIAL_DEBUG
 
 #ifdef M_SERIAL_DEBUG
 #define M_IF_SERIAL_DEBUG(x) ({x;})
