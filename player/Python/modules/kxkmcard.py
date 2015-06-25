@@ -318,6 +318,8 @@ def kxkm_card_gyro(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_message(flag, **kwargs):
+    if "type" not in flag.args.keys():
+        flag.args["type"] = None
     kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"],flag.args["type"])
 
 
