@@ -168,6 +168,7 @@ void setup (void) {
   Value[BOARDMODE] = newValue[BOARDMODE];
   checkInputPeriod = 50;
   checkTensionPeriod = 60000;
+  setInterrupt(10);
 }
 
 

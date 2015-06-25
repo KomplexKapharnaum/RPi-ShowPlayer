@@ -37,17 +37,23 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   GPIO_RESET=27;
   GPIO_RELAIS=26;
   GPIO_LED_GREEN=16;
+  GPIO_INTERRUPT=20;
   pinMode (GPIO_READ_BATT, OUTPUT);
   pinMode (GPIO_RESET, OUTPUT);
   pinMode (GPIO_RELAIS, OUTPUT);
   pinMode (GPIO_LED_GREEN, OUTPUT);
+  pinMode (GPIO_INTERRUPT, INPUT);
   digitalWrite (GPIO_RELAIS, LOW);
+  fprintf(stderr, "carte - reset atmega and wait ");
   digitalWrite (GPIO_RESET, HIGH);
   delay(1);
   digitalWrite (GPIO_RESET, LOW);
   delay(5);
   digitalWrite (GPIO_RESET, HIGH);
-  delay(100);
+  while (digitalRead(GPIO_INTERRUPT)==LOW) {
+    fprintf(stderr, ".");
+    sleep(10);
+  }
   writeValue(VOLTAGEMODE,gamme_tension);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
@@ -57,7 +63,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   count_tensioncoupure=0;
   inverted_switch=0;
   core_version = readValue(VERSION);
-  fprintf(stderr, "carte - core version : %u\n",core_version);
+  fprintf(stderr, "\n\x1b[32mcarte - core version : %u\n\x1b[0m",core_version);
 }
 
 

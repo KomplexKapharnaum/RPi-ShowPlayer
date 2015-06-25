@@ -100,13 +100,13 @@ void testRoutine(int n){
 
 //parse pyton or bash input from stdin
 int parseInput(string input){
+  
   if (input=="check_teleco_on_start"){
     //init teleco if already connected // ISSUE HERE
     produce(q,"start_interrupt");
     if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
     }
-    
   }
 
   if(input=="start_interrupt"){
@@ -114,7 +114,6 @@ int parseInput(string input){
     wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
     wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
     cout << "#HARDWAREREADY" << endl;
-
   }
 
   if (input=="interrupt_teleco") {

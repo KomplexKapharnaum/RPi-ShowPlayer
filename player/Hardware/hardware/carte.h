@@ -79,7 +79,7 @@ private:
   int gamme_tension; //use for poweroff in low batt condition
   int pwm_ledb_or_10w2; //?
   float tension; //battery voltage
-  int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT;
+  int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT,GPIO_INTERRUPT;
   int count_tensionbasse,count_tensioncoupure;
   unsigned long long startchrono;
   bool checkchrono;
