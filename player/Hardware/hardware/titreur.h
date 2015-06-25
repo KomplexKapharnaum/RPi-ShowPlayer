@@ -40,7 +40,7 @@ private:
   int cleanCharArray(char Str1[]);
   int messageLength;
   int type;
-  char Str1[];
+  //char Str1[];
   std::string line1, line2;
   int needUpdate;
   unsigned long long lastRefresh;
