@@ -26,6 +26,7 @@ FILTERS = {
     'TELECO_GET_INFO': ['sendInfo'],
 
     'CARTE_PUSH_1': ['btnDown', True],
+    'CARTE_PUSH_11': ['btnDown', True],
     'CARTE_PUSH_2': ['btnDown', True],
     'CARTE_PUSH_3': ['btnDown', True],
     'CARTE_FLOAT': ['btnDown', True],
