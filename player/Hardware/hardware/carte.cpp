@@ -135,7 +135,7 @@ int Carte::readInterrupt(){
         checkchrono = true;
       }
       if (checkchrono && valeur==0){
-        if(cmstime()-startchrono>3000 && cmstime()-startchrono<10000) {
+        if(cmstime()-startchrono>2000 && cmstime()-startchrono<10000) {
           std::cout << "#CARTE_PUSH_11 1" << std::endl;
           break;
         }
