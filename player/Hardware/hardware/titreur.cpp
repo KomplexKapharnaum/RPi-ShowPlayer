@@ -142,6 +142,7 @@ void Titreur::putChar(int x, int y, char c){
 //text on matrix + print on screen
 void Titreur::text(int x, int y,char Str1[]){
   messageLength = cleanCharArray(Str1);
+  fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,sizeof(Str1),Str1);
   for (int i =0; i<messageLength ; i++){
     putChar(x+(i)*6, y,Str1[i]);
   }
@@ -150,13 +151,14 @@ void Titreur::text(int x, int y,char Str1[]){
 }
 
 void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
-  std::stringstream trimmer;
-  trimmer << _line1;
+  std::stringstream trimmer1;
+  trimmer1 << _line1;
   line1.clear();
-  trimmer >> line1;
-  trimmer << _line2;
+  trimmer1 >> line1;
+  std::stringstream trimmer2;
+  trimmer2 << _line2;
   line2.clear();
-  trimmer >> line2;
+  trimmer2 >> line2;
   type = _type;
   big = 0;
   if (type > 99) big = 1;
