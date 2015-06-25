@@ -128,7 +128,7 @@ void Titreur::plot(int x,int y,int val){
 
 //put a char in matrix
 void Titreur::putChar(int x, int y, char c){
-  fprintf(stderr, "%c(%u)",c,c);
+  if(c!=0){fprintf(stderr, "%c(%u)",c,c);
   c-=32;
   int cc=c;
   for (int col=0; col< 6; col++) {
@@ -150,6 +150,7 @@ void Titreur::putChar(int x, int y, char c){
         }
       }
     }
+  }
   }
 }
 
