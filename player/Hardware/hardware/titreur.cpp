@@ -134,7 +134,21 @@ void Titreur::putChar(int x, int y, char c){
   for (int col=0; col< 6; col++) {
     unsigned char dots = myfont[cc][col];
     for (char row=0; row < 8; row++) { // only 8 rows.
-      if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
+      if(big==0){
+        if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
+      }else{
+        if (dots & (128>>row)) {
+          plot(x+col*2, y+row*2, 1);
+          plot(x+col*2+1, y+row*2, 1);
+          plot(x+col*2+1, y+row*2+1, 1);
+          plot(x+col*2, y+row*2+1, 1);
+        }else {
+          plot(x+col*2, y+row*2, 0);
+          plot(x+col*2+1, y+row*2, 0);
+          plot(x+col*2+1, y+row*2+1, 0);
+          plot(x+col*2, y+row*2+1, 0);
+        }
+      }
     }
   }
 }
@@ -143,7 +157,7 @@ void Titreur::putChar(int x, int y, char c){
 void Titreur::text(int x, int y,char Str1[],int messageLength){
   fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,strlen(Str1),Str1);
   for (int i =0; i<messageLength ; i++){
-    putChar(x+(i)*6, y,Str1[i]);
+    putChar(x+(i)*(6+6*big), y,Str1[i]);
   }
     fprintf(stderr, "\n");
   printScreen();
