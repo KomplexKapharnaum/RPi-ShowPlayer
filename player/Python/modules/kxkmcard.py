@@ -148,8 +148,10 @@ class KxkmCard(ExternalProcessFlag):
             cmd += ' -off'
         self.say(cmd)
 
-    def setMessage(self, line1=None, line2=None):
+    def setMessage(self, line1=None, line2=None, type=None):
         cmd = 'texttitreur'
+        if type is not None and not type == "":
+            cmd += ' -type ' + type
         if line1 is not None and not line1 == "":
             cmd += ' -line1 ' + line1.replace(' ', '_')
         if line2 is not None and not line2 == "":
@@ -264,6 +266,7 @@ def init_kxkm_card(flag, **kwargs):
 
 # ETAPE AND SIGNALS
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
+       "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
@@ -315,7 +318,7 @@ def kxkm_card_gyro(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_message(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"])
+    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"],flag.args["type"])
 
 
 @link({None: "kxkm_card"})
