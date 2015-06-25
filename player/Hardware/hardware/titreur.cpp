@@ -188,9 +188,9 @@ void Titreur::updateText(){
         if (mstime()>lastRefresh+delaytime) {
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
-            text(xpos,0,line1.c_str());
+            text(xpos,0,buff_line1);
             strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
-            text(xpos,8,line2.c_str());
+            text(xpos,8,buff_line2);
             xpos--;
           }else{
             needUpdate = false;
