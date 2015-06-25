@@ -259,10 +259,10 @@ void Carte::setledG(int val){
 
 void Carte::setManualLightMode(int val){
   if(val==1){
-    mycarte.writeValue(BOARDMODE,0);
+    writeValue(BOARDMODE,0);
     fprintf(stderr, "carte - manual light activated (by default) \n");
   }else{
-    mycarte.writeValue(BOARDMODE,1);
+    writeValue(BOARDMODE,1);
     fprintf(stderr, "carte - manual light desactivated \n");
   }
   
