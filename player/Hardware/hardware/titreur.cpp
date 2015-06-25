@@ -152,6 +152,8 @@ void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
   line1 = _line1;
   line2 = _line2;
   type = _type;
+  big = 0;
+  if (type > 99) big = 1;
   needUpdate = 1;
   xpos=0; ypos=0;
   fprintf(stderr,"titreur - drawtext type %u \n1:%s \n2:%s\n",type, line1.c_str(),line2.c_str());
@@ -166,6 +168,7 @@ void Titreur::updateText(){
     int maxline = 0;
     if (line1.length()>line2.length()) maxline = line1.length();
     else maxline = line2.length();
+
     switch (type) {
       case NO_SCROLL_NORMAL:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
@@ -185,9 +188,9 @@ void Titreur::updateText(){
         if (mstime()>lastRefresh+delaytime) {
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
-            text(xpos,0,buff_line1);
+            text(xpos,0,line1.c_str());
             strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
-            text(xpos,8,buff_line2);
+            text(xpos,8,line2.c_str());
             xpos--;
           }else{
             needUpdate = false;

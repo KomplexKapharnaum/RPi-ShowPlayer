@@ -203,6 +203,7 @@ int parseInput(string input){
   }
   
   if (input=="start_timer_for_titreur") {
+    timertitreur=true;
     t.create(0, 500,
              []() {
                produce(q, "update_titreur");
@@ -399,6 +400,7 @@ int parseInput(string input){
       }
       mytitreur.twolineText(line1,line2,type);
       produce(q,"update_titreur");
+      if(!timertitreur)produce(q,"start_timer_for_titreur");
     }
     
     if ("setlight"==parsedInput) {

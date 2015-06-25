@@ -47,6 +47,7 @@ private:
   int scrollSpeed;
   int xpos,ypos;
   int delaytime;
+  int big;
 
   
 protected:

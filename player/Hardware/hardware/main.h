@@ -29,6 +29,7 @@ int inverted_switch=0;
 string buttonline="OK   B   A";
 string popup[11][2];
 int init=0;
+bool timertitreur=false;
 
 //safe queue to put message in
 Queue<string> q;
