@@ -258,7 +258,7 @@ void Titreur::updateText(){
 //do some trick with special char
 void Titreur::cleanCharArray(char Str1[]){
   int j=0;
-  for (int i =0; i<messageLength  ; i++){
+  for (int i =0; i<strlen(Str1)  ; i++){
     unsigned char uc = (unsigned char)Str1[i];
     if (uc!=195 && uc!=197) {Str1[i-j]=Str1[i];
     } else if(uc==197){

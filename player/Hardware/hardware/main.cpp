@@ -72,7 +72,7 @@ void testRoutine(int n){
   char buff[24];
   msg="test";
   strncpy(buff, msg.c_str(), sizeof(buff));
-  mytitreur.text(0,0,buff);
+  mytitreur.text(0,0,buff,msg.length());
   while (n>0){
     mycarte.rgbValue(255,0,0,0,0);
     delay(1000);
@@ -93,7 +93,7 @@ void testRoutine(int n){
   }
   msg="end";
   strncpy(buff, msg.c_str(), sizeof(buff));
-  mytitreur.text(0,0,buff);
+  mytitreur.text(0,0,buff,msg.length());
 }
 
 
@@ -264,11 +264,7 @@ int parseInput(string input){
       init=1;
       
       mytitreur.allLedOff();
-      char buff[24];
-      strncpy(buff, carte_name.c_str(), sizeof(buff));
-      mytitreur.text(0,0,buff);
-      strncpy(buff, carte_ip.c_str(), sizeof(buff));
-      mytitreur.text(0,8,buff);
+      mytitreur.twolineText(carte_name,carte_ip,NO_SCROLL_NORMAL);
       produce(q,"initcarte_main");
     }else{
       fprintf(stderr, "main - error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
