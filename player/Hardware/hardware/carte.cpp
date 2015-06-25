@@ -54,6 +54,7 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
     fprintf(stderr, ".");
     usleep(5000);
   }
+  fprintf(stderr, "\n");
   writeValue(VOLTAGEMODE,gamme_tension);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
@@ -134,8 +135,12 @@ int Carte::readInterrupt(){
         checkchrono = true;
       }
       if (checkchrono && valeur==0){
+        if(cmstime()-startchrono>3000 && cmstime()-startchrono<10000) {
+          std::cout << "#CARTE_PUSH_11 1" << std::endl;
+          break;
         if(cmstime()-startchrono>10000 && cmstime()-startchrono<20000) system ("sudo reboot");
         if(cmstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
+        std::cout << "#CARTE_PUSH_1 1" << std::endl;
       }
       break;
     case PUSH2:
