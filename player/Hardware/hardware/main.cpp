@@ -350,7 +350,7 @@ int parseInput(string input){
       mytitreur.allLedOff();
       string line1="";
       string line2="";
-      int type;
+      int type = NO_SCROLL_NORMAL;
       while (ss>>parsedInput){
         if ("-line1"==parsedInput){
           ss>>line1;
@@ -370,7 +370,7 @@ int parseInput(string input){
         }
         if ("-type"==parsedInput){
           ss>>parsedInput;
-          type = NO_SCROLL_NORMAL;
+          
           if ("SCROLL_NORMAL"==parsedInput) {
             type=SCROLL_NORMAL;
           }
