@@ -369,10 +369,10 @@ int parseInput(string input){
         if ("-type"==parsedInput){
           ss>>parsedInput;
           
-          if ("SCROLL_NORMAL"==parsedInput) {
+          if ("SCROLL_NORMAL"==parsedInput || "SN"==parsedInput || "sn"==parsedInput) {
             type=SCROLL_NORMAL;
           }
-          if ("SCROLL_LOOP_NORMAL"==parsedInput) {
+          if ("SCROLL_LOOP_NORMAL"==parsedInput || "SLN"==parsedInput || "sln"==parsedInput) {
             type=SCROLL_LOOP_NORMAL;
           }
           if ("SCROLL_VERTICAL_NORMAL"==parsedInput) {
@@ -381,13 +381,13 @@ int parseInput(string input){
           if ("SCROLL_VERTICAL_LOOP_NORMAL"==parsedInput) {
             type=SCROLL_VERTICAL_LOOP_NORMAL;
           }
-          if ("NO_SCROLL_BIG"==parsedInput) {
+          if ("NO_SCROLL_BIG"==parsedInput || "B"==parsedInput || "b"==parsedInput) {
             type=NO_SCROLL_BIG;
           }
-          if ("SCROLL_BIG"==parsedInput) {
+          if ("SCROLL_BIG"==parsedInput || "SB"==parsedInput || "sb"==parsedInput) {
             type=SCROLL_BIG;
           }
-          if ("SCROLL_LOOP_BIG"==parsedInput) {
+          if ("SCROLL_LOOP_BIG"==parsedInput || "SLB"==parsedInput || "slb"==parsedInput) {
             type=SCROLL_LOOP_BIG;
           }
           if ("SCROLL_VERTICAL_BIG"==parsedInput) {
