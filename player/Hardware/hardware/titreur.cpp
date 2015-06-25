@@ -197,9 +197,9 @@ void Titreur::updateText(){
       case SCROLL_NORMAL:
         if (mstime()>lastRefresh+delaytime) {
           if(xpos + 6 * maxline> 0){
-            strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
+            strncpy(buff_line1, line1.c_str(), line1.length());
             text(xpos,0,buff_line1);
-            strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
+            strncpy(buff_line2, line2.c_str(), line2.length());
             text(xpos,8,buff_line2);
             xpos--;
           }else{
