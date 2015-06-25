@@ -136,7 +136,7 @@ int Carte::readInterrupt(){
           break;
         }
         if(cmstime()-startchrono>10000 && cmstime()-startchrono<20000) system ("sudo reboot");
-        if(cmstime()-startchrono>20000) system ("sudo shutdown -P now");
+        if(cmstime()-startchrono>20000) system ("sudo shutdown -h now");
         std::cout << "#CARTE_PUSH_1 1" << std::endl;
       }
       break;
