@@ -140,9 +140,8 @@ void Titreur::putChar(int x, int y, char c){
 }
 
 //text on matrix + print on screen
-void Titreur::text(int x, int y,char Str1[]){
-  messageLength = cleanCharArray(Str1);
-  fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,sizeof(Str1),Str1);
+void Titreur::text(int x, int y,char Str1[],int messageLength){
+  fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,strlen(Str1),Str1);
   for (int i =0; i<messageLength ; i++){
     putChar(x+(i)*6, y,Str1[i]);
   }
@@ -171,10 +170,10 @@ void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
 void Titreur::updateText(){
   if (needUpdate) {
     flushMatrix();
-    fprintf(stderr,"titreur - drawtext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
+    fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
     char buff_noscroll[charbyline()];
-    char buff_line1[line1.length()];
-    char buff_line2[line2.length()];
+    char buff_line1[line1.length()+1];
+    char buff_line2[line2.length()+1];
     int maxline = 0;
     if (line1.length()>line2.length()) maxline = line1.length();
     else maxline = line2.length();
@@ -197,10 +196,10 @@ void Titreur::updateText(){
       case SCROLL_NORMAL:
         if (mstime()>lastRefresh+delaytime) {
           if(xpos + 6 * maxline> 0){
-            strncpy(buff_line1, line1.c_str(), line1.length());
-            text(xpos,0,buff_line1);
-            strncpy(buff_line2, line2.c_str(), line2.length());
-            text(xpos,8,buff_line2);
+            strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
+            text(xpos,0,buff_line1,line1.length());
+            strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
+            text(xpos,8,buff_line2,line2.length());
             xpos--;
           }else{
             needUpdate = false;
@@ -257,8 +256,7 @@ void Titreur::updateText(){
 
 
 //do some trick with special char
-int Titreur::cleanCharArray(char Str1[]){
-  messageLength = strlen(Str1);
+void Titreur::cleanCharArray(char Str1[]){
   int j=0;
   for (int i =0; i<messageLength  ; i++){
     unsigned char uc = (unsigned char)Str1[i];
@@ -272,7 +270,6 @@ int Titreur::cleanCharArray(char Str1[]){
       j++;
     }
   }
-  return messageLength-j;
 }
 
 //light screen
