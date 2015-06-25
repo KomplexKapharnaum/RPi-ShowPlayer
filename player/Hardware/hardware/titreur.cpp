@@ -171,6 +171,7 @@ void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
 void Titreur::updateText(){
   if (needUpdate) {
     flushMatrix();
+    fprintf(stderr,"titreur - drawtext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
     char buff_noscroll[charbyline()];
     char buff_line1[line1.length()];
     char buff_line2[line2.length()];
