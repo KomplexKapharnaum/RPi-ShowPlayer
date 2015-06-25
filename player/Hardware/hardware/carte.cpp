@@ -129,7 +129,7 @@ int Carte::readInterrupt(){
   switch (address) {
       //@todo : faire un tableau et l'envoyer
     case PUSH1:
-      std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
+      //std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
       if (valeur==1){
         startchrono = cmstime();
         checkchrono = true;
@@ -138,6 +138,7 @@ int Carte::readInterrupt(){
         if(cmstime()-startchrono>3000 && cmstime()-startchrono<10000) {
           std::cout << "#CARTE_PUSH_11 1" << std::endl;
           break;
+        }
         if(cmstime()-startchrono>10000 && cmstime()-startchrono<20000) system ("sudo reboot");
         if(cmstime()-startchrono>20000) system ("sudo shutdown -t 5 -h now");
         std::cout << "#CARTE_PUSH_1 1" << std::endl;
