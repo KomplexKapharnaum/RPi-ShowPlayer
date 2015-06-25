@@ -7,7 +7,15 @@
 #include "MemoryFree.h"
 
 
+//For lighter program, if undef M_SERIAL_DEBUG, do not include debug code line.
+//#define M_SERIAL_DEBUG
+#undef M_SERIAL_DEBUG
 
+#ifdef M_SERIAL_DEBUG
+#define M_IF_SERIAL_DEBUG(x) ({x;})
+#else
+#define M_IF_SERIAL_DEBUG(x)
+#endif
 
 
 
@@ -50,7 +58,7 @@ const byte character_data[8][8] PROGMEM= {
 };
 
 void initlcd(){
-  printf_P(PSTR("init lcd"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("init lcd")));
   lcd.begin(16, 2);
   byte my_character_data[8];
   for (byte i=0;i<8;i++) {
@@ -60,8 +68,8 @@ void initlcd(){
   delay(5);
   lcd.display();
   lcd.setBackLight(1);
-  printf_P(PSTR(" ok\n"));
-  //printf_P(PSTR("free memory = %u \n"),freeMemory());
+  M_IF_SERIAL_DEBUG(printf_P(PSTR(" ok\n")));
+  //M_IF_SERIAL_DEBUG(printf_P(PSTR("free memory = %u \n"),freeMemory()));
 }
 
 //-------------------------------REGISTER AND BUFFER
@@ -139,7 +147,7 @@ long interruptTimeOn;
 int timeOutInterrupt=1500;
 
 void initpin() {
-  printf_P(PSTR("init pin"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("init pin")));
   byte i = 0;
   for (i = 0; i < T_DECINPIN; i++) {
     pinMode(outpin[i], OUTPUT);
@@ -151,14 +159,14 @@ void initpin() {
   strobLRStep = 0;
   strobLVStep = 0;
   strobLOKStep = 0;
-  printf_P(PSTR(" ok\n"));
-  //printf_P(PSTR("free memory = %u \n"),freeMemory());
+  M_IF_SERIAL_DEBUG(printf_P(PSTR(" ok\n")));
+  //M_IF_SERIAL_DEBUG(printf_P(PSTR("free memory = %u \n"),freeMemory()));
 }
 
 
 //flush buffer
 void flushbuf(){
-  printf_P(PSTR("flush buff\n"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("flush buff\n")));
   for (byte i=0; i<T_BUFFER_SIZE-1; i++) {
     buf[i]=' ';
   }
@@ -167,7 +175,7 @@ void flushbuf(){
 }
 
 void clearRegister() {
-  printf_P(PSTR("clear register\n"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("clear register\n")));
   for (byte i = 0; i < T_REGISTERSIZE; i++) {
     Value[i] = 0;
     newValue[i] = 0;
@@ -188,7 +196,7 @@ void freeInterrupt(){
 void setInterrupt(byte interrupt){
   newValue[T_INTERRUPT] = interrupt;
   Value[T_INTERRUPT] = newValue[T_INTERRUPT];
-  printf_P(PSTR("interupt %u\n"),Value[T_INTERRUPT]);
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("interupt %u\n"),Value[T_INTERRUPT]));
   interruptTimeOn = millis();
   digitalWrite(outpin[T_INTERRUPT], HIGH);
   SPDR = interrupt;
@@ -260,11 +268,11 @@ void switchLock(byte force){
   if (simpleRemote) {
     simpleRemote=false;
   }else{
-    printf_P(PSTR("switch lock (T_LOCK%u-%u) force %u - "),newValue[T_LOCK],Value[T_LOCK], force);
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("switch lock (T_LOCK%u-%u) force %u - "),newValue[T_LOCK],Value[T_LOCK], force));
     if (Value[T_LOCK]==T_ISOPEN || force==T_ISLOCK){
       Value[T_LOCK]=T_ISLOCK; newValue[T_LOCK]=T_ISLOCK;
       pinMode(outpin[T_LEDRVALUE], INPUT);
-      printf_P(PSTR("lock\n"));
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("lock\n")));
       return;
     }
     if (Value[T_LOCK]==T_ISLOCK || force==T_ISLOCKWITHSLEEP){
@@ -272,7 +280,7 @@ void switchLock(byte force){
       pinMode(outpin[T_LEDRVALUE], INPUT);
       lcd.noDisplay();
       lcd.setBackLight(0);
-      printf_P(PSTR("lock and sleep\n"));
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("lock and sleep\n")));
       return;
     }
     if (Value[T_LOCK]==T_ISLOCKWITHSLEEP || force==T_ISOPEN){
@@ -281,14 +289,14 @@ void switchLock(byte force){
       updateValue(T_LEDRVALUE);
       lcd.display();
       lcd.setBackLight(1);
-      printf_P(PSTR("unlock\n"));
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("unlock\n")));
       return;
     }
     if (force==T_POWEROFF){
       Value[T_LOCK]=T_POWEROFF; newValue[T_LOCK]=T_POWEROFF;
       lcd.noDisplay();
       lcd.setBackLight(0);
-      printf_P(PSTR("poweroff\n"));
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("poweroff\n")));
       delay(5);
       poweroff();
       return;
@@ -417,7 +425,7 @@ typedef struct {
 
 
 const menutype menulist[T_MENU_LENGTH] PROGMEM = {
-  {" do not clean","     V1.6",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
+  {" do not clean","     V1.7",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"--SHOW","",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
   {"name + volt","OK  B  A",T_MENU_BEHAVIOUR_SHOW,T_MENU_ID_SHOW_STATUS,0,0,0,true},
   {"--commande","scenario",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,true},
@@ -447,8 +455,8 @@ const menutype menulist[T_MENU_LENGTH] PROGMEM = {
   {"need_stat","error",T_MENU_BEHAVIOR_STATUTS,T_MENU_ID_STATUS_ERROR,0,0,0,true},
     {"--commande","syteme",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,false},
     {"restart","PY wifi reboot",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_SYS_RESTARTPY,TELECO_MESSAGE_SYS_RESTARTWIFI,TELECO_MESSAGE_SYS_REBOOT,false},
-    {"system","update     off",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_SYS_UPDATESYS,0,TELECO_MESSAGE_SYS_POWEROFF,false},
-    {"test","routine  blink",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_TESTROUTINE,0,TELECO_MESSAGE_BLINKGROUP,false},
+    {"system","update off --",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_SYS_UPDATESYS,TELECO_MESSAGE_SYS_POWEROFF,0,false},
+    {"test","rout blink --",T_MENU_BEHAVIOR_SELECT_CONFIRM,0,TELECO_MESSAGE_TESTROUTINE,TELECO_MESSAGE_BLINKGROUP,0,false},
   {"--logs","view history",T_MENU_BEHAVIOUR_MASTER,0,0,0,0,false},
   {"log","1",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0,0,0,0,false},
   {"log","2",T_MENU_BEHAVIOUR_LOG,T_MENU_ID_LOG_0+1,0,0,0,false},
@@ -468,13 +476,13 @@ char patchlog[T_MENU_NB_LOG];
 
 //fill the string with initial string from PROGMEM
 void initmenu(){
-  printf_P(PSTR("init menu \n"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("init menu \n")));
   for (byte i=0;i<T_MENU_LENGTH;i++){
     memcpy_P (&menu, &menulist[i], sizeof(menutype));
-    //printf_P(PSTR("menu %u"),i);
-    //printf_P(PSTR(" id=%u "),menu.id);
-    //printf_P(PSTR(" line1=%s"),menu.line1);
-    //printf_P(PSTR(" line2=%s\n"),menu.line2);
+    //M_IF_SERIAL_DEBUG(printf_P(PSTR("menu %u"),i));
+    //M_IF_SERIAL_DEBUG(printf_P(PSTR(" id=%u "),menu.id));
+    //M_IF_SERIAL_DEBUG(printf_P(PSTR(" line1=%s"),menu.line1));
+    //M_IF_SERIAL_DEBUG(printf_P(PSTR(" line2=%s\n"),menu.line2));
     if (menu.id!=0) {
       memcpy(variableMenulist[menu.id].line1, &menu.line1, 16 );
       memcpy(variableMenulist[menu.id].line2, &menu.line2, 16 );
@@ -483,14 +491,14 @@ void initmenu(){
   for (byte j=0; j<T_MENU_NB_LOG; j++) {
     patchlog[j]=j;
   }
-  printf_P(PSTR(" ok\n"));
-  //printf_P(PSTR("free memory = %u \n"),freeMemory());
+  M_IF_SERIAL_DEBUG(printf_P(PSTR(" ok\n")));
+  //M_IF_SERIAL_DEBUG(printf_P(PSTR("free memory = %u \n"),freeMemory()));
 }
 
 //display menu
 void displayMenu(byte need=0){
   if((displayNeedUpdate>0 && millis() > refreshMenu + displayNeedUpdate  && command==0) || need){
-    printf_P(PSTR("update menu %u "),currentMenu);
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("update menu %u "),currentMenu));
     if(need==0){
       if (switchlockCom(1)){
         need=2;
@@ -506,43 +514,43 @@ void displayMenu(byte need=0){
       //try
       //SPCR &= ~_BV(SPIE);//disable spi interrupt
       memcpy_P (&menu, &menulist[currentMenu], sizeof(menutype));
-      //printf_P(PSTR("get behaviour =%u\n"),menu.behaviour);
-      //printf_P(PSTR("get id =%u\n"),menu.id);
-      //printf_P(PSTR("free memory = %u \n"),freeMemory());
-      //printf_P(PSTR("get line1 =%s\n"),menu.line1);
-      //printf_P(PSTR("get line2 =%s\n"),menu.line2);
+      //M_IF_SERIAL_DEBUG(printf_P(PSTR("get behaviour =%u\n"),menu.behaviour));
+      //M_IF_SERIAL_DEBUG(printf_P(PSTR("get id =%u\n"),menu.id));
+      //M_IF_SERIAL_DEBUG(printf_P(PSTR("free memory = %u \n"),freeMemory()));
+      //M_IF_SERIAL_DEBUG(printf_P(PSTR("get line1 =%s\n"),menu.line1));
+      //M_IF_SERIAL_DEBUG(printf_P(PSTR("get line2 =%s\n"),menu.line2));
       //delay(20);
       lcd.clear();
       if(menu.id!=0){
         if(menu.id>=T_MENU_ID_LOG_0){
           byte place= (T_MENU_NB_LOG+patchlog[0]-(menu.id-T_MENU_ID_LOG_0))%T_MENU_NB_LOG + T_MENU_ID_LOG_0;
-          printf_P(PSTR(" log id=%u log place %u"),menu.id,place);
+          M_IF_SERIAL_DEBUG(printf_P(PSTR(" log id=%u log place %u"),menu.id,place));
           lcd.setCursor(0, 0);
           lcd.print(variableMenulist[place].line1);
           lcd.setCursor(0, 1);
           lcd.print(variableMenulist[place].line2);
         }
         else{
-          printf_P(PSTR(" variable id=%u"),menu.id);
+          M_IF_SERIAL_DEBUG(printf_P(PSTR(" variable id=%u"),menu.id));
         lcd.setCursor(0, 0);
         lcd.print(variableMenulist[menu.id].line1);
         lcd.setCursor(0, 1);
         lcd.print(variableMenulist[menu.id].line2);
         }
       } else {
-        printf_P(PSTR(" fixe"));
+        M_IF_SERIAL_DEBUG(printf_P(PSTR(" fixe")));
         lcd.setCursor(0, 0);
         lcd.print(menu.line1);
         lcd.setCursor(0, 1);
         lcd.print(menu.line2);
       }
-      printf_P(PSTR(" done\n"));
+      M_IF_SERIAL_DEBUG(printf_P(PSTR(" done\n")));
       updateMenuScheme();
       displayNeedUpdate=0;
       //SPCR |= _BV(SPIE); //enable spi interrupt
       refreshMenu=millis();
       if(need==2)switchlockCom(0);
-      printf_P(PSTR("->done\n\n"));
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("->done\n\n")));
       if (popupNeedDisplay){
         popupNeedDisplay=0;
         displayNeedUpdate=2000;
@@ -563,24 +571,24 @@ boolean displayShow(boolean menushow){
 void findprevMasterMenu(){
   if (currentMenu>0) {
     currentMenuPrevMaster=currentMenu;
-    printf_P(PSTR("find prev master"));
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("find prev master")));
     for (byte i=currentMenu-1; i>=0; i--) {
       memcpy_P (&temp, &menulist [i], sizeof(menutype));
-      printf_P(PSTR(" - %u"),i);
+      M_IF_SERIAL_DEBUG(printf_P(PSTR(" - %u"),i));
       if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayShow(temp.show)){
-        printf_P(PSTR(" master\n"));
+        M_IF_SERIAL_DEBUG(printf_P(PSTR(" master\n")));
         currentMenuPrevMaster=i;
         return;
       }
     }
-    printf_P(PSTR("\n"));
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("\n")));
   }
 }
 
 //return to previous master menu
 void goprevMasterMenu(){
   if (currentMenuPrevMaster != currentMenu) {
-  printf_P(PSTR("go prev master\n"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("go prev master\n")));
   currentMenu=currentMenuPrevMaster;
   displayNeedUpdate=1;
   }
@@ -605,17 +613,17 @@ void goprevMenu(){
 void findnextMasterMenu(){
   currentMenuNextMaster=currentMenu;
   if (currentMenu<T_MENU_LENGTH-1){
-    printf_P(PSTR("find next master"));
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("find next master")));
     for (byte i=currentMenu+1; i<T_MENU_LENGTH; i++) {
       memcpy_P (&temp, &menulist [i], sizeof(menutype));
-      printf_P(PSTR(" - menu %u"),i);
+      M_IF_SERIAL_DEBUG(printf_P(PSTR(" - menu %u"),i));
       if(temp.behaviour==T_MENU_BEHAVIOUR_MASTER && displayShow(temp.show)){
-        printf_P(PSTR(" master\n"));
+        M_IF_SERIAL_DEBUG(printf_P(PSTR(" master\n")));
         currentMenuNextMaster=i;
         return;
       }
     }
-    printf_P(PSTR("\n"));
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("\n")));
   }
 }
 
@@ -623,7 +631,7 @@ void findnextMasterMenu(){
 //go to next master menu
 void gonextMasterMenu(){
   if (currentMenuNextMaster!=currentMenu){
-    printf_P(PSTR("go next master\n"));
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("go next master\n")));
     currentMenu=currentMenuNextMaster;
     displayNeedUpdate=1;
   }
@@ -664,14 +672,14 @@ void confirm(byte button,byte val){
       onePushRotary=1;
       newValue[T_PUSHROTARY]=val;
       //updateInput(T_PUSHROTARY);
-      printf_P(PSTR("yes %u\n"),menu.ok);
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("yes %u\n"),menu.ok));
       lcd.print("OK");
       if (val==TELECO_MESSAGE_MODE_SHOW) {
-        printf_P(PSTR("switch to show mode \n"));
+        M_IF_SERIAL_DEBUG(printf_P(PSTR("switch to show mode \n"));)
         show=true;
       }
       if (val==TELECO_MESSAGE_MODE_REPET || val==TELECO_MESSAGE_MODE_DEBUG) {
-        printf_P(PSTR("switch to no show mode \n"));
+        M_IF_SERIAL_DEBUG(printf_P(PSTR("switch to no show mode \n")));
         show=false;
       }
       while(wait){
@@ -683,7 +691,7 @@ void confirm(byte button,byte val){
       }
     }else {
       if(1-digitalRead(inpin[button])==0){
-          printf_P(PSTR("no\n"));
+          M_IF_SERIAL_DEBUG(printf_P(PSTR("no\n")));
           lcd.setCursor(0, 1);
           lcd.print(menu.line2);
           wait=false;
@@ -707,7 +715,7 @@ void newcheckInput(){
             if(1-digitalRead(inpin[i])==1 && !simpleRemote){
               if (onePushRotary==0){
                 onePushRotary=1;
-                printf_P(PSTR("get push rotary\n"));
+                M_IF_SERIAL_DEBUG(printf_P(PSTR("get push rotary\n")));
                 switch (menu.behaviour) {
                   case T_MENU_BEHAVIOUR_MASTER:
                     gonextMenu();
@@ -732,7 +740,7 @@ void newcheckInput(){
                 if(1-digitalRead(inpin[i])==1){
                   if (onePushA==0){
                     onePushA=1;
-                    printf_P(PSTR("get pushA select %u\n"),menu.a);
+                    M_IF_SERIAL_DEBUG(printf_P(PSTR("get pushA select %u\n"),menu.a));
                     newValue[T_PUSHROTARY]=menu.a;
                   }
                 }else{
@@ -743,7 +751,7 @@ void newcheckInput(){
                 if(1-digitalRead(inpin[i])==1){
                   if (onePushA==0){
                     onePushA=1;
-                    printf_P(PSTR("get pushA want confirm %u\n"),menu.a);
+                    M_IF_SERIAL_DEBUG(printf_P(PSTR("get pushA want confirm %u\n"),menu.a));
                     confirm(i,menu.a);
                   }
                 }else{
@@ -756,7 +764,7 @@ void newcheckInput(){
             break;
             //push b
           case T_PUSHB:
-            //printf_P(PSTR("get pushB\n"));
+            //M_IF_SERIAL_DEBUG(printf_P(PSTR("get pushB\n")));
             switch (menu.behaviour) {
               case T_MENU_BEHAVIOUR_SHOW:
                 newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
@@ -765,7 +773,7 @@ void newcheckInput(){
                 if(1-digitalRead(inpin[i])==1){
                   if (onePushB==0){
                     onePushB=1;
-                    printf_P(PSTR("get pushB select %u\n"),menu.b);
+                    M_IF_SERIAL_DEBUG(printf_P(PSTR("get pushB select %u\n"),menu.b));
                     newValue[T_PUSHROTARY]=menu.b;
                   }
                 }else{
@@ -776,7 +784,7 @@ void newcheckInput(){
                 if(1-digitalRead(inpin[i])==1){
                   if (onePushB==0){
                     onePushB=1;
-                    printf_P(PSTR("get pushB want confirm %u - "),menu.b);
+                    M_IF_SERIAL_DEBUG(printf_P(PSTR("get pushB want confirm %u - "),menu.b));
                     confirm(i,menu.b);
                   }
                 }else{
@@ -789,7 +797,7 @@ void newcheckInput(){
             break;
             //push ok
           case T_PUSHOK:
-            //printf_P(PSTR("get pushOK\n"));
+            //M_IF_SERIAL_DEBUG(printf_P(PSTR("get pushOK\n")));
             switch (menu.behaviour) {
               case T_MENU_BEHAVIOUR_SHOW:
                 newValue[T_DECINPIN + i] = 1 - digitalRead(inpin[i]);
@@ -798,7 +806,7 @@ void newcheckInput(){
                 if(1-digitalRead(inpin[i])==1){
                   if (onePushOK==0){
                     onePushOK=1;
-                    printf_P(PSTR("get pushOK select %u\n"),menu.ok);
+                    M_IF_SERIAL_DEBUG(printf_P(PSTR("get pushOK select %u\n"),menu.ok));
                     newValue[T_PUSHROTARY]=menu.ok;
                   }
                 }else{
@@ -809,7 +817,7 @@ void newcheckInput(){
                 if(1-digitalRead(inpin[i])==1){
                   if (onePushOK==0){
                     onePushOK=1;
-                    printf_P(PSTR("get pushOK want confirm %u\n"),menu.ok);
+                    M_IF_SERIAL_DEBUG(printf_P(PSTR("get pushOK want confirm %u\n"),menu.ok));
                     confirm(i,menu.ok);
                   }
                 }else{
@@ -835,7 +843,7 @@ void newcheckInput(){
       long newLeft;
       newLeft = (long)rotary.read()*1.0/2;
       if (newLeft!=positionLeft && !simpleRemote) {
-        printf_P(PSTR("get rotary\n"));
+        M_IF_SERIAL_DEBUG(printf_P(PSTR("get rotary\n")));
         if (menu.behaviour==T_MENU_BEHAVIOUR_MASTER) {
           if (newLeft<positionLeft) goprevMasterMenu();
           else gonextMasterMenu();
@@ -870,7 +878,7 @@ void unselect(byte i){
 }
 
 void shiftlog(){
-  printf_P(PSTR("shift logs\n"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("shift logs\n")));
   for (byte i=0; i<T_MENU_NB_LOG; i++) {
     patchlog[i] = (patchlog[i]+1)%T_MENU_NB_LOG;
   }
@@ -895,13 +903,13 @@ void newcheckStringReceive() {
     if (id==T_MENU_ID_LOG_0) {
       shiftlog();
       byte place=T_MENU_ID_LOG_0+patchlog[0];
-      printf_P(PSTR("get new log n=%u : %s store at place %u\n"),id,&buf[1],place);
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("get new log n=%u : %s store at place %u\n"),id,&buf[1],place));
       clearlines(place);
       copybuffer(variableMenulist[place].line1,1,16);
       copybuffer(variableMenulist[place].line2,17,16);
       displayNeedUpdate=300;
     }else{
-      printf_P(PSTR("get new status n=%u : %s\n"),id,&buf[1]);
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("get new status n=%u : %s\n"),id,&buf[1]));
       clearlines(id);
       //fil menu with string
       //memcpy(&variableMenulist[id].line1[0], &buf[1], 16 );
@@ -911,7 +919,7 @@ void newcheckStringReceive() {
     }
     refreshMenu=millis();
     if (menu.id==id || menu.id>=T_MENU_ID_LOG_0) {
-      printf_P(PSTR("same menu or log %u, need update\n"),id);
+      M_IF_SERIAL_DEBUG(printf_P(PSTR("same menu or log %u, need update\n"),id));
       displayNeedUpdate=300;
     }
     /*if (id>=T_MENU_ID_STATUS_USB && id<=T_MENU_ID_STATUS_ERROR) {
@@ -935,7 +943,7 @@ boolean copybuffer(char* mystring,byte start,byte size){
 
 boolean switchlockCom(byte lock){
   if (!interruptPending()) {
-    printf_P(PSTR("want lock com %u \n"),lock);
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("want lock com %u \n"),lock));
     newValue[T_DISPLAY_LOCK]=lock;
     Value[T_DISPLAY_LOCK]=lock;
     setInterrupt(T_DISPLAY_LOCK);
@@ -943,7 +951,7 @@ boolean switchlockCom(byte lock){
       lowleveRoutine();
     }
     delay(15);
-    printf_P(PSTR(" lock com ok\n"));
+    M_IF_SERIAL_DEBUG(printf_P(PSTR(" lock com ok\n")));
     return true;
   }
   return false;
@@ -958,7 +966,7 @@ boolean switchlockCom(byte lock){
 #define COMMANDMASK 0xC0
 
 void initSPIslave() {
-  printf_P(PSTR("init spi"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("init spi")));
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
   // turn on SPI in slave mode
@@ -966,8 +974,8 @@ void initSPIslave() {
   // turn on interrupts
   SPCR |= _BV(SPIE);
   SPDR = 0;
-  printf_P(PSTR(" ok\n"));
-  //printf_P(PSTR("free memory = %u \n"),freeMemory());
+  M_IF_SERIAL_DEBUG(printf_P(PSTR(" ok\n")));
+  //M_IF_SERIAL_DEBUG(printf_P(PSTR("free memory = %u \n"),freeMemory()));
   
 }
 
@@ -975,20 +983,20 @@ void initSPIslave() {
 ISR (SPI_STC_vect)
 {
   byte c = SPDR;
-  //printf_P(c, HEX);
+  //M_IF_SERIAL_DEBUG(printf_P(c, HEX));
   
   if (command < 10) {
-    //printf_P(PSTR("R add"));
+    //M_IF_SERIAL_DEBUG(printf_P(PSTR("R add")));
     adress = c & ~COMMANDMASK;
-    //printf_P(adress, HEX);
-    //printf_P(PSTR(" com"));
+    //M_IF_SERIAL_DEBUG(printf_P(adress, HEX));
+    //M_IF_SERIAL_DEBUG(printf_P(PSTR(" com")));
     command = c & COMMANDMASK;
-    //printf_P(command, HEX);
+    //M_IF_SERIAL_DEBUG(printf_P(command, HEX));
   } else {
     //valeur
     if (command == WRITECOMMANDVALUE) {
       if (adress < T_STRING) {
-        printf_P(PSTR("wv %u=%u\n"),adress,c);
+        M_IF_SERIAL_DEBUG(printf_P(PSTR("wv %u=%u\n"),adress,c));
         newValue[adress] = c;
         command = 1;
         SPDR = 0;
@@ -1008,7 +1016,7 @@ ISR (SPI_STC_vect)
     if (adress==Value[T_INTERRUPT]) {
       freeInterrupt();
     }
-    printf_P(PSTR("read %u\n"),Value[adress]);
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("read %u\n"),Value[adress]));
   }
 }  // end of interrupt service routine (ISR) SPI_STC_vect
 
@@ -1020,7 +1028,7 @@ ISR (SPI_STC_vect)
 void setup (void) {
   Serial.begin(115200);
   printf_begin();
-  printf_P(PSTR("teleco start\n"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("teleco start\n")));
   clearRegister();
   initpin();
   initlcd();
@@ -1033,13 +1041,13 @@ void setup (void) {
   displayNeedUpdate=1000;
   currentMenu=2;
   positionLeft = rotary.read();
-  printf_P(PSTR("init ok\n"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("init ok\n")));
 }
 
 
 
 void waitforinit(){
-  printf_P(PSTR("\n wait for init\n"));
+  M_IF_SERIAL_DEBUG(printf_P(PSTR("\n wait for init\n")));
   delay(300);
   SPDR = 0;
   while(newValue[T_INIT]==0){
@@ -1059,7 +1067,7 @@ void lowleveRoutine(){
   if (digitalRead (SS) == HIGH) command = 0;
   //timeout if prog do not answer to interrupt
   if (interruptPending() && millis()>interruptTimeOn+timeOutInterrupt && Value[T_INIT]==1 && command == 0) {
-    printf_P(PSTR("warning interrupt read fail\n"));
+    M_IF_SERIAL_DEBUG(printf_P(PSTR("warning interrupt read fail\n")));
     newValue[T_LEDRVALUE] = 0;
     freeInterrupt();
   }

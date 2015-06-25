@@ -165,14 +165,10 @@ void Titreur::text(int x, int y,char Str1[],int messageLength){
 }
 
 void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
-  std::stringstream trimmer1;
-  trimmer1 << _line1;
   line1.clear();
-  trimmer1 >> line1;
-  std::stringstream trimmer2;
-  trimmer2 << _line2;
+  line1=_line1;
   line2.clear();
-  trimmer2 >> line2;
+  line2=_line2;
   type = _type;
   big = 0;
   if (type > 99) big = 1;
