@@ -380,6 +380,9 @@ int parseInput(string input){
           if ("SCROLL_VERTICAL_LOOP_NORMAL"==parsedInput) {
             type=SCROLL_VERTICAL_LOOP_NORMAL;
           }
+          if ("NO_SCROLL_BIG"==parsedInput) {
+            type=NO_SCROLL_BIG;
+          }
           if ("SCROLL_BIG"==parsedInput) {
             type=SCROLL_BIG;
           }
