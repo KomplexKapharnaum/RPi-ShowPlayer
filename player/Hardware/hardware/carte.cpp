@@ -62,7 +62,6 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   needStatusUpdate=0;
   count_tensionbasse=0;
   count_tensioncoupure=0;
-  inverted_switch=0;
   core_version = readValue(VERSION);
   fprintf(stderr, "\n\x1b[32mcarte - core version : %u\n\x1b[0m",core_version);
 }
@@ -122,9 +121,6 @@ int Carte::readInterrupt(){
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "carte - interrupt %u read %u\n",address,buff[1]);
   int valeur;
-  //if(inverted_switch==0) valeur = buff[1];
-  //else valeur = 1 - buff[1];
-  //now this is check at init of the atmega. ie : you could have only one inverted switch
   valeur = buff[1];
   switch (address) {
       //@todo : faire un tableau et l'envoyer
@@ -264,10 +260,10 @@ void Carte::setledG(int val){
 void Carte::setManualLightMode(int val){
   if(val==1){
     mycarte.writeValue(BOARDMODE,0);
-    fprintf(stderr, "carte - manual light activated (by default) \n",val);
+    fprintf(stderr, "carte - manual light activated (by default) \n");
   }else{
     mycarte.writeValue(BOARDMODE,1);
-    fprintf(stderr, "carte - manual light desactivated \n",val);
+    fprintf(stderr, "carte - manual light desactivated \n");
   }
   
 }
