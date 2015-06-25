@@ -23,6 +23,7 @@
 #include <algorithm>
 
 #include <string.h>
+#include <sstream>
 
 #include <time.h>
 #include <sys/time.h>
