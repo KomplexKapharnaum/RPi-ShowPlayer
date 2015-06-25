@@ -149,14 +149,19 @@ void Titreur::text(int x, int y,char Str1[]){
 }
 
 void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
-  line1 = _line1;
-  line2 = _line2;
+  std::stringstream trimmer;
+  trimmer << _line1;
+  line1.clear();
+  trimmer >> line1;
+  trimmer << _line2;
+  line2.clear();
+  trimmer >> line2;
   type = _type;
   big = 0;
   if (type > 99) big = 1;
   needUpdate = 1;
   xpos=0; ypos=0;
-  fprintf(stderr,"titreur - drawtext type %u \n1:%s \n2:%s\n",type, line1.c_str(),line2.c_str());
+  fprintf(stderr,"titreur - drawtext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
 }
 
 
