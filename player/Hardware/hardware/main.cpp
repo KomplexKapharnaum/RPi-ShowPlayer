@@ -350,6 +350,7 @@ int parseInput(string input){
       mytitreur.allLedOff();
       string line1="";
       string line2="";
+      int speed = 250;
       int type = NO_SCROLL_NORMAL;
       while (ss>>parsedInput){
         if ("-line1"==parsedInput){
@@ -367,6 +368,9 @@ int parseInput(string input){
         if ("-alloff"==parsedInput){
           mytitreur.allLedOff();
           return 0;
+        }
+        if ("-speed"==parsedInput){
+          ss>>speed;
         }
         if ("-type"==parsedInput){
           ss>>parsedInput;
@@ -400,7 +404,7 @@ int parseInput(string input){
           }
         }
       }
-      mytitreur.twolineText(line1,line2,type);
+      mytitreur.twolineText(line1,line2,type,speed);
       produce(q,"update_titreur");
       if(!timertitreur)produce(q,"start_timer_for_titreur");
     }

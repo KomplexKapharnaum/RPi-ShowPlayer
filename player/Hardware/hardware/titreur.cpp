@@ -63,7 +63,7 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
   for (int i=0; i<typeModule*nb_module; i++) {
     *(matrix+i)=0;
   }
-  delaytime = 200;
+  delaytime = 250;
 }
 
 
@@ -166,7 +166,8 @@ void Titreur::text(int x, int y,char Str1[],int messageLength){
     fprintf(stderr, "\n");
 }
 
-void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
+void Titreur::twolineText(std::string _line1, std::string _line2, int _type, int _speed){
+  delaytime=_speed;
   line1.clear();
   line1=_line1;
   line2.clear();

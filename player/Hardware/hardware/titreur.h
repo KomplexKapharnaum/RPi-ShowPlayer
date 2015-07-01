@@ -70,7 +70,7 @@ public :
   void allLedOn();
   void allLedOff();
   void powerdown();
-  void twolineText(std::string _line1,std::string _line2,int _type);
+  void twolineText(std::string _line1,std::string _line2,int _type, int _speed=250);
   void updateText();
   ~Titreur();
 
