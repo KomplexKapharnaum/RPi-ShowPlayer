@@ -159,7 +159,7 @@ void Titreur::text(int x, int y,char Str1[],int messageLength){
   messageLength = strlen(Str1) - cleanCharArray(Str1);
   fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,strlen(Str1),Str1);
   for (int i =0; i<messageLength ; i++){
-    if(x+(i)*(6+6*big)>-6 && x+(i)*(6+6*big)<pixelbyline+6)
+    if(x+(i)*(6+6*big)>-6 && x+(i)*(6+6*big)<pixelbyline()+6)
       putChar(x+(i)*(6+6*big), y,Str1[i]);
   }
     fprintf(stderr, "\n");
