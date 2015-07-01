@@ -270,7 +270,7 @@ def init_kxkm_card(flag, **kwargs):
 
 # ETAPE AND SIGNALS
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
-       "/titreur/messagePlus [ligne1] [ligne2] [type] [speed]": "kxkm_card_titreur_message",
+       "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
@@ -324,6 +324,11 @@ def kxkm_card_gyro(flag, **kwargs):
 def kxkm_card_titreur_message(flag, **kwargs):
     if "type" not in flag.args.keys():
         flag.args["type"] = None
+    else:
+        if ' ' in flag.args["type"]:
+            tab = flag.args["type"].split(' ')
+            flag.args["type"] = tab[0]
+            flag.args["speed"] = tab[1]
     if "speed" not in flag.args.keys():
         flag.args["speed"] = None
     kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"], flag.args["type"], flag.args["speed"])
