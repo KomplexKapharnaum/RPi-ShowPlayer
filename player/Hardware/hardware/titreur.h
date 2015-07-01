@@ -37,7 +37,7 @@ private:
   unsigned char *matrix;
   unsigned char *output;
   int typeModule;
-  void cleanCharArray(char Str1[]);
+  int cleanCharArray(char Str1[]);
   int type;
   std::string line1, line2;
   int needUpdate;
