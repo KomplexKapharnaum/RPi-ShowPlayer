@@ -164,7 +164,6 @@ void Titreur::text(int x, int y,char Str1[],int messageLength){
       putChar(x+(i)*(6+6*big), y,Str1[i]);
   }
     fprintf(stderr, "\n");
-  printScreen();
 }
 
 void Titreur::twolineText(std::string _line1, std::string _line2, int _type){
@@ -198,12 +197,14 @@ void Titreur::updateText(){
         text(0,0,buff_noscroll,charbyline());
         strncpy(buff_noscroll, line2.c_str(), sizeof(buff_noscroll));
         text(0,8,buff_noscroll,charbyline());
+        printScreen();
         needUpdate=false;
         break;
        
       case NO_SCROLL_BIG:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
         text(0,0,buff_noscroll,charbyline());
+        printScreen();
         needUpdate=false;
         break;
         
@@ -215,6 +216,7 @@ void Titreur::updateText(){
             text(xpos,0,buff_line1,line1.length());
             strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
             text(xpos,8,buff_line2,line2.length());
+            printScreen();
             xpos--;
           }else{
             needUpdate = false;
@@ -229,6 +231,7 @@ void Titreur::updateText(){
           if(xpos + 12 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
             text(xpos,0,buff_line1,line1.length());
+            printScreen();
             xpos--;
           }else{
             needUpdate = false;
@@ -245,6 +248,7 @@ void Titreur::updateText(){
             text(xpos,0,buff_line1,line1.length());
             strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
             text(xpos,8,buff_line2,line2.length());
+            printScreen();
             xpos--;
           }else{
             xpos=0;
@@ -260,6 +264,7 @@ void Titreur::updateText(){
             char buff[line1.length()];
             strncpy(buff, line1.c_str(), sizeof(buff));
             text(xpos,0,buff,line1.length());
+            printScreen();
             xpos--;
           }else{
             xpos=0;
