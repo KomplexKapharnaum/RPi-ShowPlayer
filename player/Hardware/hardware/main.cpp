@@ -558,7 +558,7 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
-    if(!(message=="interrupt_carte" || message=="interrupt_teleco"|| item=="update_titreur"))fprintf(stderr, "main - prog push %s\n",message.c_str());
+    if(!(message=="interrupt_carte" || message=="interrupt_teleco"|| message=="update_titreur"))fprintf(stderr, "main - prog push %s\n",message.c_str());
     q.push(message);
 }
 
