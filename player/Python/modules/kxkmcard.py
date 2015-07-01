@@ -43,6 +43,8 @@ FILTERS = {
     'TELECO_PUSH_REED': [True],
     'TELECO_PUSH_FLOAT': [True],
 
+    'TITREUR_SCROLL_END': [True],
+
     # old version for compatibility
 
     'TELECO_MESSAGE_BLINKGROUP': [],

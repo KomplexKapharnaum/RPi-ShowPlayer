@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include <sstream>
+#include <iostream>
 
 #include <time.h>
 #include <sys/time.h>
@@ -217,6 +218,7 @@ void Titreur::updateText(){
             xpos--;
           }else{
             needUpdate = false;
+            std::cout << "#TITREUR_SCROLL_END" << std::endl;
           }
         }
         break;
@@ -230,6 +232,7 @@ void Titreur::updateText(){
             xpos--;
           }else{
             needUpdate = false;
+            std::cout << "#TITREUR_SCROLL_END" << std::endl;
           }
         }
         break;
@@ -245,6 +248,7 @@ void Titreur::updateText(){
             xpos--;
           }else{
             xpos=0;
+            std::cout << "#TITREUR_SCROLL_END" << std::endl;
           }
         }
         break;
@@ -259,6 +263,7 @@ void Titreur::updateText(){
             xpos--;
           }else{
             xpos=0;
+            std::cout << "#TITREUR_SCROLL_END" << std::endl;
           }
         }
         break;
