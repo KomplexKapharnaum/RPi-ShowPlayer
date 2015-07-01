@@ -229,12 +229,12 @@ int Teleco::readInterrupt(){
           break;
         case TELECO_MESSAGE_SYS_POWEROFF :
           std::cout << "#TELECO_MESSAGE_SYS_POWEROFF" << std::endl;
-          delay(10000);
+          sleep(10);
           system ("sudo shutdown -h now");
           break;
         case TELECO_MESSAGE_SYS_REBOOT :
           std::cout << "#TELECO_MESSAGE_SYS_REBOOT" << std::endl;
-          delay(10000);
+          sleep(10);
           system ("sudo reboot");
           break;
           

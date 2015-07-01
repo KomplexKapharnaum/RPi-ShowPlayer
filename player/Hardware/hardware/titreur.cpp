@@ -62,7 +62,7 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
   for (int i=0; i<typeModule*nb_module; i++) {
     *(matrix+i)=0;
   }
-  delaytime = 500;
+  delaytime = 200;
 }
 
 
@@ -207,6 +207,7 @@ void Titreur::updateText(){
         
       case SCROLL_NORMAL:
         if (mstime()>lastRefresh+delaytime) {
+          lastRefresh+=delaytime;
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
             text(xpos,0,buff_line1,line1.length());
@@ -221,6 +222,7 @@ void Titreur::updateText(){
           
       case SCROLL_BIG:
         if (mstime()>lastRefresh+delaytime) {
+          lastRefresh+=delaytime;
           if(xpos + 12 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
             text(xpos,0,buff_line1,line1.length());
@@ -233,6 +235,7 @@ void Titreur::updateText(){
         
       case SCROLL_LOOP_NORMAL:
         if (mstime()>lastRefresh+delaytime) {
+          lastRefresh+=delaytime;
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
             text(xpos,0,buff_line1,line1.length());
@@ -247,6 +250,7 @@ void Titreur::updateText(){
         
       case SCROLL_LOOP_BIG:
         if (mstime()>lastRefresh+delaytime) {
+          lastRefresh+=delaytime;
           if(xpos + 12 * maxline> 0){
             char buff[line1.length()];
             strncpy(buff, line1.c_str(), sizeof(buff));
