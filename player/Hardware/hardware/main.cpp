@@ -208,10 +208,12 @@ int parseInput(string input){
              []() {
                produce(q, "update_titreur");
              });
+    return 0;
   }
   
   if (input=="update_titreur") {
     mytitreur.updateText();
+    return 0;
   }
   
   //other message from main program or stdin

@@ -156,8 +156,8 @@ void Titreur::putChar(int x, int y, char c){
 
 //text on matrix + print on screen
 void Titreur::text(int x, int y,char Str1[],int messageLength){
-  fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,strlen(Str1),Str1);
   messageLength -= cleanCharArray(Str1);
+  fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,strlen(Str1),Str1);
   for (int i =0; i<messageLength ; i++){
     putChar(x+(i)*(6+6*big), y,Str1[i]);
   }
