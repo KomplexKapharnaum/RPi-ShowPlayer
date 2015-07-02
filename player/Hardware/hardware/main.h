@@ -25,12 +25,15 @@ string version_py="-";
 string version_c="1.1";
 string status="-";
 string voltage="-";
+int manualLightMode=1;
 string buttonline="OK   B   A";
 string popup[11][2];
 int init=0;
+bool timertitreur=false;
 
 //safe queue to put message in
 Queue<string> q;
+Timer t;
 
 
 //C object of hardware

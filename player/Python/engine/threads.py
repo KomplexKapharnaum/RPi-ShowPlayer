@@ -35,7 +35,12 @@ def start():
 
 def stop():
     log.debug("STOPPING THREADS")
-    for thread in tools._to_stop_thread.values():
+    to_stop = tools._to_stop_thread.values() #local dict to avoid size index change in for loop
+    for thread in to_stop:
+        th = thread()   # Get the reference
+        """:type: threading.Thread"""
+        log.debug("  running thread : {0}".format(th))
+    for thread in to_stop:
         th = thread()   # Get the reference
         """:type: threading.Thread"""
         log.debug("  Try to stop thread : {0}".format(th))

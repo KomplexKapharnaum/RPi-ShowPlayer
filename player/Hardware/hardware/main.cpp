@@ -35,7 +35,9 @@
 #include <signal.h>
 
 #include "Queue.h"
+#include "timer.h"
 #include "main.h"
+
 
 
 
@@ -70,7 +72,7 @@ void testRoutine(int n){
   char buff[24];
   msg="test";
   strncpy(buff, msg.c_str(), sizeof(buff));
-  mytitreur.text(0,0,buff);
+  mytitreur.text(0,0,buff,msg.length());
   while (n>0){
     mycarte.rgbValue(255,0,0,0,0);
     delay(1000);
@@ -91,20 +93,20 @@ void testRoutine(int n){
   }
   msg="end";
   strncpy(buff, msg.c_str(), sizeof(buff));
-  mytitreur.text(0,0,buff);
+  mytitreur.text(0,0,buff,msg.length());
 }
 
 
 
 //parse pyton or bash input from stdin
 int parseInput(string input){
+  
   if (input=="check_teleco_on_start"){
     //init teleco if already connected // ISSUE HERE
     produce(q,"start_interrupt");
     if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
     }
-    
   }
 
   if(input=="start_interrupt"){
@@ -112,7 +114,6 @@ int parseInput(string input){
     wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
     wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
     cout << "#HARDWAREREADY" << endl;
-
   }
 
   if (input=="interrupt_teleco") {
@@ -120,10 +121,12 @@ int parseInput(string input){
     if (myteleco.fisrtView()){
       delay(20);
       //fprintf(stderr, "main - delaypass\n");
-      if (digitalRead(21)==LOW) return 2;
+      //if (digitalRead(21)==LOW) return 2;
       //fprintf(stderr, "main - reel interrupt\n");
     }
-    
+    if (digitalRead(21)==LOW) return 2;
+    delay(1);
+    if (digitalRead(21)==LOW) return 2;
     myteleco.readInterrupt();
 
     if(myteleco.needtestroutine){
@@ -154,6 +157,9 @@ int parseInput(string input){
   
   if (input=="interrupt_carte") {
     //fprintf(stderr, "main - interrupt from carte\n");
+    if (digitalRead(20)==LOW) return 2;
+    delay(1);
+    if (digitalRead(20)==LOW) return 2;
     mycarte.readInterrupt();
     if(mycarte.needStatusUpdate) sendStatusTeleco();
     return 0;
@@ -178,18 +184,15 @@ int parseInput(string input){
   
   if (input=="kill") {
     //turn off light
-    mycarte.setGyro(0,200);
-    mycarte.led10WValue(0);
-    mycarte.rgbValue(0,0,0);
     mycarte.setRelais(0);
     //turn off titreur
     mytitreur.allLedOff();
     mytitreur.powerdown();
     //update status
     status="noC";
-    delay(5);
     //power off hardware
     mycarte.writeValue(POWERDOWN,100);
+    delay(50);
     //power off remote
     myteleco.reset();
     //myteleco.readOrSetTelecoLock(T_POWEROFF);
@@ -197,6 +200,20 @@ int parseInput(string input){
     fprintf(stderr, "\x1b[32mbye bye\n\x1b[0m");
     live=false;
     delay(10);
+  }
+  
+  if (input=="start_timer_for_titreur") {
+    timertitreur=true;
+    t.create(0, 5,
+             []() {
+               produce(q, "update_titreur");
+             });
+    return 0;
+  }
+  
+  if (input=="update_titreur") {
+    mytitreur.updateText();
+    return 0;
   }
   
   //other message from main program or stdin
@@ -241,15 +258,15 @@ int parseInput(string input){
           ss>>parsedInput;
           status=parsedInput;
         }
+        if ("-manualmode"==parsedInput){
+          ss>>manualLightMode;
+          mycarte.setManualLightMode(manualLightMode);
+        }
       }
       init=1;
       
       mytitreur.allLedOff();
-      char buff[24];
-      strncpy(buff, carte_name.c_str(), sizeof(buff));
-      mytitreur.text(0,0,buff);
-      strncpy(buff, carte_ip.c_str(), sizeof(buff));
-      mytitreur.text(0,8,buff);
+      mytitreur.twolineText(carte_name,carte_ip,NO_SCROLL_NORMAL);
       produce(q,"initcarte_main");
     }else{
       fprintf(stderr, "main - error you must init first\ninitconfig -titreurNbr [int] -carteVolt [int] -name [string] -ip [string]\n");
@@ -262,6 +279,7 @@ int parseInput(string input){
       carte_name="TEST STAND";
       carte_ip="2.0.2.XXX";
       init=1;
+      mycarte.setManualLightMode(0);
       //mytitreur.putChar(0,0,'S');
       produce(q,"initcarte_local");
     }
@@ -330,30 +348,65 @@ int parseInput(string input){
     if ("texttitreur"==parsedInput) {
       //write on titreur
       mytitreur.allLedOff();
+      string line1="";
+      string line2="";
+      int speed = 250;
+      int type = NO_SCROLL_NORMAL;
       while (ss>>parsedInput){
-        char buff[mytitreur.charbyline()];
         if ("-line1"==parsedInput){
-          ss>>parsedInput;
-          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          strncpy(buff, parsedInput.c_str(), sizeof(buff));
-          mytitreur.text(0,0,buff);
+          ss>>line1;
+          replace( line1.begin(), line1.end(), '_', ' ');
         }
         if ("-line2"==parsedInput){
-          ss>>parsedInput;
-          replace( parsedInput.begin(), parsedInput.end(), '_', ' ');
-          strncpy(buff, parsedInput.c_str(), sizeof(buff));
-          mytitreur.text(0,8,buff);
+          ss>>line2;
+          replace( line2.begin(), line2.end(), '_', ' ');
         }
         if ("-allon"==parsedInput){
           mytitreur.allLedOn();
+          return 0;
         }
         if ("-alloff"==parsedInput){
           mytitreur.allLedOff();
+          return 0;
         }
-        if ("-scroll"==parsedInput){
-          // todo mytitreur.scroll();
+        if ("-speed"==parsedInput){
+          ss>>speed;
+        }
+        if ("-type"==parsedInput){
+          ss>>parsedInput;
+          
+          if ("SCROLL_NORMAL"==parsedInput || "SN"==parsedInput || "sn"==parsedInput) {
+            type=SCROLL_NORMAL;
+          }
+          if ("SCROLL_LOOP_NORMAL"==parsedInput || "SLN"==parsedInput || "sln"==parsedInput) {
+            type=SCROLL_LOOP_NORMAL;
+          }
+          if ("SCROLL_VERTICAL_NORMAL"==parsedInput) {
+            type=SCROLL_VERTICAL_NORMAL;
+          }
+          if ("SCROLL_VERTICAL_LOOP_NORMAL"==parsedInput) {
+            type=SCROLL_VERTICAL_LOOP_NORMAL;
+          }
+          if ("NO_SCROLL_BIG"==parsedInput || "B"==parsedInput || "b"==parsedInput) {
+            type=NO_SCROLL_BIG;
+          }
+          if ("SCROLL_BIG"==parsedInput || "SB"==parsedInput || "sb"==parsedInput) {
+            type=SCROLL_BIG;
+          }
+          if ("SCROLL_LOOP_BIG"==parsedInput || "SLB"==parsedInput || "slb"==parsedInput) {
+            type=SCROLL_LOOP_BIG;
+          }
+          if ("SCROLL_VERTICAL_BIG"==parsedInput) {
+            type=SCROLL_VERTICAL_BIG;
+          }
+          if ("SCROLL_VERTICAL_LOOP_BIG"==parsedInput) {
+            type=SCROLL_VERTICAL_LOOP_BIG;
+          }
         }
       }
+      mytitreur.twolineText(line1,line2,type,speed);
+      produce(q,"update_titreur");
+      if(!timertitreur)produce(q,"start_timer_for_titreur");
     }
     
     if ("setlight"==parsedInput) {
@@ -471,7 +524,7 @@ int parseInput(string input){
     if ("DR"==parsedInput) {
       //direct access of carte register for debug
       int reg = 0;
-      int val = 0;
+      int val = -1;
       int fade = 0;
       while (ss>>parsedInput){
         if ("-reg"==parsedInput){
@@ -484,8 +537,13 @@ int parseInput(string input){
           ss>>fade;
         }
       }
-      fprintf(stderr, "main - direct acces %u %u %u\n",reg,val,fade);
-      mycarte.writeValue(reg,val,fade);
+      if (val==-1){
+        val = mycarte.readValue(reg);
+        fprintf(stderr, "main - direct read acces %u = %u\n",reg,val);
+      }else {
+        fprintf(stderr, "main - direct acces %u = %u f%u\n",reg,val,fade);
+        mycarte.writeValue(reg,val,fade);
+      }
     }// end directaccess
     
     if ("testroutine"==parsedInput) {
@@ -506,9 +564,10 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
-    if(!(message=="interrupt_carte" || message=="interrupt_teleco"))fprintf(stderr, "main - prog push %s\n",message.c_str());
+    if(!(message=="interrupt_carte" || message=="interrupt_teleco"|| message=="update_titreur"))fprintf(stderr, "main - prog push %s\n",message.c_str());
     q.push(message);
 }
+
 
 void readcin(Queue<string>& q) {
   string input;
@@ -525,7 +584,7 @@ void consume(Queue<string>& q) {
   bool loop_continue = true;
   while (loop_continue) {
     auto item = q.pop();
-    if(!(item=="interrupt_carte" || item=="interrupt_teleco")) fprintf(stderr, "main - popped %s\n",item.c_str());
+    if(!(item=="interrupt_carte" || item=="interrupt_teleco" || item=="update_titreur")) fprintf(stderr, "main - popped %s\n",item.c_str());
     parseInput(item);
     if (item=="kill"){
         loop_continue=false;

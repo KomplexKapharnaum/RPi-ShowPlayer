@@ -4,7 +4,7 @@ UNAME_P := $(shell gcc -dumpmachine)
 $(warning $(UNAME_P))
 CC=g++
 CFLAGS=-std=c++11 -Wall
-LDFLAGS=-lwiringPi
+LDFLAGS=-lwiringPi -llo
 EXEC=hardware
 
 ifneq (,$(filter armv7%,$(UNAME_P)))

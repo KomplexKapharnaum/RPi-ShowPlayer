@@ -82,6 +82,7 @@ def device_send_info(flag, **kwargs):
     link_channel = "no channel"
     power = "-"
     scene_name = "NoScene"
+    branch = "git ?"
 
     # TEMPERATURE
     try:
@@ -89,6 +90,15 @@ def device_send_info(flag, **kwargs):
             cpu_temperature = float(file.read())/1000
     except:
         log.warning('Can\'t retrieve temperature')
+
+    # BRANCH
+    try:
+        branch = subprocess.check_output(['git', 'branch'])
+        branch = "branch {0}".format(branch)
+        branch = branch.split('* ')[1]
+        branch = branch.split(' ')[0]
+    except:
+        log.warning('Can\'t retrieve branch')
 
     # WIFI SIGNAL
     try:
@@ -123,7 +133,7 @@ def device_send_info(flag, **kwargs):
                             settings.get("current_timeline"), scenario.pool.timeline_version, scene_name,
                             cpu_temperature,
                             link_channel, link_signal,
-                            power, TENSION)
+                            power, TENSION, branch)
 
     log.raw("monitoring send {0}".format(message))
     tools.send_monitoring_message(message)

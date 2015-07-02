@@ -812,23 +812,24 @@
       connection.setType("selected");
       if (label !== null) connection.setLabel(label);
 
-			//Hotkeys
-			$(document).keyup(function(e){
-			  if((e.altKey)&&(selected=='connection')&&(connectionSelected != null)){
-						if((e.keyCode >= 65)&&(e.keyCode <= 91)){
-							var touche = e.keyCode-65;
-							$("#signalselector option:eq("+touche+")").attr('selected', 'selected');
-							//Actu raccourci, only si ca correspond à une option du signalselector
-							var length = $('#signalselector').children('option').length;
-							if (touche < length){ $("#hotkey").html("Raccourci: alt+"+String.fromCharCode(e.keyCode)+""); }
-						}
-						var newval = $('#signalselector option:selected').text();
-						connectionSelected.setLabel(newval);
-			   }
-			});
-
 		}
 
+		//Shortcuts
+		$(document).keyup(function(e){
+		  if((e.altKey)&&(selected=='connection')&&(connectionSelected != null)){
+					if((e.keyCode >= 65)&&(e.keyCode <= 91)){
+						var touche = e.keyCode-65;
+						console.log(touche);
+						$("#signalselector option:eq("+touche+")").prop("selected", true);
+						//$("#signalselector option:eq("+touche+")").attr('selected', 'selected');// don't work in firefox !
+						//Actu raccourci, only si ca correspond à une option du signalselector
+						var length = $('#signalselector').children('option').length;
+						if (touche < length){ $("#hotkey").html("Raccourci: alt+"+String.fromCharCode(e.keyCode)+""); }
+					}
+					var newval = $('#signalselector option:selected').text();
+					connectionSelected.setLabel(newval);
+		   }
+		});
 
 
     jsPlumb.bind("connection", function (info) {

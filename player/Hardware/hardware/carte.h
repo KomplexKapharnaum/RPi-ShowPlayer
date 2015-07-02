@@ -27,7 +27,7 @@
 //VALUE FOR PININ ANALOG
 #define FLOAT 9
 #define UBATT 10
-#define CODE 11
+#define VERSION 11
 //RVB
 #define LEDRVBSTROBSPEED 12
 #define LEDRVBMODE 13
@@ -79,10 +79,11 @@ private:
   int gamme_tension; //use for poweroff in low batt condition
   int pwm_ledb_or_10w2; //?
   float tension; //battery voltage
-  int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT;
+  int GPIO_RELAIS,GPIO_LED_GREEN,GPIO_RESET,GPIO_READ_BATT,GPIO_INTERRUPT;
   int count_tensionbasse,count_tensioncoupure;
   unsigned long long startchrono;
   bool checkchrono;
+  int core_version;
 
   
 protected:
@@ -100,6 +101,7 @@ public :
   void setGyro(int mode, int speed, int strob=0);
   void setRelais(int val);
   void setledG(int val);
+  void setManualLightMode(int val);
 
   
   ~Carte();

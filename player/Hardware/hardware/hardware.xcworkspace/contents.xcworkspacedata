@@ -55,6 +55,12 @@
       <FileRef
          location = "group:Queue.h">
       </FileRef>
+      <FileRef
+         location = "group:timer.cpp">
+      </FileRef>
+      <FileRef
+         location = "group:timer.h">
+      </FileRef>
    </Group>
    <Group
       location = "container:"

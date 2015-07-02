@@ -9,7 +9,7 @@ from _classes import ExternalProcessFlag, module
 from scenario import classes
 from modules import link, exposesignals
 from engine.log import init_log
-from engine.setting import settings
+from engine.setting import settings, devicesV2
 from engine.threads import patcher
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
@@ -26,6 +26,7 @@ FILTERS = {
     'TELECO_GET_INFO': ['sendInfo'],
 
     'CARTE_PUSH_1': ['btnDown', True],
+    'CARTE_PUSH_11': ['btnDown', True],
     'CARTE_PUSH_2': ['btnDown', True],
     'CARTE_PUSH_3': ['btnDown', True],
     'CARTE_FLOAT': ['btnDown', True],
@@ -41,6 +42,8 @@ FILTERS = {
 
     'TELECO_PUSH_REED': [True],
     'TELECO_PUSH_FLOAT': [True],
+
+    'TITREUR_SCROLL_END': [True],
 
     # old version for compatibility
 
@@ -147,8 +150,12 @@ class KxkmCard(ExternalProcessFlag):
             cmd += ' -off'
         self.say(cmd)
 
-    def setMessage(self, line1=None, line2=None):
+    def setMessage(self, line1=None, line2=None, type=None, speed=None):
         cmd = 'texttitreur'
+        if type is not None and not type == "":
+            cmd += ' -type ' + type
+        if speed is not None and not speed == "":
+            cmd += ' -speed ' + speed
         if line1 is not None and not line1 == "":
             cmd += ' -line1 ' + line1.replace(' ', '_')
         if line2 is not None and not line2 == "":
@@ -213,28 +220,22 @@ class KxkmCard(ExternalProcessFlag):
         :return:
         """
         log.log("important", "Init HardWare on KxkmCard ..")
-        path = settings.get_path('deviceslist')
-        voltage = None
-        titreur = None
+        voltage = devicesV2.get(settings.get("uName"), "tension")
+        titreur = devicesV2.get(settings.get("uName"), "titreur")
+        manualLightMode = devicesV2.get(settings.get("uName"), "manualLightMode")
 
+
+        # BRANCH
         try:
-            answer = dict()
-            with open(path, 'r') as f:  # Use file to refer to the file object
-                answer = json.loads(f.read())
-            answer['status'] = 'success'
-            for device in answer["devices"]:
-                if device["hostname"] == settings.get("uName"):
-                    voltage = device["tension"]
-                    titreur = device["titreur"]
-                    break
-        except OSError as e:
-            log.exception(log.show_exception(e))
-            log.log("debug", "devices.json not found")
+            branch = subprocess.check_output(['git', 'branch'])
+            branch = branch.split(' ')[1].rstrip()
+        except:
+            log.warning('Can\'t retrieve branch')
 
         self.say(
-            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -status {status} -titreurNbr {tit}'.format(
-                name=settings.get("uName"), ip=get_ip(), v=settings.get("version"), status='morning..',
-                volt=voltage, tit=titreur))
+            'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -titreurNbr {tit} -manualmode {ml} -status {status}'.format(
+                name=settings.get("uName"), ip=get_ip(), v=settings.get("version"),
+                volt=voltage, tit=titreur, ml=manualLightMode, status=branch))
         return False
 
     def sendInfo(self, cmd=None):
@@ -269,6 +270,7 @@ def init_kxkm_card(flag, **kwargs):
 
 # ETAPE AND SIGNALS
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
+       "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
@@ -320,7 +322,16 @@ def kxkm_card_gyro(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_message(flag, **kwargs):
-    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"])
+    if "type" not in flag.args.keys():
+        flag.args["type"] = None
+    else:
+        if ' ' in flag.args["type"]:
+            tab = flag.args["type"].split(' ')
+            flag.args["type"] = tab[0]
+            flag.args["speed"] = tab[1]
+    if "speed" not in flag.args.keys():
+        flag.args["speed"] = None
+    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"], flag.args["type"], flag.args["speed"])
 
 
 @link({None: "kxkm_card"})

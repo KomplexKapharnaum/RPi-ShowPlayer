@@ -2,6 +2,7 @@
 # Raplace old start.sh to avoid changing rc.local
 # This script run old start.sh (now dnc.sh) on a detached GNU screen session
 
+
 which screen
 screen=$?
 if [ $screen -eq 1 ]; then       # There isn't the GNU screen binary, try to install it
@@ -34,7 +35,8 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
         else
             echo "Stopping previous dnc screen session..."
             screen -X -S dnc quit
-            sleep 3
+            sleep 5
+            pkill python2
         fi
     fi
 

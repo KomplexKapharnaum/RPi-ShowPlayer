@@ -20,20 +20,39 @@
 
 #include "ht1632.h"
 #include "font2.h"
-
+#include <algorithm>
 
 #include <string.h>
+#include <sstream>
+#include <iostream>
 
+#include <time.h>
+#include <sys/time.h>
 
+/* TIME MEASURE */
+unsigned long long mstime() {
+	struct timeval tv;
+  
+	gettimeofday(&tv, NULL);
+  
+	unsigned long long millisecondsSinceEpoch =
+  (unsigned long long)(tv.tv_sec) * 1000 +
+  (unsigned long long)(tv.tv_usec) / 1000;
+  
+	return millisecondsSinceEpoch;
+}
 
 //init titreur
 void Titreur::initTitreur(int _nb_module, int _typeModule){
-  nb_module=_nb_module;
-  typeModule=_typeModule;
-  SPIspeed=1000000;
-  mySPI.initSPI();
+  nb_module = _nb_module;
+  typeModule = _typeModule;
+  SPIspeed = 1000000;
+  type = NO_SCROLL_NORMAL;
+  needUpdate = 0;
+  lastRefresh = mstime();
+  mySPI.initSPI(SPIspeed);
+  scrollSpeed = 500;
   int patch[8] = {3, 1, 0, 2, 6, 7, 4, 5};
-  
   for (int i=0; i<nb_module; i++) {
     mySPI.addChipSelectWithHC595Buffer(17,patch[i],SPIspeed);
     initModule(i);
@@ -41,10 +60,10 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
   matrix = (unsigned char *) malloc(typeModule*nb_module+1);
   output = (unsigned char *) malloc(typeModule+4);
   
-  
   for (int i=0; i<typeModule*nb_module; i++) {
     *(matrix+i)=0;
   }
+  delaytime = 250;
 }
 
 
@@ -110,33 +129,165 @@ void Titreur::plot(int x,int y,int val){
 
 //put a char in matrix
 void Titreur::putChar(int x, int y, char c){
-  fprintf(stderr, "%c(%u)",c,c);
+  if(c!=0){fprintf(stderr, "%c(%u)",c,c);
   c-=32;
   int cc=c;
   for (int col=0; col< 6; col++) {
     unsigned char dots = myfont[cc][col];
     for (char row=0; row < 8; row++) { // only 8 rows.
-      if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
+      if(big==0){
+        if (dots & (128>>row)) plot(x+col, y+row, 1); else plot(x+col, y+row, 0);
+      }else{
+        if (dots & (128>>row)) {
+          plot(x+col*2, y+row*2, 1);
+          plot(x+col*2+1, y+row*2, 1);
+          plot(x+col*2+1, y+row*2+1, 1);
+          plot(x+col*2, y+row*2+1, 1);
+        }else {
+          plot(x+col*2, y+row*2, 0);
+          plot(x+col*2+1, y+row*2, 0);
+          plot(x+col*2+1, y+row*2+1, 0);
+          plot(x+col*2, y+row*2+1, 0);
+        }
+      }
     }
+  }
   }
 }
 
 //text on matrix + print on screen
-void Titreur::text(int x, int y,char Str1[]){
-  messageLength = cleanCharArray(Str1);
-  fprintf(stderr,"titreur - drawtext %u -",messageLength);
+void Titreur::text(int x, int y,char Str1[],int messageLength){
+  messageLength = strlen(Str1) - cleanCharArray(Str1);
+  fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,strlen(Str1),Str1);
   for (int i =0; i<messageLength ; i++){
-    putChar(x+(i)*6, y,Str1[i]);
+    if(x+(i)*(6+6*big)>-6 && x+(i)*(6+6*big)<pixelbyline()+6)
+      putChar(x+(i)*(6+6*big), y,Str1[i]);
   }
     fprintf(stderr, "\n");
-  printScreen();
 }
+
+void Titreur::twolineText(std::string _line1, std::string _line2, int _type, int _speed){
+  delaytime=_speed;
+  line1.clear();
+  line1=_line1;
+  line2.clear();
+  line2=_line2;
+  type = _type;
+  big = 0;
+  if (type > 99) big = 1;
+  needUpdate = 1;
+  lastRefresh=mstime();
+  xpos=0; ypos=0;
+  fprintf(stderr,"titreur - drawtext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
+}
+
+
+void Titreur::updateText(){
+  if (needUpdate) {
+    flushMatrix();
+    fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
+    char buff_noscroll[charbyline()];
+    char buff_line1[line1.length()+1];
+    char buff_line2[line2.length()+1];
+    int maxline = 0;
+    if (line1.length()>line2.length()) maxline = line1.length();
+    else maxline = line2.length();
+
+    switch (type) {
+      case NO_SCROLL_NORMAL:
+        strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
+        text(0,0,buff_noscroll,charbyline());
+        strncpy(buff_noscroll, line2.c_str(), sizeof(buff_noscroll));
+        text(0,8,buff_noscroll,charbyline());
+        printScreen();
+        needUpdate=false;
+        break;
+       
+      case NO_SCROLL_BIG:
+        strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
+        text(0,0,buff_noscroll,charbyline());
+        printScreen();
+        needUpdate=false;
+        break;
+        
+      case SCROLL_NORMAL:
+        if (mstime()>lastRefresh+delaytime) {
+          lastRefresh+=delaytime;
+          if(xpos + 6 * maxline> 0){
+            strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
+            text(xpos,0,buff_line1,line1.length());
+            strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
+            text(xpos,8,buff_line2,line2.length());
+            printScreen();
+            xpos--;
+          }else{
+            needUpdate = false;
+            std::cout << "#TITREUR_SCROLL_END" << std::endl;
+          }
+        }
+        break;
+          
+      case SCROLL_BIG:
+        if (mstime()>lastRefresh+delaytime) {
+          lastRefresh+=delaytime;
+          if(xpos + 12 * maxline> 0){
+            strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
+            text(xpos,0,buff_line1,line1.length());
+            printScreen();
+            xpos--;
+          }else{
+            needUpdate = false;
+            std::cout << "#TITREUR_SCROLL_END" << std::endl;
+          }
+        }
+        break;
+        
+      case SCROLL_LOOP_NORMAL:
+        if (mstime()>lastRefresh+delaytime) {
+          lastRefresh+=delaytime;
+          if(xpos + 6 * maxline> 0){
+            strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
+            text(xpos,0,buff_line1,line1.length());
+            strncpy(buff_line2, line2.c_str(), sizeof(buff_line2));
+            text(xpos,8,buff_line2,line2.length());
+            printScreen();
+            xpos--;
+          }else{
+            xpos=0;
+            std::cout << "#TITREUR_SCROLL_END" << std::endl;
+          }
+        }
+        break;
+        
+      case SCROLL_LOOP_BIG:
+        if (mstime()>lastRefresh+delaytime) {
+          lastRefresh+=delaytime;
+          if(xpos + 12 * maxline> 0){
+            char buff[line1.length()];
+            strncpy(buff, line1.c_str(), sizeof(buff));
+            text(xpos,0,buff,line1.length());
+            printScreen();
+            xpos--;
+          }else{
+            xpos=0;
+            std::cout << "#TITREUR_SCROLL_END" << std::endl;
+          }
+        }
+        break;
+        
+      default:
+        break;
+    }
+  }
+}
+
+
+
 
 //do some trick with special char
 int Titreur::cleanCharArray(char Str1[]){
-  messageLength = strlen(Str1);
   int j=0;
-  for (int i =0; i<messageLength  ; i++){
+  for (int i =0; i<strlen(Str1)  ; i++){
     unsigned char uc = (unsigned char)Str1[i];
     if (uc!=195 && uc!=197) {Str1[i-j]=Str1[i];
     } else if(uc==197){
@@ -148,7 +299,7 @@ int Titreur::cleanCharArray(char Str1[]){
       j++;
     }
   }
-  return messageLength-j;
+  return j;
 }
 
 //light screen
@@ -213,8 +364,19 @@ void Titreur::powerdown(){
 
 //nb of char by line
 int Titreur::charbyline(){
-  return nb_module*typeModule/6;
+  if(type<100)return nb_module*typeModule/6;
+  else return nb_module*typeModule/12;
 }
+
+int Titreur::pixelbyline(){
+    return nb_module*typeModule;
+}
+
+int Titreur::pixelHeight(){
+  if(nb_module==MODULE_32x8)return 8;
+  return 16;
+}
+
 
 
 //dealloc memory

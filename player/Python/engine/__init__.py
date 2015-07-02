@@ -33,7 +33,8 @@ def stop():
     threads.stop()
 
     # STOP ENGINE MODULES
-    for name, modulefsm in MODULES_FSM.items():
+    local_modules = MODULES_FSM.items()
+    for name, modulefsm in local_modules:
         _log.info("--- "+name)
         modulefsm.stop()
         modulefsm.join()
