@@ -76,7 +76,7 @@
     "titreurG_55":{
         "ip":"2.0.2.55","infos":"titreur vert n°55","pi":"a+","sd":"-","tension":"lipo12","titreur":"6","video":"no","sound":"no","ext":"yes","active":"no","manualLightMode":"0"},
     "master_56":{
-        "ip":"2.0.2.56","infos":"master n°56","pi":"-","sd":"-","tension":"pb12","titreur":"0","video":"no","sound":"no","ext":"yes","active":"no","manualLightMode":"0"},
+        "ip":"2.0.2.56","infos":"master n°56","pi":"-","sd":"-","tension":"pb12","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes","manualLightMode":"0"},
     "pl_57":{
         "ip":"2.0.2.57","infos":"poids lourd n°57","pi":"-","sd":"-","tension":"pb24","titreur":"0","video":"no","sound":"yes","ext":"yes","active":"no","manualLightMode":"0"},
     "odeurs_58":{
