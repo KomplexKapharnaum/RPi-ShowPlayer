@@ -31,7 +31,7 @@ FILTERS = {
     'CARTE_PUSH_3': ['btnDown', True],
     'CARTE_FLOAT': ['btnDown', True],
 
-    'CARTE_MESSAGE_POWEROFF': [True],
+    'CARTE_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
 
     "CARTE_TENSION": ['transTo /device/updateTension'],
     "CARTE_TENSION_BASSE": ['transTo /device/warningTension'],
