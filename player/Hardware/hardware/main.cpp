@@ -565,12 +565,14 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
-    if(!(message=="interrupt_carte" || message=="interrupt_teleco"|| message=="update_titreur"))fprintf(stderr, "main - prog push %s\n",message.c_str());
+    //if(!(message=="interrupt_carte" || message=="interrupt_teleco"|| message=="update_titreur"))
+    fprintf(stderr, "main - prog push %s\n",message.c_str());
     q.push(message);
 }
 
 void produce_first(Queue<string>& q, string message) {
-    if(!(message=="interrupt_carte" || message=="interrupt_teleco"|| message=="update_titreur"))fprintf(stderr, "main - prog push_first %s\n",message.c_str());
+    //if(!(message=="interrupt_carte" || message=="interrupt_teleco"|| message=="update_titreur"))
+    fprintf(stderr, "main - prog push_first %s\n",message.c_str());
     q.push_first(message);
 }
 
@@ -590,7 +592,8 @@ void consume(Queue<string>& q) {
   bool loop_continue = true;
   while (loop_continue) {
     auto item = q.pop();
-    if(!(item=="interrupt_carte" || item=="interrupt_teleco" || item=="update_titreur")) fprintf(stderr, "main - popped %s\n",item.c_str());
+    //if(!(item=="interrupt_carte" || item=="interrupt_teleco" || item=="update_titreur"))
+    fprintf(stderr, "main - popped %s\n",item.c_str());
     parseInput(item);
     if (item=="kill"){
         loop_continue=false;

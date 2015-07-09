@@ -163,7 +163,7 @@ void Titreur::text(int x, int y,char Str1[],int messageLength){
     if(x+(i)*(6+6*big)>-6 && x+(i)*(6+6*big)<pixelbyline()+6)
       putChar(x+(i)*(6+6*big), y,Str1[i]);
   }
-    fprintf(stderr, "\n");
+    //fprintf(stderr, "\n");
 }
 
 void Titreur::twolineText(std::string _line1, std::string _line2, int _type, int _speed){
