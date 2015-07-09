@@ -183,7 +183,7 @@ void Titreur::twolineText(std::string _line1, std::string _line2, int _type, int
 
 
 void Titreur::updateText(){
-  if (needUpdate) {
+  if (needUpdate>0) {
     flushMatrix();
     fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
     char buff_noscroll[charbyline()];
@@ -200,14 +200,14 @@ void Titreur::updateText(){
         strncpy(buff_noscroll, line2.c_str(), sizeof(buff_noscroll));
         text(0,8,buff_noscroll,charbyline());
         printScreen();
-        needUpdate=false;
+        needUpdate=0;
         break;
        
       case NO_SCROLL_BIG:
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
         text(0,0,buff_noscroll,charbyline());
         printScreen();
-        needUpdate=false;
+        needUpdate=0;
         break;
         
       case SCROLL_NORMAL:
@@ -221,7 +221,7 @@ void Titreur::updateText(){
             printScreen();
             xpos--;
           }else{
-            needUpdate = false;
+            needUpdate = 0;
             std::cout << "#TITREUR_SCROLL_END" << std::endl;
           }
         }
@@ -236,7 +236,7 @@ void Titreur::updateText(){
             printScreen();
             xpos--;
           }else{
-            needUpdate = false;
+            needUpdate = 0;
             std::cout << "#TITREUR_SCROLL_END" << std::endl;
           }
         }

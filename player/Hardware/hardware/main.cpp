@@ -204,9 +204,10 @@ int parseInput(string input){
   
   if (input=="start_timer_for_titreur") {
     timertitreur=true;
-    t.create(0, 5,
+    t.create(0, 20,
              []() {
-               produce(q, "update_titreur");
+               //produce(q, "update_titreur");
+               mytitreur.updateText();
              });
     return 0;
   }
@@ -405,7 +406,7 @@ int parseInput(string input){
         }
       }
       mytitreur.twolineText(line1,line2,type,speed);
-      produce(q,"update_titreur");
+      //produce(q,"update_titreur");
       if(!timertitreur)produce(q,"start_timer_for_titreur");
     }
     
@@ -568,6 +569,11 @@ void produce(Queue<string>& q, string message) {
     q.push(message);
 }
 
+void produce_first(Queue<string>& q, string message) {
+    if(!(message=="interrupt_carte" || message=="interrupt_teleco"|| message=="update_titreur"))fprintf(stderr, "main - prog push_first %s\n",message.c_str());
+    q.push_first(message);
+}
+
 
 void readcin(Queue<string>& q) {
   string input;
@@ -617,13 +623,13 @@ void beforekill(int signum)
 
 //catch interrupt from carte
 void myInterruptCARTE (void) {
-  produce(q,"interrupt_carte");
+  produce_first(q,"interrupt_carte");
 }
 
 
 //catch interrupt from remote
 void myInterruptTELECO(void) {
-  produce(q,"interrupt_teleco");
+  produce_first(q,"interrupt_teleco");
 }
 
 
