@@ -129,7 +129,7 @@ void Titreur::plot(int x,int y,int val){
 
 //put a char in matrix
 void Titreur::putChar(int x, int y, char c){
-  if(c!=0){fprintf(stderr, "%c(%u)",c,c);
+  //if(c!=0){fprintf(stderr, "%c(%u)",c,c);
   c-=32;
   int cc=c;
   for (int col=0; col< 6; col++) {
@@ -158,7 +158,7 @@ void Titreur::putChar(int x, int y, char c){
 //text on matrix + print on screen
 void Titreur::text(int x, int y,char Str1[],int messageLength){
   messageLength = strlen(Str1) - cleanCharArray(Str1);
-  fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,strlen(Str1),Str1);
+  //fprintf(stderr,"titreur - text (%u-%u):%s \n",messageLength,strlen(Str1),Str1);
   for (int i =0; i<messageLength ; i++){
     if(x+(i)*(6+6*big)>-6 && x+(i)*(6+6*big)<pixelbyline()+6)
       putChar(x+(i)*(6+6*big), y,Str1[i]);
@@ -185,7 +185,6 @@ void Titreur::twolineText(std::string _line1, std::string _line2, int _type, int
 void Titreur::updateText(){
   if (needUpdate>0) {
     flushMatrix();
-    fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
     char buff_noscroll[charbyline()];
     char buff_line1[line1.length()+1];
     char buff_line2[line2.length()+1];
@@ -195,6 +194,7 @@ void Titreur::updateText(){
 
     switch (type) {
       case NO_SCROLL_NORMAL:
+        //fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
         text(0,0,buff_noscroll,charbyline());
         strncpy(buff_noscroll, line2.c_str(), sizeof(buff_noscroll));
@@ -204,6 +204,7 @@ void Titreur::updateText(){
         break;
        
       case NO_SCROLL_BIG:
+        //fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
         strncpy(buff_noscroll, line1.c_str(), sizeof(buff_noscroll));
         text(0,0,buff_noscroll,charbyline());
         printScreen();
@@ -212,6 +213,7 @@ void Titreur::updateText(){
         
       case SCROLL_NORMAL:
         if (mstime()>lastRefresh+delaytime) {
+          //fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
           lastRefresh+=delaytime;
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
@@ -229,6 +231,7 @@ void Titreur::updateText(){
           
       case SCROLL_BIG:
         if (mstime()>lastRefresh+delaytime) {
+          //fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
           lastRefresh+=delaytime;
           if(xpos + 12 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
@@ -244,6 +247,7 @@ void Titreur::updateText(){
         
       case SCROLL_LOOP_NORMAL:
         if (mstime()>lastRefresh+delaytime) {
+          //fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
           lastRefresh+=delaytime;
           if(xpos + 6 * maxline> 0){
             strncpy(buff_line1, line1.c_str(), sizeof(buff_line1));
@@ -261,6 +265,7 @@ void Titreur::updateText(){
         
       case SCROLL_LOOP_BIG:
         if (mstime()>lastRefresh+delaytime) {
+          //fprintf(stderr,"titreur - updatetext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
           lastRefresh+=delaytime;
           if(xpos + 12 * maxline> 0){
             char buff[line1.length()];
