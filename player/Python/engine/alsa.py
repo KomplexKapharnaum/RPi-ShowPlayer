@@ -54,7 +54,7 @@ def set_alsaequal_profile():
     This function set the alsaequal EQ profile
     :return:
     """
-    plateform = subprocess.check_output("uname", "-m")
+    plateform = subprocess.check_output(["uname", "-m"])
     if settings.get("sys", "raspi") and "armv7l" in plateform:
         try:
             FNULL = open(os.devnull, 'w')
@@ -75,4 +75,4 @@ def set_alsaequal_profile():
             log.exception("Cannont set alsaequal EQ")
             log.show_exception(e)
     else:
-        log.debug("Avoid setting alsaequal EQ because we aren't a raspi")
+        log.debug("Avoid setting alsaequal EQ because we aren't a raspi B2")
