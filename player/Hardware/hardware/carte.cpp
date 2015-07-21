@@ -133,13 +133,16 @@ int Carte::readInterrupt(){
       if (checkchrono && valeur==0){
         if(cmstime()-startchrono>2000 && cmstime()-startchrono<10000) {
           std::cout << "#CARTE_PUSH_11 1" << std::endl;
+          count_long_push++;
+          // you need to make 5 successive long push for reboot
+          if(count_long_push>4) system ("sudo reboot");
           break;
         }
-        if(cmstime()-startchrono>10000 && cmstime()-startchrono<20000) system ("sudo reboot");
-        if(cmstime()-startchrono>20000) system ("sudo shutdown -h now");
         std::cout << "#CARTE_PUSH_1 1" << std::endl;
+        count_long_push=0;
       }
       break;
+
     case PUSH2:
       std::cout << "#CARTE_PUSH_2 "<< valeur << std::endl;
       break;
