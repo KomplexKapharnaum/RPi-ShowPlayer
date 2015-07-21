@@ -19,7 +19,7 @@ fi
 # Install ALSAequal && ALSAplugins
 #############################
 RPI=$(uname -m)
-echo $RPI
+
 if [ "$RPI" == "armv7l" ]; then
 
 x=`pacman -Qs alsa-plugins`
