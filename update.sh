@@ -18,7 +18,9 @@ fi
 #############################
 # Install ALSAequal && ALSAplugins
 #############################
-if [$(uname -m) != "armv6l"]; then
+RPI = $(uname -m)
+echo RPI
+if [RPI != "armv6l"]; then
 
 x=`pacman -Qs alsa-plugins`
 if [ -n "$x" ];  then
