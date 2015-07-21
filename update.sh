@@ -20,7 +20,7 @@ fi
 #############################
 RPI=$(uname -m)
 echo $RPI
-if ["$RPI" == "armv7l"]; then
+if [ "$RPI" == "armv7l" ]; then
 
 x=`pacman -Qs alsa-plugins`
 if [ -n "$x" ];  then
