@@ -41,6 +41,9 @@ else
     pacman -U alsaequal-0.6-12-armv7h.pkg.tar.xz --noconfirm
 fi
 
+else
+    echo "abort install of ALSAequal on rpiA+ / B+"
+
 fi
 #############################
 
