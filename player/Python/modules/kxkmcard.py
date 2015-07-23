@@ -22,7 +22,7 @@ FILTERS = {
     # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
     # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
     'INITHARDWARE': ['initHw'],
-    'HARDWAREREADY': ['transTo /hardware/ready',True],
+    'HARDWARE_READY': ['transTo /hardware/ready',True],
     'TELECO_GET_INFO': ['sendInfo'],
 
     'CARTE_PUSH_1': ['btnDown', True],
