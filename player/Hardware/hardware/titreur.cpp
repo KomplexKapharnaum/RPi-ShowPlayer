@@ -82,6 +82,7 @@ void Titreur::initModule(int m){
   if (typeModule==MODULE_24x16) ht1632_sendcmd(m, HT1632_CMD_COMS01);
   if (typeModule==MODULE_32x8) ht1632_sendcmd(m, HT1632_CMD_COMS00);
   ht1632_sendcmd(m, HT1632_CMD_PWM | 0x0F); //pwm 16/16 (max)
+  ht1632_sendcmd(m, HT1632_CMD_BLOFF);
   ht1632_sendcmd(m, HT1632_CMD_LEDON); 	/* LEDs on */
   
   //mySPI.releaseSelect();
@@ -176,7 +177,7 @@ void Titreur::twolineText(std::string _line1, std::string _line2, int _type, int
   big = 0;
   if (type > 99) big = 1;
   needUpdate = 1;
-  lastRefresh=mstime();
+  lastRefresh=msime();
   xpos=0; ypos=0;
   fprintf(stderr,"titreur - drawtext type %u \n1(%u):%s \n2(%u):%s\n",type, line1.length(),line1.c_str(),line2.length(),line2.c_str());
 }
