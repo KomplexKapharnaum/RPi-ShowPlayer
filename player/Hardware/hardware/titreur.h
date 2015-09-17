@@ -46,6 +46,7 @@ private:
   int xpos,ypos;
   int delaytime;
   int big;
+  
 
   
 protected:
