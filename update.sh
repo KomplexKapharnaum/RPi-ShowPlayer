@@ -18,6 +18,10 @@ fi
 #############################
 # Install ALSAequal && ALSAplugins
 #############################
+RPI=$(uname -m)
+
+if [ "$RPI" == "armv7l" ]; then
+
 x=`pacman -Qs alsa-plugins`
 if [ -n "$x" ];  then
     echo "ALSAplugins Installed";
@@ -37,6 +41,11 @@ else
     cd alsaequal
     runuser -l pi -c 'cd /tmp/alsaequal; makepkg -s'
     pacman -U alsaequal-0.6-12-armv7h.pkg.tar.xz --noconfirm
+fi
+
+else
+    echo "abort install of ALSAequal on rpiA+ / B+"
+
 fi
 #############################
 

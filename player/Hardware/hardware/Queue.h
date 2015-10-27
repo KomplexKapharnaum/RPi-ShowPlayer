@@ -7,7 +7,8 @@
 #ifndef CONCURRENT_QUEUE_
 #define CONCURRENT_QUEUE_
 
-#include <queue>
+//#include <queue>
+#include <list>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -25,7 +26,8 @@ public:
       cond_.wait(mlock);
     }
     auto val = queue_.front();
-    queue_.pop();
+    //queue_.pop();
+    queue_.pop_front();
     return val;
   }
   
@@ -37,13 +39,25 @@ public:
       cond_.wait(mlock);
     }
     item = queue_.front();
-    queue_.pop();
+    //queue_.pop();
+    queue_.pop_front();
   }
   
   void push(const T& item)
   {
     std::unique_lock<std::mutex> mlock(mutex_);
-    queue_.push(item);
+    //queue_.push(item);
+    queue_.push_back(item);
+    mlock.unlock();
+    cond_.notify_one();
+  }
+
+
+    void push_first(const T& item)
+  {
+    std::unique_lock<std::mutex> mlock(mutex_);
+    //queue_.push(item);
+    queue_.push_front(item);
     mlock.unlock();
     cond_.notify_one();
   }
@@ -52,7 +66,8 @@ public:
   Queue& operator=(const Queue&) = delete; // disable assignment
   
 private:
-  std::queue<T> queue_;
+  //std::queue<T> queue_;
+  std::list<T> queue_;
   std::mutex mutex_;
   std::condition_variable cond_;
 };

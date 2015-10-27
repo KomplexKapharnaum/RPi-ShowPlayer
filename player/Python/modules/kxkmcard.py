@@ -22,7 +22,7 @@ FILTERS = {
     # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
     # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
     'INITHARDWARE': ['initHw'],
-    'HARDWAREREADY': ['transTo /hardware/ready'],
+    'HARDWAREREADY': ['transTo /hardware/ready',True],
     'TELECO_GET_INFO': ['sendInfo'],
 
     'CARTE_PUSH_1': ['btnDown', True],
@@ -31,7 +31,7 @@ FILTERS = {
     'CARTE_PUSH_3': ['btnDown', True],
     'CARTE_FLOAT': ['btnDown', True],
 
-    'CARTE_MESSAGE_POWEROFF': [True],
+    'CARTE_MESSAGE_POWEROFF': ['transTo /device/poweroff'],
 
     "CARTE_TENSION": ['transTo /device/updateTension'],
     "CARTE_TENSION_BASSE": ['transTo /device/warningTension'],
@@ -110,7 +110,7 @@ class KxkmCard(ExternalProcessFlag):
         if not settings.get("sys", "raspi"):
             log.warning("KXKM Card should not be launched on no raspi device ")
             return None
-        plateform = subprocess.check_output(["/usr/bin/gcc", "-dumpmachine"])
+        plateform = subprocess.check_output(["uname", "-m"])
         if "armv6l" in plateform:
             ExternalProcessFlag.__init__(self, 'kxkmcard-armv6l', filters=FILTERS)
             log.debug('CARD: kxkmcard-armv6l')

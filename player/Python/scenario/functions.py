@@ -66,6 +66,8 @@ def forward_signal(*args, **kwargs):
         if not (args[0].args["args"][2] == scenario.CURRENT_SCENE_FRAME
                 or args[0].args["args"][2] == scenario.CURRENT_FRAME and flag.uid in ("SCENE_NEXT", "SCENE_PREVIOUS")
                 or flag.uid == "SCENE_GO"
+                or flag.uid.strip('/')[0] == 'device'
+                or flag.uid.strip('/')[0] == 'DEVICE'
                 or flag.uid.strip('_')[0] == 'W'):
             log.warning("Ignore signal {0} because it was emit on an other keyframe".format(args[0].args["args"][0]))
             return False
