@@ -323,7 +323,7 @@ def parse_timeline(timeline):
 
     for scene in timeline['scenes']:
         frame = scene['keyframe']
-        Timeline[frame] = int(classes.Scene(scene['name']))
+        Timeline[frame] = classes.Scene(scene['name'])
         # Timeline.append(classes.Scene(scene['name']))
         for dispo in timeline['pool']:
             # Add card in scene
