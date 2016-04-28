@@ -187,23 +187,23 @@ float Carte::checkTension(){
       if(tension>=10.8) count_tensionbasse=0;
       if(tension<10.8) count_tensionbasse++;
       if(tension>=10) count_tensioncoupure=0;
-      if(tension<10) count_tensioncoupure++;
+      if(tension<10 && tension>6) count_tensioncoupure++;
       break;
     case LIFE12:
       if(tension<12.5) count_tensionbasse++;
-      if(tension<12) count_tensioncoupure++;
+      if(tension<12 && tension>6) count_tensioncoupure++;
       if(tension>=12.5) count_tensionbasse=0;
       if(tension>=12) count_tensioncoupure=0;
       break;
     case PB12:
       if(tension<12) count_tensionbasse++;
-      if(tension<11.5) count_tensioncoupure++;
+      if(tension<11.5 && tension>6) count_tensioncoupure++;
       if(tension>=12) count_tensionbasse=0;
       if(tension>=11.5) count_tensioncoupure=0;
       break;
     case LIPO24:
       if(tension<23.8) count_tensionbasse++;
-      if(tension<23) count_tensioncoupure++;
+      if(tension<23 && tension>6) count_tensioncoupure++;
       if(tension>=23.8) count_tensionbasse=0;
       if(tension>=23) count_tensioncoupure=0;
       break;
