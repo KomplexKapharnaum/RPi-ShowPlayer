@@ -57,8 +57,8 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
     mySPI.addChipSelectWithHC595Buffer(17,patch[i],SPIspeed);
     initModule(i);
   }
-  matrix = (unsigned char *) malloc(typeModule*nb_module+1);
-  output = (unsigned char *) malloc(typeModule+4);
+  if(matrix == NULL) matrix = (unsigned char *) malloc(typeModule*nb_module+1);
+  if(output == NULL) output = (unsigned char *) malloc(typeModule+4);
   
   for (int i=0; i<typeModule*nb_module; i++) {
     *(matrix+i)=0;
