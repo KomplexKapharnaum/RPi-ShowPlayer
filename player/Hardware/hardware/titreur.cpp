@@ -168,6 +168,7 @@ void Titreur::text(int x, int y,char Str1[],int messageLength){
 }
 
 void Titreur::twolineText(std::string _line1, std::string _line2, int _type, int _speed){
+  initTitreur(nb_module, typeModule);
   delaytime=_speed;
   line1.clear();
   line1=_line1;
