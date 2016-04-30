@@ -44,6 +44,7 @@ unsigned long long mstime() {
 
 //init titreur
 void Titreur::initTitreur(int _nb_module, int _typeModule){
+  if(matrix == NULL){
   nb_module = _nb_module;
   typeModule = _typeModule;
   SPIspeed = 1000000;
@@ -57,13 +58,19 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
     mySPI.addChipSelectWithHC595Buffer(17,patch[i],SPIspeed);
     initModule(i);
   }
-  if(matrix == NULL) matrix = (unsigned char *) malloc(typeModule*nb_module+1);
-  if(output == NULL) output = (unsigned char *) malloc(typeModule+4);
+  matrix = (unsigned char *) malloc(typeModule*nb_module+1);
+  output = (unsigned char *) malloc(typeModule+4);
   
   for (int i=0; i<typeModule*nb_module; i++) {
     *(matrix+i)=0;
   }
   delaytime = 250;
+  }else{
+    for (int i=0; i<nb_module; i++) {
+        initModule(i);
+    }
+    delaytime = 20;
+  }
 }
 
 
