@@ -94,7 +94,6 @@ def start_scene():
         if settings.get("uName") in scene.cartes.keys() and scene.start_etapes[settings.get("uName")] is not None:
             log.log('important', '= SCENE ' + scene.name)
             tools.log_teleco(("start scene", scene.name), "scenario")
-            #TODO pierreH add flush titreur function !
             if settings["uName"] in scene.cartes.keys():  # Found scene !
                 log.debug("Found scene to launch : {0}".format(scene))
                 stop_scene()
