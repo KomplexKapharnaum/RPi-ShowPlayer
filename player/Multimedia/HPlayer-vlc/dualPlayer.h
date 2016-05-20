@@ -29,6 +29,7 @@ class dualPlayer : public dualPlayerCallbacks
 		void setRepeat(bool r);
 
 		void onPlayerStateChange(int playerID, int state);
+		void onFileNotFound();
 		vlcPlayer* player(int n);
 		vlcPlayer *player1;
 		vlcPlayer *player2;
@@ -44,4 +45,5 @@ class dualPlayer : public dualPlayerCallbacks
 		bool repeat;
 		libvlc_instance_t *instance;
 		pthread_t watcher;
+		pthread_t applyer;
 };

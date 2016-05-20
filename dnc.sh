@@ -1,24 +1,45 @@
 #!/bin/bash
 
 if [ $(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) -eq 3 ]; then
-    echo "DNC starter begin .."
+sleep 1
+echo "
+                    ___                    ___           ___                                  ___                         ___           ___           ___     
+     _____         /\  \                  /\  \         /\  \                                /\__\                       /\__\         /\  \         /\  \    
+    /::\  \       /::\  \                 \:\  \       /::\  \         ___                  /:/  /                      /:/ _/_       /::\  \        \:\  \   
+   /:/\:\  \     /:/\:\  \                 \:\  \     /:/\:\  \       /\__\                /:/  /                      /:/ /\__\     /:/\:\  \        \:\  \  
+  /:/  \:\__\   /:/  \:\  \            _____\:\  \   /:/  \:\  \     /:/  /               /:/  /  ___   ___     ___   /:/ /:/ _/_   /:/ /::\  \   _____\:\  \ 
+ /:/__/ \:|__| /:/__/ \:\__\          /::::::::\__\ /:/__/ \:\__\   /:/__/               /:/__/  /\__\ /\  \   /\__\ /:/_/:/ /\__\ /:/_/:/\:\__\ /::::::::\__\ 
+ \:\  \ /:/  / \:\  \ /:/  /          \:\~~\~~\/__/ \:\  \ /:/  /  /::\  \               \:\  \ /:/  / \:\  \ /:/  / \:\/:/ /:/  / \:\/:/  \/__/ \:\~~\~~\/__/
+  \:\  /:/  /   \:\  /:/  /            \:\  \        \:\  /:/  /  /:/\:\  \               \:\  /:/  /   \:\  /:/  /   \::/_/:/  /   \::/__/       \:\  \      
+   \:\/:/  /     \:\/:/  /              \:\  \        \:\/:/  /   \/__\:\  \               \:\/:/  /     \:\/:/  /     \:\/:/  /     \:\  \        \:\  \     
+    \::/  /       \::/  /                \:\__\        \::/  /         \:\__\               \::/  /       \::/  /       \::/  /       \:\__\        \:\__\    
+     \/__/         \/__/                  \/__/         \/__/           \/__/                \/__/         \/__/         \/__/         \/__/         \/__/    
+"
 else
     echo "An instance is already running .. "$(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) > /tmp/dnc_l
     echo "EXIT because already running"
     exit 0
 fi
 
-
 running=1
 DIRECT_INOUT=0
+AUTO_START=1
 
 # NAMED ARGUMENTS
-while getopts "o" opt; do
+while getopts "ou" opt; do
     case "$opt" in
     o)  DIRECT_INOUT=1
         ;;
+    u)  AUTO_START=0
+        ;;
     esac
 done
+
+# Wait for other process to start on boot
+if ((AUTO_START)); then
+    echo "= DNC Loading"
+    sleep 5
+fi
 
 quit()
 {
@@ -27,9 +48,9 @@ quit()
 
 kill_zombies()
 {
-	echo "Kill zombies"
+	echo "= DNC Clear"
 	#/dnc/bash/kill.sh
-	pkill python2
+	#pkill python2  # NO ! It will break NetCtl Watchdog
 	#Free sockets
 	fuser -k 1783/udp
 	fuser -k 1782/udp
@@ -48,8 +69,15 @@ trap quit SIGINT
 while (( running )); do
 	kill_zombies
 
+    # Maintenance
+    echo ""
+    echo "= DNC Update"
+    /dnc/update.sh | sed -e 's/^/    /'
+    cd /dnc
+
     # MAIN
-	echo "ShowPlayer Start"
+    echo ""
+	echo "= DNC Start"
     if ((DIRECT_INOUT)); then
     	nice -n -20 ./player/Python/main.py
     else
@@ -75,8 +103,10 @@ while (( running )); do
     echo "ShowPlayer exited $exitcode"
     if (( running )); then
     		echo "Respawning.."
+            echo ""
+            echo ""
+            sleep 1
     fi
-    sleep 1
 done
 kill_zombies
 

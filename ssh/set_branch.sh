@@ -1,4 +1,8 @@
 WORKED="yes"
+cd /etc
+sudo sed -i "1inameserver 8.8.8.8\ " resolv.conf
+echo "force resolv.conf "
+
 echo "Change branch to @1 "
 cd /dnc
 git fetch --all

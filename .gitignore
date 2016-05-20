@@ -11,6 +11,7 @@
 *.aac
 *.m4a
 *.ac3
+dest.txt
 
 #SCENARIO ARCHIVES
 *.tar
@@ -19,6 +20,7 @@ scenario/__active/*
 
 #Log Files
 *.log
+*.log.bck
 .fuse_*
 *.xcuserstate
 

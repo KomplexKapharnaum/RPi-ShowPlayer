@@ -1,10 +1,11 @@
 #include "vlcPlayer.h"
-#include "main.h"
 #include <sys/time.h>
 #include <unistd.h>
 #include <inttypes.h>
 #include <iostream>
 #include <sys/stat.h>
+using std::cout;
+using std::endl;
 
 /* TIME MEASURE */
 unsigned long long mstime() {
@@ -33,17 +34,17 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
     {
 
 	    case libvlc_MediaPlayerVout:
-	        // printf("#MEDIA_VOUT %d\n", self->getId());
+	        //printf("#MEDIA_VOUT %d\n", self->getId());
 	    	//printf("VOUT %llu\n",mstime());
-			if (self->getState() < PLAYING)
-			{
-				if (self->locked()) 
-				{
-					self->pause();
-					self->setState(READY);
-				}
-				else self->setState(PLAYING);
-	        }
+			// if (self->getState() < READY)
+			// {
+			// 	if (self->locked()) 
+			// 	{
+			// 		self->pause();
+			// 		self->setState(READY);
+			// 	}
+			// 	else self->setState(PLAYING);
+	  //       }
 	        break;
 
 	    case libvlc_MediaPlayerPaused:
@@ -54,7 +55,8 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 			if (self->getState() == PLAYING) 
 			{ 
 				//printf("#MEDIA_END %d\n", self->getId());
-				printf("#MEDIA_END\n");
+				cout << "#MEDIA_END" << endl;
+				//printf("#MEDIA_END\n");
 				//self->stop();
 				self->setState(DONE);
 			}
@@ -72,7 +74,16 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 	    	break;
 
 	    case libvlc_MediaPlayerPlaying:
-	    	//printf("PLAYING %llu\n",mstime());
+	    	//rintf("PLAYING %llu\n",mstime());
+	    	if (self->getState() < READY)
+			{
+				if (self->locked()) 
+				{
+					self->pause();
+					self->setState(READY);
+				}
+				else self->setState(PLAYING);
+	        }
 	    	break;
 
 	    // case libvlc_MediaPlayerTimeChanged:
@@ -95,7 +106,7 @@ void vlcCallbacks( const libvlc_event_t* event, void* ptr )
 int i;
 vlcPlayer::vlcPlayer(libvlc_instance_t *instance, int id, dualPlayerCallbacks *cb)
 {
-	this->state == WAIT;
+	this->state = WAIT;
 	this->id = id;
 	this->instance = instance;
 	this->callback = cb;
@@ -113,8 +124,9 @@ vlcPlayer::vlcPlayer(libvlc_instance_t *instance, int id, dualPlayerCallbacks *c
 }
 
 /* COMMANDS */
-void vlcPlayer::load(string filepath, bool lock)
+bool vlcPlayer::load(string filepath, bool lock)
 {
+	this->filepath = filepath;
 	if (fileexists(filepath))
 	{
 		//printf("LOADING %llu\n",mstime());
@@ -125,8 +137,10 @@ void vlcPlayer::load(string filepath, bool lock)
 		libvlc_media_player_set_media(this->player, media);
 		libvlc_media_release(media);
 		libvlc_media_player_play (this->player);
+		return true;
 	}
-	else std::cout << "#FILENOTFOUND " << filepath << "\n";
+	std::cout << "#FILENOTFOUND " << filepath << endl;
+	return false;
 }
 
 void vlcPlayer::load(string filepath)
@@ -136,7 +150,8 @@ void vlcPlayer::load(string filepath)
 
 void vlcPlayer::play(string filepath)
 {
-	this->load(filepath, false);
+	// if the load=>play fails = we should stop everything..
+	if (!this->load(filepath, false)) this->callback->onFileNotFound();
 }
 
 void vlcPlayer::play()
@@ -192,6 +207,7 @@ void vlcPlayer::stop()
 
 void vlcPlayer::setVolume(int v)
 {
+	// cout << "#VOLUME_APPLY ON" << this->getId() << " : " << v << endl;
 	libvlc_audio_set_volume(this->player, v);
 }
 
@@ -209,13 +225,16 @@ int vlcPlayer::getState()
 void vlcPlayer::setState(int state)
 {
 	this->state = state;
-	//if (this->state == WAIT) printf("#PLAYER_WAIT %d\n",this->getId());
+	//if (this->state < PLAYING) this->setVolume(0);
+	//if (this->state == WAIT) cout << "#MEDIA_WAIT" << endl;
+	//if (this->state == WAIT) cout << "#MEDIA_LOADING" << endl;
 	//if (this->state == LOADING) printf("#PLAYER_LOADING %d\n",this->getId());
 	//if (this->state == READY) printf("#PLAYER_READY %d\n",this->getId());
 	//if (this->state == PLAYING) printf("#MEDIA_PLAY %d\n",this->getId());
 	//if (this->state == DONE) printf("#PLAYER_DONE %d\n",this->getId());
-	if (this->state == PLAYING) printf("#MEDIA_PLAY\n");
+	if (this->state == PLAYING) cout << "#MEDIA_PLAY" << endl;//printf("#MEDIA_PLAY\n");
 	this->callback->onPlayerStateChange(this->getId(), this->state);
+
 }
 
 bool vlcPlayer::locked() 
@@ -230,7 +249,7 @@ int vlcPlayer::getId()
 
 void vlcPlayer::fullScreen()
 {
-	//libvlc_set_fullscreen(this->player, 1);
+	libvlc_set_fullscreen(this->player, 1);
 }
 
 // void vlcPlayer::wait_preroll() 

@@ -23,13 +23,7 @@ if [ $screen -eq 0 ]; then
             sleep 0.1
         fi
     fi
-    if [ "$(screen -ls | grep netctl)" = "" ]; then
-        sleep 0.1
-    else
-        echo "Stopping previous netctl session..."
-        screen -X -S netctl quit
-        sleep 0.1
-    fi
+    
 fi
 
 screen -ls

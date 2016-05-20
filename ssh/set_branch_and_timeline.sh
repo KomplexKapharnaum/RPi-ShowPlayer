@@ -13,10 +13,10 @@ git pull
 if [ $? -ne 0 ]; then 
 WORKED="no";
 fi
-rm ~/.dnc_settings.json
+rm ~/dnc_settings/develop.json
 echo "{
 	\"current_timeline\": \"@2\"
-}" > ~/.dnc_settings.json
+}" > ~/dnc_settings/develop.json
 if [ $? -ne 0 ]; then 
 WORKED="no";
 fi
