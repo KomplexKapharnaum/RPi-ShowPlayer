@@ -48,14 +48,14 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
         screen -S dnc -d -m /dnc/dnc.sh -o
     fi
 
-    # NETCTL-WD Already Running
-    if [ "$(screen -ls | grep netctl)" = "" ]; then
-        sleep 0.2
-    else
-        echo "Stopping previous netctl session..."
-        screen -X -S netctl quit
-        sleep 3
-    fi
+#    # NETCTL-WD Already Running
+#    if [ "$(screen -ls | grep netctl)" = "" ]; then
+#        sleep 0.2
+#    else
+#        echo "Stopping previous netctl session..."
+#        screen -X -S netctl quit
+#        sleep 3
+#    fi
 
     # NETCTL-WD Start
     echo "Start in a GNU screen session named 'netctl'"
