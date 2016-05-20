@@ -249,7 +249,7 @@ int vlcPlayer::getId()
 
 void vlcPlayer::fullScreen()
 {
-	//libvlc_set_fullscreen(this->player, 1);
+	libvlc_set_fullscreen(this->player, 1);
 }
 
 // void vlcPlayer::wait_preroll() 
