@@ -83,6 +83,8 @@
         "ip":"2.0.2.58","infos":"diffuseur odeur n°58","pi":"-","sd":"-","tension":"lipo12","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes","manualLightMode":"0"},
     "raspi2mgr":{
         "ip":"2.0.2.138","infos":"carte de test ip de base","pi":"-","sd":"-","tension":"-","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes","manualLightMode":"0"},
+    "alarmpi":{
+        "ip":"192.168.43.223","infos":"carte de test ip de base","pi":"-","sd":"-","tension":"-","titreur":"1","video":"yes","sound":"yes","ext":"yes","active":"yes","manualLightMode":"0"},
     "servmedia_140":{
         "ip":"2.0.2.140","infos":"serveur édition scénario","pi":"-","sd":"-","tension":"-","titreur":"0","video":"no","sound":"no","ext":"yes","active":"yes","manualLightMode":"0"}
 }

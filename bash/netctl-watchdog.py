@@ -35,6 +35,8 @@ sleeptime = SleepTimeNone
 status = S_INIT
 exec_error = 0
 
+SystemDservice = "netctl@kxkmDNC.profile"
+
 
 def log(msg):
     print "NETCTL-WATCHDOG: "+msg
@@ -44,8 +46,9 @@ def log(msg):
 def restart_netctl():
     global no_signal, bad_signal, sleeptime, status, exec_error, DONE
     try:
-        subprocess.check_call("systemctl restart netctl-auto@wlan0.service", shell=True)
-        time.sleep(15)
+        #subprocess.check_call("systemctl restart netctl-auto@wlan0.service", shell=True)
+        subprocess.check_call("systemctl restart {0}".format(SystemDservice), shell=True)
+	time.sleep(15)
         no_signal = 0
         bad_signal = 0
         sleeptime = SleepTimeNone
