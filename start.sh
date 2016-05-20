@@ -56,14 +56,14 @@ if [ $screen -eq 0 ]; then      # There is the GNU screen binary
 #        screen -X -S netctl quit
 #        sleep 3
 #    fi
-
-    # NETCTL-WD Start
-    echo "Start in a GNU screen session named 'netctl'"
-    screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
+#
+#    # NETCTL-WD Start
+#    echo "Start in a GNU screen session named 'netctl'"
+#    screen -S netctl -d -m /dnc/bash/netctl-watchdog.py
 
 else
     echo "Start in a classic shell so without the -o option"
-    /dnc/bash/netctl-watchdog.py &
+#    /dnc/bash/netctl-watchdog.py &
     /dnc/dnc.sh &
 fi
 
