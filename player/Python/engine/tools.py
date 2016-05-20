@@ -156,12 +156,61 @@ def log_teleco(lines, page="log", encode="utf-8"):
         log.warning(log.show_exception(e))
 
 
+def check_internet_link():
+    """
+    This function check if internet is present (by ping at google dns..)
+    :return True if success, False otherwise
+    """
+    with open(os.devnull, 'r') as DEVNULL:
+        return subprocess32.call(['ping', '-c', '3', '-i', '0.5', '-W', '2', '8.8.8.8'], stdout=DEVNULL) == 0
+
+
+def check_fs_mode(fs="/dnc"):
+    """
+    This function check if a file system is in read only or read write mode
+    :return True if read-write, False if read-only
+    """
+    return subprocess32.call("cat /proc/mounts|grep \" {0} \"|cut -d\" \" -f 4|grep ^rw >/dev/null".format(fs),
+                             shell=True) == 0
+
+
+def remount_fs(fs="/dnc", mode="ro"):
+    """
+    This function remount the given file system in the given mode
+    :return True if success, False otherwise
+    """
+    return subprocess32.call(['mount', '-o', '{mode},remount'.format(mode=mode), fs]) == 0
+
+
 def update_system():
     log.log("important", "UPDATE: start system update")
-    git = subprocess32.check_output(['git', 'stash']).strip()
-    log.log("important", "UPDATE: {0}".format(git))
-    git = subprocess32.check_output(['git', 'pull']).strip()
-    log.log("important", "UPDATE: {0}".format(git))
+    if check_internet_link():
+        # There is an internet connexion
+        if subprocess32.call(
+                "cd /dnc; [ $(git ls-remote origin -h refs/heads/$(git rev-parse --abbrev-ref HEAD)|cut -f 1) == $(git rev-parse HEAD) ];",
+                shell=True) == 0:
+            # There is no update needed : abort
+            log.log("important", "UPDATE: no update needed")
+            return
+        remount_ro = False
+        if check_fs_mode("/dnc") is not True:
+            log.log("important", "UPDATE: set filesystem to READ-WRITE during update ...")
+            if remount_fs("/dnc", "rw"):
+                remount_ro = True
+            else:
+                log.log("error", "UPDATE: impossible to set filesystem in READ-WRITE mode : abort update")
+                return
+        try:
+            git = subprocess32.check_output(['git', 'stash']).strip()
+            log.log("important", "UPDATE: {0}".format(git))
+            git = subprocess32.check_output(['git', 'pull']).strip()
+            log.log("important", "UPDATE: {0}".format(git))
+        except subprocess32.CalledProcessError:
+            log.log("error", "UPDATE: impossible to update : git error")
+        if remount_ro:
+            remount_fs("/dnc", "ro")
+    else:
+        log.log("warning", "UPDATE: no internet connexion : abort update")
 
 
 def restart_netctl():
@@ -257,16 +306,14 @@ class ThreadTeleco(threading.Thread):
                         else:
                             args["ligne2"] = ""
                         args["page"] = page
-                        if page == "error":     #TODO process error in fsm of popup rather than here
-                            args["ligne1"]="error"
-                            args["ligne2"]="no show"
+                        if page == "error":  # TODO process error in fsm of popup rather than here
+                            args["ligne1"] = "error"
+                            args["ligne2"] = "no show"
                         engine.threads.patcher.patch(flag_popup.get(args=args))
                         if len(message) >= n + 1:
                             time.sleep(settings.get("log", "teleco", "autoscroll"))
         except Exception as e:
             log.warning(log.show_exception(e))
-
-
 
     @staticmethod
     def prepare_message(message):
@@ -294,6 +341,7 @@ class ThreadTeleco(threading.Thread):
         except Exception as e:
             log.warning(log.show_exception(e))
             return None
+
 
 def show_trace():
     traceback.print_stack()
