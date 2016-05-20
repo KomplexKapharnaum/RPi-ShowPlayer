@@ -236,7 +236,10 @@ def restart_netctl():
 def send_monitoring_message(oscMessage):
     port = settings.get("log", "monitor", "port")
     for dest in settings.get("log", "monitor", "ip"):
-        liblo.send(liblo.Address(dest, port), oscMessage)
+	try:
+	        liblo.send(liblo.Address(dest, port), oscMessage)
+	except IOError:
+		log.debug("Fail to send monitoring message ..")
 
 
 def sendPing():
