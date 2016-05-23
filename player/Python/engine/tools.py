@@ -183,6 +183,10 @@ def remount_fs(fs="/dnc", mode="ro"):
 
 
 def update_system():
+    """
+    This function check if there is a need and a way to update current code from the git repo, is it's the case
+    it stash changes and pull new code from git
+    """
     log.log("important", "UPDATE: start system update")
     if check_internet_link():
         # There is an internet connexion
