@@ -14,7 +14,7 @@ from libs import subprocess32
 
 log = init_log("setting")
 
-à# DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+# DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
 DEFAULT_SETTING_PATH = "~/dnc_settings/"
 
 DEFAULT_SETTING = dict()
