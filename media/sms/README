@@ -1,4 +1,1 @@
-# Create here "dest.txt"
-# One phone number per Line
-# Line with "#" are not parsed
-# "dest.txt" is ignored by git
+../../doc/SMS_README
