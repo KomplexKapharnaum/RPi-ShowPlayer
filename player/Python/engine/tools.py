@@ -164,12 +164,15 @@ def check_internet_link():
     with open(os.devnull, 'r') as DEVNULL:
         return subprocess32.call(['ping', '-c', '3', '-i', '0.5', '-W', '2', '8.8.8.8'], stdout=DEVNULL) == 0
 
+
 def check_fs_mode(fs="/dnc"):
     """
     This function check if a file system is in read only or read write mode
     :return True if read-write, False if read-only
     """
-    return subprocess32.call("cat /proc/mounts|grep \" {0} \"|cut -d\" \" -f 4|grep ^rw >/dev/null".format(fs), shell=True) == 0
+    return subprocess32.call("cat /proc/mounts|grep \" {0} \"|cut -d\" \" -f 4|grep ^rw >/dev/null".format(fs),
+                             shell=True) == 0
+
 
 def remount_fs(fs="/dnc", mode="ro"):
     """
@@ -178,11 +181,14 @@ def remount_fs(fs="/dnc", mode="ro"):
     """
     return subprocess32.call(['mount', '-o', '{mode},remount'.format(mode=mode), fs]) == 0
 
+
 def update_system():
     log.log("important", "UPDATE: start system update")
     if check_internet_link():
         # There is an internet connexion
-        if subprocess32.call("cd /dnc; [ $(git rev-list HEAD...origin/develop --count) -eq 0 ]", shell=True) == 0:
+        if subprocess32.call(
+                "cd /dnc; [ $(git ls-remote origin -h refs/heads/$(git rev-parse --abbrev-ref HEAD)|cut -f 1) == $(git rev-parse HEAD) ];",
+                shell=True) == 0:
             # There is no update needed : abort
             log.log("important", "UPDATE: no update needed")
             return
@@ -300,16 +306,14 @@ class ThreadTeleco(threading.Thread):
                         else:
                             args["ligne2"] = ""
                         args["page"] = page
-                        if page == "error":     #TODO process error in fsm of popup rather than here
-                            args["ligne1"]="error"
-                            args["ligne2"]="no show"
+                        if page == "error":  # TODO process error in fsm of popup rather than here
+                            args["ligne1"] = "error"
+                            args["ligne2"] = "no show"
                         engine.threads.patcher.patch(flag_popup.get(args=args))
                         if len(message) >= n + 1:
                             time.sleep(settings.get("log", "teleco", "autoscroll"))
         except Exception as e:
             log.warning(log.show_exception(e))
-
-
 
     @staticmethod
     def prepare_message(message):
@@ -337,6 +341,7 @@ class ThreadTeleco(threading.Thread):
         except Exception as e:
             log.warning(log.show_exception(e))
             return None
+
 
 def show_trace():
     traceback.print_stack()
