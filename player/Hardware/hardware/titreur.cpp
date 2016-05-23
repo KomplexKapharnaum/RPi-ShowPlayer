@@ -44,6 +44,7 @@ unsigned long long mstime() {
 
 //init titreur
 void Titreur::initTitreur(int _nb_module, int _typeModule){
+  if(matrix == NULL){
   nb_module = _nb_module;
   typeModule = _typeModule;
   SPIspeed = 1000000;
@@ -64,6 +65,12 @@ void Titreur::initTitreur(int _nb_module, int _typeModule){
     *(matrix+i)=0;
   }
   delaytime = 250;
+  }else{
+    for (int i=0; i<nb_module; i++) {
+        initModule(i);
+    }
+    delaytime = 20;
+  }
 }
 
 
@@ -168,6 +175,7 @@ void Titreur::text(int x, int y,char Str1[],int messageLength){
 }
 
 void Titreur::twolineText(std::string _line1, std::string _line2, int _type, int _speed){
+  initTitreur(nb_module, typeModule);
   delaytime=_speed;
   line1.clear();
   line1=_line1;
