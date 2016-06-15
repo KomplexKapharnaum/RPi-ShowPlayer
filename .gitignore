@@ -1,6 +1,9 @@
 # Pycharm IDE
 .idea
 
+# Other prog in KXKM
+others
+
 #Media Files
 *.mp4
 *.mov
