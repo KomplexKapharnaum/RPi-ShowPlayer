@@ -241,7 +241,7 @@ class inputThread(threading.Thread):
                         if cmd[1] == "next":
                             flag = engine.fsm.Flag("SCENE_NEXT")
                         elif cmd[1] == "prev":
-                            flag = engine.fsm.Flag("SCENE_PREV")
+                            flag = engine.fsm.Flag("SCENE_PREVIOUS")
                         elif cmd[1] == "to":
                             if len(cmd) > 2:
                                 flag = engine.fsm.Flag("SCENE_GO")
