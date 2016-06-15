@@ -152,6 +152,7 @@ class ThreadSendMessage(threading.Thread):
 
     def run(self):
         with self.sending:
+            start_time = time.time()
             while not self._stop.is_set() and self._n_send < len(self._interval_table) + 1:
                 try:
                     if self.msg.warning.is_set():
@@ -159,14 +160,19 @@ class ThreadSendMessage(threading.Thread):
                     liblo.send(self.target, self.msg)
                 except (liblo.AddressError, IOError) as err:
                     log.exception(
-                        "Impossible d'envoyer le message depuis le thread \n Error : " + str(
+                        "Impossible d'envoyer le message depuis le thread ({0}/{1}) \n Error : ".format(self._n_send, len(self._interval_table)) + str(
                             err) + " \n Message : " + str(
                             self.msg) + " \n Target : " + str(self.target))
-                else:
+                finally:
                     if self._n_send == len(self._interval_table):
                         break
                     time.sleep(float(self._interval_table[self._n_send]))
                     self._n_send += 1
+                # if (time.time() - start_time) > 2:    ## TTL à l'envoi : IMPROVE this !
+                #     log.debug("Abort sending message (more than 2 seconde)")
+                #     break
+
+
 
     def is_recv(self):
         """
@@ -214,10 +220,12 @@ def send(target, msg):
     else:
         try:
             liblo.send(target.target, msg)
+            return True
         except (liblo.AddressError, IOError) as err:
             log.exception(
                 "Impossible d'envoyer le message depuis \n Error : " + str(err) + " \n Message : " + str(
                     msg) + " \n Target : " + str(target.target))
+            return False
 
 
 def send_ack(ip, msg):

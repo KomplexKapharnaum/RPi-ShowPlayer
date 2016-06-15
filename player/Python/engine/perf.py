@@ -24,6 +24,7 @@ old_fsm_declared = deque(maxlen=settings.get("perf", "undeclared_fsm"))
 history_max_len = settings.get("perf", "history", "length")
 default_format = settings.get("perf", "history", "format")
 
+log_fnct = log.important
 
 class HistoryEvent(object):
     """
@@ -350,7 +351,7 @@ def prompt_history(list_all=True):
     :return:
     """
     try:
-        log.info("Which FSM history do you want to see ? (* for all)\n{0}".format(list_fsm(list_all)))
+        log_fnct("Which FSM history do you want to see ? (* for all)\n{0}".format(list_fsm(list_all)))
         selected = raw_input("Chose one or * for all : ")
         if selected == "*":
             all_history(stopped=True)
@@ -358,7 +359,7 @@ def prompt_history(list_all=True):
             try:
                 selected = int(selected)
             except TypeError:
-                log.info("Incorrect.. {0} (we need an int)".format(selected))
+                log_fnct("Incorrect.. {0} (we need an int)".format(selected))
                 return False
             to_show = fsm_declared
             if selected >= len(fsm_declared):
@@ -369,9 +370,9 @@ def prompt_history(list_all=True):
                 if selected >= len(old_fsm_declared):
                     log.warning("Too high, choose a correct number")
                     return False
-            log.info("History for {0} :\n".format(to_show[selected]) + str(to_show[selected].get_history()))
+            log_fnct("History for {0} :\n".format(to_show[selected]) + str(to_show[selected].get_history()))
     except Exception as e:
-        log.info(log.show_exception(e))
+        log_fnct(log.show_exception(e))
 
 
 def all_history(stopped=False):
@@ -384,7 +385,7 @@ def all_history(stopped=False):
     if stopped:
         to_show += old_fsm_declared
     for fsm in to_show:
-        log.info("History for {0} :\n".format(fsm) + str(fsm.get_history()))
+        log_fnct("History for {0} :\n".format(fsm) + str(fsm.get_history()))
 
 
 def multiplex_history(fsm_list):
@@ -415,9 +416,9 @@ def multiplex_history(fsm_list):
             if uid is not None:
                 uid = uid.name
             r += "[{i:<3}] in {fsm:<20} [{indice:<3}] {change}".format(i=i, fsm=uid, indice=entry.indice, change=entry.prompt()) + "\n"
-        log.info(r)
+        log_fnct(r)
     except Exception as e:
-        log.info(log.show_exception(e))
+        log_fnct(log.show_exception(e))
 
 
 

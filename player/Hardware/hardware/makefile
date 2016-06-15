@@ -1,6 +1,6 @@
 UNAME := $(shell uname)
 $(warning $(UNAME))
-UNAME_P := $(shell gcc -dumpmachine)
+UNAME_P := $(shell uname -m)#$(shell gcc -dumpmachine)
 $(warning $(UNAME_P))
 CC=g++
 CFLAGS=-std=c++11 -Wall
