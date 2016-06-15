@@ -169,6 +169,13 @@ DEFAULT_SETTING["ack"]["interval_default_broadcast"] = (0.075, 0.100, 0.125, 0.2
 DEFAULT_SETTING["values"] = dict()  # Dictionary for default values
 DEFAULT_SETTING["values"]["gyro"] = dict()
 DEFAULT_SETTING["values"]["gyro"]["speed"] = 200
+DEFAULT_SETTING["values"]["split_dispo"] = dict()
+DEFAULT_SETTING["values"]["split_dispo"]["signal"] = "SPLIT"
+DEFAULT_SETTING["values"]["text_multi"] = dict()
+DEFAULT_SETTING["values"]["text_multi"]["delay"] = 3
+DEFAULT_SETTING["values"]["text_multi"]["loop"] = 1
+DEFAULT_SETTING["values"]["text_multi"]["type"] = "NO_SCROLL_NORMAL"
+DEFAULT_SETTING["values"]["text_multi"]["speed"] = "60"
 #DEFAULT_SETTING["values"]["gyro"]["strob"] = 0
 DEFAULT_SETTING["values"]["lights"] = dict()
 DEFAULT_SETTING["values"]["lights"]["fade"] = 0
@@ -181,6 +188,8 @@ DEFAULT_SETTING["values"]["types"]["str"] = ""
 DEFAULT_SETTING["values"]["signaux"] = dict()
 DEFAULT_SETTING["values"]["signaux"]["TTL"] = 5
 DEFAULT_SETTING["values"]["signaux"]["JTL"] = 2
+DEFAULT_SETTING["values"]["autodelay"] = dict()
+DEFAULT_SETTING["values"]["autodelay"]["signal"] = "END_AUTO_DELAY"
 DEFAULT_SETTING["values"]["vlc"] = dict()
 DEFAULT_SETTING["values"]["vlc"]["mediavolume"] = 100
 DEFAULT_SETTING["values"]["vlc"]["media"] = ""
@@ -210,11 +219,15 @@ DEFAULT_SETTING["log"]["teleco"]["linelength"] = 16  # Number of char per line
 DEFAULT_SETTING["log"]["teleco"]["level"] = "critical"  # For the teleco
 
 DEFAULT_SETTING["perf"] = dict()
-DEFAULT_SETTING["perf"]["enable"] = True  # Enable FSM register (need for history)
+DEFAULT_SETTING["perf"]["enable"] = False  # Enable FSM register (need for
+# history)
 DEFAULT_SETTING["perf"]["history"] = dict()
-DEFAULT_SETTING["perf"]["history"]["enable"] = True  # Enable log history for each FSM
-DEFAULT_SETTING["perf"]["history"]["withflag"] = True  # Enable flag log in history
-DEFAULT_SETTING["perf"]["history"]["withexception"] = True  # Enable excpetion log in history
+DEFAULT_SETTING["perf"]["history"]["enable"] = False  # Enable log history for
+# each FSM
+DEFAULT_SETTING["perf"]["history"]["withflag"] = False  # Enable flag log in
+# history
+DEFAULT_SETTING["perf"]["history"]["withexception"] = False  # Enable excpetion
+# log in history
 DEFAULT_SETTING["perf"]["history"]["length"] = 300  # Maximum length of an FSM history (keep older)
 DEFAULT_SETTING["perf"]["history"]["format"] = "simple"  # History prompt format #TODO
 DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10  # Undeclared FSM (stopped) to be keept with history

@@ -8,12 +8,14 @@ import re
 import threading
 from _classes import ExternalProcessFlag, module
 from scenario import classes
-from modules import link, exposesignals
+from modules import link, exposesignals, globaletape
 from engine.log import init_log
 from engine.setting import settings, devicesV2
 from engine.threads import patcher
+from engine.fsm import Flag
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
+from scenario import pool
 import json
 import subprocess
 
@@ -23,7 +25,7 @@ FILTERS = {
     # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
     # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
     'INITHARDWARE': ['initHw'],
-    'HARDWAREREADY': ['transTo /hardware/ready',True],
+    'HARDWAREREADY': ['transTo /hardware/ready', True],
     'TELECO_GET_INFO': ['sendInfo'],
 
     'CARTE_PUSH_1': ['btnDown', True],
@@ -61,12 +63,14 @@ FILTERS = {
     "TELECO_MESSAGE_RESTARTWIFI": ['transTo /device/wifi/restart'],
     "TELECO_MESSAGE_UPDATESYS": ['transTo /device/updatesys'],
 
-
     # new version
 
-    "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True],  #argument Self / Group / All
-    "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True], #argument Self / Group / All
-    "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True], #argument Self / Group / All
+    "TELECO_MESSAGE_PREVIOUSSCENE": ['transTo /scene/previous', True],
+# argument Self / Group / All
+    "TELECO_MESSAGE_RESTARTSCENE": ['transTo /scene/restart', True],
+# argument Self / Group / All
+    "TELECO_MESSAGE_NEXTSCENE": ['transTo /scene/next', True],
+# argument Self / Group / All
 
 
     "TELECO_MESSAGE_SETTINGS_LOG_DEBUG": [],
@@ -93,12 +97,14 @@ FILTERS = {
 
     "TELECO_MESSAGE_GET_INFO": [],
 
-    "TELECO_MESSAGE_MEDIA_VOLPLUS": ['transTo /media/volup'], #argument Self / Group / All TODO : clean this
-    "TELECO_MESSAGE_MEDIA_VOLMOINS": ['transTo /media/voldown'], #argument Self / Group / All TODO : clean this
-    "TELECO_MESSAGE_MEDIA_MUTE": [], #argument Self / Group / All
-    "TELECO_MESSAGE_MEDIA_PAUSE": [], #argument Self / Group
-    "TELECO_MESSAGE_MEDIA_PLAY": [], #argument Self / Group
-    "TELECO_MESSAGE_MEDIA_STOP": [] #argument Self / Group
+    "TELECO_MESSAGE_MEDIA_VOLPLUS": ['transTo /media/volup'],
+# argument Self / Group / All TODO : clean this
+    "TELECO_MESSAGE_MEDIA_VOLMOINS": ['transTo /media/voldown'],
+# argument Self / Group / All TODO : clean this
+    "TELECO_MESSAGE_MEDIA_MUTE": [],  # argument Self / Group / All
+    "TELECO_MESSAGE_MEDIA_PAUSE": [],  # argument Self / Group
+    "TELECO_MESSAGE_MEDIA_PLAY": [],  # argument Self / Group
+    "TELECO_MESSAGE_MEDIA_STOP": []  # argument Self / Group
 }
 
 
@@ -113,10 +119,12 @@ class KxkmCard(ExternalProcessFlag):
             return None
         plateform = subprocess.check_output(["uname", "-m"])
         if "armv6l" in plateform:
-            ExternalProcessFlag.__init__(self, 'kxkmcard-armv6l', filters=FILTERS)
+            ExternalProcessFlag.__init__(self, 'kxkmcard-armv6l',
+                                         filters=FILTERS)
             log.debug('CARD: kxkmcard-armv6l')
         else:
-            ExternalProcessFlag.__init__(self, 'kxkmcard-armv7l', filters=FILTERS)
+            ExternalProcessFlag.__init__(self, 'kxkmcard-armv7l',
+                                         filters=FILTERS)
             log.debug('CARD: kxkmcard-armv7l')
 
     def say(self, msg):
@@ -163,11 +171,12 @@ class KxkmCard(ExternalProcessFlag):
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
-    def flush_titreur():
+    def flush_titreur(self):
         cmd = 'flushtitreur'
         self.say(cmd)
 
-    def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None, fade=None):
+    def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None,
+                 fade=None):
         cmd = 'setlight'
         if strob is not None and strob != '' and int(strob) > 0:
             cmd += ' -strob {0}'.format(int(strob))
@@ -227,8 +236,8 @@ class KxkmCard(ExternalProcessFlag):
         log.log("important", "Init HardWare on KxkmCard ..")
         voltage = devicesV2.get(settings.get("uName"), "tension")
         titreur = devicesV2.get(settings.get("uName"), "titreur")
-        manualLightMode = devicesV2.get(settings.get("uName"), "manualLightMode")
-
+        manualLightMode = devicesV2.get(settings.get("uName"),
+                                        "manualLightMode")
 
         # BRANCH
         try:
@@ -239,7 +248,8 @@ class KxkmCard(ExternalProcessFlag):
 
         self.say(
             'initconfig -carteVolt {volt} -name {name} -ip {ip} -version {v} -titreurNbr {tit} -manualmode {ml} -status {status}'.format(
-                name=settings.get("uName"), ip=get_ip(), v=settings.get("version"),
+                name=settings.get("uName"), ip=get_ip(),
+                v=settings.get("version"),
                 volt=voltage, tit=titreur, ml=manualLightMode, status=branch))
         return False
 
@@ -257,6 +267,7 @@ class KxkmCard(ExternalProcessFlag):
     def btnUp(self, cmd):
         return float(cmd[1]) == 0
 
+
 exposesignals(FILTERS)
 
 
@@ -268,7 +279,8 @@ def init_kxkm_card(flag, **kwargs):
     :param flag:
     :return:
     """
-    if "kxkmcard" not in kwargs["_fsm"].vars.keys() and settings.get("sys", "raspi"):
+    if "kxkmcard" not in kwargs["_fsm"].vars.keys() and settings.get("sys",
+                                                                     "raspi"):
         kwargs["_fsm"].vars["kxkmcard"] = KxkmCard()
         kwargs["_fsm"].vars["kxkmcard"].start()
 
@@ -276,7 +288,7 @@ def init_kxkm_card(flag, **kwargs):
 # ETAPE AND SIGNALS
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
-       "/titreur/texte [media] [id]": "kxkm_card_titreur_text",
+       "/titreur/texte [media] [id] [type] [speed]": "kxkm_card_titreur_text",
        "/titreur/flush": "kxkm_card_titreur_flush",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
@@ -312,17 +324,21 @@ def kxkm_card_lekOK_card(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_lights(flag, **kwargs):
-    params = search_in_or_default(("rgb", "led10w1", "led10w2", "strob", "fade"),
-                                  flag.args, setting=("values", "lights"))
+    params = search_in_or_default(
+        ("rgb", "led10w1", "led10w2", "strob", "fade"),
+        flag.args, setting=("values", "lights"))
     kwargs["_fsm"].vars["kxkmcard"].setLight(**params)
     kwargs["_etape"].preemptible.set()
 
 
 @link({None: "kxkm_card"})
 def kxkm_card_gyro(flag, **kwargs):
-    params = search_in_or_default(("speed", "strob", "mode"), flag.args, setting=("values", "gyro"))
+    params = search_in_or_default(("speed", "strob", "mode"), flag.args,
+                                  setting=("values", "gyro"))
     if None in params.values():
-        log.warning("Missing default value for at least one argument : {0}".format(params))
+        log.warning(
+            "Missing default value for at least one argument : {0}".format(
+                params))
     kwargs["_fsm"].vars["kxkmcard"].setGyro(**params)
 
 
@@ -337,7 +353,10 @@ def kxkm_card_titreur_message(flag, **kwargs):
             flag.args["speed"] = tab[1]
     if "speed" not in flag.args.keys():
         flag.args["speed"] = None
-    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"], flag.args["type"], flag.args["speed"])
+    kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"],
+                                               flag.args["ligne2"],
+                                               flag.args["type"],
+                                               flag.args["speed"])
 
 
 @link({None: "kxkm_card"})
@@ -349,37 +368,29 @@ def kxkm_card_titreur_flush(flag, **kwargs):
 def kxkm_card_popup_teleco(flag, **kwargs):
     if "page" not in flag.args.keys():
         flag.args["page"] = "user"
-    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"], flag.args["page"])
+    kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"],
+                                                flag.args["ligne2"],
+                                                flag.args["page"])
+
+
 
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_text(flag, **kwargs):
-    media = os.path.join(settings.get_path("scenario", "activescenario"), 'text_'+flag.args["media"]+'.json')
-    m_txt1 = ''
-    m_txt2 = ''
-    m_type = None
-    m_speed = None
-
-    # log.warning("text file : {0}".format(media))
-
-    with open(media) as f:
-        try:
-            data = json.loads(f.read())
-        except Exception as e:
-            log.warning("Error loading text file {0}: {1}".format(media, e))
-        data = data['text'].replace("\\n", "<br>").split('\n')
-        for line in data:
-            if line[0] == '#':
-                continue
-            line = line.split(':')
-            if line[0] == flag.args["id"]:
-                line.pop(0)
-                line = ':'.join(line)
-                m_txt1 = line.split("<br>")[0]
-                if len(line.split("<br>")) > 1:
-                    m_txt2 = line.split("<br>")[1]
-                break
-
-    # log.warning("text display : {0} // {1}".format(m_txt1, m_txt2))
+    media = flag.args["media"]
+    if media not in pool.Texts.keys():
+        log.warning("text file {} not exist ! : {}".format(media, pool.Texts))
+        return
+    params = search_in_or_default(("type", "speed"),
+                                  flag.args,
+                                  setting=("values", "text_multi"))
+    m_txt1 = pool.Texts[media][flag.args["id"]][0] if flag.args["id"] in \
+                                                      pool.Texts[media].keys() \
+        else "..missing.."
+    m_txt2 = pool.Texts[media][flag.args["id"]][1] if flag.args["id"] in \
+                                                      pool.Texts[media].keys() \
+        else ""
+    m_type = params["type"]
+    m_speed = params["speed"]
 
     kwargs["_fsm"].vars["kxkmcard"].setMessage(m_txt1.decode("utf8"), m_txt2.decode("utf8"), m_type, m_speed)

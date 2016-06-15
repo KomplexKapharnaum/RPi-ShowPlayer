@@ -28,6 +28,7 @@ IS_THERE_SCENARIO_ERROR = False
 SCENARIO = dict()
 TIMELINE = dict()
 LIBRARY = dict()
+TEXT = dict()
 
 
 def load(use_archived_scenario=False):
@@ -45,6 +46,9 @@ def load(use_archived_scenario=False):
         parse_scenario(scenario, name)
     for name, timeline in TIMELINE.items():
         parse_timeline(timeline)
+    for name, text in TEXT.items():
+        log.debug("!!! text {} {}".format(name, text))
+        parse_text(name, text)
 
 
 def load_files():
@@ -66,6 +70,11 @@ def load_files():
             elif f.startswith('timeline_'):
                 name = f.replace('timeline_', '').replace('.json', '')
                 TIMELINE[name] = parse_file(join(path, f))
+                log.log('raw', "Load {0}".format(join(path, f)))
+            elif f.startswith('text_'):
+                log.debug("ADD TEXT file {}".format(f))
+                name = f.replace('text_', '').replace('.json', '')
+                TEXT[name] = parse_file(join(path, f))
                 log.log('raw', "Load {0}".format(join(path, f)))
     except Exception as e:
         log.exception("Error while loading scenario file : ")
@@ -368,3 +377,21 @@ def parse_timeline(timeline):
 
 
     log.info("END NEW PARSING")
+
+
+# 5: TEXT
+def parse_text(name, text):
+    # DEVICES // CARTES
+    pool.Texts[name] = dict()
+    for line in text["text"].split("\n"):
+        if len(line) == 0 or line[0] == "#":
+            continue
+        line = line.split(':')
+        line_id = line[0].decode("utf8")
+        pool.Texts[name][line_id] = ['', '']
+        line.pop(0)
+        line = ':'.join(line).split("\\n")
+        pool.Texts[name][line_id][0] = line[0].encode("utf8")
+        if len(line) > 1:
+            pool.Texts[name][line_id][1] = line[1].encode("utf8")
+    log.debug("PARSING TEXT {} => {}".format(name, pool.Texts))

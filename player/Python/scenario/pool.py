@@ -15,6 +15,7 @@ Devices = dict()
 Cartes = dict()
 Patchs = dict()
 Medias = dict()
+Texts = dict()
 cross_ref = list()
 
 # Debug
@@ -31,7 +32,9 @@ def clear():
     :return:
     """
     # CLEAR POOL
-    global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, Patchs, Medias, cross_ref
+    log.debug("Clear pool of scenario objects")
+    global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, \
+        Patchs, Medias, Texts, cross_ref
     Etapes_and_Functions = dict()
     Signals = dict()
     Scenes = dict()
@@ -40,6 +43,7 @@ def clear():
     Cartes = dict()
     Patchs = dict()
     Medias = dict()
+    Texts = dict()
     cross_ref = list()
 
 
@@ -49,7 +53,8 @@ def load():
     from modules import DECLARED_ETAPES, DECLARED_FUNCTIONS, DECLARED_SIGNALS, DECLARED_PATCHER, DECLARED_TRANSITION, DECLARED_OSCROUTES, DECLARED_PUBLICBOXES
     from scenario.classes import Patch, Etape
     from engine.fsm import Flag
-    global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, Patchs, Medias, cross_ref
+    global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, \
+        Patchs, Medias, Texts, cross_ref
 
     # ..
     # Import declared elements to Poll
@@ -81,6 +86,9 @@ def load():
     # Import Public Boxes as Etapes
     for name, box in DECLARED_PUBLICBOXES.items():
         etape_public = Etape(name, actions=[ (box['function'], {}) ] )
+        if box['timer'] is not False:
+            log.debug("ADD TIMER IN PUBLIC BOX {}".format(name))
+            etape_public.out_actions = [( box['timer'], {}), ]
         DECLARED_ETAPES[etape_public.uid] = etape_public
 
     #..

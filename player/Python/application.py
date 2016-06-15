@@ -206,7 +206,7 @@ class inputThread(threading.Thread):
                     log.debug("Keyboard Exception received")
                 except Exception:      # For no shell env
                     log.debug("There is no input sleep 10 and continue...")
-                    time.sleep(10)
+                    time.sleep(1)
                     continue
                 if c in ("r", "rs", "respawn", "reload"):
                     if c == "rs":   # Prompt all fsm history and quit
