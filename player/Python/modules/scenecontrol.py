@@ -188,7 +188,7 @@ def scene_force_to(scene_index):
     :param scene_index: Index of the scene
     :type scene_index: int
     """
-    scenario.CURRENT_FRAME = scene_index
+    scenario.CURRENT_FRAME = int(scene_index)
     scenario.start_scene()
 
 @link({None: "scene_control"})
