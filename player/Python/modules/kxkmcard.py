@@ -3,6 +3,7 @@
 # This file provide utilities for controlling Video
 #
 #
+import os
 import re
 import threading
 from _classes import ExternalProcessFlag, module
@@ -275,7 +276,7 @@ def init_kxkm_card(flag, **kwargs):
 # ETAPE AND SIGNALS
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
-       "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
+       "/titreur/texte [media] [id]": "kxkm_card_titreur_text",
        "/titreur/flush": "kxkm_card_titreur_flush",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
@@ -353,7 +354,25 @@ def kxkm_card_popup_teleco(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_text(flag, **kwargs):
-    pass
+    media = os.path.join(settings.get_path("media", "text"), flag.args["media"])
+    m_txt1 = ''
+    m_txt2 = ''
+    m_type = None
+    m_speed = None
 
+    log.warning("text file : {0}".format(media))
 
+    with open(media) as f:
+        for line in f:
+            if line[0] == '#':
+                continue
+            line = line.split(':')
+            if line[0] == flag.args["id"]:
+                line.pop(0)
+                line = ':'.join(line)
+                m_txt1 = line.split("\\n")[0]
+                if len(line.split("\\n")) > 1:
+                    m_txt2 = line.split("\\n")[1]
+                break
 
+    kwargs["_fsm"].vars["kxkmcard"].setMessage(m_txt1.decode("utf8"), m_txt2.decode("utf8"), m_type, m_speed)
