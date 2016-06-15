@@ -16,12 +16,15 @@
 
       allPi = new Array();
       this.lineCount = 0;
-
+      var thisPool = this;
+      this.lastSelectedType = null;
 
       this.unselectBlocks = function() {
         $.each(allPi, function(index, pi) {
           pi.unselectBlocks();
         });
+        $(".blocEdit").hide();
+        if(thisPool.lastSelectedType == 'bloc') this.lastSelectedType = null;
       };
 
       this.selectallBlocks = function() {
@@ -45,6 +48,8 @@
           pi.active = false;
           pi.linename.css('backgroundColor', 'EEEEEE');
         });
+        $(".dispoEdit").hide();
+        if(thisPool.lastSelectedType == 'line') this.lastSelectedType = null;
       };
 
       this.getActivePi = function() {
@@ -87,6 +92,7 @@
           });
         });
       }
+
       this.followScenes = function(){
         $.each(allPi,function(index,pi){
           $.each(pi.allBlocks,function(index,block){
@@ -101,7 +107,23 @@
         });
       }
 
+      this.unselectScenes = function() {
+        $.each(allScenes,function(index,scene){
+          scene.scenebox.css('background-color','#444444');
+          scene.active = false;
+        });
+        $('.sceneEdit').hide();
+        if(thisPool.lastSelectedType == 'scene') this.lastSelectedType = null;
+      };
+
+      this.unselectAll = function() {
+        thisPool.unselectScenes();
+        thisPool.unselectLines();
+        thisPool.unselectBlocks();
+      };
+
     }
+
     /////////////////////// SCENE OBJECT ////////////////////////
     /////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////
@@ -180,17 +202,16 @@
 
 
       this.scenebox.on('click',function(){
+        pool.unselectAll();
+        pool.lastSelectedType = 'scene';
         thisScene.editInfos();
       });
 
       this.editInfos = function(){
-        $.each(allScenes,function(index,scene){
-          scene.scenebox.css('background-color','#444444');
-          scene.active = false;
-        })
+        thisScene.active = true;
         thisScene.scenebox.css('background-color','#BABABA');
         $('#scenename').text(thisScene.name);
-        thisScene.active = true;
+        $('.sceneEdit').show();
       }
 
       this.recoverInfos = function(name, position){
@@ -366,16 +387,19 @@
 
 
       $(this.line).on('click', function () {
+        pool.unselectAll();
+        pool.lastSelectedType = 'line';
         thispi.editInfos();
       });
       $(this.linename).on('click', function () {
+        pool.unselectAll();
+        pool.lastSelectedType = 'line';
         thispi.editInfos();
       });
 
       this.editInfos = function (){
         $("#piname").text(thispi.raspiname);
         $('#disposelector').val(thispi.raspiname);
-        pool.unselectLines();
         thispi.active = true;
         thispi.linename.css('backgroundColor', 'DDDDDD');
         var toCheck = new Array();
@@ -385,6 +409,7 @@
            });
         });
         $("#disposms").multipleSelect("setSelects", toCheck);
+        $(".dispoEdit").show();
       }
 
       this.recoverPiModules = function(mod){
@@ -483,13 +508,16 @@
 
 
       this.blockbox.on('click', function () {
-        pool.unselectBlocks();
-        thisblock.active = true;
+        pool.unselectAll();
+        pool.lastSelectedType = 'bloc';
         thisblock.editInfos();
-        $(this).css('opacity', '.9');
+        event.stopPropagation();
       });
 
       this.editInfos = function(){
+        thisblock.active = true;
+        thisblock.blockbox.css('opacity', '.9');
+        $(".blocEdit").show();
         $('#blocknameVisu').text(thisblock.blockbox.attr('id'));
         var groupname = thisblock.group;
         $('#groupselector').val(
@@ -706,7 +734,7 @@
     pool = new pool();
     refreshgroupsList();
     refreshModulesList();
-
+    pool.unselectAll();
 
     function refreshgroupsList(){ // TO DO à chaque modif ds le dropdown des groups
       $('#groupselector').empty();
@@ -935,7 +963,7 @@
     var exportArray = {};
     var timelineName = window.location.hash.substr(1);
     if (timelineName == '') timelineName = 'timeline';
-    console.log(timelineName);
+    var doReload = false;
 
 
     $('#loadBtn').click( function() {
@@ -970,7 +998,7 @@
     }
 
     $('#saveBtn').click( function() {
-      savePool();
+        savePool();
         $.ajax({
             url: "data/save.php",
             dataType: "json",
@@ -984,17 +1012,54 @@
         })
         .done(function(reponse)
         {
-            if (reponse.status == 'success')
-            {
+            if (reponse.status == 'success') {
               $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(exportArray) );
+              if (doReload) {
+                var url = window.location.href.split("#")[0];
+          			window.open(url+'#'+timelineName,"_self");
+          			location.reload(true);
+              }
             }
             else if (reponse.status == 'error')
-            { $('#serverDisplay').html( 'Erreur serveur: '+reponse.message ); }
+              $('#serverDisplay').html( 'Erreur serveur: '+reponse.message );
         })
-        .fail(function()
-          { $('#serverDisplay').html( 'Impossible de joindre le serveur...' ); }
-        );
+        .fail(function() {
+          $('#serverDisplay').html( 'Impossible de joindre le serveur...' ); } );
+    });
 
+    $('#saveAsBtn').click( function() {
+        var newName = prompt("Save timeline as", timelineName);
+        if (newName != null) {
+          timelineName = newName;
+          doReload = true;
+          $('#saveBtn').click();
+        }
+    });
+
+    $('#delBtn').click( function() {
+        if (timelineName == 'timeline') alert("Sorry, can't delete main timeline ..");
+        else if (confirm("Delete "+timelineName+" ?")) {
+          $.ajax({
+              url: "data/fileDelete.php",
+              type: "POST",
+              data: {
+                  filename: timelineName,
+                  type: 'timeline'
+              }
+          })
+          .done(function(reponse) {
+              if (reponse.status == 'success') {
+                $('#serverDisplay').html( 'success: '+reponse.message );
+                var url = window.location.href.split("#")[0];
+                console.log(url);
+                window.location.replace(url);
+              }
+              else if (reponse.status == 'error')
+                $('#serverDisplay').html( 'Erreur serveur: '+reponse.message );
+          })
+          .fail(function() { $('#serverDisplay').html( 'Impossible de joindre le serveur...' ); } );
+
+        }
     });
 
 
@@ -1100,6 +1165,7 @@
 
         });
         //console.log(allTimelines);
+        $('#selFile').empty();
 				$.each(allTimelines, function(index,file){
 					$('#selFile').append(('<option value="'+file+'">'+file+'</option>'));
 				});
@@ -1179,5 +1245,25 @@
     });
 
 
+    //////////// KEYBOARD /////////////////
+
+    $(document).keydown(function(e){
+
+       if(e.keyCode == 8 || e.keyCode == 46){ ////back : 8 , suppr : 46
+         e.preventDefault();
+         if (pool.lastSelectedType == 'bloc') $("#delBlockButton").click();
+         else if (pool.lastSelectedType == 'scene') {
+           if (confirm("Delete Scene ?")) $("#delSceneButton").click();
+         }
+         else if (pool.lastSelectedType == 'line') {
+           if (confirm("Delete Device ?")) $("#delPiButton").click();
+         }
+         pool.unselectAll();
+       }
+       // console.log(e.keyCode);
+    });
+
+   /////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////
 
 });

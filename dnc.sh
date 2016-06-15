@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) -eq 3 ]; then
-sleep 1
+#if [ $(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) -eq 3 ]; then
+#sleep 1
 echo "
                     ___                    ___           ___                                  ___                         ___           ___           ___     
      _____         /\  \                  /\  \         /\  \                                /\__\                       /\__\         /\  \         /\  \    
@@ -15,11 +15,11 @@ echo "
     \::/  /       \::/  /                \:\__\        \::/  /         \:\__\               \::/  /       \::/  /       \::/  /       \:\__\        \:\__\    
      \/__/         \/__/                  \/__/         \/__/           \/__/                \/__/         \/__/         \/__/         \/__/         \/__/    
 "
-else
-    echo "An instance is already running .. "$(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) > /tmp/dnc_l
-    echo "EXIT because already running"
-    exit 0
-fi
+#else
+#    echo "An instance is already running .. "$(ps -ejH w | grep dnc.sh | grep -v grep | wc -l ) > /tmp/dnc_l
+#    echo "EXIT because already running"
+#    exit 0
+#fi
 
 running=1
 DIRECT_INOUT=0

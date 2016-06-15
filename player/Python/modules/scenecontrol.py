@@ -14,7 +14,7 @@ from _classes import module
 from engine.log import init_log
 from engine.setting import settings
 
-log = init_log("scenecontrol")
+log = init_log("scenecontrol", log_lvl="raw")
 
 already_init = threading.Event()
 already_init.clear()
@@ -119,6 +119,7 @@ def scene_prev(flag, **kwargs):
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
+        flag.JTL = 10 # Fix : sometimes flag is not used beacause of JTL
         log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
@@ -144,6 +145,7 @@ def scene_next(flag, **kwargs):
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
+        flag.JTL = 10 # Fix : sometimes flag is not used beacause of JTL
         log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
@@ -175,6 +177,7 @@ def scene_go(flag, **kwargs):
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
+        flag.JTL = 10 # Fix : sometimes flag is not used beacause of JTL
         log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "frame": scenario.CURRENT_FRAME}))
 
