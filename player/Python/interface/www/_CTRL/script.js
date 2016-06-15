@@ -56,6 +56,9 @@
        $.each(r.timeline.signals, function(index, signal) {
          var line = $('<div class="line">');
          //if (index == r.timeline.activescene) line.addClass('lineactive');
+           if (signal.lastIndexOf("split_", 0) === 0){
+               return; // skip split_XXXX signals
+           }
            var signalName = signal;
            if(signalName == "CARTE_PUSH_1"){
                signalName = "PUSH COURT";
