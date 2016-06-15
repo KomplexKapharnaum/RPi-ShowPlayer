@@ -507,7 +507,7 @@
       this.active = false;
 
 
-      this.blockbox.on('click', function () {
+      this.blockbox.on('click', function (event) {
         pool.unselectAll();
         pool.lastSelectedType = 'bloc';
         thisblock.editInfos();
