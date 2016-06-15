@@ -1,0 +1,54 @@
+
+<HTML>
+  <HEAD>
+    <title>DEVICE CONTROL</title>
+    <!-- JQUERY -->
+    <script type='text/javascript' src='lib/jquery.min.js'></script>
+    <script type='text/javascript' src='lib/jquery-ui.min.js'></script>
+    <link rel="stylesheet" type="text/css" href="lib/jquery-ui.css">
+    <!-- MUTLISELECT -->
+    <script src="lib/Multiple-select/jquery.multiple.select.js"></script>
+    <link rel="stylesheet" href="lib/Multiple-select/multiple-select.css" />
+    <!-- INT -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="script.js"></script>
+  </HEAD>
+
+  <BODY>
+
+      <div id = "colonne2">
+        <div class="title">
+          <h3 id="device_name"></h3>
+          <span id="device_info" ></span>
+        </div>
+        <br />
+        <div class="title">
+          <h3>TIMELINE</h3>
+          <span id="timeline_group"></span><br />
+          <span id="timeline_version" ></span>
+        </div>
+        <br />
+        <div class="title">
+          <h3>SYSTEM</h3>
+          <span id="system_branch"></span><br />
+          <span id="system_commit" ></span>
+        </div>
+        <br />
+        <div class="title">
+
+          <span id="device_voltage"></span> -
+          <span id="device_bat" ></span>
+        </div>
+        <br />
+        <div class="title">
+          <a href="/_TIMELINE/index.html" target="_blank">Editer la Timeline</a>
+        </div>
+      </div>
+
+      <div id = "colonne1">
+        <div class="title">SCENE CONTROL</div>
+        <div id="scenes"></div>
+      </div>
+
+  </BODY>
+</HTML>

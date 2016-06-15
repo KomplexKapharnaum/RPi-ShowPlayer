@@ -819,7 +819,7 @@
       tooltips = $('#tooltipsOnoff').prop('checked');
     });
 
- 
+
     ///////////////////GROUP SELECTOR////////////////////
     $('#groupselector').change(function(){
       var that = $(this);
@@ -1023,6 +1023,7 @@
           			window.open(url+'#'+timelineName,"_self");
           			location.reload(true);
               }
+              else timelineInfo();
             }
             else if (reponse.status == 'error')
               $('#serverDisplay').html( 'Erreur serveur: '+reponse.message );
@@ -1271,5 +1272,18 @@
 
    /////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////
+
+   //////////////////////// GET NAME TIMELINE .///////////////////////
+   function timelineInfo() {
+     $.ajax({
+         url: "/info",
+         dataType: "json"
+     })
+     .done(function(r) {
+       $("#timeline_group").text(r.timeline.group);
+         $("#timeline_version").html("<br />"+r.timeline.version+" UTC+0");
+     });
+   }
+   timelineInfo();
 
 });

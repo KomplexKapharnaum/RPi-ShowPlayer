@@ -103,7 +103,6 @@
 
     .line
     {
-      height:30px;
       background-color:#EEEEEE;
       /*display:block;*/
       position: relative;
@@ -114,6 +113,15 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+
+      border-bottom: 1px solid black;
+      padding: 9px;
+      text-align: center;
+    }
+
+    .lineactive {
+      background-color:#c2ce89;
+      font-weight: bold;
     }
 
 
@@ -132,6 +140,10 @@
       padding:6px;
       background-color:#444444;
       line-height: 17px;
+    }
+
+    a {
+        color: white;
     }
 
     .closebtn
@@ -254,16 +266,21 @@
     outline:none;
     }
 
+    h3 {
+      margin-top: 1px;
+
+    }
 
     #colonne1{
       float:left;
-      margin-left: 0px;
-      width: 1000px;
+      margin: 5px;
+      width: 200px;
       display: block;
+      font-size: 15px;
     }
 
     #colonne2{
-      margin-left: 10px;
+      margin: 5px;
       float: left;
       width: 200px;
       display: block;

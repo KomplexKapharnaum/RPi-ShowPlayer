@@ -7,9 +7,14 @@ from modules import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_PUBLICB
 from engine.log import init_log
 from engine.media import save_scenario_on_fs
 from engine.threads import patcher
-from engine import fsm
+from engine import fsm, tools
 from libs import oscack
 import modules
+import scenario.pool
+from engine.setting import settings, devicesV2
+from libs.bottle import Bottle, run, static_file, response, request, redirect
+import json
+
 log = init_log("webserver")
 
 # SET PYTHON PATH IN PARENT DIR
@@ -23,10 +28,6 @@ def set_python_path(depth=0):
 
 set_python_path(depth=1)
 
-
-from libs.bottle import Bottle, run, static_file, response, request, redirect
-from engine.setting import settings
-import json
 
 app = Bottle()
 staticpath = os.path.dirname(os.path.realpath(__file__))+'/www/'
@@ -45,6 +46,32 @@ def sendjson(data):
         return request.query['callback'] + "(" + json.dumps(data) + ")"
     return json.dumps(data)
 
+@app.route('/info')
+def info():
+    answer = dict()
+    answer['timeline'] = dict()
+    answer['timeline']['group'] = scenario.pool.timeline_group
+    answer['timeline']['version'] = scenario.pool.timeline_version
+
+    answer['timeline']['activescene'] = scenario.CURRENT_FRAME
+    answer['timeline']['scenes'] = [scene.uid for scene in scenario.pool._Timeline]
+
+    answer['device'] = dict()
+    answer['device']['name'] = settings.get("uName")
+    answer['device']['voltage'] = modules.devicecontrol.TENSION
+    answer['device']['settings'] = devicesV2.get(settings.get("uName"))
+
+    answer['system'] = dict()
+    answer['system']['branch'] = tools.get_git_branch()
+    answer['system']['commit'] = list(tools.get_git_last_commit())
+
+    return sendjson(answer)
+
+@app.route('/changeScene', method='POST')
+def changeScene():
+    scene = request.forms.get('scene')
+    modules.scenecontrol.scene_force_to(int(scene))
+    return 'ok'
 
 @app.route('/medialist')
 def medialist():
@@ -112,12 +139,11 @@ def librarylist():
             'hard': True
         }
         answer['functions'].append(box)
-
     # PUBLIC BOXES
     for name, box in DECLARED_PUBLICBOXES.items():
         box = {
             'name': name.replace('_PUBLICBOX', ''),
-            'category': box['category'].upper(),
+            'category': 'GENERAL',
             'dispos': ('dispo' in box['args']),
             'medias': ('media' in box['args']),
             'arguments': [arg for arg in box['args'] if arg != 'dispo' and arg != 'media'],
@@ -285,6 +311,10 @@ def filelist():
 
 # Static index
 @app.route('/')
+@app.route('/_CTRL')
+def server_index():
+    redirect("/_CTRL/index.html")
+
 @app.route('/_TIMELINE')
 def server_index():
     redirect("/_TIMELINE/index.html")

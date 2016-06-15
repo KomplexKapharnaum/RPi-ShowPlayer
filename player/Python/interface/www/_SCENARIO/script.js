@@ -432,8 +432,7 @@
 				.done(function(reponse) {
 						$('#txted').val(JSON.parse(reponse.contents).text);
 						$('#txted').fadeIn(200);
-				})
-				.complete(function(){ console.log("load done")});
+				});
 			}
 
 			this.saveText = function (title){
@@ -1067,6 +1066,7 @@
 								window.open(window.location.href.split("#")[0]+'#'+timelineName+'#'+scenarioName,"_self");
 								location.reload(true);
 							}
+							else timelineInfo();
 						}
         })
         .fail(function()
@@ -1274,6 +1274,18 @@
       $(this).select();
     });
 
+		//////////////////////// GET NAME TIMELINE .///////////////////////
+		function timelineInfo() {
+      $.ajax({
+          url: "/info",
+          dataType: "json"
+      })
+      .done(function(r) {
+        $("#timeline_group").text(r.timeline.group);
+          $("#timeline_version").html("<br />"+r.timeline.version+" UTC+0");
+      });
+    }
+    timelineInfo();
 
 		//if (scenarioName !== 'noscenario') { console.log(scenarioName); setTimeout(loadGraphique, 200); }
 
