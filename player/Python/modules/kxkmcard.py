@@ -362,7 +362,7 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
                                                m_speed)
     lines["current"] += 1
     if lines["current"] == len(lines["lines"]):
-        if m_loop:
+        if m_loop is True:
             lines["current"] = 0
         else:
             patcher.patch(Flag("END_TEXT").get())
@@ -387,6 +387,7 @@ def kxkm_card_titreur_text_multi(flag, **kwargs):
     m_speed = params["speed"]
     m_delay = params["delay"]
     m_loop = True if params["loop"] == 1 else False
+    m_loop = True
 
     ids = flag.args["ids"].split(",")
     parsed = dict()
