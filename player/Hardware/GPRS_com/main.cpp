@@ -55,8 +55,8 @@ string smsText = "";
 #define SENDOSC true
 
 lo::Address ph("2.0.2.100", "1783");
-lo::Address regie("2.0.0.150", "2222");
-lo::Address regiebis("2.0.0.151", "2222");
+lo::Address regie("2.0.0.79", "2222");
+lo::Address regiebis("2.0.0.100", "2222");
 
 void api(){
   cout << mstime() << programName;
@@ -190,7 +190,7 @@ int main (int argc, char * argv[]){
   //serial RX coté RPI tx coté modem pin du haut sur la carte, pin 7 modem
   //serial TX coté RPI rx coté modem pin du bas sur la carte, pin 8 modem
   api();
-  cout <<  "start gsm reader" << endl;
+  cout <<  "start gsm reader regie 2.0.0.79 ou 100" << endl;
   uart0_filestream = serialOpen ("/dev/ttyAMA0", 19200);
   //serialPrintf (uart0_filestream, "AT+CMGR=1\r\n") ;
   /*delay(5);
