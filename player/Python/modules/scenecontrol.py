@@ -147,7 +147,7 @@ def scene_next(flag, **kwargs):
                 dest = [flag.args['args'][0], ]
         flag.JTL = 10 # Fix : sometimes flag is not used beacause of JTL
         log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
-        patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME})))
+        patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
 @link({None: "scene_control"})
 def scene_go(flag, **kwargs):
