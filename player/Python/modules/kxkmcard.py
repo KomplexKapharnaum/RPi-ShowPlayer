@@ -8,7 +8,7 @@ import re
 import threading
 from _classes import ExternalProcessFlag, module
 from scenario import classes
-from modules import link, exposesignals
+from modules import link, exposesignals, globaletape
 from engine.log import init_log
 from engine.setting import settings, devicesV2
 from engine.threads import patcher
@@ -376,7 +376,7 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
     timer))
     timer[0].start()
 
-@link({None: "kxkm_card"}, timer=True)
+@link(timer=True)
 def kxkm_card_titreur_text_multi(flag, **kwargs):
     media = os.path.join(settings.get_path("media", "text"), flag.args["media"])
     params = search_in_or_default(("delay", "loop", "type", "speed"), flag.args,

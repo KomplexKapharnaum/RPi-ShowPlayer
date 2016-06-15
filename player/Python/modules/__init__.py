@@ -202,6 +202,7 @@ def timer_out_action(flag, *args, **kwargs):
     """
     if "__timer" in kwargs["_etape"]._localvars.keys():
         for timer in kwargs["_etape"]._localvars["__timer"]:
+	    log.debug("Cancel timer in out action")
             timer.cancel()
     return True
 

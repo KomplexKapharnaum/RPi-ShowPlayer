@@ -91,6 +91,7 @@ class Etape(fsm.State):
         :param flag: flag wich cause the change
         :return:
         """
+	log.log("debug", "look for run_out fnct in {}".format(self.uid))
         if len(self.out_actions) > 0:
             log.log("debug", "OUT ETAPE :: {0} on {1}".format(self.uid, flag))
             return self._run(_fsm, flag, self.out_actions)
