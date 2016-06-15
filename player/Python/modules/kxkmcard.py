@@ -383,10 +383,10 @@ def kxkm_card_titreur_text_multi(flag, **kwargs):
                                   setting=("values", "text_multi"))
     m_txt1 = ''
     m_txt2 = ''
-    m_type = None
-    m_speed = None
-    m_delay = flag.args["delay"]
-    m_loop = True if flag.args["loop"] == 1 else False
+    m_type = params["type"]
+    m_speed = params["speed"]
+    m_delay = params["delay"]
+    m_loop = True if params["loop"] == 1 else False
 
     ids = flag.args["ids"].split(",")
     parsed = dict()
@@ -398,28 +398,32 @@ def kxkm_card_titreur_text_multi(flag, **kwargs):
                 continue
             line = line.split(':')
             if line[0] in ids:
-                id = line[0]
+		id = line[0]          
                 parsed[id] = list()
                 line.pop(0)
                 line = ':'.join(line)
-                parsed[id].append(parsed[id].split("\\n")[0])
+                parsed[id].append(line.split("\\n")[0])
                 if len(line.split("\\n")) > 1:
                     parsed[id].append(line.split("\\n")[1])
                 else:
                     parsed[id].append('')
-                break
+
     for id in ids:
-        lines.append(parsed[id])
+	if id in parsed.keys():
+	        lines.append(parsed[id])
+	else:
+		log.warning("Missing id {} in TEXT_MULTI box".format(id))
 
     kwargs["_etape"]._localvars["__timer"] = list()
     kwargs["_etape"]._localvars["__timer"].append(
         threading.Timer(float(0), __kxkm_next_titreur, (kwargs["_fsm"].vars[
                                                             "kxkmcard"].setMessage,
-                                                        lines,
+                                                        {"lines":lines, "current":0},
                                                               m_type,
                                                               m_speed,
                                                               m_delay,
                                                               m_loop,
+								kwargs["_etape"]._localvars["__timer"]
                                                               )))
     kwargs["_etape"]._localvars["__timer"][0].start()
 
