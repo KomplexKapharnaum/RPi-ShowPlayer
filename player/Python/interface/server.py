@@ -55,9 +55,10 @@ def info():
 
     answer['timeline']['activescene'] = scenario.CURRENT_FRAME
     answer['timeline']['scenes'] = [scene.uid for scene in scenario.pool._Timeline]
-    answer['timeline']['signals'] = list()
-    if scenario.CURRENT_FRAME in scenario.pool.Frames:
+    try:
         answer['timeline']['signals'] = scenario.pool.Frames[scenario.CURRENT_FRAME]._get_all_reachabled_signals(settings.get("uName"))
+    except IndexError:
+        answer['timeline']['signals'] = list()
 
 
     answer['device'] = dict()
