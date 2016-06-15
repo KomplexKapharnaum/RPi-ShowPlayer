@@ -951,6 +951,8 @@
     ///////////////////////////   SAVE   ////////////////////////////////
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
+		var doReload = false;
+
 
     function saveGraphique(){
       var boxes = [];
@@ -1012,7 +1014,8 @@
     }
 
     $('#saveGraph').click( function() {
-      saveGraphique();
+				if (scenarioName == '') return;
+				saveGraphique();
         $.ajax({
             url: "data/save.php",
             dataType: "json",
@@ -1027,13 +1030,52 @@
         .done(function(reponse)
         {
             if (reponse.status == 'success')
-            {  $('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(Graphique) );  }
+            {
+							$('#serverDisplay').html( 'Saved : <br> '+ JSON.stringify(Graphique) );
+							if (doReload) {
+								window.open(window.location.href.split("#")[0]+'#'+timelineName+'#'+scenarioName,"_self");
+								location.reload(true);
+							}
+						}
         })
         .fail(function()
           { $('#serverDisplay').html( 'Impossible de joindre le serveur...' ); }
         );
 
     });
+
+		$('#saveAsGraph').click( function() {
+			var newName = prompt("Save timeline as", scenarioName);
+			if (newName != null) {
+				scenarioName = newName;
+				doReload = true;
+				$('#saveGraph').click();
+			}
+		});
+
+		$('#delGraph').click( function() {
+		if (confirm("Delete "+scenarioName+" ?")) {
+				$.ajax({
+						url: "data/fileDelete.php",
+						type: "POST",
+						data: {
+								filename: scenarioName,
+								type: 'scenario'
+						}
+				})
+				.done(function(reponse) {
+						if (reponse.status == 'success') {
+							var url = window.location.href.split("#")[0]+'#'+timelineName;
+							window.location.replace(url);
+							location.reload();
+						}
+						else if (reponse.status == 'error')
+							$('#serverDisplay').html( 'Erreur serveur: '+reponse.message );
+				})
+				.fail(function() { $('#serverDisplay').html( 'Impossible de joindre le serveur...' ); } );
+
+			}
+		});
 
     ///////////////////////////   LOAD   ////////////////////////////////
     /////////////////////////////////////////////////////////////////////
@@ -1171,6 +1213,7 @@
             allScenarios.push(newname);
           }
         });
+				$('#selFile').empty();
 				$.each(allScenarios, function(index,scenario){
 					$('#selFile').append(('<option value="'+scenario+'">'+scenario+'</option>'));
 				});
@@ -1180,7 +1223,7 @@
 
 		$('#selFile').change(function(){
 			scenarioName = $('#selFile option:selected').text();
-			window.open(window.location.href.split("#")[0]+'#timeline#'+scenarioName,"_self");
+			window.open(window.location.href.split("#")[0]+'#'+timelineName+'#'+scenarioName,"_self");
 			location.reload(true);
 			// loadGraphAfter = true;
 			// loadScenario();

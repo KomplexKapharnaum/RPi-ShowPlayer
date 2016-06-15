@@ -18,13 +18,11 @@
 
     <div class="tip"></div>
 
-      <div id="ids">
-        <input  type="button" id="addButton" class="addpibtn" value="+">
-        <div id="allpinames"></div>
-      </div>
-
-
       <div id = "colonne1">
+        <div id="ids">
+          <input  type="button" id="addButton" class="addpibtn" value="+">
+          <div id="allpinames"></div>
+        </div>
         <div id="allscenes"></div>
         <div id="allpi"></div>
       </div>
@@ -38,17 +36,20 @@
           </select>
           <input type="button" id="clearBtn" class="btn" value="CLEAR" />
           <input type="button" id="saveBtn" class="btn" value="SAVE" />
-          <input type="button" id="loadBtn" class="btn" value="LOAD" /><br><br>
+          <input type="button" id="saveAsBtn" class="btn" value="SAVE AS" />
+          <input type="button" id="loadBtn" class="btn" value="RELOAD" />
+          <input type="button" id="delBtn" class="btn" value="DELETE" /><br><br>
           <!-- <input type="button" id="openInfos" class="btn" value="?" /><br><br> -->
 					<input type="checkbox" class="check" id="tooltipsOnoff"/>
 					<label for="tooltipsOnoff" name="openInfos" class="css-label">SHOW INFOS</label>
 
 
         </div>
+        <br />
 
 
-          <div class="title">SCENE</div>
-          <div class="properties">
+          <div class="title sceneEdit">SCENE</div>
+          <div class="properties sceneEdit">
             <div id="scenename" class="name">Select...</div>
             <input  type="button" id="delSceneButton" class="btn2" value="-">
             <br>
@@ -56,8 +57,8 @@
 
 
 
-        <div class="title">DISPO</div>
-        <div class="properties">
+        <div class="title dispoEdit">DISPO</div>
+        <div class="properties dispoEdit">
             <div id="piname" class="name">Select...</div>
             <input  type="button" id="delPiButton" class="btn2" value="-">
             <br>
@@ -70,8 +71,8 @@
             </ul>
         </div>
 
-        <div class="title">BLOC</div>
-        <div class="properties">
+        <div class="title blocEdit">BLOC</div>
+        <div class="properties blocEdit">
           <div id="blocknameVisu" class="name">Select...</div>
           <input  type="button" id="delBlockButton" class="btn2" value="-">
           <br>

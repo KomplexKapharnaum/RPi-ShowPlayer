@@ -2,7 +2,7 @@
 #############################
 # CONFIGURE // UPDATE
 #############################
- 
+
 
 #############################
 # Move old local settings file
@@ -30,10 +30,10 @@ else
     pacman -S --noconfirm alsa-plugins
 fi
 x=`pacman -Qs alsaequal`
-if [ -n "$x" ];  then 
-    echo "ALSAequal Installed";  
-else 
-    echo "Install ALSAequal from AUR"; 
+if [ -n "$x" ];  then
+    echo "ALSAequal Installed";
+else
+    echo "Install ALSAequal from AUR";
     cd /tmp
     wget https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz --no-check-certificate
     tar -xvf alsaequal.tar.gz
