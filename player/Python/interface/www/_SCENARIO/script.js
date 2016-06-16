@@ -887,14 +887,14 @@
     /////////////////  DELETE  /////////////////
      $(document).keyup(function(e){
 
-        if((e.keyCode == 8)&&(listening == true)&&(connectionSelected != null)&&(selected=='connection') ){ ////del : 8 , - : 189
+        if((e.keyCode == 8)&&(listening == true)&&(connectionSelected != null)&&(selected=='connection')&&(!textEditing) ){ ////del : 8 , - : 189
           e.preventDefault();
           jsPlumb.detach(connectionSelected);
           $("#signalEdit").hide();
 					selected = 'nothing';
         }
 
-        if((e.keyCode == 8)&&(listening == true)&&(selected=='box')&&(editing == false)){
+        if((e.keyCode == 8)&&(listening == true)&&(selected=='box')&&(editing == false)&&(!textEditing)){
           e.preventDefault();
           var indextoremove;
           $.each(allStates, function(index, state) {
@@ -935,13 +935,22 @@
 
 
     ///////////// BACKSPACE NOT GOING BACKWARD /////////////////
+		textEditing = false;
 
     window.addEventListener('keydown', function (e) {
-        if (e.keyIdentifier === 'U+0008' || e.keyIdentifier === 'Backspace' || e.keyCode === '8' || document.activeElement !== 'text')
+        if (e.keyIdentifier == 'U+0008' || e.keyIdentifier == 'Backspace' || e.keyCode == 8 || document.activeElement != 'text')
           {
             if (e.target === document.body) { e.preventDefault(); }
           }
     }, true);
+
+		$("textarea").on("focusin", function(e){
+		  textEditing = true;
+		});
+
+		$("textarea").on("focusout", function(e){
+		  textEditing = false;
+		});
 
 
    /////////////////////// CLEAR /////////////////////////
