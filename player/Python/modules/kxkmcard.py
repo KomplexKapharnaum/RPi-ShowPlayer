@@ -354,25 +354,32 @@ def kxkm_card_popup_teleco(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_text(flag, **kwargs):
-    media = os.path.join(settings.get_path("media", "text"), flag.args["media"])
+    media = os.path.join(settings.get_path("scenario", "activescenario"), 'text_'+flag.args["media"]+'.json')
     m_txt1 = ''
     m_txt2 = ''
     m_type = None
     m_speed = None
 
-    log.warning("text file : {0}".format(media))
+    # log.warning("text file : {0}".format(media))
 
     with open(media) as f:
-        for line in f:
+        try:
+            data = json.loads(f.read())
+        except Exception as e:
+            log.warning("Error loading text file {0}: {1}".format(media, e))
+        data = data['text'].replace("\\n", "<br>").split('\n')
+        for line in data:
             if line[0] == '#':
                 continue
             line = line.split(':')
             if line[0] == flag.args["id"]:
                 line.pop(0)
                 line = ':'.join(line)
-                m_txt1 = line.split("\\n")[0]
-                if len(line.split("\\n")) > 1:
-                    m_txt2 = line.split("\\n")[1]
+                m_txt1 = line.split("<br>")[0]
+                if len(line.split("<br>")) > 1:
+                    m_txt2 = line.split("<br>")[1]
                 break
+
+    # log.warning("text display : {0} // {1}".format(m_txt1, m_txt2))
 
     kwargs["_fsm"].vars["kxkmcard"].setMessage(m_txt1.decode("utf8"), m_txt2.decode("utf8"), m_type, m_speed)

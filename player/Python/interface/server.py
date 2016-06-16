@@ -151,7 +151,7 @@ def loadText():
         path = mediapath+"/"+filename
         answer = dict()
         answer['status'] = 'success'
-        with open(path, 'r') as file:   # Use file to refer to the file object     
+        with open(path, 'r') as file:   # Use file to refer to the file object
             answer['contents'] = file.read()
         return sendjson(answer)
     except:
