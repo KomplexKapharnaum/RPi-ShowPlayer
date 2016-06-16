@@ -373,9 +373,10 @@
 
 
     ////////////////////////// MEDIAS ////////////////////////////////
-		audioFiles = ['Selectionner Media','son1','son2','son3','son4'];
-		videoFiles = ['Selectionner Media','vid1','vid2','vid3','vid4'];
-		txtFiles = ['Selectionner Media','text1','text2','text3','text4'];
+		audioFiles = ['no media'];
+		videoFiles = ['no media'];
+		txtFiles = ['no media'];
+
 		$.ajax({
 			type: 'GET',
 			timeout: 1000,
@@ -383,11 +384,106 @@
 			dataType: "jsonp"
 		}).done(function(data) {
 			audioFiles = data.audio;
-			audioFiles.unshift('Selectionner Media');
+			if (audioFiles.length>0) audioFiles.unshift(' ');
+			else audioFiles = ['no media'];
 			videoFiles = data.video;
-			videoFiles.unshift('Selectionner Media');
-			txtFiles = data.txt;
-			txtFiles.unshift('Selectionner Media');
+			if (videoFiles.length>0) videoFiles.unshift(' ');
+			else videoFiles = ['no media'];
+		});
+
+		$.ajax({
+				url: "data/fileList.php",
+				type: "POST",
+				data: { type: 'text'}
+		})
+		.done(function(filelist) {
+			txtFiles = [];
+			if( Object.prototype.toString.call( filelist ) !== '[object Array]' ) {
+				filelist = JSON.parse(filelist);
+			}
+			$.each(filelist,function(index,name){
+					txtFiles.push(name.replace('.json',''));
+			});
+			if (txtFiles.length>0) txtFiles.unshift(' ');
+			else txtFiles = ['no media'];
+			console.log(txtFiles);
+		});
+
+
+		///////////////////////////TEXT FILES///////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+
+		function textfile() {
+
+			this.name = 'titreurs';
+
+			this.loadText = function(title){
+				if (title !== undefined) this.name = title;
+				$('#titleTxtedit').text(this.name);
+				console.log('LOADING TEXT '+this.name);
+				$.ajax({
+						url: "data/load.php",
+						dataType: "json",
+						type: "POST",
+						data: { filename: this.name, type: 'text'}
+				})
+				.done(function(reponse) {
+						if (reponse.status == 'success') {
+							$('#txted').text(JSON.parse(reponse.contents).text);
+						}
+				});
+			}
+
+			this.saveText = function (title){
+				var contenu = $('#txted').val();
+				title = $.trim(title).replace(/ /g,'_');
+				this.name = title;
+				if (title)
+					$.ajax({
+							url: "data/save.php",
+							dataType: "json",
+							type: "POST",
+							data: {
+								filename: title,
+								type: 'text',
+								timestamp: $.now(),
+								contents: JSON.stringify({'text': contenu})
+							}
+					})
+					.done(function() {
+						$('#serverDisplay').html( 'Saved TXT : <br> '+ JSON.stringify({'text': contenu}) );
+						textFile.loadText();
+
+						// new file: refresh boxes
+						if (txtFiles.indexOf(textFile.name) == -1) {
+							txtFiles.push(textFile.name);
+							$.each(allStates, function(index, state) {
+								if (state.category == 'TITREUR')
+									$(state.mediasList).append(('<option value="'+textFile.name+'">'+textFile.name+'</option>'));
+								if (state.active) {
+									$(state.mediasList).val(textFile.name);
+									state.media = textFile.name;
+								}
+							})
+						}
+						
+					});
+			}
+		}
+
+		var textFile = new textfile();
+		$('#okTxtedit').click(function(){
+			var title = '';
+			$.each(allStates, function(index, state) {
+				if (state.active && state.category == 'TITREUR') title = state.media;
+			});
+			title = prompt("Text file name: ", title);
+			textFile.saveText(title);
+			//$('#editText').hide();
+		});
+		$('#cancelTxtedit').click(function(){
+			//$('#editText').hide();
 		});
 
 
@@ -508,13 +604,13 @@
         this.box.append(this.disposList);
       }
       if(mediaBOO == true){
-        this.media = 'Select';
         this.mediasList = $('<select>').attr('id', this.name+'Medias').addClass('dropdownMedias');//.attr('dir','rtl');
         this.box.append(this.mediasList);
         var files = new Array();
         if(category == 'AUDIO') {files=audioFiles;}
         if(category == 'VIDEO') {files=videoFiles;}
 				if(category == 'TITREUR') {files=txtFiles;}
+				this.media = files[0];
         $.each(files, function(index,file){
 					var shortFile = file.split(".")[0]
          $(thisState.mediasList).append(('<option value="'+file+'">'+shortFile+'</option>'));
@@ -612,40 +708,6 @@
 
       this.sourceAndtarget();
 
-			this.loadText = function(){
-				console.log('LOADING TEXT'+thisState.media);
-        $.ajax({
-            url: "data/loadText.php",
-            dataType: "json",
-            type: "POST",
-            data: { filename: thisState.media, type: 'text'}
-        })
-        .done(function(reponse) {
-            if (reponse.status == 'success') { $('#txted').text(reponse.contents); }
-        });
-			}
-
-			this.saveText = function (){
-				var contenu = $('#txted').val();
-				$.ajax({
-            url: "data/saveText.php",
-            dataType: "json",
-            type: "POST",
-            data: { filename: thisState.media, type: 'text', contents: contenu }
-        });
-			}
-
-			$('#okTxtedit').click(function(){
-				if (thisState.category == 'TITREUR' && mediaBOO == true){
-					thisState.saveText();
-				}
-				$('#editText').hide();
-			});
-			$('#cancelTxtedit').click(function(){
-				$('#editText').hide();
-			});
-
-
 
       //////////////////////////  ARGUMENTS //////////////////////////////
       ///////////////////////////////////////////////////////////////////
@@ -654,7 +716,7 @@
           var that = $(this);
           thisState.media = $(this).find('option:selected').val();
 					thisState.mediasList.blur();
-					if (thisState.category == 'TITREUR'){ thisState.loadText();}
+					if (thisState.category == 'TITREUR'){ textFile.loadText(thisState.media);}
         });
       }
 
@@ -749,13 +811,11 @@
         if (autoConnect == false) $("#signalEdit").hide();
 
 				if (this.category == 'TITREUR' && mediaBOO == true){
-					 console.log('loading txt...');
 					$('#editText').fadeIn(200);
-					console.log ('titreur Edit');
-					this.loadText();
-					}
+					textFile.loadText(thisState.media);
+				}
 			}
-			this.select();
+			//this.select();
 
   		this.box.click(function(e) {
 				thisState.select();
