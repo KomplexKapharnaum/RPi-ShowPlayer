@@ -467,7 +467,7 @@
 								}
 							})
 						}
-						
+
 					});
 			}
 		}
@@ -560,6 +560,38 @@
 		}
 
 
+		////////////////////////// STATE ARGUMENT //////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+
+		function stateArg(name, value) {
+			var thisArg = this;
+
+			this.name = name;
+			this.value = value;
+
+			this.nameDiv = $('<div>').addClass('option').text(this.name).attr('id', this.name);
+			this.valDiv = $('<div>').addClass('optionval').text(this.value);
+			this.editDiv = $('<input>').attr('type', 'text').addClass('textOption');
+
+			this.valDiv.dblclick(function(e) {
+				$(this).text("");
+				thisArg.nameDiv.append(thisArg.editDiv);
+				thisArg.editDiv.val(thisArg.value);
+				thisArg.editDiv.focus();
+
+				thisArg.editDiv.focusout(function(e) {
+					thisArg.value = thisArg.editDiv.val();
+					thisArg.valDiv.text(thisArg.value);
+					thisArg.editDiv.remove();
+					editing = false;
+				});
+
+				listening = false;
+				editing = true;
+			});
+		}
+
 
     ////////////////////////// STATE OBJECT//////////////////////////////
     /////////////////////////////////////////////////////////////////////
@@ -577,13 +609,6 @@
       this.category = category;
       this.mediasBOO = mediaBOO;
       this.dispoBOO = dispoBOO;
-
-      this.argumentsArray = arguments;
-      this.argumentsList = new Array();
-      var k = 0;
-      $.each(this.argumentsArray,function(name,val){
-        thisState.argumentsList[k++] = name;
-      })
 
       for (var i = 0, len = allCats.length; i < len; i++) {
           if (allCats[i].name === this.category) { this.color = allCats[i].color; }
@@ -616,24 +641,18 @@
          $(thisState.mediasList).append(('<option value="'+file+'">'+shortFile+'</option>'));
         });
       }
-      if(this.argumentsList[0]){
-        this.arg1Name = $('<div>').addClass('option').text(thisState.argumentsList[0]).attr('id', thisState.argumentsList[0]);
-        this.arg1Val = $('<div>').addClass('optionval').text(thisState.argumentsArray[thisState.argumentsList[0]]);
-        this.box.append(this.arg1Name);
-        this.box.append(this.arg1Val);
-      }
-      if(this.argumentsList[1]){
-        this.arg2Name = $('<div>').addClass('option').text(thisState.argumentsList[1]).attr('id', thisState.argumentsList[1]);
-        this.arg2Val = $('<div>').addClass('optionval').text(thisState.argumentsArray[thisState.argumentsList[1]]);
-        this.box.append(this.arg2Name);
-        this.box.append(this.arg2Val);
-      }
-      if(this.argumentsList[2]){
-        this.arg3Name = $('<div>').addClass('option').text(thisState.argumentsList[2]).attr('id', thisState.argumentsList[2]);
-        this.arg3Val = $('<div>').addClass('optionval').text(thisState.argumentsArray[thisState.argumentsList[2]]);
-        this.box.append(this.arg3Name);
-        this.box.append(this.arg3Val);
-      }
+
+			// LOAD ARGUMENTS
+
+			this.argumentsList = new Array();
+			var keys = Object.keys(arguments), i, len = keys.length;
+			keys.sort();
+			for (i = 0; i < keys.length; i++) {
+				var arg = new stateArg(keys[i], arguments[keys[i]]);
+        thisState.argumentsList.push(arg);
+				thisState.box.append(arg.nameDiv);
+        thisState.box.append(arg.valDiv);
+			}
 
   		this.box.append(this.connect);
   		$('#container').append(this.box);
@@ -718,70 +737,6 @@
 					thisState.mediasList.blur();
 					if (thisState.category == 'TITREUR'){ textFile.loadText(thisState.media);}
         });
-      }
-
-      if(this.argumentsList[0]){
-        var arg1Temp = $('<input>').attr('type', 'text').addClass('textOption');
-        this.arg1Val.dblclick(function(e) {
-          $(this).text("");
-          thisState.arg1Name.append(arg1Temp);
-					arg1Temp.val(thisState.argumentsArray[thisState.argumentsList[0]]);
-          arg1Temp.focus();
-          listenToEnterArg1();
-          listening = false;
-					editing = true;
-        });
-        function listenToEnterArg1(){
-          arg1Temp.focusout(function(e) {
-            thisState.arg1Val.text(this.value);
-            thisState.arg1Val.attr('id', this.value);
-            thisState.argumentsArray[thisState.argumentsList[0]]=this.value;
-            arg1Temp.remove();
-						editing = false;
-          });
-        }
-      }
-      if(this.argumentsList[1]){
-        var arg2Temp = $('<input>').attr('type', 'text').addClass('textOption');
-        this.arg2Val.dblclick(function(e) {
-          $(this).text("");
-          thisState.arg2Name.append(arg2Temp);
-					arg2Temp.val(thisState.argumentsArray[thisState.argumentsList[1]]);
-          arg2Temp.focus();
-          listenToEnterArg2();
-          listening = false;
-					editing = true;
-        });
-        function listenToEnterArg2(){
-          arg2Temp.focusout(function(e) {
-            thisState.arg2Val.text(this.value);
-            thisState.arg2Val.attr('id', this.value);
-            thisState.argumentsArray[thisState.argumentsList[1]]=this.value;
-            arg2Temp.remove();
-						editing = false;
-          });
-        }
-      }
-      if(this.argumentsList[2]){
-        var arg3Temp = $('<input>').attr('type', 'text').addClass('textOption');
-        this.arg3Val.dblclick(function(e) {
-          $(this).text("");
-          thisState.arg3Name.append(arg3Temp);
-					arg3Temp.val(thisState.argumentsArray[thisState.argumentsList[2]]);
-          arg3Temp.focus();
-          listenToEnterArg3();
-          listening = false;
-					editing = true;
-        });
-        function listenToEnterArg3(){
-          arg3Temp.focusout(function(e) {
-            thisState.arg3Val.text(this.value);
-            thisState.arg3Val.attr('id', this.value);
-            thisState.argumentsArray[thisState.argumentsList[2]]=this.value;
-            arg3Temp.remove();
-						editing = false;
-          });
-        }
       }
 
       this.recoverInfos = function(media){
@@ -1020,7 +975,13 @@
       $.each(allStates, function(index, state) {
 
       var $box = $(state.box);
-			var allArgs = $.extend({}, state.argumentsArray, {media : state.media, dest: state.dispositifs });
+			var argArray = {};
+			$.each(state.argumentsList, function(index, arg) {
+				argArray[arg.name] = arg.value;
+			});
+
+			var allArgs = $.extend({}, argArray, {media : state.media, dest: state.dispositifs });
+
 
 
       boxes.push({
@@ -1032,7 +993,7 @@
         dispoBOO: state.dispoBOO,
         dispositifs: state.dispositifs,
         media: state.media,
-        arguments: state.argumentsArray,
+        arguments: argArray,
 				allArgs : allArgs
         });
       });
