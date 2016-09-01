@@ -12,11 +12,11 @@ SleepTimeNormal = 10        #Seconds between each check, in normal conditions
 SleepTimeBad = 3            #Seconds between each check, in bad conditions
 SleepTimeNone = 2           #Seconds between each check, in no signal condition
 SleepTimeBroken = 5         #Seconds between each check, in no Netctl is Broken
-SleepTimeNoDevice = 5        #Seconds between each check, in No Device detected
+SleepTimeNoDevice = 5       #Seconds between each check, in No Device detected
 BrokenMaxTry = 3            #Number of time we retry to restart NetCtl before REBOOT
 SignalTreshold = -80        #Treshold for bad signal detection
 BadSigDead = 60             #Seconds before restarting for BAD SIGNAL (< SignalTreshold)
-NoSigDead = 240             #Seconds before restarting for NO SIGNAL
+NoSigDead = 15              #Seconds before restarting for NO SIGNAL
 
 # STATUS
 S_INIT = -1
@@ -35,7 +35,7 @@ sleeptime = SleepTimeNone
 status = S_INIT
 exec_error = 0
 
-SystemDservice = "netctl@kxkmDNC.profile"
+SystemDservice = "connman"
 
 
 def log(msg):

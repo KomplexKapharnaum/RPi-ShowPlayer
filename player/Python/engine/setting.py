@@ -61,7 +61,7 @@ DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save "
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
-    "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
+    "--gain {gain} --no-a52-dynrng --alsa-gain {again} -f"
 DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "settings/devices.json"
 DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "settings/devicesV2.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
