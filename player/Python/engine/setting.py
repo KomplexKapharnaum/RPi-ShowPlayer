@@ -48,6 +48,7 @@ DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
 DEFAULT_SETTING["path"]["relative"] = dict()  # Relatives path from path:main
 DEFAULT_SETTING["path"]["relative"]["usb"] = "usb"
 DEFAULT_SETTING["path"]["relative"]["log"] = "logs"
+DEFAULT_SETTING["path"]["relative"]["pylog"] = "dnc.log"
 DEFAULT_SETTING["path"]["relative"]["scenario"] = "scenario"
 DEFAULT_SETTING["path"]["relative"]["activescenario"] = "__active"
 DEFAULT_SETTING["path"]["relative"]["codepy"] = "player/Python"

@@ -497,6 +497,8 @@ def set_default_log_by_settings(settings):
     global DEFAULT_LEVEL
     global DEFAULT_LOG_TYPE
     global DEFAULT_TELECO_LEVEL
+    global LOG_PATH
+    LOG_PATH = os.path.join(settings.get_path("logs", "pylog"))
     DEFAULT_LEVEL = settings.get("log", "level")
     DEFAULT_LOG_TYPE = settings.get("log", "output")
     DEFAULT_TELECO_LEVEL = settings.get("log", "teleco", "level")
