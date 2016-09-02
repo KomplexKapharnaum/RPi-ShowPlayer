@@ -162,6 +162,10 @@ class KxkmCard(ExternalProcessFlag):
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
+    def flush_titreur():
+        cmd = 'flushtitreur'
+        self.say(cmd)
+
     def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None, fade=None):
         cmd = 'setlight'
         if strob is not None and strob != '' and int(strob) > 0:
@@ -272,6 +276,7 @@ def init_kxkm_card(flag, **kwargs):
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [numero]": "kxkm_card_titreur_text",
+       "/titreur/flush": "kxkm_card_titreur_flush",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
        "/remote/ledOkT [on/off]": "kxkm_card_lekOK_teleco",
@@ -332,6 +337,11 @@ def kxkm_card_titreur_message(flag, **kwargs):
     if "speed" not in flag.args.keys():
         flag.args["speed"] = None
     kwargs["_fsm"].vars["kxkmcard"].setMessage(flag.args["ligne1"], flag.args["ligne2"], flag.args["type"], flag.args["speed"])
+
+
+@link({None: "kxkm_card"})
+def kxkm_card_titreur_flush(flag, **kwargs):
+    kwargs["_fsm"].vars["kxkmcard"].flush_titreur()
 
 
 @link({None: "kxkm_card"})

@@ -78,6 +78,7 @@ class globaletape(object):
 
     def __call__(self, f):
         global DECLARED_ETAPES, DECLARED_TRANSITION, DECLARED_OSCROUTES
+        # TODO: declare OSC to OSC Server (add_method)
         signal = [signal for signal in DECLARED_OSCROUTES.values() if self.uid == signal['signal']]
         if len(signal) > 0:
             signal = signal[0]

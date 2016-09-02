@@ -42,12 +42,18 @@ public:
     //queue_.pop();
     queue_.pop_front();
   }
+
+  bool istexttitreur (const T& value) { return value.find("texttitreur")!=std::string::npos; }
   
   void push(const T& item)
   {
     std::unique_lock<std::mutex> mlock(mutex_);
     //queue_.push(item);
-    queue_.push_back(item);
+    if(item.find("flushtitreur")!=std::string::npos){
+        queue_.remove_if (istexttitreur);
+    }else{
+        queue_.push_back(item);
+    }
     mlock.unlock();
     cond_.notify_one();
   }

@@ -339,9 +339,7 @@ int parseInput(string input){
       strncpy(mess2, popup[type][1].c_str(), sizeof(mess2));
       if(type!=0)myteleco.sendString(mess1,mess2,type);
     }
-    
-    
-    
+
     if ("initconfig"==parsedInput) {
       fprintf(stderr, "main - error already init\n");
     }
