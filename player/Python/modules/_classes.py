@@ -129,7 +129,8 @@ class ExternalProcess(object):
             self._log("debug", 'SIGTERM')
         except Exception as e:
             self._log("debug", "Cannot sigterm")
-        self._stdout_thread.join(timeout=settings.get("speed", "wait_before_kill"))  # Waiting maximum of 250 ms before killing brutaly the processus
+        self._stdout_thread.join(timeout=settings.get("speed",
+                                                      "wait_before_kill"))  # Waiting maximum of 250 ms before killing brutaly the processus
         if self._stdout_thread.is_alive():
             self._popen.kill()  # Send SIGNKILL to brutaly kill the process
             self._log("debug", 'KILLED')
@@ -165,7 +166,7 @@ class ExternalProcess(object):
                     log.debug("Ignore {0} on process {1} because it's stopped".format(message, self.name))
                 break
             self._direct_stdin_writer(message)
-            self._log("important", "write to stdin : {0}".format(message.encode("utf-8")))
+            self._log("raw", "write to stdin : {0}".format(message.encode("utf-8")))
 
     def _direct_stdin_writer(self, msg):
         """
@@ -176,7 +177,7 @@ class ExternalProcess(object):
         with self._stdin_lock:
             msg += "\n"
             m = msg.encode("utf-8")
-            self._log("debug", "write to stdin : {0}".format(m))
+            self._log("raw", "write to stdin : {0}".format(m))
             self._popen.stdin.write(m)
 
     def _stdout_reader(self):
@@ -186,9 +187,9 @@ class ExternalProcess(object):
         self._is_launched.wait()
         stdout_iterator = iter(self._popen.stdout.readline, b"")
         for line in stdout_iterator:
-            self._log("important", "stdout : {0}".format(line.strip()))
+            self._log("raw", "stdout : {0}".format(line.strip()))
             self.stdout_queue.put_nowait(line.strip())
-        self.stdout_queue.put_nowait(None)              # Stop queue consumers
+        self.stdout_queue.put_nowait(None)  # Stop queue consumers
 
     def _defunctdog(self):
         """
@@ -243,9 +244,9 @@ class ExternalProcessFlag(ExternalProcess):
         self._is_running.wait()
         while self._is_running.is_set():
             msg = self.stdout_queue.get()
-            if msg is None or len(msg) < 1:                 # It's time to stop
+            if msg is None or len(msg) < 1:  # It's time to stop
                 break
-            if msg[0] == "#":                               # It's a signal from the kxkmcard program
+            if msg[0] == "#":  # It's a signal from the kxkmcard program
                 self.onEvent(msg[1:].split(' '))
             else:
                 self._log("warning", "unknown stdout line {0}".format(msg))
@@ -257,9 +258,17 @@ class ExternalProcessFlag(ExternalProcess):
         ExternalProcess.join(self, *args, **kwargs)
         self._stdout_thread.join(*args, **kwargs)
 
-    def onEvent(self, cmd=[]):        # TODO : doc or change implmentation
+    def transTo(self, cmd=None, args=[]):
+        log.log("debug", "TransTo : {0}, {1}".format(cmd, args))
+        if len(args) > 0:
+            cmd[0] = args[0]
+            self.emmit(cmd)
+            return False
+        return True
+
+    def onEvent(self, cmd=[]):  # TODO : doc or change implmentation
         cmd[0] = cmd[0].lstrip('#')
-        self._log("raw", "cmd : {0}".format(cmd))
+        self._log("debug", "cmd : {0}".format(cmd))
         doEmmit = True
         if cmd[0] in self.Filters.keys():
             for fn in self.Filters[cmd[0]]:
@@ -275,7 +284,7 @@ class ExternalProcessFlag(ExternalProcess):
         if doEmmit:
             self.emmit(cmd)
 
-    def emmit(self, args=[]):   # TODO : doc or change implementation
+    def emmit(self, args=[]):  # TODO : doc or change implementation
         signal_name = args[0].upper()
         if signal_name[0] == '/':
             signal_name = signal_name.replace('/', '_')[1:].upper()
@@ -345,7 +354,10 @@ class AbstractVLC(ExternalProcessFlag):
     """
     This class represent a VLC player
     """
+
     def __init__(self, *args, **kwargs):
+        self._volume = 100  # Set volume to 100 %
+        self._media_volume = 100  # Set volume media to 100 %
         ExternalProcessFlag.__init__(self, *args, **kwargs)
 
     def _stop_process(self):
@@ -376,7 +388,7 @@ class AbstractVLC(ExternalProcessFlag):
         path = self.check_media(media)
         if path is False:
             self._log("warning", "Unknown media {0} => aborting".format(media))
-            return False
+            #return False           prevent continue to play or play last media, force send unknow file to load to vlc
         # self.stdin_queue.put_nowait()
         self._direct_stdin_writer("load {0}".format(path))
 
@@ -389,12 +401,31 @@ class AbstractVLC(ExternalProcessFlag):
         """
         self._direct_stdin_writer("repeat {0}".format(int(value)))
 
-    def play(self):
+    def play(self, volume=100):
         """
         Start VLC on the last added media
+        :param volume: Volume to play the media (100 = 100%)
+        :type volume: int
         """
         # self.stdin_queue.put("play")
         self._direct_stdin_writer("play")
+        self._media_volume = volume
+        self._update_volume()
+
+    def _update_volume(self):
+        """
+        This function update the volume of the current VLC player with all volume level
+        :return:
+        """
+        self._log("raw", "self._volume : {0}, type : {1}".format(self._volume, type(self._volume)))
+        self._log("raw", "self._media_volume : {0}, type : {1}".format(self._media_volume, type(self._media_volume)))
+        self._log("debug", "setting volume : {0}, type : {1}".format(settings.get("vlc", "volume", "master"), type(settings.get("vlc", "volume", "master"))))
+        volume = float(int(self._volume) * int(self._media_volume) * int(settings.get("vlc", "volume", "master")) / 10000)
+        if volume > 100:
+            volume = 100
+        elif volume < 0:
+            volume = 0
+        self.stdin_queue.put_nowait("volume {0}".format(int(volume)))
 
     def toggle_pause(self):
         """
@@ -428,27 +459,32 @@ class AbstractVLC(ExternalProcessFlag):
          :return: Absolute volume for VLC between 0 and 1024
          :rtype: int
         """
-        return int(float(settings.get("vlc", "volume", "master")) * (float(volume)/100))
+        return int(float(settings.get("vlc", "volume", "master")) * (float(volume) / 100))
 
     def set_volume(self, volume):
         """
         This function set the volume of the current played file
-         :param volume: Relative volume value betwenn 0 and 200 ( percent )
+         :param volume: Relative volume value betwenn 0 and 100 ( percent )
          :type volume: int
         """
-        self.stdin_queue.put_nowait("volume {0}".format(self._get_volume_value(volume)))
+        self._volume = volume
+        self._update_volume()
 
     def volume_up(self):
         """
         This function add one step of volume. Volume step are defined in vlc command settings
         """
-        self.stdin_queue.put("volup")
+        self._volume += settings.get("vlc", "volume", "step")
+        self._update_volume()
+        # self.stdin_queue.put("volup")
 
     def volume_down(self):
         """
         This function sub one step of volume. Volume step are defined in vlc command settings
         """
-        self.stdin_queue.put("voldown")
+        self._volume -= settings.get("vlc", "volume", "step")
+        self._update_volume()
+        # self.stdin_queue.put("voldown")
 
 
 # GENERIC THREAD TO HANDLE EXTERNAL PROCESS
@@ -531,7 +567,6 @@ class _ExternalProcess(object):
         """
         self._stdin_queue.put_nowait(None)  # Release thread
 
-
     def stop(self):
         """
         Ask to stop the external process
@@ -574,9 +609,9 @@ class _ExternalProcess(object):
         :param message:
         :return:
         """
-        log.important("Add {0} message to {1} queue".format(message, self.name))
+        log.raw("Add {0} message to {1} queue".format(message, self.name))
         if message == "stop":
-            log.important(show_trace())
+            log.debug(show_trace())
         if not self.is_running() and message == "stop":
             log.error("CATCH AND AVOID stop BEFORE LAUNCED VLC")
             return
@@ -592,7 +627,7 @@ class _ExternalProcess(object):
             message += "\n"
             m = message.encode("utf-8")
             self._popen.stdin.write(m)
-            log.log("important", " " + message)
+            log.log("raw", " " + message)
         else:
             log.log("debug", "Message aborted, Thread not active ")
 

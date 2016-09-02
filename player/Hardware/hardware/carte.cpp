@@ -19,13 +19,17 @@
 #include <iostream>
 #include <string>
 
+#include <sys/time.h>
+#include <unistd.h>
+#include <inttypes.h>
+
 
 
 //init carte
 void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   fprintf(stderr, "\n\x1b[32mcarte - add extension card dnc\n\x1b[0m");
   SPIcarte.initSPI();
-  SPIcarte.addChipSelect(13,1000000);
+  SPIcarte.addChipSelect(13,500000);
   gamme_tension=_gamme_tension;
   pwm_ledb_or_10w2=_pwm_ledb_or_10w2;
   wiringPiSetupGpio();
@@ -33,17 +37,24 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   GPIO_RESET=27;
   GPIO_RELAIS=26;
   GPIO_LED_GREEN=16;
+  GPIO_INTERRUPT=20;
   pinMode (GPIO_READ_BATT, OUTPUT);
   pinMode (GPIO_RESET, OUTPUT);
   pinMode (GPIO_RELAIS, OUTPUT);
   pinMode (GPIO_LED_GREEN, OUTPUT);
+  pinMode (GPIO_INTERRUPT, INPUT);
   digitalWrite (GPIO_RELAIS, LOW);
+  fprintf(stderr, "carte - reset atmega and wait ");
   digitalWrite (GPIO_RESET, HIGH);
   delay(1);
   digitalWrite (GPIO_RESET, LOW);
   delay(5);
   digitalWrite (GPIO_RESET, HIGH);
-  delay(50);
+  while (digitalRead(GPIO_INTERRUPT)==LOW) {
+    fprintf(stderr, ".");
+    usleep(5000);
+  }
+  fprintf(stderr, "\n");
   writeValue(VOLTAGEMODE,gamme_tension);
   writeValue(GYROSPEED,2);
   writeValue(BOARDCHECKFLOAT,checkFloat);
@@ -51,12 +62,14 @@ void Carte::initCarte(int _pwm_ledb_or_10w2, int _gamme_tension,int checkFloat){
   needStatusUpdate=0;
   count_tensionbasse=0;
   count_tensioncoupure=0;
+  core_version = readValue(VERSION);
+  fprintf(stderr, "\n\x1b[32mcarte - core version : %u\n\x1b[0m",core_version);
 }
 
 
 //write value in carte register
 void Carte::writeValue(int valueType,int value, int fadetime){
-  //fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
+  fprintf(stderr, "carte - writeValue %u : %u (f:%u) ", valueType,value,fadetime);
   int size;
   if(fadetime==0){size=2; }else {size=4;}
   unsigned char buff[5];
@@ -67,6 +80,7 @@ void Carte::writeValue(int valueType,int value, int fadetime){
     buff[3]= (char)fadetime;
   }
   SPIcarte.send(0,buff,size);
+  delay(5);
 }
 
 //read value from carte register
@@ -80,6 +94,19 @@ int Carte::readValue(int valueType){
   return buff[1];
 }
 
+/* TIME MEASURE */
+unsigned long long cmstime() {
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+
+	unsigned long long millisecondsSinceEpoch =
+	    (unsigned long long)(tv.tv_sec) * 1000 +
+	    (unsigned long long)(tv.tv_usec) / 1000;
+
+	return millisecondsSinceEpoch;
+}
+
 //read carte interrupt and out corresponding message
 int Carte::readInterrupt(){
   unsigned char buff[2];
@@ -88,16 +115,34 @@ int Carte::readInterrupt(){
   SPIcarte.sendWithPause(0,buff,2);
   //fprintf(stderr, "carte - read i %u\n",buff[1]);
   int address = buff[1];
+  if (address<POWERDOWN && address>INTERRUPT) {
   buff[0]= (char)(READCOMMAND+buff[1]);
   buff[1]=0;
   SPIcarte.sendWithPause(0,buff,2);
   fprintf(stderr, "carte - interrupt %u read %u\n",address,buff[1]);
-  int valeur =buff[1];
+  int valeur;
+  valeur = buff[1];
   switch (address) {
       //@todo : faire un tableau et l'envoyer
     case PUSH1:
-      std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
+      //std::cout << "#CARTE_PUSH_1 "<< valeur << std::endl;
+      if (valeur==1){
+        startchrono = cmstime();
+        checkchrono = true;
+      }
+      if (checkchrono && valeur==0){
+        if(cmstime()-startchrono>2000 && cmstime()-startchrono<10000) {
+          std::cout << "#CARTE_PUSH_11 1" << std::endl;
+          count_long_push++;
+          // you need to make 5 successive long push for reboot
+          if(count_long_push>4) system ("sudo reboot");
+          break;
+        }
+        std::cout << "#CARTE_PUSH_1 1" << std::endl;
+        count_long_push=0;
+      }
       break;
+
     case PUSH2:
       std::cout << "#CARTE_PUSH_2 "<< valeur << std::endl;
       break;
@@ -114,6 +159,10 @@ int Carte::readInterrupt(){
       break;
   }
   return valeur;
+  }else {
+    fprintf(stderr, ".");
+  }
+  return 0;
 }
 
 //read tension from carte
@@ -138,23 +187,23 @@ float Carte::checkTension(){
       if(tension>=10.8) count_tensionbasse=0;
       if(tension<10.8) count_tensionbasse++;
       if(tension>=10) count_tensioncoupure=0;
-      if(tension<10) count_tensioncoupure++;
+      if(tension<10 && tension>6) count_tensioncoupure++;
       break;
     case LIFE12:
       if(tension<12.5) count_tensionbasse++;
-      if(tension<12) count_tensioncoupure++;
+      if(tension<12 && tension>6) count_tensioncoupure++;
       if(tension>=12.5) count_tensionbasse=0;
       if(tension>=12) count_tensioncoupure=0;
       break;
     case PB12:
       if(tension<12) count_tensionbasse++;
-      if(tension<11.5) count_tensioncoupure++;
+      if(tension<11.5 && tension>6) count_tensioncoupure++;
       if(tension>=12) count_tensionbasse=0;
       if(tension>=11.5) count_tensioncoupure=0;
       break;
     case LIPO24:
       if(tension<23.8) count_tensionbasse++;
-      if(tension<23) count_tensioncoupure++;
+      if(tension<23 && tension>6) count_tensioncoupure++;
       if(tension>=23.8) count_tensionbasse=0;
       if(tension>=23) count_tensioncoupure=0;
       break;
@@ -175,7 +224,6 @@ void Carte::rgbValue(int r, int v, int b, int fadetime, int strob){
   writeValue(LEDVVALUE,v,fadetime);
   writeValue(LEDBVALUE,b,fadetime);
   if(strob!=0){
-    delay(1);
     writeValue(LEDRVBSTROBSPEED,strob/10);
   }
 }
@@ -185,7 +233,6 @@ void Carte::led10WValue(int v, int fadetime, int strob){
   if(strob!=0)fadetime=0; else writeValue(LED10W1STROBSPEED,0);
   writeValue(LED10W1VALUE,v,fadetime);
   if(strob!=0){
-    delay(1);
     writeValue(LED10W1STROBSPEED,strob/10);
   }
 }
@@ -211,6 +258,17 @@ void Carte::setRelais(int val){
 void Carte::setledG(int val){
   fprintf(stderr, "carte - set led green %u",val);
   digitalWrite (GPIO_LED_GREEN, val);
+}
+
+void Carte::setManualLightMode(int val){
+  if(val==1){
+    writeValue(BOARDMODE,0);
+    fprintf(stderr, "carte - manual light activated (by default) \n");
+  }else{
+    writeValue(BOARDMODE,1);
+    fprintf(stderr, "carte - manual light desactivated \n");
+  }
+  
 }
 
 

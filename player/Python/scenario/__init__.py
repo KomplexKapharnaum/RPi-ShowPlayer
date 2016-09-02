@@ -88,13 +88,13 @@ def get_sign(n):
 
 
 def start_scene():
-    log.debug("Look to a new scene ...")
+    log.debug("Look to a new scene {2} ... Exist {1} scene(s) : {0}".format(pool.Frames, len(pool.Frames), CURRENT_FRAME))
     if CURRENT_FRAME < len(pool.Frames):
         scene = pool.Frames[CURRENT_FRAME]
         if settings.get("uName") in scene.cartes.keys() and scene.start_etapes[settings.get("uName")] is not None:
             log.log('important', '= SCENE ' + scene.name)
             tools.log_teleco(("start scene", scene.name), "scenario")
-            if settings["uName"] in scene.cartes.keys():  # Fond scene !
+            if settings["uName"] in scene.cartes.keys():  # Found scene !
                 log.debug("Found scene to launch : {0}".format(scene))
                 stop_scene()
                 global CURRENT_SCENE_FRAME
@@ -107,6 +107,7 @@ def start_scene():
                             fsm = classes.ScenarioFSM(etape.uid, source=scene.name)
                             fsm.start(etape)
                             SCENE_FSM.append(fsm)
+                            log.debug("SCENE_FSM {0}".format(fsm))
                             break
                         else:
                             log.debug("Ignore etape {0} because it's not for us".format(etape))
@@ -123,8 +124,12 @@ def start_scene():
 
 def stop_scene():
     stop_flag = fsm.Flag("SCENE_STOPPING", JTL=2, TTL=None)      # TODO : refactor this in an other place !
+    fsm_to_stop = list()
     for sfsm in SCENE_FSM:
+        log.debug("stop and remove sfsm {0}".format(sfsm))
         sfsm.stop()
+        fsm_to_stop.append(sfsm)
+    for sfsm in fsm_to_stop:
         SCENE_FSM.remove(sfsm)
     for mfsm in MODULES_FSM:
         mfsm.append_flag(stop_flag.get())

@@ -17,6 +17,12 @@ from libs import rtplib
 log = init_log("video")
 
 
+FILTERS = {
+        "MEDIA_END": ["transTo /video/end", True],
+        "VIDEO_END": [True]
+    }
+
+
 class VideoVLCPlayer(AbstractVLC):
     """
     This class define an VideoPlayer with VLC as player backend
@@ -28,19 +34,14 @@ class VideoVLCPlayer(AbstractVLC):
         arguments = copy.copy(settings.get("vlc", "options", "default"))
         """:type: dict"""
         arguments.update(settings.get("vlc", "options", "video"))
-        log.log("debug", "Vlc arguments : {0}".format(arguments))
-        AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments))
+        log.log("raw", "Hplayer command : {0}".format(command.format(**arguments)))
+        AbstractVLC.__init__(self, name="videovlc", command=command.format(**arguments), filters=FILTERS)
 
     def check_media(self, media):
         """
         Add video to the media path
         """
         return AbstractVLC.check_media(self, os.path.join(settings.get("path", "relative", "video"), media))
-
-    Filters = {
-        "MEDIA_END": ["transTo /video/end", True],
-        "VIDEO_END": [True]
-    }
 
 #
 # class VlcPlayer(ExternalProcess):
@@ -121,13 +122,13 @@ class VideoVLCPlayer(AbstractVLC):
 #             self.command += self.media
 #             self.start()
 
-exposesignals(VideoVLCPlayer.Filters)
+exposesignals(FILTERS)
 
 
 
 # ETAPE AND SIGNALS
 @module('VideoPlayer')
-@link({"/video/play [media:str] [repeat:bool]": "video_play",
+@link({"/video/play [media:str] [repeat:bool] [volume:int]": "video_play",
        "/video/pause": "video_pause",
        "/video/resume": "video_resume",
        "/video/toggle": "video_toggle",
@@ -138,6 +139,7 @@ exposesignals(VideoVLCPlayer.Filters)
        "SCENE_STOPPING": "video_stop",
        "/media/volup": "video_volume_up",
        "/media/voldown": "video_volume_down"})
+
 def video_player(flag, **kwargs):
     if kwargs["_fsm"].process is None:
         kwargs["_fsm"].process = VideoVLCPlayer()

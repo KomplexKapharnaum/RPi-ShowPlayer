@@ -81,7 +81,7 @@ def medialist():
 @app.route('/disposList')
 def dispoList():
     response.content_type = 'application/json'
-    path = settings.get_path('deviceslist')
+    path = settings.get_path('deviceslistV2')
     try:
         answer = dict()
         with open(path, 'r') as file:   # Use file to refer to the file object

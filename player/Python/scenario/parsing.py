@@ -339,7 +339,7 @@ def parse_timeline(timeline):
             if frame_block['group'] is not None:
                 Timeline[frame].groups[frame_block['group']].append(pool.Cartes[dispo['name']])
             else:
-                log.warning("..There is no frame {0}({1}) for {2}".format(frame, scene['name'], dispo['name']))
+                log.raw("..There is no frame {0}({1}) for {2}".format(frame, scene['name'], dispo['name']))
                 continue
             # Init start_etape for dispo
             if dispo['name'] not in Timeline[frame].start_etapes.keys():
@@ -349,13 +349,13 @@ def parse_timeline(timeline):
                     Timeline[frame].start_etapes[dispo['name']] = list()
             # Search in all scenario launched by the card in the current scene
             for scenario in frame_block['scenarios']:
-                log.important("Read scenario {0} for {1}".format(scenario, dispo['name']))
+                log.raw("Read scenario {0} for {1}".format(scenario, dispo['name']))
                 if scenario not in SCENARIO.keys():         # Scenario doesn't exist
                     log.warning("{0} try to add scenario {1} but it doesn't exist".format(dispo['name'], scenario))
                     continue
                 for etape in SCENARIO[scenario]['boxes']:   # Search start box in this scenario
                     if etape['name'] == "START" and ('Self' in etape['dispositifs'] or dispo['name'] in etape['dispositifs']):
-                        log.important("Found start box : {0} for {1}".format(boxname(scenario, etape), dispo['name']))
+                        log.raw("Found start box : {0} for {1}".format(boxname(scenario, etape), dispo['name']))
                         # This START box is for us => append to start_etapes
                         Timeline[frame].start_etapes[dispo['name']].append(
                             pool.Etapes_and_Functions[boxname(scenario, etape)])

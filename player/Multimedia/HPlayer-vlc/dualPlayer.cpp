@@ -4,6 +4,8 @@
 #include <iostream>
 #include <pthread.h>
 #include <sys/stat.h>
+using std::cout;
+using std::endl;
 
 
 // DEBUG PREROLL 
@@ -19,6 +21,16 @@ void *watch_end(void* ptr)
 		if (!self->running) done = true;
 		else usleep(5000);
 	}
+	return NULL;
+}
+
+//APPLY VOLUME DELAYED
+void *apply_volume_delayed(void *ptr)
+{
+	dualPlayer* self = reinterpret_cast<dualPlayer*>( ptr );
+	usleep(70000);
+	self->applyVolume();
+	return NULL;
 }
 
 dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks()
@@ -45,7 +57,7 @@ dualPlayer::dualPlayer(int vlc_argc, char const *vlc_argv[]):dualPlayerCallbacks
  	this->player2 = new vlcPlayer(this->instance, 2, this);
  	this->selector = 1;
  	this->filepath = "";
- 	this->volume = 100;
+ 	this->volume = 20;
 
  	pthread_create(&this->watcher, NULL, watch_end, this);
 }
@@ -99,28 +111,33 @@ void dualPlayer::togglePause()
 
 void dualPlayer::applyVolume()
 {
-	this->activePlayer()->setVolume(this->volume);
-	this->sparePlayer()->setVolume(this->volume);
+	//if (this->activePlayer()->getState() == PLAYING)
+		this->activePlayer()->setVolume(this->volume);
+	//if (this->sparePlayer()->getState() == PLAYING)
+		this->sparePlayer()->setVolume(this->volume);
 }
 
 void dualPlayer::setVolume(int v)
 {
-	if (v >= 0 and v <= 200) this->volume = v;
-	this->applyVolume();
+	if (v >= 0 and v <= 200 and this->volume != v) 
+	{
+		this->volume = v;
+		this->applyVolume();
+	}
 }
 
 void dualPlayer::volumeUp()
 {
-	this->volume += VOLUME_STEP;
-	if (this->volume > 200) this->volume = 200;
-	this->applyVolume();
+	int v = this->volume + VOLUME_STEP;
+	if (v > 200) v = 200;
+	this->setVolume(v);
 }
 
 void dualPlayer::volumeDown()
 {
-	this->volume -= VOLUME_STEP;
-	if (this->volume < 0) this->volume = 0;
-	this->applyVolume();
+	int v = this->volume - VOLUME_STEP;
+	if (v < 0) v = 0;
+	this->setVolume(0);
 }
 
 
@@ -137,7 +154,8 @@ void dualPlayer::release()
 	this->player1->release();
 	this->player1->release();
 	libvlc_release (this->instance);
- 	printf("#PLAYER_EXIT\n");
+	cout << "#PLAYER_EXIT" << endl;
+ 	//printf("#PLAYER_EXIT\n");
 }
 
 /* EVENTS */
@@ -148,8 +166,8 @@ void dualPlayer::onPlayerStateChange(int playerID, int state)
 	{
 		this->selector = playerID;
 		this->activePlayer()->fullScreen();
-		this->applyVolume();
 		this->sparePlayer()->stop();
+		pthread_create(&this->applyer, NULL, apply_volume_delayed, this);
 	}
 	if (state == DONE)
 	{
@@ -165,12 +183,17 @@ void dualPlayer::onPlayerStateChange(int playerID, int state)
 	}
 }
 
+void dualPlayer::onFileNotFound()
+{
+	this->activePlayer()->stop();
+}
 
 /* INTERNAL */
 vlcPlayer* dualPlayer::player(int n)
 {
 	if (n == 1) return this->player1;
 	if (n == 2) return this->player2;
+	return NULL;
 }
 
 vlcPlayer* dualPlayer::activePlayer()

@@ -14,7 +14,8 @@ from libs import subprocess32
 
 log = init_log("setting")
 
-DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+# DEFAULT_SETTING_PATH = "~/.dnc_settings.json"
+DEFAULT_SETTING_PATH = "~/dnc_settings/"
 
 DEFAULT_SETTING = dict()
 DEFAULT_SETTING["uName"] = subprocess32.check_output(['hostname']).strip()
@@ -27,25 +28,12 @@ DEFAULT_SETTING["localport"]["interface"] = 8080
 
 DEFAULT_SETTING["path"] = dict()
 DEFAULT_SETTING["path"]["main"] = "/dnc"
-#DEFAULT_SETTING["path"]["logs"] = "/dnc/logs"
-#DEFAULT_SETTING["path"]["soft"] = os.path.join(DEFAULT_SETTING["path"]["main"], "DNC_Prog")
-
-#DEFAULT_SETTING["path"]["media"] = "/dnc/media"
-#DEFAULT_SETTING["path"]["video"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'video')
-#DEFAULT_SETTING["path"]["audio"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'audio')
-#DEFAULT_SETTING["path"]["text"] = os.path.join(DEFAULT_SETTING["path"]["media"], 'text')
 DEFAULT_SETTING["path"]["scp"] = "/usr/bin/scp"
 DEFAULT_SETTING["path"]["cp"] = "/usr/bin/cp"
 DEFAULT_SETTING["path"]["umount"] = "/usr/bin/umount"
 DEFAULT_SETTING["path"]["mount"] = "/usr/bin/mount"
 DEFAULT_SETTING["path"]["tmp"] = "/tmp/dnc"
-# DEFAULT_SETTING["path"]["usb"] = "/dnc/usb"
-# DEFAULT_SETTING["path"]["scenario"] = "/dnc/scenario"
-# DEFAULT_SETTING["path"]["activescenario"] = "/dnc/scenario/__active"
 DEFAULT_SETTING["path"]["sharedmemory"] = "/var/tmp/"
-# DEFAULT_SETTING["path"]["kxkmcard-armv6l"] = "/dnc/player/Hardware/hardware/hardware6"
-# DEFAULT_SETTING["path"]["kxkmcard-armv7l"] = "/dnc/player/Hardware/hardware/hardware7"
-# DEFAULT_SETTING["path"]["hplayer"] = "/dnc/HPlayer/bin/HPlayer"
 DEFAULT_SETTING["path"]["omxplayer"] = "/usr/bin/omxplayer"
 DEFAULT_SETTING["path"]["systemctl"] = "/usr/bin/systemctl"
 DEFAULT_SETTING["path"]["vlc"] = "/usr/local/bin/cvlc"
@@ -54,9 +42,8 @@ DEFAULT_SETTING["path"][
     "vlcaudio"] = "/usr/local/bin/cvlc --vout none --aout alsa -I rc --no-osd"  # --no-autoscale --zoom=0.7
 DEFAULT_SETTING["path"]["aplay"] = "/usr/bin/aplay"
 DEFAULT_SETTING["path"]["amixer"] = "/usr/bin/amixer set PCM"
+DEFAULT_SETTING["path"]["alsaequal"] = "amixer -D equal"
 DEFAULT_SETTING["path"]["mpg123"] = "/usr/bin/mpg123 -C"
-# DEFAULT_SETTING["path"]["interface"] = "/dnc/player/Python/interface/bottleserver.py"
-# DEFAULT_SETTING["path"]["deviceslist"] = "/dnc/devices.json"
 
 DEFAULT_SETTING["path"]["relative"] = dict()  # Relatives path from path:main
 DEFAULT_SETTING["path"]["relative"]["usb"] = "usb"
@@ -72,17 +59,26 @@ DEFAULT_SETTING["path"]["relative"]["mvlc"] = "player/Multimedia/HPlayer-vlc/hpl
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
     "--vout {vout} --aout {aout} --rt-priority --rt-offset {priority} --file-caching {fcache}"
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
-    "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save --volume-step {vstep}"
+    "--no-keyboard-events --no-mouse-events --audio-replay-gain-mode none --no-volume-save "
 DEFAULT_SETTING["path"]["relative"]["mvlc"] += \
-    "--gain {gain} --no-a52-dynrng --alsa-gain {again}"
-DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "devices.json"
-DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "devicesV2.json"
+    "--gain {gain} --no-a52-dynrng --alsa-gain {again} -f"
+DEFAULT_SETTING["path"]["relative"]["deviceslist"] = "settings/devices.json"
+DEFAULT_SETTING["path"]["relative"]["deviceslistV2"] = "settings/devicesV2.json"
 DEFAULT_SETTING["path"]["relative"]["media"] = "media"
 DEFAULT_SETTING["path"]["relative"]["video"] = "video"
 DEFAULT_SETTING["path"]["relative"]["audio"] = "audio"
 DEFAULT_SETTING["path"]["relative"]["text"] = "text"
 DEFAULT_SETTING["path"]["relative"]["logs"] = "logs"
 
+# SMS
+DEFAULT_SETTING["path"]["relative"]["sms_destlist"] = "media/sms/dest.txt"
+DEFAULT_SETTING["sms"] = dict()
+DEFAULT_SETTING["sms"]["server"] = "http://highpush-v50.hcnx.eu/api"
+DEFAULT_SETTING["sms"]["account"] = "EUREKA"
+DEFAULT_SETTING["sms"]["password"] = ""  # Set Me in Local config file to avoid GitHub Leak ;)
+DEFAULT_SETTING["sms"]["send"] = False #only one sender false by default
+
+# VLC
 DEFAULT_SETTING["vlc"] = dict()
 DEFAULT_SETTING["vlc"]["options"] = dict()
 DEFAULT_SETTING["vlc"]["options"]["default"] = {
@@ -94,15 +90,11 @@ DEFAULT_SETTING["vlc"]["options"]["default"] = {
     "gain": 1,
     "again": 1
 }
-DEFAULT_SETTING["vlc"]["options"]["audio"] = {
-    "vout": "none"
-}
-DEFAULT_SETTING["vlc"]["options"]["video"] = {
-    "vout": "mmal_vout"
-}
-
+DEFAULT_SETTING["vlc"]["options"]["audio"] = {"vout": "none"}
+DEFAULT_SETTING["vlc"]["options"]["video"] = {"vout": "mmal_vout"}
 DEFAULT_SETTING["vlc"]["volume"] = dict()
 DEFAULT_SETTING["vlc"]["volume"]["master"] = 100        # Master volume for VLC 100 = 100 % (~=256)
+DEFAULT_SETTING["vlc"]["volume"]["step"] = 10           # Step volume for volumeup volumedown
 DEFAULT_SETTING["vlc"]["volume"]["scenes"] = dict()     # Master scene volume for VLC 100 = 100 % (~=256) #TODO
 
 DEFAULT_SETTING["sync"] = dict()
@@ -123,7 +115,7 @@ DEFAULT_SETTING["sync"]["usb_mount_timeout"] = 5  # 5 seconds max for mounting/u
 DEFAULT_SETTING["sync"]["netctl_autorestart"] = False  # 5 seconds max for mounting/unmounting usb device
 DEFAULT_SETTING["sync"]["usb_speed_min"] = 5000  # (Ko/s) Behind 5 Mo/s it's not intresting to usb usb sync
 DEFAULT_SETTING["sync"]["scp_speed_min"] = 500  # (Ko/s) Behind 100 Ko/s it's too slow for scp
-DEFAULT_SETTING["sync"]["protected_space"] = 20000  # (Ko) Space protected to keep the rest of the project safe
+DEFAULT_SETTING["sync"]["protected_space"] = 50000  # (Ko) Space protected to keep the rest of the project safe
 DEFAULT_SETTING["sync"]["timeout_wait_syncflag"] = 3  # Wait 3 sec, if no newer flag, we are update
 DEFAULT_SETTING["sync"]["timeout_rm_mountpoint"] = 2  # 2 sec before remove mount point
 DEFAULT_SETTING["sync"]["timeout_restart_netctl"] = 15  # 15 sec before restart netctl after unplug usb storage device
@@ -145,7 +137,7 @@ DEFAULT_SETTING["scenario"]["JTL"] = 3                  # JTL default value for 
 
 DEFAULT_SETTING["media"] = dict()
 DEFAULT_SETTING["media"]["automove"] = "yes"
-DEFAULT_SETTING["media"]["usb_mount_timeout"] = 3  # 3 sec max for mount before killing it
+DEFAULT_SETTING["media"]["usb_mount_timeout"] = 5  # 3 sec max for mount before killing it
 
 DEFAULT_SETTING["OSC"] = dict()
 DEFAULT_SETTING["OSC"]["iamhere_interval"] = 60
@@ -165,13 +157,13 @@ DEFAULT_SETTING["rtp"]["accuracy_max_ns"] = 12000000  # 12 ms
 DEFAULT_SETTING["rtp"]["accuracy_factor"] = 1.05  # 5% per try
 
 DEFAULT_SETTING["ack"] = dict()
-DEFAULT_SETTING["ack"]["stack_recv"] = 256
+DEFAULT_SETTING["ack"]["stack_recv"] = 512
 DEFAULT_SETTING["ack"]["interval_critical"] = (0.010, 0.015, 0.020, 0.025, 0.050, 0.100, 0.100, 0.100, 0.100, 0.100)
-DEFAULT_SETTING["ack"]["interval_classical"] = (0.30, 0.50, 0.50, 0.50, 0.50, 0.100, 0.100, 0.100, 0.100, 0.250, 0.250)
-DEFAULT_SETTING["ack"]["interval_protocol"] = (0.75, 0.100, 0.125, 0.200, 0.500)
+DEFAULT_SETTING["ack"]["interval_classical"] = (0.030, 0.50, 0.50, 0.50, 0.50, 0.100, 0.100, 0.100, 0.100, 0.250, 0.250)
+DEFAULT_SETTING["ack"]["interval_protocol"] = (0.075, 0.100, 0.125, 0.200, 0.500)
 DEFAULT_SETTING["ack"]["interval_short"] = (0.100, 0.150, 0.200)
-DEFAULT_SETTING["ack"]["interval_default"] = (0.75, 0.100, 0.125, 0.150, 0.200, 0.500, 0.750)
-DEFAULT_SETTING["ack"]["interval_default_broadcast"] = (0.75, 0.100, 0.125, 0.200, 0.250, 0.300, 0.300, 0.500)
+DEFAULT_SETTING["ack"]["interval_default"] = (0.075, 0.100, 0.125, 0.150, 0.200, 0.500, 0.750, 1.5)
+DEFAULT_SETTING["ack"]["interval_default_broadcast"] = (0.075, 0.100, 0.125, 0.200, 0.250, 0.300, 0.300, 0.500, 1.0, 1.5)
 
 DEFAULT_SETTING["values"] = dict()  # Dictionary for default values
 DEFAULT_SETTING["values"]["gyro"] = dict()
@@ -188,9 +180,14 @@ DEFAULT_SETTING["values"]["types"]["str"] = ""
 DEFAULT_SETTING["values"]["signaux"] = dict()
 DEFAULT_SETTING["values"]["signaux"]["TTL"] = 5
 DEFAULT_SETTING["values"]["signaux"]["JTL"] = 2
+DEFAULT_SETTING["values"]["vlc"] = dict()
+DEFAULT_SETTING["values"]["vlc"]["mediavolume"] = 100
+DEFAULT_SETTING["values"]["vlc"]["media"] = ""
+DEFAULT_SETTING["values"]["vlc"]["repeat"] = False
+DEFAULT_SETTING["values"]["vlc"]["volume"] = 100
 
 DEFAULT_SETTING["log"] = dict()
-DEFAULT_SETTING["log"]["level"] = "info"
+DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"
 DEFAULT_SETTING["log"]["symb"] = dict()
 DEFAULT_SETTING["log"]["symb"]["tension"] = "T"
@@ -199,16 +196,17 @@ DEFAULT_SETTING["log"]["symb"]["rtp"] = "R"
 DEFAULT_SETTING["log"]["symb"]["error"] = "E"
 DEFAULT_SETTING["log"]["symb"]["scenario"] = "S"
 DEFAULT_SETTING["log"]["symb"]["git"] = "G"
-DEFAULT_SETTING["log"]["tension"] = dict()
-DEFAULT_SETTING["log"]["tension"]["port"] = 1783
-DEFAULT_SETTING["log"]["tension"]["ip"] = ["255.255.255.255"]
-DEFAULT_SETTING["log"]["tension"]["active"] = True  # Active the propagation of info tension
+DEFAULT_SETTING["log"]["monitor"] = dict()
+DEFAULT_SETTING["log"]["monitor"]["port"] = 1783
+DEFAULT_SETTING["log"]["monitor"]["ip"] = ["2.0.2.100","2.0.2.101","2.0.0.101"]
+DEFAULT_SETTING["log"]["monitor"]["pingtime"] = 1.0 # Time between each ping in seconds
+DEFAULT_SETTING["log"]["monitor"]["active"] = True  # Active the propagation of info tension
 DEFAULT_SETTING["log"]["teleco"] = dict()
 DEFAULT_SETTING["log"]["teleco"]["active"] = False  # Unactive log teleco
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5  # Block 1.5 s for assure error displaying
 DEFAULT_SETTING["log"]["teleco"]["autoscroll"] = 2  # Block 1.5 s before displaying an other message
 DEFAULT_SETTING["log"]["teleco"]["linelength"] = 16  # Number of char per line
-DEFAULT_SETTING["log"]["teleco"]["level"] = "error"  # For the teleco
+DEFAULT_SETTING["log"]["teleco"]["level"] = "critical"  # For the teleco
 
 DEFAULT_SETTING["perf"] = dict()
 DEFAULT_SETTING["perf"]["enable"] = True  # Enable FSM register (need for history)
@@ -225,6 +223,9 @@ DEFAULT_SETTING["sys"]["raspi"] = True  # This settings is for debug, if raspi i
 DEFAULT_SETTING["sys"]["ref_volume"] = 0  # Set the default system volume to 0dB (no negative !)
 DEFAULT_SETTING["sys"]["volume"] = 0  # Set the volume difference with the reference (in dB) can be neg
 DEFAULT_SETTING["sys"]["vlc_volume"] = 512  # Default vlc volume. 512 = 100%
+DEFAULT_SETTING["sys"]["alsaequal"] = [65, 65, 65, 65, 65, 65, 65, 65, 65, 65]
+                                                # AlsaEqual profile / max:100 - FLAT: [65, 65, 65, 65, 65, 65, 65, 65, 65, 65]
+                                                # Replace value by a tuple to set different values for Right/Left
 
 DEFAULT_SETTING["speed"] = dict()
 DEFAULT_SETTING["speed"]["thread_check_interval"] = 0.1     # Check thread interval
@@ -248,23 +249,53 @@ class Settings(dict):
         self._path = path
         self.correctly_load = None
         dict.__init__(self, DEFAULT_SETTING)
-        try:
-            with open(path, 'r') as fp:
+
+        ### NEW: scan le dossier de settings locaux et importe tous les json trouvés
+        
+        # Liste les fichiers à traiter (recursif si dossier fourni)
+        files = list()
+        if os.path.isdir(path):
+            for local_set in os.listdir(path):
+                if local_set.endswith(".json"):
+                    files.append(os.path.join(path,local_set))
+        elif os.path.isfile(path):
+            files.append(path)
+        else:
+            log.error("File not found : {0}".format(path))
+            self.correctly_load = False
+
+        # Importe les settings pour tous les fichiers concernés
+        for f_path in files:
+            with open(f_path, 'r') as fp:
                 try:
                     self.update(json.load(fp))
                     log.info("Settings loaded from {0}".format(path))
-                    self.correctly_load = True
+                    if self.correctly_load is None:
+                        self.correctly_load = True
                 except Exception as e:
                     log.error("Could not load settings at {0}".format(path))
                     log.exception(log.show_exception(e))
                     self.correctly_load = False
-        except IOError:
-            log.info("No settings found at path {0}, create one".format(path))
-            with open(path, 'wr') as fp:
-                Settings.__init__(self)  # Restart loading settings
-        except json.scanner.JSONDecodeError as e:
-            log.error("Could not load settings : {0}".format(e))
-            self.correctly_load = False
+
+        ### OLD: ancien fonctionnement avec un seul fichier local de setting
+        # try:
+        #     with open(path, 'r') as fp:
+        #         try:
+        #             self.update(json.load(fp))
+        #             log.info("Settings loaded from {0}".format(path))
+        #             self.correctly_load = True
+        #         except Exception as e:
+        #             log.error("Could not load settings at {0}".format(path))
+        #             log.exception(log.show_exception(e))
+        #             self.correctly_load = False
+        # except IOError:
+        #     log.info("No settings found at path {0}, create one".format(path))
+        #     with open(path, 'wr') as fp:
+        #         Settings.__init__(self)  # Restart loading settings
+        # except json.scanner.JSONDecodeError as e:
+        #     log.error("Could not load settings : {0}".format(e))
+        #     self.correctly_load = False
+
 
     def save(self):
         return self._save(self._path, "w")

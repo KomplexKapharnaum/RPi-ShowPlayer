@@ -21,8 +21,8 @@
 #define HT1632_CMD_SYSON  0x01	/* CMD= 0000-0001-x Enable system oscil */
 #define HT1632_CMD_LEDOFF 0x02	/* CMD= 0000-0010-x LED duty cycle gen off */
 #define HT1632_CMD_LEDON  0x03	/* CMD= 0000-0011-x LEDs ON */
-#define HT1632_CMD_BLOFF  0x08	/* CMD= 0000-1000-x Blink ON */
-#define HT1632_CMD_BLON   0x09	/* CMD= 0000-1001-x Blink Off */
+#define HT1632_CMD_BLOFF  0x08	/* CMD= 0000-1000-x Blink Off */
+#define HT1632_CMD_BLON   0x09	/* CMD= 0000-1001-x Blink On */
 #define HT1632_CMD_SLVMD  0x10	/* CMD= 0001-00xx-x Slave Mode */
 #define HT1632_CMD_MSTMD  0x14	/* CMD= 0001-01xx-x Master Mode */
 #define HT1632_CMD_RCCLK  0x18	/* CMD= 0001-10xx-x Use on-chip clock */

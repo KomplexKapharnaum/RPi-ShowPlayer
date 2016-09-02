@@ -78,12 +78,14 @@ class globaletape(object):
 
     def __call__(self, f):
         global DECLARED_ETAPES, DECLARED_TRANSITION, DECLARED_OSCROUTES
+        # TODO: declare OSC to OSC Server (add_method)
         signal = [signal for signal in DECLARED_OSCROUTES.values() if self.uid == signal['signal']]
         if len(signal) > 0:
             signal = signal[0]
             def fn(flag, *args, **kwargs):
-                if 'args' in kwargs.keys():
-                    kwargs['args'] = parse_args_etape_function(kwargs['args'], signal['args'], signal['types'], signal['default'])
+                # if 'args' in kwargs.keys():
+                #     kwargs['args'] = parse_args_etape_function(kwargs['args'], signal['args'], signal['types'], signal['default'])
+                flag.args = parse_args_etape_function(flag.args, signal['args'], signal['types'], signal['default'])
                 return f(flag, *args, **kwargs)
         else:
             fn = f
@@ -123,7 +125,7 @@ def parse_arg_from_type(arg, types):
     :return:
     """
     try:
-        log.debug("Parsing {0} of type {1} ..".format(arg, types))
+        log.raw("Parsing {0} of type {1} ..".format(arg, types))
         if types == "str":
             # log.warning("parsing str is not implemented")
             try:
@@ -136,13 +138,13 @@ def parse_arg_from_type(arg, types):
         elif types == "float":
             arg = float(arg)
         elif types == "bool":
-            arg = bool(arg)
+            arg = arg.lower() in ['1','true','oui','yes','y','o']
         else:
             log.warning("parsing of {0} is not implemented at all".format(types))
     except Exception as e:
         log.error("Error during parsing {0} of type {1}".format(arg, types))
         log.error(log.show_exception(e))
-    log.debug("End parsing {0} of type {1}".format(arg, types))
+    log.raw("End parsing {0} of type {1}".format(arg, types))
     return arg
 
 
@@ -160,24 +162,27 @@ def parse_args_etape_function(kwargs, args, types, default):
     log.debug("Pre-parse {0} for {1} types {2} default {3}".format(kwargs, args, types, default))
     for arg_n in xrange(len(args)):
         arg_name = args[arg_n]
-        type_name = types[arg_n]
+        if arg_n < len(types):
+            type_name = types[arg_n]
+        else:
+            type_name = "none"
         if arg_name not in kwargs.keys():
             if arg_name != "dispo":
                 log.log("warning", "search for {0} in parameters but not found in {1}".format(arg_name, kwargs))
             continue
         if kwargs[arg_name] is None:  # There is no value.. searching for a default one
             if arg_name in default.keys():  # There is one default
-                log.debug("Taking default value <{1}> for <{0}>".format(arg_name, default[arg_name]))
+                log.raw("Taking default value <{1}> for <{0}>".format(arg_name, default[arg_name]))
                 kwargs[arg_name] = default[arg_name]
                 continue
             elif type_name in settings.get("values", "types"):
-                log.debug("Taking default types {1} value for {0}".format(arg_name,
+                log.raw("Taking default types {1} value for {0}".format(arg_name,
                                                                           settings.get("values", "types", type_name)))
                 kwargs[arg_name] = settings.get("values", "types", type_name)
                 continue
             else:
                 kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)
-                log.warning("Set parameter {0} to {1}, because he was nonn, it's can be unwanted".format(arg_name, kwargs[arg_name]))
+                log.warning("Set parameter {0} to {1}, because he was none, it's can be unwanted".format(arg_name, kwargs[arg_name]))
                 continue
         else:
             kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)

@@ -28,8 +28,9 @@ def init(autoload=True):
     k.start()
     # SET SYSTEM VOLUME
     alsa.set_absolute_amixer()
-    # INIT THREAD
-    engine.threads.init()
+    alsa.set_alsaequal_profile()
+    # INIT THREADS
+    engine.init()
     # LOAD SUPER-MODULES IN ENGINE
     for name in settings.get('managers'):
         if name in modules.MODULES.keys():
@@ -63,11 +64,8 @@ def stop():
     scenario.stop()
     log.info("Stop OscAck")
     oscack.stop_protocol()
-    log.info("Stop Engine")
+    log.info("Stop Engine & Threads")
     engine.stop()
-    log.info("Stop Threads")
-    engine.threads.stop()
-
 
 def restart():
     stop()
@@ -299,7 +297,7 @@ class inputThread(threading.Thread):
         except Exception as e:
             log.exception("Unblocking exception in prompt : \n"+log.show_exception(e))
         # BACKUP EXIT
-        time.sleep(2)
+        time.sleep(10)
         log.log("debug", "Exit by backupexit, should not be that")
         os._exit(POWEROFF)
 

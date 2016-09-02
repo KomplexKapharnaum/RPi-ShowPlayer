@@ -37,7 +37,7 @@ class vlcPlayer
 		libvlc_media_player_t *player;
 
 	private:
-		void load(string filepath, bool lock);
+		bool load(string filepath, bool lock);
 
 		int id;
 		int state;

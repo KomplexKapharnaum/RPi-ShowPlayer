@@ -58,6 +58,7 @@ def scene_init(flag, **kwargs):
        "/scene/restart [dispo]": "scene_restart",
        "/scene/previous [dispo]": "scene_prev",
        "/scene/next [dispo]": "scene_next",
+       "/scene/go [dispo] [frame]": "scene_go",
        "/scene/stop": "scene_stop",
 })
 def scene_control(flag, **kwargs):
@@ -68,11 +69,15 @@ def scene_control(flag, **kwargs):
 def scene_restart(flag, **kwargs):
     log.error("flag : {0}, kwargs : {1}".format(flag, kwargs))
     new_flag = fsm.Flag("SCENE_START")
+    already_dest = False
+    dest = list()
     if 'args' in flag.args.keys():
-            dest = flag.args['args']
-    elif 'dest' in flag.args.keys():
-            dest = flag.args['dest']
-    else:
+        dest += flag.args['args']
+        already_dest = True
+    if 'dest' in flag.args.keys():
+        dest += flag.args['dest']
+        already_dest = True
+    if not already_dest:
         dest = ["Self", ]
         if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
             dest = [flag.args['args'][0], ]
@@ -102,13 +107,19 @@ def scene_prev(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME > 0:
             scenario.CURRENT_FRAME -= 1
+        already_dest = False
+        dest = list()
+        if 'args' in flag.args.keys():
+            dest += flag.args['args']
+            already_dest = True
         if 'dest' in flag.args.keys():
-            dest = flag.args['dest']
-        else:
+            dest += flag.args['dest']
+            already_dest = True
+        if not already_dest:
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
-        log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
+        log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
 
@@ -121,15 +132,51 @@ def scene_next(flag, **kwargs):
     else:
         if scenario.CURRENT_FRAME < (len(scenario.pool.Frames) - 1):
             scenario.CURRENT_FRAME += 1
+        already_dest = False
+        dest = list()
+        if 'args' in flag.args.keys():
+            dest += flag.args['args']
+            already_dest = True
         if 'dest' in flag.args.keys():
-            dest = flag.args['dest']
-        else:
+            dest += flag.args['dest']
+            already_dest = True
+        if not already_dest:
             dest = ["Self", ]
             if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
                 dest = [flag.args['args'][0], ]
-        log.log("debug", "new frame {0}, flag {0}, dest {1}".format(scenario.CURRENT_FRAME, flag, dest))
+        log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "keyframe": scenario.CURRENT_FRAME}))
 
+@link({None: "scene_control"})
+def scene_go(flag, **kwargs):
+    log.debug("Scene_go at {1} with {0} kwargs {2}".format(scenario.CURRENT_FRAME, flag, kwargs))
+    if "frame" in flag.args.keys():
+        if scenario.CURRENT_FRAME == int(flag.args['frame']):
+            log.debug("ignore frame {0} because we are already inside".format(flag.args['frame']))
+            return
+        if scenario.CURRENT_FRAME > int(flag.args['frame']):
+            log.debug("ignore frame {0} because we are in frame after that one".format(flag.args['frame']))
+            return
+        scenario.CURRENT_FRAME = int(flag.args['frame'])
+        scenario.start_scene()
+    else:
+        if 'frame' in flag.args.keys() and 0 <= flag.args['frame'] <= len(scenario.pool.Frames):
+            log.debug("found scene {0} from init scene {1}".format(flag.args['frame'],scenario.CURRENT_FRAME))
+            scenario.CURRENT_FRAME = flag.args['frame']
+        already_dest = False
+        dest = list()
+        if 'args' in flag.args.keys():
+            dest += flag.args['args']
+            already_dest = True
+        if 'dest' in flag.args.keys():
+            dest += flag.args['dest']
+            already_dest = True
+        if not already_dest:
+            dest = ["Self", ]
+            if len(flag.args['args']) > 0 and flag.args['args'][0] in ("Self", "Group", "All"):
+                dest = [flag.args['args'][0], ]
+        log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
+        patcher.patch(flag.get({"dest": dest, "frame": scenario.CURRENT_FRAME}))
 
 @link({None: "scene_control"})
 def scene_stop(flag, **kwargs):
