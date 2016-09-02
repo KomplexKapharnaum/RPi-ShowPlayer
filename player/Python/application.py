@@ -22,6 +22,9 @@ import time
 
 POWEROFF = False    # 1: STOP PROGRAM   2: POWEROFF AFTER STOP  3: REBOOT AFTER STOP
 
+log_fnct = log.important
+
+
 def init(autoload=True):
     # LOAD INPUT KEYBOARD THREAD
     k = inputThread()
@@ -86,25 +89,25 @@ class inputThread(threading.Thread):
     def basic_all_info():
         if not settings.correctly_load:
             log.warning("/!\\ SETTINGS NOT CORRECTLY LOADED /!\\ ")
-        log.info("uName : {0}, Team : {1}".format(settings["uName"], settings["current_timeline"]))
+        log_fnct("uName : {0}, Team : {1}".format(settings["uName"], settings["current_timeline"]))
 
     @staticmethod
     def path_info():
-        log.info("--- PATH ---")
-        log.info("DNC path : {0}".format(settings.get("path", "main")))
-        log.info("Media path : {0}".format(settings.get_path("media")))
-        log.info("Scenario path : {0}".format(settings.get_path("media")))
-        log.info("------------")
+        log_fnct("--- PATH ---")
+        log_fnct("DNC path : {0}".format(settings.get("path", "main")))
+        log_fnct("Media path : {0}".format(settings.get_path("media")))
+        log_fnct("Scenario path : {0}".format(settings.get_path("media")))
+        log_fnct("------------")
 
     @staticmethod
     def in_info(key="INFO"):
-        log.info()
-        log.info("=== {key} ===".format(key=key))
+        log_fnct()
+        log_fnct("=== {key} ===".format(key=key))
 
     @staticmethod
     def out_info(key="INFO"):
-        log.info("=== END {key} ===".format(key=key))
-        log.info()
+        log_fnct("=== END {key} ===".format(key=key))
+        log_fnct()
 
     @staticmethod
     def info(fnct, key="INFO", *args, **kwargs):
@@ -115,44 +118,44 @@ class inputThread(threading.Thread):
     @staticmethod
     def osc_info(alone=False, info=False):
         if not alone:
-            log.info("--- OSC ---")
+            log_fnct("--- OSC ---")
         if alone or info:
             inputThread.basic_osc_info(alone)
         inputThread.media_sync_info()
         inputThread.scenario_sync_info()
         inputThread.rtp_info()
         if not alone:
-            log.info("-----------")
+            log_fnct("-----------")
 
     @staticmethod
     def basic_osc_info(alone=True):
         if alone:
             inputThread.basic_all_info()
-        log.info("OSC port : {0}, ACK port : {1}".format(settings.get("OSC", "classicport"), settings.get("OSC", "ackport")))
+        log_fnct("OSC port : {0}, ACK port : {1}".format(settings.get("OSC", "classicport"), settings.get("OSC", "ackport")))
 
     @staticmethod
     def media_sync_info(alone=False):
         if alone:
             inputThread.basic_osc_info()
-        log.info(oscack.protocol.mediasync.machine)
-        log.info("All media : {0}".format(engine.media.get_all_media_list()))
-        log.info("Needed media : {0}".format(oscack.protocol.mediasync.needed_media_list))
-        log.info("Uneeded media : {0}".format(oscack.protocol.mediasync.unwanted_media_list))
+        log_fnct(oscack.protocol.mediasync.machine)
+        log_fnct("All media : {0}".format(engine.media.get_all_media_list()))
+        log_fnct("Needed media : {0}".format(oscack.protocol.mediasync.needed_media_list))
+        log_fnct("Uneeded media : {0}".format(oscack.protocol.mediasync.unwanted_media_list))
 
     @staticmethod
     def scenario_sync_info(alone=False):
         if alone:
             inputThread.basic_osc_info()
-        log.info(oscack.protocol.scenariosync.machine)
+        log_fnct(oscack.protocol.scenariosync.machine)
 
     @staticmethod
     def rtp_info(alone=False):
         if alone:
             inputThread.basic_osc_info()
-        log.info(oscack.protocol.discover.machine)
-        log.info(" = oscack.DNCServer.networkmap : {0} ".format(oscack.DNCserver.networkmap))
-        log.info(" = oscack.timetag : {0} ".format(oscack.timetag))
-        log.info(" = oscack.accuracy : {0} ".format(oscack.accuracy))
+        log_fnct(oscack.protocol.discover.machine)
+        log_fnct(" = oscack.DNCServer.networkmap : {0} ".format(oscack.DNCserver.networkmap))
+        log_fnct(" = oscack.timetag : {0} ".format(oscack.timetag))
+        log_fnct(" = oscack.accuracy : {0} ".format(oscack.accuracy))
 
     @staticmethod
     def basic_scenario_info(alone=True):
@@ -170,19 +173,19 @@ class inputThread(threading.Thread):
         if alone:
             inputThread.basic_scenario_info()
         if not alone:
-            log.info("--- SCENARIO FSM ---")
+            log_fnct("--- SCENARIO FSM ---")
 
         # if scenario. is not None:
-        #     log.info(scenario.SCENE_FSM.current_state)
+        #     log_fnct(scenario.SCENE_FSM.current_state)
         for f in scenario.MODULES_FSM:
-            log.info(f.current_state)
-            log.info(f._flag_stack)
+            log_fnct(f.current_state)
+            log_fnct(f._flag_stack)
         for f in scenario.SCENE_FSM:
-            log.info(f.current_state)
-            log.info(f._flag_stack)
+            log_fnct(f.current_state)
+            log_fnct(f._flag_stack)
 
         if not alone:
-            log.info("--------------------")
+            log_fnct("--------------------")
 
 
     def run(self):
@@ -218,7 +221,7 @@ class inputThread(threading.Thread):
                     continue
                 cmd = c.split()
                 if cmd[0] == "pw":
-                    log.info(str(POWEROFF))
+                    log_fnct(str(POWEROFF))
                 elif cmd[0] == "except":
                     tmpfsm = fsm.FiniteStateMachine("test_fsm")
                     def tmp_fnct(flag):
@@ -228,28 +231,28 @@ class inputThread(threading.Thread):
                 elif cmd[0] == "history":
                     engine.perf.prompt_history()
                 elif cmd[0] == "timeline":
-                    log.info(scenario.pool._Timeline)
+                    log_fnct(scenario.pool._Timeline)
                 elif cmd[0] == "scene":
                     if len(cmd) > 1 and len(scenario.pool._Timeline) > int(cmd[1]):
-                        log.info(scenario.pool._Timeline[int(cmd[1])].show_info())
+                        log_fnct(scenario.pool._Timeline[int(cmd[1])].show_info())
                 elif cmd[0] == "timelinejson":
-                    log.info(scenario.pool._JSONtimeline)
+                    log_fnct(scenario.pool._JSONtimeline)
                 elif cmd[0] == "scenariojson":
-                    log.info(scenario.pool._JSONScenario)
+                    log_fnct(scenario.pool._JSONScenario)
                 elif cmd[0] == "mhistory":
                     engine.perf.multiplex_history(cmd[1:])
                 elif cmd[0] == "_log":
                     if len(cmd) > 1:
                         engine.tools.log_teleco(" ".join(cmd[1:]))
                 elif cmd[0] == "settings":
-                    log.info()
-                    log.info("=== SETTINGS ===")
+                    log_fnct()
+                    log_fnct("=== SETTINGS ===")
                     to_print = settings
                     if len(cmd) > 1 and cmd[1] in settings.keys():
                         to_print = settings[cmd[1]]
-                    log.info(pretyprinter.pprint(to_print))
-                    log.info("=== END SETTINGS ===")
-                    log.info()
+                    log_fnct(pretyprinter.pprint(to_print))
+                    log_fnct("=== END SETTINGS ===")
+                    log_fnct()
                 elif cmd[0] == "msync":
                     inputThread.info(inputThread.media_sync_info, key="MEDIA SYNC", alone=True)
                 elif cmd[0] == "ssync":
@@ -263,14 +266,14 @@ class inputThread(threading.Thread):
                 elif cmd[0] == "sfsm":
                     inputThread.info(inputThread.scenario_fsm_info, key="SCENARIO FSM", alone=True)
                 elif cmd[0] == "info":
-                    log.info()
-                    log.info("=== INFO ===")
+                    log_fnct()
+                    log_fnct("=== INFO ===")
                     inputThread.basic_all_info()
                     inputThread.path_info()
                     inputThread.scenario_info(info=True)
                     inputThread.osc_info(info=True)
-                    log.info("=== END INFO ===")
-                    log.info()
+                    log_fnct("=== END INFO ===")
+                    log_fnct()
                 elif cmd[0] == "signal":
                     if len(cmd) > 1:
                         if cmd[1] == "testall":
@@ -291,9 +294,9 @@ class inputThread(threading.Thread):
                     try:
                         eval(" ".join(cmd[1:]))
                     except Exception as e:
-                        log.info(log.show_exception(e))
+                        log_fnct(log.show_exception(e))
                 else:
-                    log.info("Unknown commad in prompt ..")
+                    log_fnct("Unknown commad in prompt ..")
         except Exception as e:
             log.exception("Unblocking exception in prompt : \n"+log.show_exception(e))
         # BACKUP EXIT
