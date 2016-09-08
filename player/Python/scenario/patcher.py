@@ -126,7 +126,9 @@ class ThreadPatcher(threading.Thread):
                                       ('i', scenario.CURRENT_SCENE_FRAME), ACK=True)
         # If All just Broad cast
         if "All" in sendto:
-            message.send(message.Address("255.255.255.255"), msg_to_send)
+            if message.send(message.Address("255.255.255.255"), msg_to_send) is False:
+                # if the network is down, at least send the signal to it self
+                self._queue.put(signal)
             return
         # Else, send one by one
         for dest in sendto:
