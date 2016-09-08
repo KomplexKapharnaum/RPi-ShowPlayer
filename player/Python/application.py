@@ -248,6 +248,8 @@ class inputThread(threading.Thread):
                                 flag.args['frame'] = int(cmd[2])
                         else:
                             continue
+                        flag.args['dest'] = list()
+                        flag.args['dest'].append("Self")
                         engine.threads.patcher.patch(flag.get())
                 elif cmd[0] == "timelinejson":
                     log_fnct(scenario.pool._JSONtimeline)
