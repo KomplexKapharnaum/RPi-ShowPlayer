@@ -126,9 +126,15 @@ class ThreadPatcher(threading.Thread):
                                       ('i', scenario.CURRENT_SCENE_FRAME), ACK=True)
         # If All just Broad cast
         if "All" in sendto:
-            if message.send(message.Address("255.255.255.255"), msg_to_send) is False:
+            status = message.send(message.Address("255.255.255.255"), msg_to_send)
+            if status is not True:
                 # if the network is down, at least send the signal to it self
-                log.warning("Signal {0} is send only to ourself instead of broadcast because network is down".format(signal))
+                if status is False:
+                    log.warning("Signal {0} is send only to ourself instead of broadcast because network is down".format(signal))
+                else:
+                    log.warning(
+                        "Signal {0} is send only to ourself instead of broadcast because ..? : {1}".format(
+                            signal, status))
                 self._queue.put(signal)
             return
         # Else, send one by one
