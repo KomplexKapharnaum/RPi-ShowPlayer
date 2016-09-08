@@ -128,6 +128,7 @@ class ThreadPatcher(threading.Thread):
         if "All" in sendto:
             if message.send(message.Address("255.255.255.255"), msg_to_send) is False:
                 # if the network is down, at least send the signal to it self
+                log.warning("Signal {0} is send only to ourself instead of broadcast because network is down".format(signal))
                 self._queue.put(signal)
             return
         # Else, send one by one
