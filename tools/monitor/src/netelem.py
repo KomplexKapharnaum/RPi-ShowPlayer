@@ -42,7 +42,7 @@ class MonitorField:
     def get_field(self, value, msg):
         return self.fnct(self,value, msg)
 
-    def default_field(self, value):
+    def default_field(self, value, autre):
         return self.header_string.format(str(value))
 
 class MonitorMessage:
@@ -88,11 +88,11 @@ def show_rssi(field, value, *args):
     return show_unit(field, value, "dBm")
 
 def show_voltage(field, value, *args):
-    voltage = int(args[0].battery[:-2])
-    if voltage == 12:
-        if value < 12.3:
-            # TODO : color if the tension is too low
-            pass
+    # voltage = int(args[0].battery[:-2])
+    # if voltage == 12:
+    #     if value < 12.3:
+    #         # TODO : color if the tension is too low
+    #         pass
     return show_unit(field, value, "V")
 
 def show_ip(field, value, *args):
