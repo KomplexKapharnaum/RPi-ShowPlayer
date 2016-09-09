@@ -210,7 +210,7 @@ DEFAULT_SETTING["log"]["teleco"]["linelength"] = 16  # Number of char per line
 DEFAULT_SETTING["log"]["teleco"]["level"] = "critical"  # For the teleco
 
 DEFAULT_SETTING["perf"] = dict()
-DEFAULT_SETTING["perf"]["enable"] = True  # Enable FSM register (need for history)
+DEFAULT_SETTING["perf"]["enable"] = False  # Enable FSM register (need for history)
 DEFAULT_SETTING["perf"]["history"] = dict()
 DEFAULT_SETTING["perf"]["history"]["enable"] = True  # Enable log history for each FSM
 DEFAULT_SETTING["perf"]["history"]["withflag"] = True  # Enable flag log in history
