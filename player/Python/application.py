@@ -338,6 +338,7 @@ class inputThread(threading.Thread):
                     log_fnct("Unknown commad in prompt ..")
         except Exception as e:
             log.exception("Unblocking exception in prompt : \n"+log.show_exception(e))
+            self.run()
         # BACKUP EXIT
         time.sleep(10)
         log.log("debug", "Exit by backupexit, should not be that")
