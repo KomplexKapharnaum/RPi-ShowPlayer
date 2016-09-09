@@ -136,6 +136,7 @@ class ThreadPatcher(threading.Thread):
                     log.warning(
                         "Signal {0} is send only to ourself instead of broadcast because ..? : {1}".format(
                             signal, status))
+                    msg_to_send.ACK = False
                     message.send(message.Address("127.0.0.1"), msg_to_send)
             return
         # Else, send one by one
