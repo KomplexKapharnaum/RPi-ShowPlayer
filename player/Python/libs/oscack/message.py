@@ -220,10 +220,12 @@ def send(target, msg):
     else:
         try:
             liblo.send(target.target, msg)
+            return True
         except (liblo.AddressError, IOError) as err:
             log.exception(
                 "Impossible d'envoyer le message depuis \n Error : " + str(err) + " \n Message : " + str(
                     msg) + " \n Target : " + str(target.target))
+            return False
 
 
 def send_ack(ip, msg):

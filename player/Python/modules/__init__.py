@@ -140,7 +140,7 @@ def parse_arg_from_type(arg, types):
         elif types == "bool":
             arg = arg.lower() in ['1','true','oui','yes','y','o']
         else:
-            log.warning("parsing of {0} is not implemented at all".format(types))
+            log.debug("parsing of {0} is not implemented at all".format(types))
     except Exception as e:
         log.error("Error during parsing {0} of type {1}".format(arg, types))
         log.error(log.show_exception(e))
@@ -182,7 +182,7 @@ def parse_args_etape_function(kwargs, args, types, default):
                 continue
             else:
                 kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)
-                log.warning("Set parameter {0} to {1}, because he was none, it's can be unwanted".format(arg_name, kwargs[arg_name]))
+                log.debug("Set parameter {0} to {1}, because he was none, it's can be unwanted".format(arg_name, kwargs[arg_name]))
                 continue
         else:
             kwargs[arg_name] = parse_arg_from_type(kwargs[arg_name], type_name)

@@ -13,6 +13,7 @@ import engine
 from engine import fsm, alsa
 import scenario
 import modules
+import scenario.patcher
 from libs import oscack
 log = engine.log.init_log("application")
 
@@ -235,6 +236,21 @@ class inputThread(threading.Thread):
                 elif cmd[0] == "scene":
                     if len(cmd) > 1 and len(scenario.pool._Timeline) > int(cmd[1]):
                         log_fnct(scenario.pool._Timeline[int(cmd[1])].show_info())
+                elif cmd[0] == "move":
+                    if len(cmd) > 1:
+                        if cmd[1] == "next":
+                            flag = engine.fsm.Flag("SCENE_NEXT")
+                        elif cmd[1] == "prev":
+                            flag = engine.fsm.Flag("SCENE_PREV")
+                        elif cmd[1] == "to":
+                            if len(cmd) > 2:
+                                flag = engine.fsm.Flag("SCENE_GO")
+                                flag.args['frame'] = int(cmd[2])
+                        else:
+                            continue
+                        flag.args['dest'] = list()
+                        flag.args['dest'].append("Self")
+                        engine.threads.patcher.patch(flag.get())
                 elif cmd[0] == "timelinejson":
                     log_fnct(scenario.pool._JSONtimeline)
                 elif cmd[0] == "scenariojson":

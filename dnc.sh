@@ -25,6 +25,13 @@ running=1
 DIRECT_INOUT=0
 AUTO_START=1
 
+## Save last log and clear them
+mkdir /dnc/logs/old
+rm -rf /dnc/logs/old/*
+cp -a /dnc/logs/* /dnc/logs/old
+rm /dnc/logs/*
+##
+
 # NAMED ARGUMENTS
 while getopts "ou" opt; do
     case "$opt" in
