@@ -152,7 +152,11 @@ def show_rssi(field, value, *args):
     return rssi
 
 def show_voltage(field, value, *args):
-    voltage = Battery[args[0].battery]["warn"]
+    try:
+        voltage = Battery[args[0].battery]["warn"]
+    except KeyError as e:
+        log(e.message)
+        voltage = 100
     v = show_unit(field, value, "V")
     if value <= voltage:
         v = "*X*"+v+"*X*"

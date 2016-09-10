@@ -4,6 +4,7 @@
 import curses
 import netelem
 
+from utils import log
 from common import Display
 
 screen = None
@@ -41,14 +42,17 @@ class ScreenDisplay:
         line = line.split("*X*")
         i = 0
         c = 0
-        for elem in line:
-            if i % 2 == 0:
-                self._screen.addstr(self._internal_cursor,c,elem)
-            elif i % 2 == 1:
-                self._screen.addstr(self._internal_cursor, c, elem, curses.A_STANDOUT)
-            c += len(elem)
-            i += 1
-        self._internal_cursor += 1
+        try:
+            for elem in line:
+                if i % 2 == 0:
+                    self._screen.addstr(self._internal_cursor,c,elem)
+                elif i % 2 == 1:
+                    self._screen.addstr(self._internal_cursor, c, elem, curses.A_STANDOUT)
+                c += len(elem)
+                i += 1
+            self._internal_cursor += 1
+        except Exception as e:
+            log(e.message)
 
     def update(self):
         self.draw()
