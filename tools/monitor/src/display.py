@@ -25,6 +25,7 @@ class ScreenDisplay:
         self.list_sort_cursor = 0
         self.list_sort_key = Display[self.list_sort_cursor]
         self.list_sort_order = "up"
+        self.select_dispo = -1
 
     def next_select(self):
         self.list_sort_cursor = min(self.list_sort_cursor+1, len(Display)-1)
@@ -55,6 +56,7 @@ class ScreenDisplay:
             log(e.message)
 
     def update(self):
+        self._screen.erase()
         self.draw()
         self.refresh()
 
@@ -64,8 +66,8 @@ class ScreenDisplay:
 
 
 def draw_list(elems, sort_key):
-    screen.newline(netelem.get_header(sort_key))
-    list_elem = sorted(elems.items(), key=lambda x: x[1].messages[-1].__dict__["sort_"+sort_key]())
+    screen.newline("[ ]"+netelem.get_header(sort_key))
+    list_elem = sorted(elems.items(), key=lambda x: x[1].sort(sort_key))
     if screen.list_sort_order == "down":
         list_elem = list_elem[::-1]
     for elem in list_elem:
