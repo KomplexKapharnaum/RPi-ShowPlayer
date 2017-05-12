@@ -55,8 +55,8 @@ string smsText = "";
 #define SENDOSC true
 
 lo::Address ph("2.0.2.100", "1783");
-lo::Address regie("2.0.0.100", "2222");
-lo::Address regiebis("2.0.0.101", "2222");
+lo::Address regie("2.0.0.150", "2222");
+lo::Address regiebis("2.0.0.151", "2222");
 
 void api(){
   cout << mstime() << programName;
