@@ -1,4 +1,5 @@
 import time
+import threading
 
 import liblo
 
@@ -89,9 +90,8 @@ def auto_delay(flag, **kwargs):
     """
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
     duration = search_in_or_default("duration", kwargs['args'], default=0)
-    time.sleep(float(duration))
-    signal = Flag(signal_uid, TTL=0.5, JTL=1)
-    patcher.patch(signal.get())
+    signal = Flag(signal_uid, TTL=float(duration) + 0.5, JTL=1).get()
+    threading.Timer(float(duration), patcher.patch, (signal, ), dict())
 
 
 @publicbox('[ip:str] [port:int] [msg:str]')
