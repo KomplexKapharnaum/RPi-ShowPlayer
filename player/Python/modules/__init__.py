@@ -208,7 +208,8 @@ def timer_out_action(flag, *args, **kwargs):
 
 
 class publicbox(object):
-    def __init__(self, args='', start=False, default=None, timer=None):
+    def __init__(self, args='', start=False, default=None, timer=None,
+                 category=None):
         """
         :param args: args to ask from interface [param:paramtype]
         :param start: Set if it's a start box or not
@@ -224,6 +225,7 @@ class publicbox(object):
         self.args = list()
         self.types = list()
         self.timer = timer
+        self.category = category
         for arg in args.split(' '):
             unpack = arg.strip('[').strip(']').split(':')
             _arg = unpack[0]
@@ -247,7 +249,9 @@ class publicbox(object):
                                                                        self.timer is True else False,
                                                                    'args': self.args,
                                                                    'start': self.start,
-                                                                   'types': self.types}
+                                                                   'types':
+                                                                       self.types,
+                                                                   'category': self.category if self.category is not None else 'GENERAL'}
 
 
 class link(globaletape):
