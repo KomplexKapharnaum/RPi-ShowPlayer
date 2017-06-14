@@ -119,7 +119,7 @@ def rawosc(flag, **kwargs):
         args.append(arg)
     liblo.send(liblo.Address(ip, int(port)), liblo.Message(path, *args))
 
-def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
+def __kxkm_next_titreur(lines, m_type, m_speed, m_delay,
                             m_loop, timer):
 
     # setMessage(lines["lines"][lines["current"]][0].decode("utf8"),
@@ -127,7 +127,9 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
     #            m_speed)
     patcher.serve(Flag("TITREUR_MESSAGEPLUS", args={
         'ligne1':lines["lines"][lines["current"]][0].decode("utf8"),
-        'ligne2':lines["lines"][lines["current"]][1].decode("utf8")
+        'ligne2':lines["lines"][lines["current"]][1].decode("utf8"),
+        'type':m_type,
+        'speed':m_speed
     }
                 ))
     lines["current"] += 1
@@ -138,7 +140,7 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
             patcher.patch(Flag("END_TEXT").get())
             return
     timer[0] = threading.Timer(float(m_delay), __kxkm_next_titreur,
-                               (setMessage, lines,
+                               (lines,
                                 m_type,
                                 m_speed,
                                 m_delay,
@@ -147,10 +149,10 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
     timer[0].start()
 
 
-@publicbox("[media] [ids:str] [delay:float] [loop:int] [type:int] ["
+@publicbox("[media] [ids:str] [delay:float] [loop:int] [type:str] ["
            "speed:int]", category="titreur",
            timer=True)
-def titreur_text_multi(flag, **kwargs):
+def text_multi(flag, **kwargs):
     media = os.path.join(settings.get_path("media", "text"),kwargs['args'][
         "media"])
     params = search_in_or_default(("delay", "loop", "type", "speed"), kwargs['args'],
@@ -161,7 +163,6 @@ def titreur_text_multi(flag, **kwargs):
     m_speed = params["speed"]
     m_delay = params["delay"]
     m_loop = True if params["loop"] == 1 else False
-    m_loop = True
 
     ids = kwargs['args']["ids"].split(",")
     parsed = dict()
@@ -194,8 +195,7 @@ def titreur_text_multi(flag, **kwargs):
 
     kwargs["_etape"]._localvars["__timer"] = list()
     kwargs["_etape"]._localvars["__timer"].append(
-        threading.Timer(float(0), __kxkm_next_titreur, (None,
-                                                        {"lines": lines,
+        threading.Timer(float(0), __kxkm_next_titreur, ({"lines": lines,
                                                          "current": 0},
                                                         m_type,
                                                         m_speed,
