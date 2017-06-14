@@ -92,6 +92,7 @@ def auto_delay(flag, **kwargs):
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
     duration = search_in_or_default("duration", kwargs['args'], default=0)
     signal = Flag(signal_uid, TTL=float(duration) + 0.5, JTL=1).get()
+    kwargs["_etape"]._localvars["__timer"] = list()
     kwargs["_etape"]._localvars["__timer"].append(threading.
         Timer(float(duration), patcher.patch, (signal, ), dict()))
     kwargs["_etape"]._localvars["__timer"][0].start()

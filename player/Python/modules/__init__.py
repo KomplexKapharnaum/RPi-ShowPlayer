@@ -228,9 +228,10 @@ class publicbox(object):
             :param flag: Flag
             :type flag: fsm.Flag
             """
-            for timer in kwargs["_etape"]._localvars["__timer"]:
-                timer.cancel()
-            kwargs["_etape"]._localvars["__timer"] = list()
+            if "__timer" in kwargs["_etape"]._localvars.keys():
+                for timer in kwargs["_etape"]._localvars["__timer"]:
+                    timer.cancel()
+                kwargs["_etape"]._localvars["__timer"] = list()
             return True
 
         DECLARED_PUBLICBOXES[f.__name__.upper() + '_PUBLICBOX'] = {'function': fn,
