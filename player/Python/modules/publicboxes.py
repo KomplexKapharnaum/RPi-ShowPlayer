@@ -79,6 +79,20 @@ def delay(flag, **kwargs):
     duration = search_in_or_default("duration", kwargs['args'], default=0)
     time.sleep(float(duration))
 
+@publicbox('[duration:float] [signal:str]', default=settings.get("values","autodelay"))
+def auto_delay(flag, **kwargs):
+    """
+    This function (box) delay for a givent time and emit a signal at the end
+    :param flag:
+    :param kwars:
+    :return:
+    """
+    signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
+    duration = search_in_or_default("duration", kwargs['args'], default=0)
+    time.sleep(float(duration))
+    signal = Flag(signal_uid, TTL=0.5, JTL=1)
+    patcher.patch(signal.get())
+
 
 @publicbox('[ip:str] [port:int] [msg:str]')
 def rawosc(flag, **kwargs):
