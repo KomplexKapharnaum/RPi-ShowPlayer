@@ -158,7 +158,7 @@ def titreur_text_multi(flag, **kwargs):
     m_loop = True if params["loop"] == 1 else False
     m_loop = True
 
-    ids = flag.args["ids"].split(",")
+    ids = kwargs['args']["ids"].split(",")
     parsed = dict()
     lines = list()
 
