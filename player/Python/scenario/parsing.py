@@ -171,7 +171,8 @@ def parse_scenario(parsepool, name):
         elif box['name'] + '_PUBLICBOX' in pool.Etapes_and_Functions.keys():
             etape = pool.Etapes_and_Functions[box['name'] + '_PUBLICBOX'].get()
             etape.uid = boxname(name, box)
-            if "__timer" in etape._localvars:
+            if "__timer" in etape._localvars.keys():
+                log.debug("ADD TIMER IN BOX {}".format(etape.uid))
                 etape._localvars["__timer"] = list()
             if 'allArgs' in box:
                 etape.actions[0][1]["args"] = box['allArgs']
