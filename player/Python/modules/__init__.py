@@ -191,7 +191,7 @@ def parse_args_etape_function(kwargs, args, types, default):
 
 
 class publicbox(object):
-    def __init__(self, args='', start=False, default=None):
+    def __init__(self, args='', start=False, default=None, timer=None):
         """
         :param args: args to ask from interface [param:paramtype]
         :param start: Set if it's a start box or not
@@ -206,6 +206,7 @@ class publicbox(object):
         self.start = start
         self.args = list()
         self.types = list()
+        self.timer = timer
         for arg in args.split(' '):
             unpack = arg.strip('[').strip(']').split(':')
             _arg = unpack[0]
@@ -221,8 +222,22 @@ class publicbox(object):
         def fn(flag, *args, **kwargs):
             if 'args' in kwargs.keys():
                 kwargs['args'] = parse_args_etape_function(kwargs['args'], self.args, self.types, self.default)
+                if self.timer is True:
+                    flag.args["__timer"] = list()
             return f(flag, *args, **kwargs)
+        def out(flag, *args, **kwargs):
+            """
+            :param flag: Flag
+            :type flag: fsm.Flag
+            """
+            for timer in flag.args["__timer"]:
+                timer.cancel()
+            return True
+
         DECLARED_PUBLICBOXES[f.__name__.upper() + '_PUBLICBOX'] = {'function': fn,
+                                                                   'timer':
+                                                                       out if
+                                                                       self.timer is True else False,
                                                                    'args': self.args,
                                                                    'start': self.start,
                                                                    'types': self.types}

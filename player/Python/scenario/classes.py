@@ -92,6 +92,7 @@ class Etape(fsm.State):
         :return:
         """
         if len(self.out_actions) > 0:
+            log.log("debug", "OUT ETAPE :: {0} on {1}".format(self.uid, flag))
             return self._run(_fsm, flag, self.out_actions)
 
     def _run(self, _fsm, flag, fnct_list):

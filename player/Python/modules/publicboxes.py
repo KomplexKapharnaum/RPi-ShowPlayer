@@ -80,7 +80,8 @@ def delay(flag, **kwargs):
     duration = search_in_or_default("duration", kwargs['args'], default=0)
     time.sleep(float(duration))
 
-@publicbox('[duration:float] [signal:str]', default=settings.get("values","autodelay"))
+@publicbox('[duration:float] [signal:str]', default=settings.get("values",
+                                                                 "autodelay"), timer=True)
 def auto_delay(flag, **kwargs):
     """
     This function (box) delay for a givent time and emit a signal at the end
@@ -91,7 +92,9 @@ def auto_delay(flag, **kwargs):
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
     duration = search_in_or_default("duration", kwargs['args'], default=0)
     signal = Flag(signal_uid, TTL=float(duration) + 0.5, JTL=1).get()
-    threading.Timer(float(duration), patcher.patch, (signal, ), dict()).start()
+    flag.args["__timer"].append(threading.
+        Timer(float(duration), patcher.patch, (signal, ), dict()))
+    flag.args["__timer"][0].start()
 
 
 @publicbox('[ip:str] [port:int] [msg:str]')
