@@ -137,7 +137,10 @@ def __kxkm_next_titreur(lines, m_type, m_speed, m_delay,
         if m_loop is True:
             lines["current"] = 0
         else:
-            patcher.patch(Flag("END_TEXT").get())
+            ()
+            timer[0] = threading.Timer(float(m_delay), patcher.patch,
+                                       (Flag("END_TEXT", JTL=0.5+float(m_delay)).get(), ))
+            timer[0].start()
             return
     timer[0] = threading.Timer(float(m_delay), __kxkm_next_titreur,
                                (lines,
