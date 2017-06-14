@@ -146,8 +146,9 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
            "speed:int]", category="titreur",
            timer=True)
 def titreur_text_multi(flag, **kwargs):
-    media = os.path.join(settings.get_path("media", "text"), flag.args["media"])
-    params = search_in_or_default(("delay", "loop", "type", "speed"), flag.args,
+    media = os.path.join(settings.get_path("media", "text"),kwargs['args'][
+        "media"])
+    params = search_in_or_default(("delay", "loop", "type", "speed"), kwargs['args'],
                                   setting=("values", "text_multi"))
     m_txt1 = ''
     m_txt2 = ''
