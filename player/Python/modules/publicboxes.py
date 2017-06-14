@@ -150,7 +150,7 @@ def __kxkm_next_titreur(lines, m_type, m_speed, m_delay,
 
 
 @publicbox("[media] [ids:str] [delay:float] [loop:int] [type:str] ["
-           "speed:int]", category="titreur",
+           "speed:str]", category="titreur",
            timer=True)
 def text_multi(flag, **kwargs):
     media = os.path.join(settings.get_path("media", "text"),kwargs['args'][
