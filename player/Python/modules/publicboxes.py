@@ -195,8 +195,7 @@ def titreur_text_multi(flag, **kwargs):
 
     kwargs["_etape"]._localvars["__timer"] = list()
     kwargs["_etape"]._localvars["__timer"].append(
-        threading.Timer(float(0), __kxkm_next_titreur, (kwargs["_fsm"].vars[
-                                                            "kxkmcard"].setMessage,
+        threading.Timer(float(0), __kxkm_next_titreur, (None,
                                                         {"lines": lines,
                                                          "current": 0},
                                                         m_type,
