@@ -170,7 +170,7 @@ class KxkmCard(ExternalProcessFlag):
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
 
-    def flush_titreur():
+    def flush_titreur(self):
         cmd = 'flushtitreur'
         self.say(cmd)
 

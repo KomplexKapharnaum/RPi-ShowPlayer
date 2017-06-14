@@ -122,9 +122,15 @@ def rawosc(flag, **kwargs):
 def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
                             m_loop, timer):
 
-    setMessage(lines["lines"][lines["current"]][0].decode("utf8"),
-               lines["lines"][lines["current"]][0].decode("utf8"), m_type,
-               m_speed)
+    # setMessage(lines["lines"][lines["current"]][0].decode("utf8"),
+    #            lines["lines"][lines["current"]][0].decode("utf8"), m_type,
+    #            m_speed)
+    patcher.serve(Flag("TITREUR_MESSAGEPLUS", args={
+        'ligne1':lines["lines"][lines["current"]][0].decode("utf8"),
+        'ligne2':lines["lines"][lines["current"]][1].decode("utf8"),
+        'type': m_type
+    }
+                ))
     lines["current"] += 1
     if lines["current"] == len(lines["lines"]):
         if m_loop is True:
@@ -184,6 +190,8 @@ def titreur_text_multi(flag, **kwargs):
             lines.append(parsed[id])
         else:
             log.warning("Missing id {} in TEXT_MULTI box".format(id))
+
+
 
     kwargs["_etape"]._localvars["__timer"] = list()
     kwargs["_etape"]._localvars["__timer"].append(
