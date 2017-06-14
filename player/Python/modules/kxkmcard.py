@@ -278,7 +278,7 @@ def init_kxkm_card(flag, **kwargs):
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [id]": "kxkm_card_titreur_text",
-       "/titreur/texte_multi [media] [ids] [delay] [loop]":
+       "/titreur/texte_multi [media] [ids] [delay] [loop] [type] [speed]":
            "kxkm_card_titreur_text_multi",
        "/titreur/flush": "kxkm_card_titreur_flush",
        "/carte/relais [on/off]": "kxkm_card_relais",
@@ -367,7 +367,8 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
         else:
             patcher.patch(Flag("END_TEXT").get())
             return
-    timer[0] = threading.Timer(float(m_delay), __kxkm_next_titreur, (lines,
+    timer[0] = threading.Timer(float(m_delay), __kxkm_next_titreur,
+                               (setMessage, lines,
                                                                     m_type,
                                                                      m_speed,
                                                                      m_delay,
@@ -412,7 +413,9 @@ def kxkm_card_titreur_text_multi(flag, **kwargs):
 
     kwargs["_etape"]._localvars["__timer"] = list()
     kwargs["_etape"]._localvars["__timer"].append(
-        threading.Timer(float(0), __kxkm_next_titreur, (lines,
+        threading.Timer(float(0), __kxkm_next_titreur, (kwargs["_fsm"].vars[
+                                                            "kxkmcard"].setMessage,
+                                                        lines,
                                                               m_type,
                                                               m_speed,
                                                               m_delay,
