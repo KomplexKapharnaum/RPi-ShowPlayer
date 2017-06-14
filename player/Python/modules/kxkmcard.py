@@ -24,7 +24,7 @@ FILTERS = {
     # filtre qui s'enchaine, si les fonctions appelées return true, alors passe à la suivante
     # le dernier true de la ligne rend le signal dispo pour l’éditeur de scénario
     'INITHARDWARE': ['initHw'],
-    'HARDWAREREADY': ['transTo /hardware/ready',True],
+    'HARDWARE_READY': ['transTo /hardware/ready',True],
     'TELECO_GET_INFO': ['sendInfo'],
 
     'CARTE_PUSH_1': ['btnDown', True],
@@ -278,7 +278,8 @@ def init_kxkm_card(flag, **kwargs):
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [id]": "kxkm_card_titreur_text",
-       "/titreur/texte_multi [media] [ids]": "kxkm_card_titreur_text_multi",
+       "/titreur/texte_multi [media] [ids] [delay] [loop]":
+           "kxkm_card_titreur_text_multi",
        "/titreur/flush": "kxkm_card_titreur_flush",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
@@ -377,6 +378,8 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
 @link({None: "kxkm_card"}, timer=True)
 def kxkm_card_titreur_text_multi(flag, **kwargs):
     media = os.path.join(settings.get_path("media", "text"), flag.args["media"])
+    params = search_in_or_default(("delay", "loop", "type", "speed"), flag.args,
+                                  setting=("values", "text_multi"))
     m_txt1 = ''
     m_txt2 = ''
     m_type = None
