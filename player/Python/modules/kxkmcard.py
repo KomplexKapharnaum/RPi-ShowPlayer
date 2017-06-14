@@ -360,8 +360,6 @@ def kxkm_card_titreur_text(flag, **kwargs):
     m_type = None
     m_speed = None
 
-    log.warning("text file : {0}".format(media))
-
     with open(media) as f:
         for line in f:
             if line[0] == '#':
