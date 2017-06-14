@@ -1,0 +1,21 @@
+
+MONITOR
+
+=> message de monitoring sur demande (devicecontrol)
+- rajouter le groupe
+- info media sur disque (media need ?) 10/12 par exemple
+- netctl-watchdog status
+
+OK => iamalive toutes les secondes (spontané)
+
+=> envoyer au devices present des ordres OSC
+- /scene/goto /scene/..
+- /device/..
+- send signal custom
+
+=> ordre d'effacement de __active et backups scenario
++ solliciter scenario
+
+=> netctl-watchdog
+- parse in python instead of bash
+

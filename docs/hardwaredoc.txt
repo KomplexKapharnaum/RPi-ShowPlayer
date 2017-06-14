@@ -1,0 +1,101 @@
+hardware doc
+
+===== cin format =====
+
+initconfig -titreurNbr (int) -carteVolt (int) -name (string) -ip (string) -version (string) -status (string)
+
+info -status (string)
+
+popup -type string [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)]
+//type de popup "log" "scenario" "usb" "media" "sync" "user" "8"  // texte première ligne 16 caracteres // texte 2eme ligne 16 caracteres
+
+setledtelecook [-on] [-off]
+setledcarteok [-on] [-off]
+settelecolock [-lock] [-unlock] [-sleep] [-powerdown] [-read]
+
+texttitreur [-line1 (stringespace=underscore)] [-line2 (stringespace=underscore)] [-scroll]
+
+setlight [-fade (int)] [-strob (int)] [-rgb (int) (int) (int)] [-10w1 (int)] [-10w2 (int)] 
+// fade en seconde // strob en miliseconde // possible de changer plusieurs lumières en une seule ligne mais elles auront les mêmes valeur de fade et de strob
+
+setgyro [-speed (int)] [-strob (int)] -mode (string)
+// speed en ms // strob en ms // mode peut être égale à "alloff" "allon" "turnR" ou "turnL"
+
+setrelais [-on] [-off]
+
+testroutine [-nbr (int)]
+//nbr nombre de boucle de routine
+
+
+
+
+===== cout format =====
+
+form program :
+"#INITHARDWARE"  --> doit être suivi d'un cin initconfig
+"#HARDWAREREADY" --> précise que le hardware est ok
+"#GET_INFO"  --> doit être suivi d'un cin info
+
+from carte : 
+"#CARTE_PUSH_1 " 
+"#CARTE_PUSH_2 " 
+"#CARTE_PUSH_3 " 
+"#CARTE_FLOAT "
+
+from teleco : 
+"#TELECO_PUSH_A " 
+"#TELECO_PUSH_B "  
+"#TELECO_PUSH_OK " 
+"#TELECO_REED " 
+"#TELECO_FLOAT "
+
+"#TELECO_MESSAGE_PREVIOUSSCENE"
+"#TELECO_MESSAGE_RESTARTSCENE"
+"#TELECO_MESSAGE_NEXTSCENE"
+"#TELECO_MESSAGE_BLINKGROUP"
+"#TELECO_MESSAGE_RESTARTPY"
+"#TELECO_MESSAGE_RESTARTWIFI"
+"#TELECO_MESSAGE_UPDATESYS"
+"#TELECO_MESSAGE_POWEROFF"
+"#TELECO_MESSAGE_REBOOT"
+"#TELECO_MESSAGE_TESTROUTINE"
+
+new format
+
+TELECO_MESSAGE_PREVIOUSSCENE  [Self, Group, All]
+TELECO_MESSAGE_RESTARTSCENE  [Self, Group, All]
+TELECO_MESSAGE_NEXTSCENE  [Self, Group, All]
+
+
+TELECO_MESSAGE_SETTINGS_LOG_DEBUG 
+TELECO_MESSAGE_SETTINGS_LOG_ERROR 
+TELECO_MESSAGE_SETTINGS_VOLPLUS 
+TELECO_MESSAGE_SETTINGS_VOLMOINS 
+TELECO_MESSAGE_SETTINGS_VOLSAVE 
+TELECO_MESSAGE_SETTINGS_VOLBACK 
+
+TELECO_MESSAGE_MODE_SHOW 
+TELECO_MESSAGE_MODE_REPET 
+TELECO_MESSAGE_MODE_DEBUG 
+TELECO_MESSAGE_LOG_ERROR 
+TELECO_MESSAGE_LOG_DEBUG 
+
+TELECO_MESSAGE_BLINKGROUP 
+TELECO_MESSAGE_TESTROUTINE 
+
+TELECO_MESSAGE_SYS_RESTARTPY 
+TELECO_MESSAGE_SYS_RESTARTWIFI 
+TELECO_MESSAGE_SYS_UPDATESYS 
+TELECO_MESSAGE_SYS_POWEROFF 
+TELECO_MESSAGE_SYS_REBOOT 
+
+TELECO_MESSAGE_GET_INFO 
+
+TELECO_MESSAGE_MEDIA_VOLPLUS  [Self, Group, All]
+TELECO_MESSAGE_MEDIA_VOLMOINS  [Self, Group, All]
+TELECO_MESSAGE_MEDIA_MUTE  [Self, Group, All]
+TELECO_MESSAGE_MEDIA_PAUSE  [Self, Group]
+TELECO_MESSAGE_MEDIA_PLAY  [Self, Group]
+TELECO_MESSAGE_MEDIA_STOP  [Self, Group]
+
+"#TELECO_GET_INFO"

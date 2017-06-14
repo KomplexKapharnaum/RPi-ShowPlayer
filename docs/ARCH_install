@@ -1,0 +1,167 @@
+
+## FROM SCRATCH ## (SD empty and no image disk)
+Follow :  http://archlinuxarm.org/platforms/armv6/raspberry-pi
+(100 Mo for boot partition )
+
+Start fdisk to partition the SD card:
+    fdisk /dev/sdX
+    At the fdisk prompt, delete old partitions and create a new one:
+        Type o. This will clear out any partitions on the drive.
+        Type p to list partitions. There should be no partitions left.
+        Type n, then p for primary, 1 for the first partition on the drive, press ENTER to accept the default first sector, then type +100M for the last sector.
+        Type t, then c to set the first partition to type W95 FAT32 (LBA).
+        Type n, then p for primary, 2 for the second partition on the drive, and then press ENTER twice to accept the default first and last sector.
+        Write the partition table and exit by typing w.
+    Create and mount the FAT filesystem:
+    mkfs.vfat /dev/sdX1
+    mkdir boot
+    mount /dev/sdX1 boot
+    Create and mount the ext4 filesystem:
+    mkfs.ext4 /dev/sdX2
+    mkdir root
+    mount /dev/sdX2 root
+    Download and extract the root filesystem (as root, not via sudo):
+    wget http://archlinuxarm.org/os/ArchLinuxARM-rpi-latest.tar.gz
+    bsdtar -xpf ArchLinuxARM-rpi-latest.tar.gz -C root
+    sync
+    Move boot files to the first partition:
+    mv root/boot/* boot
+    Unmount the two partitions:
+    umount boot root
+    Insert the SD card into the Raspberry Pi, connect ethernet, and apply 5V power.
+    Use the serial console or SSH to the IP address given to the board by your router.
+        Login as the default user alarm with the password alarm.
+        The default root password is root.
+
+
+
+####FRESH ARCH INSTALL
+
+## AS ROOT
+
+# SYSTEM INSTALL/UPDATE
+pacman -Sy --noconfirm pacman
+pacman-key --init
+pacman -Sy --noconfirm archlinux-keyring
+pacman-key --populate archlinux
+pacman -Syu --noconfirm --ignore filesystem
+pacman -Sy --noconfirm filesystem --force
+pacman -Sy --noconfirm sudo adduser
+visudo  			#allow wheel sudoers group
+adduser 			#adduser pi with additional group wheel (sudoers)
+nano /boot/config.txt #add overclocking options
+
+pacman -Sy --noconfirm wget nfs-utils htop openssh autofs alsa-utils alsa-firmware alsa-lib alsa-plugins
+pacman -Sy --noconfirm git zsh base-devel libtool diffutils libnewt polkit
+pacman -Sy --noconfirm mesa-libgl  ttf-freefont wpasupplicant
+
+timedatectl set-timezone Europe/Paris
+timedatectl ste-ntp true
+
+
+#ENABLE SPI
+nano /boot/config.txt 
+-> enable SPI
+echo 'spi-bcm2708' >> /etc/modules-load.d/raspberrypi.conf
+echo 'spidev' >> /etc/modules-load.d/raspberrypi.conf
+reboot  #as root
+useradd spi
+chown -R root:spi /dev/spidev0.*
+chmod 770 -R /dev/spidev0.*
+usermod -a -G spi pi
+
+
+## AS PI
+
+#RE-LOG WITH USER pi
+nano ~/.bashrc 		#add: export EDITOR="nano"
+
+#WIRING PI
+cd && git clone git://git.drogon.net/wiringPi
+cd wiringPi
+sudo ./build
+gpio -v
+
+###YAOURT
+cd && wget https://aur.archlinux.org/packages/pa/package-query/package-query.tar.gz
+tar -xvzf package-query.tar.gz
+cd package-query
+makepkg -si
+cd .. 
+wget https://aur.archlinux.org/packages/ya/yaourt/yaourt.tar.gz
+tar -xvzf yaourt.tar.gz
+cd yaourt
+makepkg -si
+ 
+
+###SDL2 Compiling
+cd && wget https://www.libsdl.org/release/SDL2-2.0.3.tar.gz
+tar zxvf SDL2-2.0.3.tar.gz
+cd SDL2-2.0.3 && mkdir build && cd build
+../configure --host=armv7l-raspberry-linux-gnueabihf --disable-pulseaudio --disable-esd --disable-video-mir --disable-video-wayland --disable-video-x11 --disable-video-opengl
+make -j 3		#might fail, restart or lower the value
+sudo make install
+cd
+wget http://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.0.tar.gz
+tar zxvf SDL2_image-2.0.0.tar.gz
+cd SDL2_image-2.0.0 && mkdir build && cd build
+../configure
+make -j 3
+sudo make install
+#TEST code: https://solarianprogrammer.com/2015/01/22/raspberry-pi-raspbian-getting-started-sdl-2/
+
+
+####VLC Compiling
+sudo pacman -S --noconfirm lua ffmpeg a52dec libdvdread libkate fluidsynth libmtp libgoom2 twolame libdca mpg123 libmodplug libass libdvbpsi libxml2 libxpm libxinerama libxext libmpcdec libmpeg2 libogg schroedinger libx264 libbluray 
+cd && git clone --depth 1 git://git.videolan.org/vlc.git
+cd vlc
+./bootstrap
+./configure --enable-rpi-omxil --enable-dvbpsi --enable-x264 --enable-alsa
+make clean
+make -j3	#might fail, restart or lower the value
+sudo make install
+
+
+####DNC Dependencies
+git clone https://github.com/KomplexKapharnaum/RPi-ShowPlayer.git /dnc
+pacman -Sy --noconfirm python2-setuptools python2-simplejson cython liblo python2-pip fuse-exfat
+date -s "2015-01-01" && pip2.7 install pyudev
+yaourt omxplayer 
+/dnc/player/Libs/recompile.sh /dnc/player/Libs
+
+## PyLIBLO
+cd /dnc/docs/PKGBUILDs
+for f in *; do
+	cp $f /tmp/PKGBUILD
+	cd /tmp
+	su pi -c makepkg
+	pacman -U --noconfirm *.pkg.tar.xz
+	rm *.pkg.tar.xz
+	cd /dnc/docs/PKGBUILDs
+done
+
+
+####NETCTL
+pacman -Sy --noconfirm wpa_actiond
+systemctl enable netctl-auto@wlan0.service
+- (Disable old profiles : netctl disable *** )
+- Create profiles for wlan0 iterface and set Priority=XXX to ordonate profiles. Higher priority win.
+- ( You can manage auto profiles with netctl-auto command )
+
+
+
+
+   
+### CLEAN BOOT AND TTY PROMPT
+# Suppression des messages de boot
+Dans :  /boot/cmdline.txt, ajouter en fin de ligne :
+logo.nologo quiet loglevel=3 vga=current
+# Suppression du petit carré qui clignote 
+Dans : /boot/config.txt ajouter (là où l'on veut) :
+avoid_warnings=1
+# Suppression des autres messages (genre connection wifi)
+$ echo "kernel.printk = 3 3 3 3" > /etc/sysctl.d/20-quiet-printk.conf
+# Suppression du getty 
+$ rm /etc/systemd/system/getty.target.wants/*
+
+

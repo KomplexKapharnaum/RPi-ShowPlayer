@@ -1,0 +1,123 @@
+
+<HTML>
+  <HEAD>
+    <title>TIMELINE</title>
+    <!-- JQUERY -->
+    <script type='text/javascript' src='lib/jquery.min.js'></script>
+    <script type='text/javascript' src='lib/jquery-ui.min.js'></script>
+    <link rel="stylesheet" type="text/css" href="lib/jquery-ui.css">
+    <!-- MUTLISELECT -->
+    <script src="lib/Multiple-select/jquery.multiple.select.js"></script>
+    <link rel="stylesheet" href="lib/Multiple-select/multiple-select.css" />
+    <!-- INT -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="script.js"></script>
+  </HEAD>
+
+  <BODY>
+
+    <div class="tip"></div>
+
+      <div id = "colonne1">
+        <div id="ids">
+          <input  type="button" id="addButton" class="addpibtn" value="+">
+          <div id="allpinames"></div>
+        </div>
+        <div id="allscenes"></div>
+        <div id="allpi"></div>
+      </div>
+
+
+      <div id = "colonne2">
+
+        <div class="title">GENERAL</div>
+        <div class="properties">
+          <select name="selFile" id="selFile" class="dropdownGnrl">
+          </select>
+          <input type="button" id="clearBtn" class="btn" value="CLEAR" />
+          <input type="button" id="saveBtn" class="btn" value="SAVE" />
+          <input type="button" id="saveAsBtn" class="btn" value="SAVE AS" />
+          <input type="button" id="loadBtn" class="btn" value="RELOAD" />
+          <input type="button" id="delBtn" class="btn" value="DELETE" /><br><br>
+          <!-- <input type="button" id="openInfos" class="btn" value="?" /><br><br> -->
+					<input type="checkbox" class="check" id="tooltipsOnoff"/>
+					<label for="tooltipsOnoff" name="openInfos" class="css-label">SHOW INFOS</label>
+
+
+        </div>
+        <br />
+
+
+          <div class="title sceneEdit">SCENE</div>
+          <div class="properties sceneEdit">
+            <div id="scenename" class="name">Select...</div>
+            <input  type="button" id="delSceneButton" class="btn2" value="-">
+            <br>
+          </div>
+
+
+
+        <div class="title dispoEdit">DISPO</div>
+        <div class="properties dispoEdit">
+            <div id="piname" class="name">Select...</div>
+            <input  type="button" id="delPiButton" class="btn2" value="-">
+            <br>
+            <select name="disposelector" id="disposelector" class="dropdown"></select><br><br>
+            <div class="form-group">
+                <select id="disposms" multiple="multiple">
+                </select>
+            </div>
+            <ul id="modulesList" style="list-style-type:square">
+            </ul>
+        </div>
+
+        <div class="title blocEdit">BLOC</div>
+        <div class="properties blocEdit">
+          <div id="blocknameVisu" class="name">Select...</div>
+          <input  type="button" id="delBlockButton" class="btn2" value="-">
+          <br>
+          <div>Group<br><br>
+            <select name="groupselector" id="groupselector" class="dropdown">
+            </select>
+          </div><br>
+          <div>Scenarios<br><br>
+              <div class="form-group">
+                  <select id="scenariosms" multiple="multiple">
+                  </select>
+              </div>
+            <input  type="button" id="openscenarioseditor" class="btn2" value="..."><br>
+              <ul id = "scenariosList" style="list-style-type:square">
+              </ul>
+          </div>
+        </div>
+
+      </div>
+
+
+
+
+      <div id = "colonne3">
+
+        <div id = "scenarioseditor" style='display:none' class='inspector'>
+          <div class="title">Scenario Name
+            <input  type="button" id="closescenarioseditor" class="closebtn" value="x">
+          </div>
+
+          <div class="properties">
+            <select name="scenariosdropdown" id="scenariosdropdown" class="dropdown">
+            </select><br><br>
+            <input id="scenarioname" class="textarea" value="Default">
+            <br><br>
+            <input  type="button" id="addscenariobtn" class="btn" value="+">
+            <input  type="button" id="modifscenariobtn" class="btn" value="Edit">
+            <input  type="button" id="delscenariobtn" class="btn" value="-">
+
+          </div>
+        </div>
+        <div id="serverDisplay"></div>
+
+      </div>
+
+  </BODY>
+
+  </HTML>

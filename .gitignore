@@ -1,0 +1,88 @@
+# Pycharm IDE
+.idea
+
+# Other prog in KXKM
+others
+
+#Media Files
+*.mp4
+*.mov
+*.avi
+*.mp3
+*.wav
+*.m4v
+*.aac
+*.m4a
+*.ac3
+dest.txt
+
+#SCENARIO ARCHIVES
+*.tar
+scenario/*
+scenario/__active/*
+
+#Log Files
+*.log
+*.log.bck
+.fuse_*
+*.xcuserstate
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.o
+
+# C extensions
+*.so
+
+# Distribution / packaging
+*.DS_Store
+.xcuserstate
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/

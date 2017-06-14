@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <Group
+      location = "container:"
+      name = "gsm">
+      <FileRef
+         location = "group:../GPRS_com/main.cpp">
+      </FileRef>
+      <FileRef
+         location = "group:../GPRS_com/main.h">
+      </FileRef>
+      <FileRef
+         location = "group:../GPRS_com/makefile">
+      </FileRef>
+   </Group>
+   <Group
+      location = "group:../prog atmega"
+      name = "prog atmega">
+      <Group
+         location = "group:dnc_prod_carte"
+         name = "dnc_prod_carte">
+         <FileRef
+            location = "group:dnc_prod_carte.ino"
+            assignedFileDataType = "public.c-plus-plus-source">
+         </FileRef>
+      </Group>
+      <Group
+         location = "group:dnc_prod_teleco"
+         name = "dnc_prod_teleco">
+         <FileRef
+            location = "group:dnc_prod_teleco.ino"
+            assignedFileDataType = "public.c-plus-plus-source">
+         </FileRef>
+      </Group>
+   </Group>
+   <FileRef
+      location = "group:makefile">
+   </FileRef>
+   <FileRef
+      location = "group:../../../docs/hardwaredoc.txt">
+   </FileRef>
+   <Group
+      location = "container:"
+      name = "utils">
+      <FileRef
+         location = "group:extSPI.h">
+      </FileRef>
+      <FileRef
+         location = "group:extSPI.cpp">
+      </FileRef>
+      <FileRef
+         location = "group:PI_GPIO.c">
+      </FileRef>
+      <FileRef
+         location = "group:Queue.h">
+      </FileRef>
+      <FileRef
+         location = "group:timer.cpp">
+      </FileRef>
+      <FileRef
+         location = "group:timer.h">
+      </FileRef>
+   </Group>
+   <Group
+      location = "container:"
+      name = "titreur">
+      <FileRef
+         location = "group:font2.h">
+      </FileRef>
+      <FileRef
+         location = "group:ht1632.h">
+      </FileRef>
+      <FileRef
+         location = "group:titreur.h">
+      </FileRef>
+      <FileRef
+         location = "group:titreur.cpp">
+      </FileRef>
+   </Group>
+   <Group
+      location = "container:"
+      name = "carte">
+      <FileRef
+         location = "group:carte.h">
+      </FileRef>
+      <FileRef
+         location = "group:carte.cpp">
+      </FileRef>
+      <FileRef
+         location = "group:teleco.h">
+      </FileRef>
+      <FileRef
+         location = "group:teleco.cpp">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "group:main.h">
+   </FileRef>
+   <FileRef
+      location = "group:main.cpp">
+   </FileRef>
+</Workspace>

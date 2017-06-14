@@ -1,0 +1,72 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		A0F8F21D1A6FB5F500CBC576 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		A0B89B461A6EC8F300379684 = {
+			isa = PBXGroup;
+			children = (
+				A0F8F21D1A6FB5F500CBC576 /* main.c */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		A0B89B471A6EC8F300379684 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+			};
+			buildConfigurationList = A0B89B4A1A6EC8F300379684 /* Build configuration list for PBXProject "GPRS_com" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A0B89B461A6EC8F300379684;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		A0B89B4B1A6EC8F300379684 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		A0B89B4C1A6EC8F300379684 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A0B89B4A1A6EC8F300379684 /* Build configuration list for PBXProject "GPRS_com" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0B89B4B1A6EC8F300379684 /* Debug */,
+				A0B89B4C1A6EC8F300379684 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A0B89B471A6EC8F300379684 /* Project object */;
+}
