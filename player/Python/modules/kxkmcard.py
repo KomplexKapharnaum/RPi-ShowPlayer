@@ -12,6 +12,7 @@ from modules import link, exposesignals
 from engine.log import init_log
 from engine.setting import settings, devicesV2
 from engine.threads import patcher
+from engine.fsm import Flag
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
 import json
@@ -277,6 +278,7 @@ def init_kxkm_card(flag, **kwargs):
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
        "/titreur/texte [media] [id]": "kxkm_card_titreur_text",
+       "/titreur/texte_multi [media] [ids]": "kxkm_card_titreur_text_multi",
        "/titreur/flush": "kxkm_card_titreur_flush",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
@@ -352,9 +354,73 @@ def kxkm_card_popup_teleco(flag, **kwargs):
     kwargs["_fsm"].vars["kxkmcard"].popUpTeleco(flag.args["ligne1"], flag.args["ligne2"], flag.args["page"])
 
 
+def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
+                        m_loop, timer):
+    setMessage(lines["lines"][lines["current"]][0].decode("utf8"),
+               lines["lines"][lines["current"]][0].decode("utf8"), m_type,
+                                               m_speed)
+    lines["current"] += 1
+    if lines["current"] == len(lines["lines"]):
+        if m_loop:
+            lines["current"] = 0
+        else:
+            patcher.patch(Flag("END_TEXT").get())
+            return
+    timer[0] = threading.Timer(float(m_delay), __kxkm_next_titreur, (lines,
+                                                                    m_type,
+                                                                     m_speed,
+                                                                     m_delay,
+                                                                     m_loop,
+    timer))
+    timer[0].start()
+
+@link({None: "kxkm_card"}, timer=True)
+def kxkm_card_titreur_text_multi(flag, **kwargs):
+    media = os.path.join(settings.get_path("media", "text"), flag.args["media"])
+    m_txt1 = ''
+    m_txt2 = ''
+    m_type = None
+    m_speed = None
+    m_delay = flag.args["delay"]
+    m_loop = True if flag.args["loop"] == 1 else False
+
+    ids = flag.args["ids"].split(",")
+    parsed = dict()
+    lines = list()
+
+    with open(media) as f:
+        for line in f:
+            if line[0] == '#':
+                continue
+            line = line.split(':')
+            if line[0] in ids:
+                id = line[0]
+                parsed[id] = list()
+                line.pop(0)
+                line = ':'.join(line)
+                parsed[id].append(parsed[id].split("\\n")[0])
+                if len(line.split("\\n")) > 1:
+                    parsed[id].append(line.split("\\n")[1])
+                else:
+                    parsed[id].append('')
+                break
+    for id in ids:
+        lines.append(parsed[id])
+
+    kwargs["_etape"]._localvars["__timer"] = list()
+    kwargs["_etape"]._localvars["__timer"].append(
+        threading.Timer(float(0), __kxkm_next_titreur, (lines,
+                                                              m_type,
+                                                              m_speed,
+                                                              m_delay,
+                                                              m_loop,
+                                                              )))
+    kwargs["_etape"]._localvars["__timer"][0].start()
+
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_text(flag, **kwargs):
-    media = os.path.join(settings.get_path("media", "text"), flag.args["media"])
+    media = os.path.join(settings.get_path("media", "text"),
+                         flag.args["media"])
     m_txt1 = ''
     m_txt2 = ''
     m_type = None
@@ -373,4 +439,6 @@ def kxkm_card_titreur_text(flag, **kwargs):
                     m_txt2 = line.split("\\n")[1]
                 break
 
-    kwargs["_fsm"].vars["kxkmcard"].setMessage(m_txt1.decode("utf8"), m_txt2.decode("utf8"), m_type, m_speed)
+    kwargs["_fsm"].vars["kxkmcard"].setMessage(m_txt1.decode("utf8"),
+                                               m_txt2.decode("utf8"),
+                                               m_type, m_speed)
