@@ -222,16 +222,15 @@ class publicbox(object):
         def fn(flag, *args, **kwargs):
             if 'args' in kwargs.keys():
                 kwargs['args'] = parse_args_etape_function(kwargs['args'], self.args, self.types, self.default)
-                if self.timer is True and flag is not None:
-                    flag.args["__timer"] = list()
             return f(flag, *args, **kwargs)
         def out(flag, *args, **kwargs):
             """
             :param flag: Flag
             :type flag: fsm.Flag
             """
-            for timer in flag.args["__timer"]:
+            for timer in kwargs["_etape"]._localvars["__timer"]:
                 timer.cancel()
+            kwargs["_etape"]._localvars["__timer"] = list()
             return True
 
         DECLARED_PUBLICBOXES[f.__name__.upper() + '_PUBLICBOX'] = {'function': fn,

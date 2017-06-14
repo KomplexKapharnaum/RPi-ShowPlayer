@@ -92,9 +92,9 @@ def auto_delay(flag, **kwargs):
     signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
     duration = search_in_or_default("duration", kwargs['args'], default=0)
     signal = Flag(signal_uid, TTL=float(duration) + 0.5, JTL=1).get()
-    flag.args["__timer"].append(threading.
+    kwargs["_etape"]._localvars["__timer"].append(threading.
         Timer(float(duration), patcher.patch, (signal, ), dict()))
-    flag.args["__timer"][0].start()
+    kwargs["_etape"]._localvars["__timer"][0].start()
 
 
 @publicbox('[ip:str] [port:int] [msg:str]')
