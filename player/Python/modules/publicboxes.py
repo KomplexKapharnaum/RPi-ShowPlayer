@@ -127,8 +127,7 @@ def __kxkm_next_titreur(setMessage, lines, m_type, m_speed, m_delay,
     #            m_speed)
     patcher.serve(Flag("TITREUR_MESSAGEPLUS", args={
         'ligne1':lines["lines"][lines["current"]][0].decode("utf8"),
-        'ligne2':lines["lines"][lines["current"]][1].decode("utf8"),
-        'type': m_type
+        'ligne2':lines["lines"][lines["current"]][1].decode("utf8")
     }
                 ))
     lines["current"] += 1
