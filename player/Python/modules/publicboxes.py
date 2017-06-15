@@ -200,33 +200,38 @@ def text_multi(flag, **kwargs):
     parsed = dict()
     lines = list()
 
-    with open(media) as f:
-        try:
-            data = json.loads(f.read())
-        except Exception as e:
-            log.warning("Error loading text file {0}: {1}".format(media, e))
-        data = data['text'].replace("\\n", "<br>").split('\n')
-        for line in data:
-            if len(line) == 0 or line[0] == '#':
-                continue
-            line = line.split(':')
-            if line[0] in ids:
-                id = line[0]
-                parsed[id] = list()
-                line.pop(0)
-                line = ':'.join(line)
-                parsed[id].append(line.split("<br>")[0])
-                if len(line.split("<br>")) > 1:
-                    parsed[id].append(line.split("<br>")[1])
-                else:
-                    parsed[id].append('')
+    try:
+        with open(media) as f:
+            try:
+                data = json.loads(f.read())
+            except Exception as e:
+                log.warning("Error loading text file {0}: {1}".format(media, e))
+            data = data['text'].replace("\\n", "<br>").split('\n')
+            for line in data:
+                if len(line) == 0 or line[0] == '#':
+                    continue
+                line = line.split(':')
+                if line[0] in ids:
+                    id = line[0]
+                    parsed[id] = list()
+                    line.pop(0)
+                    line = ':'.join(line)
+                    parsed[id].append(line.split("<br>")[0])
+                    if len(line.split("<br>")) > 1:
+                        parsed[id].append(line.split("<br>")[1])
+                    else:
+                        parsed[id].append('')
+    except Exception as e:
+        log.warning("Can't open media file {} in TEXT_MULTI : {}".format(
+            media, e))
+        return
 
 
     for id in ids:
         if id in parsed.keys():
             lines.append(parsed[id])
         else:
-            lines.append("..missing..")
+            lines.append(("..missing..", ""))
             log.warning("Missing id {} in TEXT_MULTI box".format(id))
 
 
