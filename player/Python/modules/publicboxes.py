@@ -152,10 +152,17 @@ def __kxkm_next_titreur(lines, m_type, m_speed, m_delay,
     timer[0].start()
 
 
-@publicbox("[media] [ids:str] [delay:float] [loop:int] [type:str] ["
+@publicbox("[dispo] [media] [ids:str] [delay:float] [loop:int] [type:str] ["
            "speed:str]", category="titreur",
            timer=True)
 def text_multi(flag, **kwargs):
+    concerned = False
+    for dest in kwargs['args']['dest']:
+        if dest in ['All', 'Self', 'Group', settings.get('uName')]:
+            concerned = True
+    if not concerned:
+        log.debug("Skip TEXT_MULTI because not concerned")
+
     media = os.path.join(settings.get_path("media", "text"),kwargs['args'][
         "media"])
     params = search_in_or_default(("delay", "loop", "type", "speed"), kwargs['args'],
