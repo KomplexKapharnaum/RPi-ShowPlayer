@@ -394,7 +394,7 @@ def kxkm_card_titreur_text(flag, **kwargs):
             return
         data = data['text'].replace("\\n", "<br>").split('\n')
         for line in data:
-            if line[0] == '#':
+            if len(line) == 0 or line[0] == '#':
                 continue
             line = line.split(':')
             if line[0] == flag.args["id"]:
