@@ -180,6 +180,7 @@ def text_multi(flag, **kwargs):
 
     with open(media) as f:
         for line in f:
+            log.debug("line : {}".format(line))
             if line[0] == '#':
                 continue
             line = line.split(':')
