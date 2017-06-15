@@ -194,9 +194,9 @@ def text_multi(flag, **kwargs):
                 parsed[id] = list()
                 line.pop(0)
                 line = ':'.join(line)
-                parsed[id].append(line.split("<br/>")[0])
-                if len(line.split("<br/>")) > 1:
-                    parsed[id].append(line.split("<br/>")[1])
+                parsed[id].append(line.split("<br>")[0])
+                if len(line.split("<br>")) > 1:
+                    parsed[id].append(line.split("<br>")[1])
                 else:
                     parsed[id].append('')
 
