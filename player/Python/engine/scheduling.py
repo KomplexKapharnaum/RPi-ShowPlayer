@@ -97,3 +97,44 @@ class ThreadRepeater(object):
         Emulate join function
         """
         return True
+
+class TS_Scheduler(object):
+    """
+        Scheduler that is threadsafe
+    """
+
+    def __init__(self, interval, function, *args, **kwargs):
+        register_thread(self)
+        self._timer = None
+        self.interval = interval
+        self.function = function
+        self.args = args if args is not None else list()
+        self.kwargs = kwargs if kwargs is not None else dict()
+        self.is_running = threading.Event()
+        self._lock = threading.Lock()
+
+    def _run(self):
+        with self._lock:
+            self._timer = threading.Timer(self.interval, self._run)
+            self.function(*self.args, **self.kwargs)
+
+    def start(self, now=True):
+        with self._lock:
+            if not self.is_running.isSet():
+                register_thread(self)
+                self.is_running.set()
+                interval = 0 if now else self.interval
+                self._timer = threading.Timer(interval, self._run)
+
+    def cancel(self):
+        with self._lock:
+            if self.is_running.isSet() and self._timer is not None:
+                self._timer.cancel()
+                self.is_running.clear()
+
+    def stop(self):
+        self.cancel()
+
+    def join(self):
+        self.cancel()
+        return True
