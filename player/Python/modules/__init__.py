@@ -68,13 +68,15 @@ class globaletape(object):
     This is a decorator which declare function as etape in scenario scope
     """
 
-    def __init__(self, uid=None, transitions=dict(), options=dict()):
+    def __init__(self, uid=None, transitions=dict(), options=dict(),
+                 timer=False):
         """
         :param public_name: Name of the function in the scenario scope
         """
         self.uid = uid
         self.options = options
         self.transitions = transitions
+        self.timer = timer
 
     def __call__(self, f):
         global DECLARED_ETAPES, DECLARED_TRANSITION, DECLARED_OSCROUTES
@@ -90,6 +92,9 @@ class globaletape(object):
         else:
             fn = f
         DECLARED_ETAPES[self.uid] = Etape(self.uid, actions=((fn, self.options),))
+        if self.timer is True:
+            log.debug("ADD TIMER IN GLOBAL ETAPE {}".format(self.uid))
+            DECLARED_ETAPES[self.uid].out_actions = [(timer_out_action, {}), ]
         DECLARED_TRANSITION[self.uid] = self.transitions
         return DECLARED_ETAPES[self.uid]
 
@@ -190,8 +195,21 @@ def parse_args_etape_function(kwargs, args, types, default):
     return kwargs
 
 
+def timer_out_action(flag, *args, **kwargs):
+    """
+    :param flag: Flag
+    :type flag: fsm.Flag
+    """
+    if "__timer" in kwargs["_etape"]._localvars.keys():
+        for timer in kwargs["_etape"]._localvars["__timer"]:
+            log.debug("Cancel timer in out action")
+            timer.cancel()
+    return True
+
+
 class publicbox(object):
-    def __init__(self, args='', start=False, default=None):
+    def __init__(self, args='', start=False, default=None, timer=None,
+                 category=None):
         """
         :param args: args to ask from interface [param:paramtype]
         :param start: Set if it's a start box or not
@@ -206,6 +224,8 @@ class publicbox(object):
         self.start = start
         self.args = list()
         self.types = list()
+        self.timer = timer
+        self.category = category
         for arg in args.split(' '):
             unpack = arg.strip('[').strip(']').split(':')
             _arg = unpack[0]
@@ -222,10 +242,16 @@ class publicbox(object):
             if 'args' in kwargs.keys():
                 kwargs['args'] = parse_args_etape_function(kwargs['args'], self.args, self.types, self.default)
             return f(flag, *args, **kwargs)
+
         DECLARED_PUBLICBOXES[f.__name__.upper() + '_PUBLICBOX'] = {'function': fn,
+                                                                   'timer':
+                                                                       timer_out_action if
+                                                                       self.timer is True else False,
                                                                    'args': self.args,
                                                                    'start': self.start,
-                                                                   'types': self.types}
+                                                                   'types':
+                                                                       self.types,
+                                                                   'category': self.category if self.category is not None else 'GENERAL'}
 
 
 class link(globaletape):
@@ -236,8 +262,9 @@ class link(globaletape):
     and the corresponding patch is added
     """
 
-    def __init__(self, routes=dict()):
-        globaletape.__init__(self, None, dict(), dict())
+    def __init__(self, routes=dict(), timer=False):
+        globaletape.__init__(self, None, dict(), dict(), timer=timer)
+        self.timer = timer
         self.oscroutes = routes
 
     def __call__(self, f):

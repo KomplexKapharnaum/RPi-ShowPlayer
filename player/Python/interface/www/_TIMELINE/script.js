@@ -277,6 +277,8 @@
     $('#scenename').click(function(e){
 
       var sceneName = $('<input>').attr('type', 'text').addClass("textareaSmall");
+      $(sceneName).on("focusin", function(e){ textEditing = true; });
+  		$(sceneName).on("focusout", function(e){ textEditing = false; });
 
       var editedScene;
       $.each(allScenes, function(key, scene) {
@@ -428,6 +430,9 @@
 
       ///////////////////NAME EDITOR /////////////////
       var piName = $('<input>').attr('type', 'text').addClass("textareaSmall");
+      $(piName).on("focusin", function(e){ textEditing = true; });
+  		$(piName).on("focusout", function(e){ textEditing = false; });
+
       $(this.linename).on('dblclick', function (e) {
         $(this).text("");
         thispi.linename.append(piName);
@@ -804,9 +809,8 @@
 
     /////////////////////////////////////////////////////
 
-    $(".textarea").on("click", function () {
-      $(this).select();
-    });
+    $(".textarea").on("focusin", function(e){ textEditing = true; });
+    $(".textarea").on("focusout", function(e){ textEditing = false; });
 
 
     $('.tip').hide();
@@ -1246,10 +1250,10 @@
 
 
     //////////// KEYBOARD /////////////////
-
+    textEditing = false;
     $(document).keydown(function(e){
 
-       if(e.keyCode == 8 || e.keyCode == 46){ ////back : 8 , suppr : 46
+       if((e.keyCode == 8 || e.keyCode == 46) && (!textEditing)){ ////back : 8 , suppr : 46
          e.preventDefault();
          if (pool.lastSelectedType == 'bloc') $("#delBlockButton").click();
          else if (pool.lastSelectedType == 'scene') {
@@ -1262,6 +1266,8 @@
        }
        // console.log(e.keyCode);
     });
+
+
 
    /////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////

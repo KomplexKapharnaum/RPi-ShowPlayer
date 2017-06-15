@@ -112,11 +112,12 @@ def librarylist():
             'hard': True
         }
         answer['functions'].append(box)
+
     # PUBLIC BOXES
     for name, box in DECLARED_PUBLICBOXES.items():
         box = {
             'name': name.replace('_PUBLICBOX', ''),
-            'category': 'GENERAL',
+            'category': box['category'].upper(),
             'dispos': ('dispo' in box['args']),
             'medias': ('media' in box['args']),
             'arguments': [arg for arg in box['args'] if arg != 'dispo' and arg != 'media'],
@@ -151,7 +152,7 @@ def loadText():
         path = mediapath+"/"+filename
         answer = dict()
         answer['status'] = 'success'
-        with open(path, 'r') as file:   # Use file to refer to the file object     
+        with open(path, 'r') as file:   # Use file to refer to the file object
             answer['contents'] = file.read()
         return sendjson(answer)
     except:

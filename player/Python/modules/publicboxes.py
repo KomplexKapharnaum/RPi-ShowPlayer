@@ -1,4 +1,7 @@
 import time
+import threading
+import os
+import json
 
 import liblo
 
@@ -79,6 +82,23 @@ def delay(flag, **kwargs):
     duration = search_in_or_default("duration", kwargs['args'], default=0)
     time.sleep(float(duration))
 
+@publicbox('[duration:float] [signal:str]', default=settings.get("values",
+                                                                 "autodelay"), timer=True)
+def auto_delay(flag, **kwargs):
+    """
+    This function (box) delay for a givent time and emit a signal at the end
+    :param flag:
+    :param kwars:
+    :return:
+    """
+    signal_uid = kwargs['args']["signal"] if 'signal' in kwargs['args'] else None
+    duration = search_in_or_default("duration", kwargs['args'], default=0)
+    signal = Flag(signal_uid, TTL=float(duration) + 0.5, JTL=1).get()
+    kwargs["_etape"]._localvars["__timer"] = list()
+    kwargs["_etape"]._localvars["__timer"].append(threading.
+        Timer(float(duration), patcher.patch, (signal, ), dict()))
+    kwargs["_etape"]._localvars["__timer"][0].start()
+
 
 @publicbox('[signal:str]')
 def split_dispo(flag, **kwargs):
@@ -119,3 +139,106 @@ def rawosc(flag, **kwargs):
                 arg = (arg[1], arg[2:])
         args.append(arg)
     liblo.send(liblo.Address(ip, int(port)), liblo.Message(path, *args))
+
+def __kxkm_next_titreur(lines, m_type, m_speed, m_delay,
+                            m_loop, timer):
+
+    # setMessage(lines["lines"][lines["current"]][0].decode("utf8"),
+    #            lines["lines"][lines["current"]][0].decode("utf8"), m_type,
+    #            m_speed)
+    patcher.serve(Flag("TITREUR_MESSAGEPLUS", args={
+        'ligne1':lines["lines"][lines["current"]][0].decode("utf8"),
+        'ligne2':lines["lines"][lines["current"]][1].decode("utf8"),
+        'type':m_type,
+        'speed':m_speed
+    }
+                ))
+    lines["current"] += 1
+    if lines["current"] == len(lines["lines"]):
+        if m_loop is True:
+            lines["current"] = 0
+        else:
+            ()
+            timer[0] = threading.Timer(float(m_delay), patcher.patch,
+                                       (Flag("END_TEXT", JTL=0.5+float(m_delay)).get(), ))
+            timer[0].start()
+            return
+    timer[0] = threading.Timer(float(m_delay), __kxkm_next_titreur,
+                               (lines,
+                                m_type,
+                                m_speed,
+                                m_delay,
+                                m_loop,
+                                timer))
+    timer[0].start()
+
+
+@publicbox("[dispo] [media] [ids:str] [delay:float] [loop:int] [type:str] ["
+           "speed:str]", category="titreur",
+           timer=True)
+def text_multi(flag, **kwargs):
+    concerned = False
+    for dest in kwargs['args']['dest']:
+        if dest in ['All', 'Self', 'Group', settings.get('uName')]:
+            concerned = True
+    if not concerned:
+        log.debug("Skip TEXT_MULTI because not concerned")
+
+    media = os.path.join(settings.get_path("scenario", "activescenario"),
+                             'text_' + kwargs['args']["media"] + '.json')
+    params = search_in_or_default(("delay", "loop", "type", "speed"), kwargs['args'],
+                                  setting=("values", "text_multi"))
+    m_txt1 = ''
+    m_txt2 = ''
+    m_type = params["type"]
+    m_speed = params["speed"]
+    m_delay = params["delay"]
+    m_loop = True if params["loop"] == 1 else False
+
+    ids = kwargs['args']["ids"].split(",")
+    parsed = dict()
+    lines = list()
+
+    with open(media) as f:
+        try:
+            data = json.loads(f.read())
+        except Exception as e:
+            log.warning("Error loading text file {0}: {1}".format(media, e))
+        data = data['text'].replace("\\n", "<br>").split('\n')
+        for line in data:
+            if line[0] == '#':
+                continue
+            line = line.split(':')
+            if line[0] in ids:
+                id = line[0]
+                parsed[id] = list()
+                line.pop(0)
+                line = ':'.join(line)
+                parsed[id].append(line.split("<br>")[0])
+                if len(line.split("<br>")) > 1:
+                    parsed[id].append(line.split("<br>")[1])
+                else:
+                    parsed[id].append('')
+
+
+    for id in ids:
+        if id in parsed.keys():
+            lines.append(parsed[id])
+        else:
+            lines.append("..missing..")
+            log.warning("Missing id {} in TEXT_MULTI box".format(id))
+
+
+
+    kwargs["_etape"]._localvars["__timer"] = list()
+    kwargs["_etape"]._localvars["__timer"].append(
+        threading.Timer(float(0), __kxkm_next_titreur, ({"lines": lines,
+                                                         "current": 0},
+                                                        m_type,
+                                                        m_speed,
+                                                        m_delay,
+                                                        m_loop,
+                                                        kwargs["_etape"]._localvars[
+                                                            "__timer"]
+                                                        )))
+    kwargs["_etape"]._localvars["__timer"][0].start()

@@ -373,9 +373,10 @@
 
 
     ////////////////////////// MEDIAS ////////////////////////////////
-		audioFiles = ['Selectionner Media','son1','son2','son3','son4'];
-		videoFiles = ['Selectionner Media','vid1','vid2','vid3','vid4'];
-		txtFiles = ['Selectionner Media','text1','text2','text3','text4'];
+		audioFiles = ['no media'];
+		videoFiles = ['no media'];
+		txtFiles = ['no media'];
+
 		$.ajax({
 			type: 'GET',
 			timeout: 1000,
@@ -383,11 +384,106 @@
 			dataType: "jsonp"
 		}).done(function(data) {
 			audioFiles = data.audio;
-			audioFiles.unshift('Selectionner Media');
+			if (audioFiles.length>0) audioFiles.unshift(' ');
+			else audioFiles = ['no media'];
 			videoFiles = data.video;
-			videoFiles.unshift('Selectionner Media');
-			txtFiles = data.txt;
-			txtFiles.unshift('Selectionner Media');
+			if (videoFiles.length>0) videoFiles.unshift(' ');
+			else videoFiles = ['no media'];
+		});
+
+		$.ajax({
+				url: "data/fileList.php",
+				type: "POST",
+				data: { type: 'text'}
+		})
+		.done(function(filelist) {
+			txtFiles = [];
+			if( Object.prototype.toString.call( filelist ) !== '[object Array]' ) {
+				filelist = JSON.parse(filelist);
+			}
+			$.each(filelist,function(index,name){
+					txtFiles.push(name.replace('.json',''));
+			});
+			if (txtFiles.length>0) txtFiles.unshift(' ');
+			else txtFiles = ['no media'];
+			console.log(txtFiles);
+		});
+
+
+		///////////////////////////TEXT FILES///////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+
+		function textfile() {
+
+			this.name = 'titreurs';
+
+			this.loadText = function(title){
+				if (title !== undefined) this.name = title;
+				$('#titleTxtedit').text(this.name);
+				console.log('LOADING TEXT '+this.name);
+				$.ajax({
+						url: "data/load.php",
+						dataType: "json",
+						type: "POST",
+						data: { filename: this.name, type: 'text'}
+				})
+				.done(function(reponse) {
+						if (reponse.status == 'success') {
+							$('#txted').text(JSON.parse(reponse.contents).text);
+						}
+				});
+			}
+
+			this.saveText = function (title){
+				var contenu = $('#txted').val();
+				title = $.trim(title).replace(/ /g,'_');
+				this.name = title;
+				if (title)
+					$.ajax({
+							url: "data/save.php",
+							dataType: "json",
+							type: "POST",
+							data: {
+								filename: title,
+								type: 'text',
+								timestamp: $.now(),
+								contents: JSON.stringify({'text': contenu})
+							}
+					})
+					.done(function() {
+						$('#serverDisplay').html( 'Saved TXT : <br> '+ JSON.stringify({'text': contenu}) );
+						textFile.loadText();
+
+						// new file: refresh boxes
+						if (txtFiles.indexOf(textFile.name) == -1) {
+							txtFiles.push(textFile.name);
+							$.each(allStates, function(index, state) {
+								if (state.category == 'TITREUR')
+									$(state.mediasList).append(('<option value="'+textFile.name+'">'+textFile.name+'</option>'));
+								if (state.active) {
+									$(state.mediasList).val(textFile.name);
+									state.media = textFile.name;
+								}
+							})
+						}
+
+					});
+			}
+		}
+
+		var textFile = new textfile();
+		$('#okTxtedit').click(function(){
+			var title = '';
+			$.each(allStates, function(index, state) {
+				if (state.active && state.category == 'TITREUR') title = state.media;
+			});
+			title = prompt("Text file name: ", title);
+			textFile.saveText(title);
+			//$('#editText').hide();
+		});
+		$('#cancelTxtedit').click(function(){
+			//$('#editText').hide();
 		});
 
 
@@ -464,6 +560,38 @@
 		}
 
 
+		////////////////////////// STATE ARGUMENT //////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+
+		function stateArg(name, value) {
+			var thisArg = this;
+
+			this.name = name;
+			this.value = value;
+
+			this.nameDiv = $('<div>').addClass('option').text(this.name).attr('id', this.name);
+			this.valDiv = $('<div>').addClass('optionval').text(this.value);
+			this.editDiv = $('<input>').attr('type', 'text').addClass('textOption');
+
+			this.valDiv.dblclick(function(e) {
+				$(this).text("");
+				thisArg.nameDiv.append(thisArg.editDiv);
+				thisArg.editDiv.val(thisArg.value);
+				thisArg.editDiv.focus();
+
+				thisArg.editDiv.focusout(function(e) {
+					thisArg.value = thisArg.editDiv.val();
+					thisArg.valDiv.text(thisArg.value);
+					thisArg.editDiv.remove();
+					editing = false;
+				});
+
+				listening = false;
+				editing = true;
+			});
+		}
+
 
     ////////////////////////// STATE OBJECT//////////////////////////////
     /////////////////////////////////////////////////////////////////////
@@ -481,13 +609,6 @@
       this.category = category;
       this.mediasBOO = mediaBOO;
       this.dispoBOO = dispoBOO;
-
-      this.argumentsArray = arguments;
-      this.argumentsList = new Array();
-      var k = 0;
-      $.each(this.argumentsArray,function(name,val){
-        thisState.argumentsList[k++] = name;
-      })
 
       for (var i = 0, len = allCats.length; i < len; i++) {
           if (allCats[i].name === this.category) { this.color = allCats[i].color; }
@@ -508,36 +629,30 @@
         this.box.append(this.disposList);
       }
       if(mediaBOO == true){
-        this.media = 'Select';
         this.mediasList = $('<select>').attr('id', this.name+'Medias').addClass('dropdownMedias');//.attr('dir','rtl');
         this.box.append(this.mediasList);
         var files = new Array();
         if(category == 'AUDIO') {files=audioFiles;}
         if(category == 'VIDEO') {files=videoFiles;}
 				if(category == 'TITREUR') {files=txtFiles;}
+				this.media = files[0];
         $.each(files, function(index,file){
 					var shortFile = file.split(".")[0]
          $(thisState.mediasList).append(('<option value="'+file+'">'+shortFile+'</option>'));
         });
       }
-      if(this.argumentsList[0]){
-        this.arg1Name = $('<div>').addClass('option').text(thisState.argumentsList[0]).attr('id', thisState.argumentsList[0]);
-        this.arg1Val = $('<div>').addClass('optionval').text(thisState.argumentsArray[thisState.argumentsList[0]]);
-        this.box.append(this.arg1Name);
-        this.box.append(this.arg1Val);
-      }
-      if(this.argumentsList[1]){
-        this.arg2Name = $('<div>').addClass('option').text(thisState.argumentsList[1]).attr('id', thisState.argumentsList[1]);
-        this.arg2Val = $('<div>').addClass('optionval').text(thisState.argumentsArray[thisState.argumentsList[1]]);
-        this.box.append(this.arg2Name);
-        this.box.append(this.arg2Val);
-      }
-      if(this.argumentsList[2]){
-        this.arg3Name = $('<div>').addClass('option').text(thisState.argumentsList[2]).attr('id', thisState.argumentsList[2]);
-        this.arg3Val = $('<div>').addClass('optionval').text(thisState.argumentsArray[thisState.argumentsList[2]]);
-        this.box.append(this.arg3Name);
-        this.box.append(this.arg3Val);
-      }
+
+			// LOAD ARGUMENTS
+
+			this.argumentsList = new Array();
+			var keys = Object.keys(arguments), i, len = keys.length;
+			keys.sort();
+			for (i = 0; i < keys.length; i++) {
+				var arg = new stateArg(keys[i], arguments[keys[i]]);
+        thisState.argumentsList.push(arg);
+				thisState.box.append(arg.nameDiv);
+        thisState.box.append(arg.valDiv);
+			}
 
   		this.box.append(this.connect);
   		$('#container').append(this.box);
@@ -612,40 +727,6 @@
 
       this.sourceAndtarget();
 
-			this.loadText = function(){
-				console.log('LOADING TEXT'+thisState.media);
-        $.ajax({
-            url: "data/loadText.php",
-            dataType: "json",
-            type: "POST",
-            data: { filename: thisState.media, type: 'text'}
-        })
-        .done(function(reponse) {
-            if (reponse.status == 'success') { $('#txted').text(reponse.contents); }
-        });
-			}
-
-			this.saveText = function (){
-				var contenu = $('#txted').val();
-				$.ajax({
-            url: "data/saveText.php",
-            dataType: "json",
-            type: "POST",
-            data: { filename: thisState.media, type: 'text', contents: contenu }
-        });
-			}
-
-			$('#okTxtedit').click(function(){
-				if (thisState.category == 'TITREUR' && mediaBOO == true){
-					thisState.saveText();
-				}
-				$('#editText').hide();
-			});
-			$('#cancelTxtedit').click(function(){
-				$('#editText').hide();
-			});
-
-
 
       //////////////////////////  ARGUMENTS //////////////////////////////
       ///////////////////////////////////////////////////////////////////
@@ -654,72 +735,8 @@
           var that = $(this);
           thisState.media = $(this).find('option:selected').val();
 					thisState.mediasList.blur();
-					if (thisState.category == 'TITREUR'){ thisState.loadText();}
+					if (thisState.category == 'TITREUR'){ textFile.loadText(thisState.media);}
         });
-      }
-
-      if(this.argumentsList[0]){
-        var arg1Temp = $('<input>').attr('type', 'text').addClass('textOption');
-        this.arg1Val.dblclick(function(e) {
-          $(this).text("");
-          thisState.arg1Name.append(arg1Temp);
-					arg1Temp.val(thisState.argumentsArray[thisState.argumentsList[0]]);
-          arg1Temp.focus();
-          listenToEnterArg1();
-          listening = false;
-					editing = true;
-        });
-        function listenToEnterArg1(){
-          arg1Temp.focusout(function(e) {
-            thisState.arg1Val.text(this.value);
-            thisState.arg1Val.attr('id', this.value);
-            thisState.argumentsArray[thisState.argumentsList[0]]=this.value;
-            arg1Temp.remove();
-						editing = false;
-          });
-        }
-      }
-      if(this.argumentsList[1]){
-        var arg2Temp = $('<input>').attr('type', 'text').addClass('textOption');
-        this.arg2Val.dblclick(function(e) {
-          $(this).text("");
-          thisState.arg2Name.append(arg2Temp);
-					arg2Temp.val(thisState.argumentsArray[thisState.argumentsList[1]]);
-          arg2Temp.focus();
-          listenToEnterArg2();
-          listening = false;
-					editing = true;
-        });
-        function listenToEnterArg2(){
-          arg2Temp.focusout(function(e) {
-            thisState.arg2Val.text(this.value);
-            thisState.arg2Val.attr('id', this.value);
-            thisState.argumentsArray[thisState.argumentsList[1]]=this.value;
-            arg2Temp.remove();
-						editing = false;
-          });
-        }
-      }
-      if(this.argumentsList[2]){
-        var arg3Temp = $('<input>').attr('type', 'text').addClass('textOption');
-        this.arg3Val.dblclick(function(e) {
-          $(this).text("");
-          thisState.arg3Name.append(arg3Temp);
-					arg3Temp.val(thisState.argumentsArray[thisState.argumentsList[2]]);
-          arg3Temp.focus();
-          listenToEnterArg3();
-          listening = false;
-					editing = true;
-        });
-        function listenToEnterArg3(){
-          arg3Temp.focusout(function(e) {
-            thisState.arg3Val.text(this.value);
-            thisState.arg3Val.attr('id', this.value);
-            thisState.argumentsArray[thisState.argumentsList[2]]=this.value;
-            arg3Temp.remove();
-						editing = false;
-          });
-        }
       }
 
       this.recoverInfos = function(media){
@@ -749,13 +766,11 @@
         if (autoConnect == false) $("#signalEdit").hide();
 
 				if (this.category == 'TITREUR' && mediaBOO == true){
-					 console.log('loading txt...');
 					$('#editText').fadeIn(200);
-					console.log ('titreur Edit');
-					this.loadText();
-					}
+					textFile.loadText(thisState.media);
+				}
 			}
-			this.select();
+			//this.select();
 
   		this.box.click(function(e) {
 				thisState.select();
@@ -872,14 +887,14 @@
     /////////////////  DELETE  /////////////////
      $(document).keyup(function(e){
 
-        if((e.keyCode == 8)&&(listening == true)&&(connectionSelected != null)&&(selected=='connection') ){ ////del : 8 , - : 189
+        if((e.keyCode == 8)&&(listening == true)&&(connectionSelected != null)&&(selected=='connection')&&(!textEditing) ){ ////del : 8 , - : 189
           e.preventDefault();
           jsPlumb.detach(connectionSelected);
           $("#signalEdit").hide();
 					selected = 'nothing';
         }
 
-        if((e.keyCode == 8)&&(listening == true)&&(selected=='box')&&(editing == false)){
+        if((e.keyCode == 8)&&(listening == true)&&(selected=='box')&&(editing == false)&&(!textEditing)){
           e.preventDefault();
           var indextoremove;
           $.each(allStates, function(index, state) {
@@ -920,13 +935,22 @@
 
 
     ///////////// BACKSPACE NOT GOING BACKWARD /////////////////
+		textEditing = false;
 
     window.addEventListener('keydown', function (e) {
-        if (e.keyIdentifier === 'U+0008' || e.keyIdentifier === 'Backspace' || e.keyCode === '8' || document.activeElement !== 'text')
+        if (e.keyIdentifier == 'U+0008' || e.keyIdentifier == 'Backspace' || e.keyCode == 8 || document.activeElement != 'text')
           {
             if (e.target === document.body) { e.preventDefault(); }
           }
     }, true);
+
+		$("textarea").on("focusin", function(e){
+		  textEditing = true;
+		});
+
+		$("textarea").on("focusout", function(e){
+		  textEditing = false;
+		});
 
 
    /////////////////////// CLEAR /////////////////////////
@@ -960,7 +984,13 @@
       $.each(allStates, function(index, state) {
 
       var $box = $(state.box);
-			var allArgs = $.extend({}, state.argumentsArray, {media : state.media, dest: state.dispositifs });
+			var argArray = {};
+			$.each(state.argumentsList, function(index, arg) {
+				argArray[arg.name] = arg.value;
+			});
+
+			var allArgs = $.extend({}, argArray, {media : state.media, dest: state.dispositifs });
+
 
 
       boxes.push({
@@ -972,7 +1002,7 @@
         dispoBOO: state.dispoBOO,
         dispositifs: state.dispositifs,
         media: state.media,
-        arguments: state.argumentsArray,
+        arguments: argArray,
 				allArgs : allArgs
         });
       });

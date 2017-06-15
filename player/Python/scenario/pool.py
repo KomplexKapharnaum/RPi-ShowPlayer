@@ -81,6 +81,9 @@ def load():
     # Import Public Boxes as Etapes
     for name, box in DECLARED_PUBLICBOXES.items():
         etape_public = Etape(name, actions=[ (box['function'], {}) ] )
+        if box['timer'] is not False:
+            log.debug("ADD TIMER IN PUBLIC BOX {}".format(name))
+            etape_public.out_actions = [( box['timer'], {}), ]
         DECLARED_ETAPES[etape_public.uid] = etape_public
 
     #..

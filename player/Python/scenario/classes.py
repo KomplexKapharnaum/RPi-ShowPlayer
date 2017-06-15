@@ -92,6 +92,7 @@ class Etape(fsm.State):
         :return:
         """
         if len(self.out_actions) > 0:
+            log.log("debug", "OUT ETAPE :: {0} on {1}".format(self.uid, flag))
             return self._run(_fsm, flag, self.out_actions)
 
     def _run(self, _fsm, flag, fnct_list):
@@ -158,6 +159,15 @@ class ScenarioFSM(fsm.FiniteStateMachine):
         self._event_flag_stack_new.set()  # An old signal can now be interesting !
         log.log("raw", "- End change state")
         return True
+
+    def stop(self):
+        if self.current_state is not None and "__timer" in \
+                self.current_state._localvars.keys():
+            for timer in self.current_state._localvars["__timer"]:
+                log.debug("Stop timer in {} state {} because FSM is "
+                          "quitting".format(self.name,self.current_state.uid))
+                timer.cancel()
+        fsm.FiniteStateMachine.stop(self)
 
 
 class Scene:
