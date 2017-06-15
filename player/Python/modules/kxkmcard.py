@@ -287,7 +287,7 @@ def init_kxkm_card(flag, **kwargs):
 # ETAPE AND SIGNALS
 @link({"/titreur/message [ligne1] [ligne2]": "kxkm_card_titreur_message",
        "/titreur/messagePlus [ligne1] [ligne2] [type]": "kxkm_card_titreur_message",
-       "/titreur/texte [media] [id]": "kxkm_card_titreur_text",
+       "/titreur/texte [media] [id] [type] [speed]": "kxkm_card_titreur_text",
        "/titreur/flush": "kxkm_card_titreur_flush",
        "/carte/relais [on/off]": "kxkm_card_relais",
        "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
@@ -377,16 +377,21 @@ def kxkm_card_popup_teleco(flag, **kwargs):
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_text(flag, **kwargs):
     media = os.path.join(settings.get_path("scenario", "activescenario"), 'text_'+flag.args["media"]+'.json')
+    params = search_in_or_default(("type", "speed"),
+                                  flag.args,
+                                  setting=("values", "text_multi"))
+
     m_txt1 = ''
     m_txt2 = ''
-    m_type = None
-    m_speed = None
+    m_type = params["type"]
+    m_speed = params["speed"]
 
     with open(media) as f:
         try:
             data = json.loads(f.read())
         except Exception as e:
             log.warning("Error loading text file {0}: {1}".format(media, e))
+            return
         data = data['text'].replace("\\n", "<br>").split('\n')
         for line in data:
             if line[0] == '#':
