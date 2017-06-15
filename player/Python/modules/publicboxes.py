@@ -199,6 +199,7 @@ def text_multi(flag, **kwargs):
         if id in parsed.keys():
             lines.append(parsed[id])
         else:
+            lines.append("..")
             log.warning("Missing id {} in TEXT_MULTI box".format(id))
 
 
