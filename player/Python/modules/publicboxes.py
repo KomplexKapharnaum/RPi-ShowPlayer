@@ -112,7 +112,8 @@ def split_dispo(flag, **kwargs):
     params = search_in_or_default(("signal", ),
                                   kwargs['args'],
                                   setting=("values", "split_dispo"))
-    signal_uid = "{signal}_{dispo}".format(signal=params["signal"],
+    signal_uid = "{signal}_{dispo}".format(signal=params["signal"] if params[
+        "signal"] != "" else settings.get("values", "split_dispo", "signal"),
                                            dispo=settings.get('uName'))
     signal = Flag(signal_uid, TTL=settings.get("scenario", "TTL"),
                   JTL=settings.get("scenario", "JTL"))
