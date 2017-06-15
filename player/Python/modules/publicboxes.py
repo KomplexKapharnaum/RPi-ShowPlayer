@@ -164,7 +164,7 @@ def text_multi(flag, **kwargs):
         log.debug("Skip TEXT_MULTI because not concerned")
 
     media = os.path.join(settings.get_path("scenario", "activescenario"),
-                             'text_' + flag.args["media"] + '.json')
+                             'text_' + kwargs['args']["media"] + '.json')
     params = search_in_or_default(("delay", "loop", "type", "speed"), kwargs['args'],
                                   setting=("values", "text_multi"))
     m_txt1 = ''
