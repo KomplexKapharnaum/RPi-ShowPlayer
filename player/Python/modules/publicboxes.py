@@ -185,14 +185,14 @@ def text_multi(flag, **kwargs):
             line = line.split(':')
             if line[0] in ids:
                 id = line[0]
-            parsed[id] = list()
-            line.pop(0)
-            line = ':'.join(line)
-            parsed[id].append(line.split("\\n")[0])
-            if len(line.split("\\n")) > 1:
-                parsed[id].append(line.split("\\n")[1])
-            else:
-                parsed[id].append('')
+                parsed[id] = list()
+                line.pop(0)
+                line = ':'.join(line)
+                parsed[id].append(line.split("\\n")[0])
+                if len(line.split("\\n")) > 1:
+                    parsed[id].append(line.split("\\n")[1])
+                else:
+                    parsed[id].append('')
 
 
     for id in ids:
