@@ -10,7 +10,7 @@ from engine.fsm import Flag
 from engine.log import init_log
 from engine.setting import settings
 from engine.tools import search_in_or_default
-from scenario.pool import Texts
+from scenario import pool
 from modules import publicbox
 log = init_log("publicbox")
 
@@ -187,8 +187,9 @@ def text_multi(flag, **kwargs):
         log.debug("Skip TEXT_MULTI because not concerned")
 
     media = kwargs['args']["media"]
-    if media not in Texts.keys():
-        log.warning("TEXT_MULTI : text file {} not exist !".format(media))
+    if media not in pool.Texts.keys():
+        log.warning("TEXT_MULTI : text file {} not exist ! : {}".format(
+            media, pool.Texts))
         return
     params = search_in_or_default(("delay", "loop", "type", "speed"), kwargs['args'],
                                   setting=("values", "text_multi"))
@@ -204,8 +205,8 @@ def text_multi(flag, **kwargs):
 
 
     for line_id in ids:
-        if line_id in Texts[media].keys():
-            lines.append(Texts[media][line_id])
+        if line_id in pool.Texts[media].keys():
+            lines.append(pool.Texts[media][line_id])
         else:
             lines.append(("..missing..", ""))
             log.warning("Missing id {} in TEXT_MULTI box".format(id))

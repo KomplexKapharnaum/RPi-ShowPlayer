@@ -32,6 +32,7 @@ def clear():
     :return:
     """
     # CLEAR POOL
+    log.debug("Clear pool of scenario objects")
     global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, \
         Patchs, Medias, Texts, cross_ref
     Etapes_and_Functions = dict()
