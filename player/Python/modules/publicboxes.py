@@ -80,6 +80,26 @@ def delay(flag, **kwargs):
     time.sleep(float(duration))
 
 
+@publicbox('[signal:str]')
+def split_dispo(flag, **kwargs):
+    """
+    This function (box) send a signal with the dispo name inside in order
+    to allow you to split the fsm logic depending of which dispo is running it
+    :param flag:
+    :param kwars:
+    :return:
+    """
+    params = search_in_or_default(("signal", ),
+                                  kwargs['args'],
+                                  setting=("values", "split_dispo"))
+    signal_uid = "{signal}_{dispo}".format(signal=params["signal"],
+                                           dispo=settings.get('uName'))
+    signal = Flag(signal_uid, TTL=settings.get("scenario", "TTL"),
+                  JTL=settings.get("scenario", "JTL"))
+    patcher.patch(signal.get())
+    log.log("raw", "SEND BOX : " + signal_uid)
+
+
 @publicbox('[ip:str] [port:int] [msg:str]')
 def rawosc(flag, **kwargs):
     """
