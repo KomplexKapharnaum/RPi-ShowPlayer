@@ -15,6 +15,7 @@ from engine.threads import patcher
 from engine.fsm import Flag
 from engine.tools import search_in_or_default
 from libs.oscack.utils import get_ip, get_platform
+from scenario import pool
 import json
 import subprocess
 
@@ -376,33 +377,20 @@ def kxkm_card_popup_teleco(flag, **kwargs):
 
 @link({None: "kxkm_card"})
 def kxkm_card_titreur_text(flag, **kwargs):
-    media = os.path.join(settings.get_path("scenario", "activescenario"), 'text_'+flag.args["media"]+'.json')
+    media = flag.args["media"]
+    if media not in pool.Texts.keys():
+        log.warning("text file {} not exist ! : {}".format(media, pool.Texts))
+        return
     params = search_in_or_default(("type", "speed"),
                                   flag.args,
                                   setting=("values", "text_multi"))
-
-    m_txt1 = ''
-    m_txt2 = ''
+    m_txt1 = pool.Texts[media][flag.args["id"]][0] if flag.args["id"] in \
+                                                      pool.Texts[media].keys \
+        else "..missing.."
+    m_txt2 = pool.Texts[media][flag.args["id"]][1] if flag.args["id"] in \
+                                                      pool.Texts[media].keys \
+        else ""
     m_type = params["type"]
     m_speed = params["speed"]
-
-    with open(media) as f:
-        try:
-            data = json.loads(f.read())
-        except Exception as e:
-            log.warning("Error loading text file {0}: {1}".format(media, e))
-            return
-        data = data['text'].replace("\\n", "<br>").split('\n')
-        for line in data:
-            if len(line) == 0 or line[0] == '#':
-                continue
-            line = line.split(':')
-            if line[0] == flag.args["id"]:
-                line.pop(0)
-                line = ':'.join(line)
-                m_txt1 = line.split("<br>")[0]
-                if len(line.split("<br>")) > 1:
-                    m_txt2 = line.split("<br>")[1]
-                break
 
     kwargs["_fsm"].vars["kxkmcard"].setMessage(m_txt1.decode("utf8"), m_txt2.decode("utf8"), m_type, m_speed)

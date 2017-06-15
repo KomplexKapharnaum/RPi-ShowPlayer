@@ -188,7 +188,7 @@ def text_multi(flag, **kwargs):
 
     media = kwargs['args']["media"]
     if media not in pool.Texts.keys():
-        log.warning("TEXT_MULTI : text file {} not exist ! : {}".format(
+        log.warning("text file {} not exist ! : {}".format(
             media, pool.Texts))
         return
     params = search_in_or_default(("delay", "loop", "type", "speed"), kwargs['args'],
