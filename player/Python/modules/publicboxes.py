@@ -1,6 +1,7 @@
 import time
 import threading
 import os
+import json
 
 import liblo
 
@@ -179,7 +180,12 @@ def text_multi(flag, **kwargs):
     lines = list()
 
     with open(media) as f:
-        for line in f:
+        try:
+            data = json.loads(f.read())
+        except Exception as e:
+            log.warning("Error loading text file {0}: {1}".format(media, e))
+        data = data['text'].replace("\\n", "<br>").split('\n')
+        for line in data:
             log.debug("line : {}".format(line))
             if line[0] == '#':
                 continue
