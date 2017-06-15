@@ -10,6 +10,7 @@ from engine.fsm import Flag
 from engine.log import init_log
 from engine.setting import settings
 from engine.tools import search_in_or_default
+from scenario.pool import Texts
 from modules import publicbox
 log = init_log("publicbox")
 
@@ -185,8 +186,10 @@ def text_multi(flag, **kwargs):
     if not concerned:
         log.debug("Skip TEXT_MULTI because not concerned")
 
-    media = os.path.join(settings.get_path("scenario", "activescenario"),
-                             'text_' + kwargs['args']["media"] + '.json')
+    media = kwargs['args']["media"]
+    if media not in Texts.keys():
+        log.warning("TEXT_MULTI : text file {} not exist !".format(media))
+        return
     params = search_in_or_default(("delay", "loop", "type", "speed"), kwargs['args'],
                                   setting=("values", "text_multi"))
     m_txt1 = ''
@@ -197,39 +200,12 @@ def text_multi(flag, **kwargs):
     m_loop = True if params["loop"] == 1 else False
 
     ids = kwargs['args']["ids"].split(",")
-    parsed = dict()
     lines = list()
 
-    try:
-        with open(media) as f:
-            try:
-                data = json.loads(f.read())
-            except Exception as e:
-                log.warning("Error loading text file {0}: {1}".format(media, e))
-            data = data['text'].replace("\\n", "<br>").split('\n')
-            for line in data:
-                if len(line) == 0 or line[0] == '#':
-                    continue
-                line = line.split(':')
-                if line[0] in ids:
-                    id = line[0]
-                    parsed[id] = list()
-                    line.pop(0)
-                    line = ':'.join(line)
-                    parsed[id].append(line.split("<br>")[0])
-                    if len(line.split("<br>")) > 1:
-                        parsed[id].append(line.split("<br>")[1])
-                    else:
-                        parsed[id].append('')
-    except Exception as e:
-        log.warning("Can't open media file {} in TEXT_MULTI : {}".format(
-            media, e))
-        return
 
-
-    for id in ids:
-        if id in parsed.keys():
-            lines.append(parsed[id])
+    for line_id in ids:
+        if line_id in Texts[media].keys():
+            lines.append(Texts[media][line_id])
         else:
             lines.append(("..missing..", ""))
             log.warning("Missing id {} in TEXT_MULTI box".format(id))
