@@ -186,7 +186,6 @@ def text_multi(flag, **kwargs):
             log.warning("Error loading text file {0}: {1}".format(media, e))
         data = data['text'].replace("\\n", "<br>").split('\n')
         for line in data:
-            log.debug("line : {}".format(line))
             if line[0] == '#':
                 continue
             line = line.split(':')
@@ -206,7 +205,7 @@ def text_multi(flag, **kwargs):
         if id in parsed.keys():
             lines.append(parsed[id])
         else:
-            lines.append("..")
+            lines.append("..missing..")
             log.warning("Missing id {} in TEXT_MULTI box".format(id))
 
 
