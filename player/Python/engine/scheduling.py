@@ -111,7 +111,7 @@ class TS_Scheduler(object):
         self.args = args if args is not None else list()
         self.kwargs = kwargs if kwargs is not None else dict()
         self.is_running = threading.Event()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def _run(self):
         with self._lock:
