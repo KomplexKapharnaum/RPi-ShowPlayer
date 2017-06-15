@@ -42,7 +42,7 @@ if __name__ == '__main__':
             try:
                 c = raw_input("$ :")
             except Exception as e:      # For no shell env
-                time.sleep(10)
+                time.sleep(1)
                 continue
             if c in ("exit", "quit", "q"):
                 break
