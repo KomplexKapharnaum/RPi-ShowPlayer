@@ -206,7 +206,7 @@ def text_multi(flag, **kwargs):
             log.warning("Error loading text file {0}: {1}".format(media, e))
         data = data['text'].replace("\\n", "<br>").split('\n')
         for line in data:
-            if line[0] == '#':
+            if len(line) == 0 or line[0] == '#':
                 continue
             line = line.split(':')
             if line[0] in ids:
