@@ -385,10 +385,10 @@ def kxkm_card_titreur_text(flag, **kwargs):
                                   flag.args,
                                   setting=("values", "text_multi"))
     m_txt1 = pool.Texts[media][flag.args["id"]][0] if flag.args["id"] in \
-                                                      pool.Texts[media].keys \
+                                                      pool.Texts[media].keys() \
         else "..missing.."
     m_txt2 = pool.Texts[media][flag.args["id"]][1] if flag.args["id"] in \
-                                                      pool.Texts[media].keys \
+                                                      pool.Texts[media].keys() \
         else ""
     m_type = params["type"]
     m_speed = params["speed"]
