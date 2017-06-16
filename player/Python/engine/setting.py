@@ -219,11 +219,15 @@ DEFAULT_SETTING["log"]["teleco"]["linelength"] = 16  # Number of char per line
 DEFAULT_SETTING["log"]["teleco"]["level"] = "critical"  # For the teleco
 
 DEFAULT_SETTING["perf"] = dict()
-DEFAULT_SETTING["perf"]["enable"] = True  # Enable FSM register (need for history)
+DEFAULT_SETTING["perf"]["enable"] = False  # Enable FSM register (need for
+# history)
 DEFAULT_SETTING["perf"]["history"] = dict()
-DEFAULT_SETTING["perf"]["history"]["enable"] = True  # Enable log history for each FSM
-DEFAULT_SETTING["perf"]["history"]["withflag"] = True  # Enable flag log in history
-DEFAULT_SETTING["perf"]["history"]["withexception"] = True  # Enable excpetion log in history
+DEFAULT_SETTING["perf"]["history"]["enable"] = False  # Enable log history for
+# each FSM
+DEFAULT_SETTING["perf"]["history"]["withflag"] = False  # Enable flag log in
+# history
+DEFAULT_SETTING["perf"]["history"]["withexception"] = False  # Enable excpetion
+# log in history
 DEFAULT_SETTING["perf"]["history"]["length"] = 300  # Maximum length of an FSM history (keep older)
 DEFAULT_SETTING["perf"]["history"]["format"] = "simple"  # History prompt format #TODO
 DEFAULT_SETTING["perf"]["undeclared_fsm"] = 10  # Undeclared FSM (stopped) to be keept with history
