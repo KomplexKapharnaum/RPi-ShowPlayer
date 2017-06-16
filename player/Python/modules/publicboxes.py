@@ -202,7 +202,7 @@ def text_multi(flag, **kwargs):
             lines.append(pool.Texts[media][line_id])
         else:
             lines.append(("..missing..", ""))
-            log.warning("Missing id {} in TEXT_MULTI box".format(id))
+            log.warning("Missing id {} in TEXT_MULTI box".format(line_id))
 
 
 
