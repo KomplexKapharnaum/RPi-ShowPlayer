@@ -208,7 +208,7 @@ def text_multi(flag, **kwargs):
 
     kwargs["_etape"]._localvars["__timer"] = list()
     kwargs["_etape"]._localvars["__timer"].append(
-        TS_Scheduler(float(0), __kxkm_next_titreur, {"lines": lines,
+        TS_Scheduler(float(m_delay), __kxkm_next_titreur, {"lines": lines,
                                                          "current": 0},
                                                         m_type,
                                                         m_speed,

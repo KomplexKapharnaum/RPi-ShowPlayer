@@ -119,6 +119,7 @@ class TS_Scheduler(object):
             self.function(*self.args, **self.kwargs)
 
     def start(self, now=True):
+        log.debug("Start thread safe sheduler")
         with self._lock:
             if not self.is_running.isSet():
                 register_thread(self)
