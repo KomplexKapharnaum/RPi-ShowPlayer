@@ -6,6 +6,7 @@ import json
 import liblo
 
 from engine.threads import patcher
+from engine.scheduling import TS_Scheduler
 from engine.fsm import Flag
 from engine.log import init_log
 from engine.setting import settings
@@ -160,19 +161,11 @@ def __kxkm_next_titreur(lines, m_type, m_speed, m_delay,
         if m_loop is True:
             lines["current"] = 0
         else:
-            ()
+            timer[0].cancel()
             timer[0] = threading.Timer(float(m_delay), patcher.patch,
                                        (Flag("END_TEXT", JTL=0.5+float(m_delay)).get(), ))
             timer[0].start()
             return
-    timer[0] = threading.Timer(float(m_delay), __kxkm_next_titreur,
-                               (lines,
-                                m_type,
-                                m_speed,
-                                m_delay,
-                                m_loop,
-                                timer))
-    timer[0].start()
 
 
 @publicbox("[dispo] [media] [ids:str] [delay:float] [loop:int] [type:str] ["
@@ -215,13 +208,12 @@ def text_multi(flag, **kwargs):
 
     kwargs["_etape"]._localvars["__timer"] = list()
     kwargs["_etape"]._localvars["__timer"].append(
-        threading.Timer(float(0), __kxkm_next_titreur, ({"lines": lines,
+        TS_Scheduler(float(0), __kxkm_next_titreur, {"lines": lines,
                                                          "current": 0},
                                                         m_type,
                                                         m_speed,
                                                         m_delay,
                                                         m_loop,
                                                         kwargs["_etape"]._localvars[
-                                                            "__timer"]
-                                                        )))
+                                                            "__timer"]))
     kwargs["_etape"]._localvars["__timer"][0].start()
