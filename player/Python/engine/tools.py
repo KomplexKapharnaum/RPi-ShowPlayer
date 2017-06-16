@@ -353,5 +353,23 @@ class ThreadTeleco(threading.Thread):
 def show_trace():
     traceback.print_stack()
 
+def get_git_branch():
+    """
+    :return: current git branch
+    """
+    branch = subprocess.check_output(['git', 'branch'])
+    for line in branch:
+        if len(line) > 0 and line[0] == "*":
+            return line[2:]
+
+
+def get_git_last_commit():
+    """
+    :return: tuple: commit id, commit date, commit msg
+    """
+    commit = subprocess.check_output(['git', 'show', '--pretty="%h%n%ai%n%s"',
+                                      '--raw'])
+    return (commit[0], commit[1], commit[2])
+
 
 engine.log.log_teleco = log_teleco  # This add log_teleco real function to log to avoid circular import
