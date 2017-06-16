@@ -488,6 +488,7 @@ def save_scenario_on_fs(group, date_timestamp):
         tar.add(settings.get_path("scenario", "activescenario"),
                 arcname=os.path.basename(settings.get_path("scenario", "activescenario")))
     tar.close()
+    pool.timeline_version = date_timestamp
 
 
 def load_scenario_from_fs(group, date_timestamp=None):
