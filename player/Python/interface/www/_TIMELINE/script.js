@@ -819,7 +819,7 @@
       tooltips = $('#tooltipsOnoff').prop('checked');
     });
 
-
+ 
     ///////////////////GROUP SELECTOR////////////////////
     $('#groupselector').change(function(){
       var that = $(this);

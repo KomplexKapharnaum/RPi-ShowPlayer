@@ -422,6 +422,7 @@
 				if (title !== undefined) this.name = title;
 				$('#titleTxtedit').text(this.name);
 				console.log('LOADING TEXT '+this.name);
+				$('#txted').hide();
 				$.ajax({
 						url: "data/load.php",
 						dataType: "json",
@@ -429,10 +430,10 @@
 						data: { filename: this.name, type: 'text'}
 				})
 				.done(function(reponse) {
-						if (reponse.status == 'success') {
-							$('#txted').text(JSON.parse(reponse.contents).text);
-						}
-				});
+						$('#txted').val(JSON.parse(reponse.contents).text);
+						$('#txted').fadeIn(200);
+				})
+				.complete(function(){ console.log("load done")});
 			}
 
 			this.saveText = function (title){
