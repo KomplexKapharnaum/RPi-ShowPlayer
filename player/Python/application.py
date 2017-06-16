@@ -13,6 +13,7 @@ import engine
 from engine import fsm, alsa
 import scenario
 import modules
+import modules.scenecontrol
 import scenario.patcher
 from libs import oscack
 log = engine.log.init_log("application")
@@ -246,6 +247,10 @@ class inputThread(threading.Thread):
                             if len(cmd) > 2:
                                 flag = engine.fsm.Flag("SCENE_GO")
                                 flag.args['frame'] = int(cmd[2])
+                        elif cmd[1] == "force":
+                            if len(cmd) > 2:
+                                modules.scenecontrol.scene_force_to(int(cmd[2]))
+                            continue
                         else:
                             continue
                         flag.args['dest'] = list()
