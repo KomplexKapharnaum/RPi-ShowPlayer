@@ -216,4 +216,4 @@ def text_multi(flag, **kwargs):
                                                         m_loop,
                                                         kwargs["_etape"]._localvars[
                                                             "__timer"]))
-    kwargs["_etape"]._localvars["__timer"][0].start()
+    kwargs["_etape"]._localvars["__timer"][0].start(now=True)

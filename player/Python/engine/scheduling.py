@@ -125,16 +125,19 @@ class TS_Scheduler(object):
                 self.is_running.set()
                 interval = 0 if now else self.interval
                 self._timer = threading.Timer(interval, self._run)
+            else:
+                log.warning("Try to restart and already started TS_Scheduler")
 
     def cancel(self):
         with self._lock:
             if self.is_running.isSet() and self._timer is not None:
                 self._timer.cancel()
                 self.is_running.clear()
+                unregister_thread(self)
 
     def stop(self):
         self.cancel()
 
-    def join(self):
+    def join(self, *args, **kwargs):
         self.cancel()
         return True
