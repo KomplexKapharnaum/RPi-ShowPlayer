@@ -394,4 +394,4 @@ def parse_text(name, text):
         pool.Texts[name][line_id][0] = line[0].encode("utf8")
         if len(line) > 1:
             pool.Texts[name][line_id][1] = line[1].encode("utf8")
-    log.debug("PARSING TEXT {} => {}".format(name, pool.Texts))
+    log.raw("PARSING TEXT {}".format(name, pool.Texts))
