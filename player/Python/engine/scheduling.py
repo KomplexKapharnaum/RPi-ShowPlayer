@@ -116,6 +116,7 @@ class TS_Scheduler(object):
     def _run(self):
         with self._lock:
             self._timer = threading.Timer(self.interval, self._run)
+            self._timer.start()
             self.function(*self.args, **self.kwargs)
 
     def start(self, now=True):
@@ -126,6 +127,7 @@ class TS_Scheduler(object):
                 self.is_running.set()
                 interval = 0 if now else self.interval
                 self._timer = threading.Timer(interval, self._run)
+                self._timer.start()
             else:
                 log.warning("Try to restart and already started TS_Scheduler")
 
