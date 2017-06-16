@@ -181,6 +181,16 @@ def scene_go(flag, **kwargs):
         log.log("debug", "new frame {0}, flag {1}, dest {2}".format(scenario.CURRENT_FRAME, flag, dest))
         patcher.patch(flag.get({"dest": dest, "frame": scenario.CURRENT_FRAME}))
 
+
+def scene_force_to(scene_index):
+    """
+    Force the device to go to a given scene, SHOULD ONLY BE USED ON REPETITION
+    :param scene_index: Index of the scene
+    :type scene_index: int
+    """
+    scenario.CURRENT_FRAME = scene_index
+    scenario.start_scene()
+
 @link({None: "scene_control"})
 def scene_stop(flag, **kwargs):
     scenario.stop_scene()
