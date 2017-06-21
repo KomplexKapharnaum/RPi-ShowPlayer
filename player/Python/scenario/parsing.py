@@ -386,7 +386,7 @@ def parse_text(name, text):
         if len(line) == 0 or line[0] == "#":
             continue
         line = line.split(':')
-        line_id = line[0].decode("utf8")
+        line_id = line[0]
         pool.Texts[name][line_id] = ['', '']
         line.pop(0)
         line = ':'.join(line).split("\\n")
