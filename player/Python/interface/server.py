@@ -143,7 +143,7 @@ def librarylist():
     for name, box in DECLARED_PUBLICBOXES.items():
         box = {
             'name': name.replace('_PUBLICBOX', ''),
-            'category': 'GENERAL',
+            'category': box['category'].upper(),
             'dispos': ('dispo' in box['args']),
             'medias': ('media' in box['args']),
             'arguments': [arg for arg in box['args'] if arg != 'dispo' and arg != 'media'],
