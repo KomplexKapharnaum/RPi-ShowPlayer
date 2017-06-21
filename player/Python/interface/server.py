@@ -59,7 +59,10 @@ def info():
     answer['device'] = dict()
     answer['device']['name'] = settings.get("uName")
     answer['device']['voltage'] = modules.devicecontrol.TENSION
-    answer['device']['settings'] = devicesV2.get(settings.get("uName"))
+    try:
+        answer['device']['settings'] = devicesV2.get(settings.get("uName"))
+    except KeyError:
+        answer['device']['settings'] = {}
 
     answer['system'] = dict()
     answer['system']['branch'] = tools.get_git_branch()
