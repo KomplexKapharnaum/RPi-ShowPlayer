@@ -12,7 +12,7 @@ from engine.log import init_log
 from engine.setting import settings
 from engine.tools import search_in_or_default
 from scenario import pool
-from modules import publicbox
+from modules import publicbox, exposesignals
 log = init_log("publicbox")
 
 #
@@ -217,3 +217,8 @@ def text_multi(flag, **kwargs):
                                                         kwargs["_etape"]._localvars[
                                                             "__timer"]))
     kwargs["_etape"]._localvars["__timer"][0].start(now=True)
+
+exposesignals({
+    'END_TEXT': [True, ],
+    settings.get("values", "autodelay", "signal"): [True, ],
+})
