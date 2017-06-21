@@ -47,7 +47,6 @@ def load(use_archived_scenario=False):
     for name, timeline in TIMELINE.items():
         parse_timeline(timeline)
     for name, text in TEXT.items():
-        log.debug("!!! text {} {}".format(name, text))
         parse_text(name, text)
 
 
