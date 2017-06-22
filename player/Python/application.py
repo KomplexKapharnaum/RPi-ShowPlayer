@@ -301,6 +301,9 @@ class inputThread(threading.Thread):
                             engine.threads.patcher.patch(flag_all.get())
                         if cmd[1] == "testgroup":
                             engine.threads.patcher.patch(flag_group.get())
+                        else:
+                            engine.threads.patcher.patch(fsm.Flag(cmd[1]).get())
+                            log.info("send signal : {}".format(cmd[1]))
                 elif cmd[0] == "teleco":
                     if len(cmd) < 3:
                         log.warning("Need at least a page number an a message")
