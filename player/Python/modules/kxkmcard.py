@@ -291,7 +291,7 @@ def init_kxkm_card(flag, **kwargs):
        "/titreur/texte [media] [id] [type] [speed]": "kxkm_card_titreur_text",
        "/titreur/flush": "kxkm_card_titreur_flush",
        "/carte/relais [on/off]": "kxkm_card_relais",
-       "/remote/popup [ligne1] [ligne2]": "kxkm_card_popup_teleco",
+       "/remote/popup [ligne1] [ligne2] [page]": "kxkm_card_popup_teleco",
        "/remote/ledOkT [on/off]": "kxkm_card_lekOK_teleco",
        "/carte/ledOkC [on/off]": "kxkm_card_lekOK_card",
        "/lumiere/rgb [rgb] [strob] [fade]": "kxkm_card_lights",
