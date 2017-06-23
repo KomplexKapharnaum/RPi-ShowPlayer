@@ -118,9 +118,9 @@
                  if (elem == "rgb") {
                      //console.log(value);
                      //var color = JSON.parse(value);
-                     line.append("R:"+value.R+" G:"+value[1]+"B:"+value[2]+" " +
+                     line.append("R:"+value.R+" G:"+value.G+"B:"+value.B+" " +
                          "<div style='height:10px; widht:10px;" +
-                         " background-color: rgb("+value[0]+","+value[1]+","+value[2]+");'></div>");
+                         " background-color: rgb("+value.R+","+value.G+","+value.B+");'></div>");
                      $("#state").append(line);
                  }
                });
