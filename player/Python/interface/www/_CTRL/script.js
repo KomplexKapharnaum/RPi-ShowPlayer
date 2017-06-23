@@ -116,7 +116,8 @@
                $.each(content, function (elem, value) {
                    var line = $('<div class="line">');
                  if (elem == "rgb") {
-                     line.append("R:"+value[0]+" G:"+value[1]+" B:"+value[2]+" " +
+                     var color = JSON.parse(value);
+                     line.append("R:"+color.R+" G:"+value[1]+" B:"+value[2]+" " +
                          "<div style='height:10px; widht:10px;" +
                          " background-color: rgb("+value[0]+","+value[1]+","+value[2]+");'></div>");
                      $("#state").append(line);
