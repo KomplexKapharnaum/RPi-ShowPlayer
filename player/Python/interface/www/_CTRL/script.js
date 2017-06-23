@@ -116,6 +116,7 @@
                $.each(content, function (elem, value) {
                    var line = $('<div class="line">');
                  if (elem == "rgb") {
+                     console.log(value);
                      var color = JSON.parse(value);
                      line.append("R:"+color.R+" G:"+value[1]+" B:"+value[2]+" " +
                          "<div style='height:10px; widht:10px;" +
