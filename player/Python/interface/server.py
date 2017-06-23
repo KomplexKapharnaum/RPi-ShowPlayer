@@ -55,10 +55,12 @@ def info():
 
     answer['timeline']['activescene'] = scenario.CURRENT_FRAME
     answer['timeline']['scenes'] = [scene.uid for scene in scenario.pool._Timeline]
-    answer['timeline']['signal'] = list()
+    answer['timeline']['signals'] = list()
     if answer['timeline']['scenes'] in scenario.pool.Scenes.keys():
-        answer['timeline']['signal'] = scenario.pool.Scenes[answer['timeline'][
+        answer['timeline']['signals'] = scenario.pool.Scenes[answer['timeline'][
             'scenes']]._get_all_reachabled_signals(settings.get("uName"))
+    answer['timeline']['signals'] = ('CARTE_PUSH_1', 'TELECO_PUSH_OK',
+                                    'END_TEXT')
 
 
     answer['device'] = dict()
@@ -79,6 +81,14 @@ def info():
 def changeScene():
     scene = request.forms.get('scene')
     modules.scenecontrol.scene_force_to(int(scene))
+    return 'ok'
+
+@app.route('/sendSignal', method='POST')
+def sendSignal():
+    signalName = request.forms.get('signal')
+    signal = fsm.Flag(signalName).get()
+    patcher.patch(signal)
+    log.info("Webinterface send signal : {}".format(signalName))
     return 'ok'
 
 @app.route('/medialist')

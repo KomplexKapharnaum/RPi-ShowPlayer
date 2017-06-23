@@ -51,6 +51,40 @@
          });
          $("#scenes").append(line);
        });
+
+       $("#signals").empty();
+       $.each(r.timeline.signals, function(index, signal) {
+         var line = $('<div class="line">');
+         //if (index == r.timeline.activescene) line.addClass('lineactive');
+           var signalName = signal;
+           if(signalName == "CARTE_PUSH_1"){
+               signalName = "PUSH COURT";
+           }else if(signalName == "CARTE_PUSH_11"){
+               signalName = "PUSH LONG";
+           }else if(signalName == "TELECO_PUSH_OK"){
+               signalName = "TELECO OK ";
+           }else if(signalName == "TELECO_PUSH_A"){
+               signalName = "TELECO A";
+           }else if(signalName == "TELECO_PUSH_B"){
+               signalName = "TELECO B";
+           }
+         line.append(signalName);
+         line.data('id', signal);
+         line.on("click", function(e) {
+           var idSignal = $(this).data('id');
+           console.log('clicked '+idSignal);
+             $(this).addClass('lineactive');
+           $.ajax({
+               url: "/sendSignal",
+               type: "POST",
+               data: { signal: idSignal }
+           })
+           .done(function(r) {
+             info();
+           });
+         });
+         $("#signals").append(line);
+       });
      });
    }
    setInterval(info,2000);
