@@ -97,12 +97,16 @@
                state.addClass('lineactive');
                state.data('id', index);
                $("#state").append(state);
+               var line1 = $('<div class="line">');
+               var line2 = $('<div class="line">');
+               $("#state").append(line1);
+               $("#state").append(line2);
                $.each(content, function (elem, value) {
-                   var line = $('<div class="line">');
-                 if (elem == "line1" || elem == "line2"){
-                     line.append(value)
+                 if (elem == "line1"){
+                     line1.append(value);
+                 }else if(elem == "line2"){
+                     line2.append(value);
                  }
-                   $("#state").append(line);
                });
            }
        });
