@@ -88,6 +88,25 @@
          });
          $("#signals").append(line);
        });
+
+         $("#state").empty();
+       $.each(r.timeline.signals, function(index, content) {
+           if (index == "titreur") {
+               var state = $('<div class="line">');
+               state.append("<strong>TITREUR</strong>");
+               state.addClass('lineactive');
+               state.data('id', index);
+               $("#state").append(state);
+               $.each(content, function (elem, value) {
+                   var line = $('<div class="line">');
+                 if (elem == "line1" || elem == "line2"){
+                     line.append(value)
+                 }
+                   $("#state").append(line);
+               });
+           }
+       });
+
      });
    }
    setInterval(info,2000);
