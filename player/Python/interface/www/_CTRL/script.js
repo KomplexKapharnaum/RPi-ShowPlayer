@@ -91,8 +91,8 @@
 
          $("#state").empty();
        $.each(r.device.state, function(index, content) {
+           var state = $('<div class="line">');
            if (index == "titreur") {
-               var state = $('<div class="line">');
                state.append("<strong>TITREUR</strong>");
                state.addClass('lineactive');
                state.data('id', index);
@@ -106,6 +106,20 @@
                      line1.append(value);
                  }else if(elem == "line2"){
                      line2.append(value);
+                 }
+               });
+           }else if(index == "light"){
+               state.append("<strong>LIGHT</strong>");
+               state.addClass('lineactive');
+               state.data('id', index);
+               $("#state").append(state);
+               $.each(content, function (elem, value) {
+                   var line = $('<div class="line">');
+                 if (elem == "rgb") {
+                     line.append("R:"+value[0]+" G:"+value[1]+" B:"+value[2]+" " +
+                         "<div style='height:10px; widht:10px;" +
+                         " background-color: rgb("+value[0]+","+value[1]+","+value[2]+");'></div>");
+                     $("#state").append(line);
                  }
                });
            }
