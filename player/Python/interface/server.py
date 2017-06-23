@@ -57,7 +57,7 @@ def info():
     answer['timeline']['scenes'] = [scene.uid for scene in scenario.pool._Timeline]
     try:
         answer['timeline']['signals'] = scenario.pool.Frames[scenario.CURRENT_FRAME]._get_all_reachabled_signals(settings.get("uName"))
-    except IndexError:
+    except (IndexError, KeyError):
         answer['timeline']['signals'] = list()
 
 
