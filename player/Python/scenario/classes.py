@@ -120,6 +120,15 @@ class Etape(fsm.State):
     def __repr__(self):
         return self.__str__()
 
+    def _get_all_reachabled_signals(self, signals, parsed):
+        if self.uid in parsed:
+            return
+        parsed.append(self.uid)
+        for signal, transition in self.transitions.items():
+            if signal not in (None, False, True) and signal not in signals:
+                signals.append(signal)
+            transition._get_all_reachabled_signals(signals, parsed)
+
 
 class ScenarioFSM(fsm.FiniteStateMachine):
     """
@@ -199,6 +208,15 @@ class Scene:
         Show information on scene
         """
         return "{0} :: \n\tcartes :{1}\n\tgroups :{2}\n\tstart_etapes :{3}".format(self, self.cartes, self.groups, self.start_etapes)
+
+    def _get_all_reachabled_signals(self, uname):
+        signals = list()
+        parsed = list()
+        for etape in self.start_etapes[uname]:
+            etape._get_all_reachabled_signals(signals, parsed)
+        return signals
+
+
 
     def __repr__(self):
         return self.__str__()
