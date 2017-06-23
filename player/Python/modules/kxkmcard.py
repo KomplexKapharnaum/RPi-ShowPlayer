@@ -199,7 +199,8 @@ class KxkmCard(ExternalProcessFlag):
                 rgb = list(rgb[i:i + lv // 3] for i in range(0, lv, lv // 3))
             if len(rgb) == 3:
                 cmd += ' -rgb {R} {G} {B}'.format(R=rgb[0], G=rgb[1], B=rgb[2])
-            get_state_dict("light")["rbg"] = rgb
+            get_state_dict("light")["rbg"] = {'R':rgb[0], 'G':rgb[1],
+                                              'B':rgb[2]}
         if led10w1 is not None:
             cmd += ' -10w1 {0}'.format(int(led10w1))
         if led10w2 is not None:
