@@ -13,7 +13,7 @@ from engine.log import init_log
 from engine.setting import settings, devicesV2
 from engine.threads import patcher
 from engine.fsm import Flag
-from engine.tools import search_in_or_default
+from engine.tools import search_in_or_default, get_state_dict
 from libs.oscack.utils import get_ip, get_platform
 from scenario import pool
 import json
@@ -171,10 +171,10 @@ class KxkmCard(ExternalProcessFlag):
         if line2 is not None and not line2 == "":
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
-        pool.State["titreur"]['line1'] = line1
-        pool.State["titreur"]['line2'] = line2
-        pool.State["titreur"]['type'] = type
-        pool.State["titreur"]['speed'] = speed
+        get_state_dict("titreur")['line1'] = line1
+        get_state_dict("titreur")['line2'] = line2
+        get_state_dict("titreur")['type'] = type
+        get_state_dict("titreur")['speed'] = speed
 
     def flush_titreur(self):
         cmd = 'flushtitreur'

@@ -19,6 +19,7 @@ from libs.unidecode import unidecode
 
 from setting import settings
 import engine
+import scenario
 from engine.log import init_log
 from libs import subprocess32
 
@@ -370,6 +371,12 @@ def get_git_last_commit():
     commit = subprocess.check_output(['git', 'show', '--pretty="%h%n%ai%n%s"',
                                       '--raw']).split("\n")
     return (commit[0][1:], commit[1], commit[2][:-1])
+
+
+def get_state_dict(key):
+    if key not in scenario.pool.State.keys():
+        scenario.pool.State[key] = dict()
+    return scenario.pool.State[key]
 
 
 engine.log.log_teleco = log_teleco  # This add log_teleco real function to log to avoid circular import
