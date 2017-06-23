@@ -17,6 +17,7 @@ Patchs = dict()
 Medias = dict()
 Texts = dict()
 cross_ref = list()
+State = dict()
 
 # Debug
 _Timeline = None
@@ -33,7 +34,8 @@ def clear():
     """
     # CLEAR POOL
     log.debug("Clear pool of scenario objects")
-    global Etapes_and_Functions, Signals, Scenes, Frames, Devices, Cartes, \
+    global Etapes_and_Functions, Signals, Scenes, State, Frames, Devices, \
+        Cartes, \
         Patchs, Medias, Texts, cross_ref
     Etapes_and_Functions = dict()
     Signals = dict()
@@ -45,6 +47,7 @@ def clear():
     Medias = dict()
     Texts = dict()
     cross_ref = list()
+    State = dict()
 
 
 def load():

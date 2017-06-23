@@ -126,6 +126,7 @@ class KxkmCard(ExternalProcessFlag):
             ExternalProcessFlag.__init__(self, 'kxkmcard-armv7l',
                                          filters=FILTERS)
             log.debug('CARD: kxkmcard-armv7l')
+        pool.State["titreur"] = {'line1':'','line2':'','type':'','speed':''}
 
     def say(self, msg):
         """
@@ -170,10 +171,16 @@ class KxkmCard(ExternalProcessFlag):
         if line2 is not None and not line2 == "":
             cmd += ' -line2 ' + line2.replace(' ', '_')
         self.say(cmd)
+        pool.State["titreur"]['line1'] = line1
+        pool.State["titreur"]['line2'] = line2
+        pool.State["titreur"]['type'] = type
+        pool.State["titreur"]['speed'] = speed
 
     def flush_titreur(self):
         cmd = 'flushtitreur'
         self.say(cmd)
+        pool.State["titreur"] = {'line1': '', 'line2': '', 'type': '',
+                                'speed': ''}
 
     def setLight(self, rgb=None, led10w1=None, led10w2=None, strob=None,
                  fade=None):
