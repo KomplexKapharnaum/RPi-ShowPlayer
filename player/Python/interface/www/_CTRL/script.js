@@ -122,6 +122,11 @@
                          "<div style='height:15px;" +
                          " background-color: rgb("+value.R+","+value.G+","+value.B+");'></div>");
                      $("#state").append(line);
+                 }else if (elem == "led") {
+                     //console.log(value);
+                     //var color = JSON.parse(value);
+                     line.append("LED 10W");
+                     $("#state").append(line);
                  }
                });
            }
