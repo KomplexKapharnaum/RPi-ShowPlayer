@@ -68,7 +68,7 @@ def info():
         answer['device']['settings'] = devicesV2.get(settings.get("uName"))
     except KeyError:
         answer['device']['settings'] = {}
-    answer['device']
+    answer['device']['state'] = scenario.pool.State
 
     answer['system'] = dict()
     answer['system']['branch'] = tools.get_git_branch()

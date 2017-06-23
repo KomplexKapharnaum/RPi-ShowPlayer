@@ -90,7 +90,7 @@
        });
 
          $("#state").empty();
-       $.each(r.timeline.signals, function(index, content) {
+       $.each(r.device.state, function(index, content) {
            if (index == "titreur") {
                var state = $('<div class="line">');
                state.append("<strong>TITREUR</strong>");
