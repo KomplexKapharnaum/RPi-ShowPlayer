@@ -59,8 +59,6 @@ def info():
     if answer['timeline']['scenes'] in scenario.pool.Scenes.keys():
         answer['timeline']['signals'] = scenario.pool.Scenes[answer['timeline'][
             'scenes']]._get_all_reachabled_signals(settings.get("uName"))
-    answer['timeline']['signals'] = ('CARTE_PUSH_1', 'TELECO_PUSH_OK',
-                                    'END_TEXT')
 
 
     answer['device'] = dict()
