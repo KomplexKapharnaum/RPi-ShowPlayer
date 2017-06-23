@@ -56,9 +56,8 @@ def info():
     answer['timeline']['activescene'] = scenario.CURRENT_FRAME
     answer['timeline']['scenes'] = [scene.uid for scene in scenario.pool._Timeline]
     answer['timeline']['signals'] = list()
-    if answer['timeline']['scenes'] in scenario.pool.Scenes.keys():
-        answer['timeline']['signals'] = scenario.pool.Scenes[answer['timeline'][
-            'scenes']]._get_all_reachabled_signals(settings.get("uName"))
+    if scenario.CURRENT_FRAME in scenario.pool.Frames:
+        answer['timeline']['signals'] = scenario.pool.Frames[scenario.CURRENT_FRAME]._get_all_reachabled_signals(settings.get("uName"))
 
 
     answer['device'] = dict()
