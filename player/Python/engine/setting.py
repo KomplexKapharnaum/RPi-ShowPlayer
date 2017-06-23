@@ -210,7 +210,8 @@ DEFAULT_SETTING["log"]["monitor"] = dict()
 DEFAULT_SETTING["log"]["monitor"]["port"] = 1783
 DEFAULT_SETTING["log"]["monitor"]["ip"] = ["2.0.2.100","2.0.2.101","2.0.0.101"]
 DEFAULT_SETTING["log"]["monitor"]["pingtime"] = 1.0 # Time between each ping in seconds
-DEFAULT_SETTING["log"]["monitor"]["active"] = True  # Active the propagation of info tension
+DEFAULT_SETTING["log"]["monitor"]["active"] = False  # Active the propagation
+#  of info tension
 DEFAULT_SETTING["log"]["teleco"] = dict()
 DEFAULT_SETTING["log"]["teleco"]["active"] = False  # Unactive log teleco
 DEFAULT_SETTING["log"]["teleco"]["error_delay"] = 1.5  # Block 1.5 s for assure error displaying
