@@ -196,6 +196,11 @@ DEFAULT_SETTING["values"]["vlc"]["media"] = ""
 DEFAULT_SETTING["values"]["vlc"]["repeat"] = False
 DEFAULT_SETTING["values"]["vlc"]["volume"] = 100
 
+DEFAULT_SETTING["webui"] = dict()
+DEFAULT_SETTING["webui"]["autorestart"] = dict()
+DEFAULT_SETTING["webui"]["autorestart"]["enable"] = True    # Auto restart interface
+DEFAULT_SETTING["webui"]["autorestart"]["interval"] = 5     # in sec
+
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
 DEFAULT_SETTING["log"]["output"] = "Console"

@@ -347,4 +347,6 @@ def hello():
 
 
 def start():
-    run(app, host='0.0.0.0', port=8080, quiet=True)
+    run(app, host='0.0.0.0', port=8080, quiet=True, reloader=bool(
+        settings.get("webui", "autorestart", "enable")), interval=float(
+        settings.get("webui", "autorestart", "interval")))
