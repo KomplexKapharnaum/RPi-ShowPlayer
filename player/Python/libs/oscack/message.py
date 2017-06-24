@@ -234,6 +234,13 @@ def send(target, msg):
                 "Impossible d'envoyer le message depuis \n Error : " + str(err) + " \n Message : " + str(
                     msg) + " \n Target : " + str(target.target))
             return False
+        except Exception as err:
+            log.exception(
+                "Impossible d'envoyer le message [err] depuis \n Error : " +
+                str(
+                    err) + " \n Message : " + str(
+                    msg) + " \n Target : " + str(target.target))
+            return False
 
 
 def send_ack(ip, msg):
@@ -241,7 +248,15 @@ def send_ack(ip, msg):
         log.log("raw",
                 "Try to send " + str(msg) + " at " + str(ip) + ":{port} with ACK={ACK}".format(
                     port=settings.get("OSC", "ackport"), ACK=msg.ACK))
-    liblo.send(liblo.Address(ip, settings.get("OSC", "ackport")), msg)
+    try:
+        liblo.send(liblo.Address(ip, settings.get("OSC", "ackport")), msg)
+    except Exception as err:
+        log.exception(
+            "Impossible d'envoyer le message [err] depuis \n Error : " +
+            str(
+                err) + " \n Message : " + str(
+                msg) + " \n Target : " + str(ip))
+        return False
 
 
 def unregister(uid):
