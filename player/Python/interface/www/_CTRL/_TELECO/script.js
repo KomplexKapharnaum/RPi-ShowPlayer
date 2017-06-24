@@ -32,10 +32,9 @@
                url: "/sendSignal",
                type: "POST",
                data: { signal: idSignal }
-           })
-           .done(function(r) {
-             //update_info();
-             //$(".lineactive").removeClass('lineactive');
+           }).done(function(r) {
+             update_info();
+             $(".lineactive").removeClass('lineactive');
            });
          });
          return line;
@@ -66,7 +65,7 @@
 
    }
       setInterval(update_info,1000);
-   draw();
+      draw();
 
 
 });
