@@ -305,9 +305,9 @@ class inputThread(threading.Thread):
                             signal = fsm.Flag(cmd[1])
                             if len(cmd) > 2:
                                 if cmd[2].upper() == "GROUP":
-                                    signal.args["dest"] = list("Group", )
+                                    signal.args["dest"] = ("Group", )
                                 elif cmd[2].upper() == "ALL":
-                                    signal.args["dest"] = list("All", )
+                                    signal.args["dest"] = ("All", )
                             engine.threads.patcher.patch(signal.get())
                             log.info("send signal : {}".format(cmd[1]))
                 elif cmd[0] == "teleco":
