@@ -274,9 +274,17 @@
     #colonne1{
       float:left;
       margin: 5px;
-      width: 200px;
+      width: 80%;
       display: block;
-      font-size: 15px;
+      font-size: 25px;
+    }
+
+    #colonne1 .title{
+        text-align: center;
+    }
+    #colonne1 .line{
+        margin: 25px;
+        padding: 15px;
     }
 
     #colonne2{
