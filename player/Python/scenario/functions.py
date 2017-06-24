@@ -73,6 +73,7 @@ def forward_signal(*args, **kwargs):
             return False
         log.debug('Forwarded signal received {0} date {1}'.format(flag.get_info(), datetime.datetime.fromtimestamp(
             rtplib.conv_time_to_timestamp(*flag.TTL))))
+        log.important("recv net signal : {}".format(flag.uid))
         patcher.serve(flag)
     else:
         return False
