@@ -295,7 +295,7 @@ class inputThread(threading.Thread):
                     inputThread.osc_info(info=True)
                     log_fnct("=== END INFO ===")
                     log_fnct()
-                elif cmd[0] == "signal":
+                elif cmd[0] == "signal" or cmd[0] == "s":
                     if len(cmd) > 1:
                         if cmd[1] == "testall":
                             engine.threads.patcher.patch(flag_all.get())
