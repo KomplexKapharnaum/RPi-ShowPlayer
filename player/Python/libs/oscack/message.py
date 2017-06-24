@@ -163,6 +163,14 @@ class ThreadSendMessage(threading.Thread):
                         "Impossible d'envoyer le message depuis le thread ({0}/{1}) \n Error : ".format(self._n_send, len(self._interval_table)) + str(
                             err) + " \n Message : " + str(
                             self.msg) + " \n Target : " + str(self.target))
+                except Exception as err:
+                    log.exception(
+                        "Impossible d'envoyer le message [err] depuis le "
+                        "thread ({"
+                        "0}/{1}) \n Error : ".format(
+                            self._n_send, len(self._interval_table)) + str(
+                            err) + " \n Message : " + str(
+                            self.msg) + " \n Target : " + str(self.target))
                 finally:
                     if self._n_send == len(self._interval_table):
                         break
