@@ -33,7 +33,6 @@
                type: "POST",
                data: { signal: idSignal }
            }).done(function(r) {
-               $("#carte").text("PLOP");
              $(".lineactive").removeClass('lineactive');
                update_info();
            });
