@@ -40,6 +40,13 @@
          return line;
       }
    function draw() {
+       $.ajax({
+         url: "/info",
+         dataType: "json"
+     }).done(function(r) {
+           $("#info").empty();
+           $("#info").append(r.device.name+" - "+r.timeline.scenes[r.timeline.activescene]);
+       });
 
      $("#teleco").empty();
      $("#carte").empty();
@@ -53,7 +60,8 @@
 
 
    }
-
+      setInterval(draw,1000);
    draw();
+
 
 });
