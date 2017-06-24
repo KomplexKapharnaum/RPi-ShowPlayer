@@ -1,7 +1,7 @@
 
   $(function() {
 
-
+    var init = false;
 
    /////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////
@@ -34,12 +34,13 @@
                data: { signal: idSignal }
            })
            .done(function(r) {
-             draw();
+             update_info();
            });
          });
          return line;
       }
-   function draw() {
+
+      function update_info(){
        $.ajax({
          url: "/info",
          dataType: "json"
@@ -47,6 +48,9 @@
            $("#info").empty();
            $("#info").append(r.device.name+" - "+r.timeline.scenes[r.timeline.activescene]);
        });
+      }
+   function draw() {
+
 
      $("#teleco").empty();
      $("#carte").empty();
@@ -60,7 +64,7 @@
 
 
    }
-      setInterval(draw,1000);
+      setInterval(update_info,1000);
    draw();
 
 
