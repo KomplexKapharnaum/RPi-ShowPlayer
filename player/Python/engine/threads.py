@@ -14,7 +14,8 @@ log = init_log("threads")
 
 network_scheduler = ThreadScheduler()
 scenario_scheduler = ThreadScheduler()
-ping_sender = ThreadRepeater(settings.get("log", "monitor", "pingtime"), tools.sendPing)
+if settings.get("log", "monitor", "active") is True:
+    ping_sender = ThreadRepeater(settings.get("log", "monitor", "pingtime"), tools.sendPing)
 patcher = ThreadPatcher()
 log_teleco = tools.ThreadTeleco()
 
