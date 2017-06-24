@@ -32,9 +32,6 @@
                url: "/sendSignal",
                type: "POST",
                data: { signal: idSignal }
-           }).done(function(r) {
-             update_info();
-             $(".lineactive").removeClass('lineactive');
            });
          });
          return line;
