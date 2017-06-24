@@ -27,7 +27,11 @@ log = init_log("server")
 
 class ClassicalOSCServer(liblo.ServerThread):
     def __init__(self, port=None):
-        liblo.ServerThread.__init__(self, port=port)
+        try:
+            liblo.ServerThread.__init__(self, port=int(port))
+        except liblo.ServerError as e:
+            log.error("Fail to start OSC server on {}".format(port))
+            raise e
 
 
 class AckOSCServer(ClassicalOSCServer):

@@ -1,6 +1,7 @@
 
 import sys
 import os
+import time
 from os import listdir
 from os.path import isfile, join, isdir
 from modules import DECLARED_OSCROUTES, DECLARED_PUBLICSIGNALS, DECLARED_PUBLICBOXES
@@ -347,6 +348,17 @@ def hello():
 
 
 def start():
-    run(app, host='0.0.0.0', port=8080, quiet=True, reloader=bool(
-        settings.get("webui", "autorestart", "enable")), interval=float(
-        settings.get("webui", "autorestart", "interval")))
+    while True:
+        start_time = time.time()
+        try:
+            run(app, host='0.0.0.0', port=8080, quiet=True)
+        except Exception as e:
+            log.exception("Error in webserver : {}".format(e))
+            if settings.get("webui", "autoreload", "enable") is not False:
+                dt = time.time() - start_time
+                if dt < float(settings.get("webui", "autoreload", "interval")):
+                    time.sleep(float(settings.get("webui", "autoreload",
+                                                  "interval"))-dt)
+                continue
+            else:
+                break
