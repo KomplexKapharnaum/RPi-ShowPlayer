@@ -77,6 +77,9 @@ def device_update_timeline(flag, **kwargs):
 
 @link({None: "device_control"})
 def device_send_info(flag, **kwargs):
+    if settings.get("log", "monitor", "active") is not True:
+        log.debug("skip device send info because it have ben unactivacted")
+        return
     cpu_temperature = 0
     link_signal = "no signal"
     link_channel = "no channel"
