@@ -224,6 +224,23 @@ class inputThread(threading.Thread):
                 cmd = c.split()
                 if cmd[0] == "pw":
                     log_fnct(str(POWEROFF))
+                elif cmd[0] in ("help", "h", "?"):
+                    log_fnct("=== HELP ===")
+                    log_fnct("")
+                    log_fnct(" - state\t\t\t: display current scene, running "
+                             "states and signals that performs transitions")
+                    log_fnct(" - signal(s) [SIG_NAME] [DEST] \t: send signal "
+                             "named SIG_NAME. Dest is Self by default, "
+                             "can be Group or All. If only signal, display "
+                             "all possible scene signals")
+                    log_fnct(" - scene [FRAME_NUM]\t\t: display current scene name, or details info if a frame number is given")
+                    log_fnct(" - move {next,prev}\t\t: move to next or prev "
+                             "scene")
+                    log_fnct(" - move to FRAME_NUM\t\t: move to scene "
+                             "FRAME_NUM")
+                    log_fnct(" - move force FRAME_NUM\t\t: move to scene "
+                             "FRAME_NUM, without any backward checks")
+                    log_fnct(" - info\t\t\t\t: display various informations")
                 elif cmd[0] == "except":
                     tmpfsm = fsm.FiniteStateMachine("test_fsm")
                     def tmp_fnct(flag):
@@ -237,6 +254,10 @@ class inputThread(threading.Thread):
                 elif cmd[0] == "scene":
                     if len(cmd) > 1 and len(scenario.pool._Timeline) > int(cmd[1]):
                         log_fnct(scenario.pool._Timeline[int(cmd[1])].show_info())
+                    else:
+                        log.important("Current scene : {}".format(
+                            scenario.pool._Timeline[
+                                scenario.CURRENT_FRAME].uid))
                 elif cmd[0] == "move":
                     if len(cmd) > 1:
                         if cmd[1] == "next":
@@ -310,6 +331,27 @@ class inputThread(threading.Thread):
                                     signal.args["dest"] = list("All", )
                             engine.threads.patcher.patch(signal.get())
                             log.info("send signal : {}".format(cmd[1]))
+                    else:
+                        log.important("Signals in scene :")
+                        for signal in scenario.pool._Timeline[
+                            scenario.CURRENT_FRAME]._get_all_reachabled_signals(settings.get("uName")):
+                            log.important("\t- {}".format(signal))
+                elif cmd[0] == "state":
+                    log.important("Current scene : {}".format(
+                        scenario.pool._Timeline[
+                            scenario.CURRENT_FRAME].uid))
+                    for f in scenario.SCENE_FSM:
+                        log_fnct("{} : {}".format(f.current_state,
+                                                  f.current_state.actions[0][
+                                                      1]["args"]))
+                        for key, state in f.current_state.transitions.items():
+                            log_fnct("\t- {} ==> {} : {}".format(key,
+                                                                 state.uid,
+                                                                 state.actions[
+                                                                     0][
+                                                                     1]["args"]
+                                                                 ))
+                        #log_fnct(f._flag_stack)
                 elif cmd[0] == "teleco":
                     if len(cmd) < 3:
                         log.warning("Need at least a page number an a message")
@@ -330,7 +372,7 @@ class inputThread(threading.Thread):
         except Exception as e:
             log.exception("Unblocking exception in prompt : \n"+log.show_exception(e))
         # BACKUP EXIT
-        time.sleep(10)
+        time.sleep(1)
         log.log("debug", "Exit by backupexit, should not be that")
         os._exit(POWEROFF)
 
