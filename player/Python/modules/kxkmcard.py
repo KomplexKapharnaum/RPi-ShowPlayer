@@ -114,8 +114,13 @@ class KxkmCard(ExternalProcessFlag):
     """
 
     def __init__(self):
+        pool.State["titreur"] = {'line1': '', 'line2': '', 'type': '',
+                                 'speed': ''}
+        pool.State["light"] = {'rgb': ''}
+        pool.State["teleco"] = {'scenario': ''}
         if not settings.get("sys", "raspi"):
             log.warning("KXKM Card should not be launched on no raspi device ")
+            ExternalProcessFlag.__init__(self, "kxkmcard-emulate", filters=FILTERS)
             return None
         plateform = subprocess.check_output(["uname", "-m"])
         if "armv6l" in plateform:
@@ -126,9 +131,7 @@ class KxkmCard(ExternalProcessFlag):
             ExternalProcessFlag.__init__(self, 'kxkmcard-armv7l',
                                          filters=FILTERS)
             log.debug('CARD: kxkmcard-armv7l')
-        pool.State["titreur"] = {'line1':'','line2':'','type':'','speed':''}
-        pool.State["light"] = {'rgb':''}
-        pool.State["teleco"] = {'scenario': ''}
+
 
     def say(self, msg):
         """
