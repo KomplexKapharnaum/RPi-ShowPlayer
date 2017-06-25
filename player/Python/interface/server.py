@@ -53,6 +53,7 @@ def info():
     answer['timeline'] = dict()
     answer['timeline']['group'] = scenario.pool.timeline_group
     answer['timeline']['version'] = scenario.pool.timeline_version
+    answer['timeline']['shadow_edit'] = settings.get("webui", "shadowedit")
 
     answer['timeline']['activescene'] = scenario.CURRENT_FRAME
     answer['timeline']['scenes'] = [scene.uid for scene in scenario.pool._Timeline]
@@ -257,9 +258,33 @@ def save():
 
     answer['status'] = 'success'
     save_scenario_on_fs(settings["current_timeline"], date_timestamp=float(timestamp)/1000.0)
-    patcher.patch(fsm.Flag("DEVICE_RELOAD").get())
-    oscack.protocol.scenariosync.machine.append_flag(oscack.protocol.scenariosync.flag_timeout.get())    # Force sync
+    if settings.get("webui", "shadowedit") is not True:
+        patcher.patch(fsm.Flag("DEVICE_RELOAD").get())
+        oscack.protocol.scenariosync.machine.append_flag(oscack.protocol.scenariosync.flag_timeout.get())    # Force sync
+    else:
+        log.debug("Not send new scenario and no reaload because of "
+                  "SHADOW_EDIT ")
     return sendjson(answer)
+
+@app.route('/_TIMELINE/data/send_version.php', method='POST')
+@app.route('/_SCENARIO/data/send_version.php', method='POST')
+def send_version():
+    oscack.protocol.scenariosync.machine.append_flag(
+        oscack.protocol.scenariosync.flag_timeout.get(args={"force": True}))  # Force sync
+
+@app.route('/_TIMELINE/data/restart.php', method='POST')
+@app.route('/_SCENARIO/data/restart.php', method='POST')
+def send_version():
+    patcher.patch(fsm.Flag("FS_TIMELINE_UPDATED").get())
+
+@app.route('/_TIMELINE/data/shadow_edit.php', method='POST')
+@app.route('/_SCENARIO/data/shadow_edit.php', method='POST')
+def toggle_shadow_edit():
+    settings.set("webui", "shadowedit", request.forms.get('shadow_edit') ==
+                 "true")
+    log.info("Toggle shadow edit to : {}".format(settings.get("webui",
+                                                              "shadowedit")))
+
 
 @app.route('/_TIMELINE/data/load.php', method='POST')
 @app.route('/_SCENARIO/data/load.php', method='POST')

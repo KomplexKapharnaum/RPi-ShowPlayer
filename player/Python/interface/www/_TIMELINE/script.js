@@ -815,8 +815,18 @@
 
     $('.tip').hide();
     var tooltips = false;
+    var shadow_edit = false;
     $('#tooltipsOnoff').change(function(){
       tooltips = $('#tooltipsOnoff').prop('checked');
+    });
+    $('#toggle_shadowedit').change(function(){
+      $.ajax({
+          url: "data/shadow_edit.php",
+          type: "POST",
+          data: { shadow_edit: $('#toggle_shadowedit').prop('checked')}
+      }).done(function(reponse) {
+        shadow_edit = $('#toggle_shadowedit').prop('checked');
+  		});
     });
 
 
@@ -1282,6 +1292,9 @@
      .done(function(r) {
        $("#timeline_group").text(r.timeline.group);
          $("#timeline_version").html("<br />"+r.timeline.version+" UTC+0");
+        if(r.timeline.shadow_edit){
+          $('#toggle_shadowedit')[0].checked = true;
+        }
      });
    }
    timelineInfo();

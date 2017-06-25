@@ -80,6 +80,9 @@ def send_version(flag):
     :param flag:
     :return:
     """
+    if settings.get("webui", "shadowedit") is True and flag.args["force"] is \
+            not True:
+        log.debug("Not send version because of SHADOW_EDIT")
     args = list()
     args.append(('s', getpass.getuser()))                    # username
     args.append(('s', settings.get_path("scenario")))        # media path
