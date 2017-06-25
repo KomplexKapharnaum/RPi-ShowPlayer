@@ -128,6 +128,7 @@ class KxkmCard(ExternalProcessFlag):
             log.debug('CARD: kxkmcard-armv7l')
         pool.State["titreur"] = {'line1':'','line2':'','type':'','speed':''}
         pool.State["light"] = {'rgb':''}
+        pool.State["teleco"] = {'scenario': ''}
 
     def say(self, msg):
         """
@@ -234,6 +235,7 @@ class KxkmCard(ExternalProcessFlag):
             if line2 is not None and not line2 == "":
                 cmd += ' -line2 ' + line2.replace(' ', '_')
             self.say(cmd)
+            get_state_dict("teleco")[page] = (line1, line2)
 
     ##
     # FILTERS

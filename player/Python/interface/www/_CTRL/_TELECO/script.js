@@ -47,6 +47,9 @@
      }).done(function(r) {
            $("#info").empty();
            $("#info").append(r.device.name+" - "+r.timeline.scenes[r.timeline.activescene]);
+           if (teleco in r.device.state) {
+               $("#info").append(" - " + r.device.state.teleco.scenario);
+           }
        });
       }
    function draw() {
