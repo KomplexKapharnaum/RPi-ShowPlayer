@@ -203,7 +203,10 @@ def timer_out_action(flag, *args, **kwargs):
     if "__timer" in kwargs["_etape"]._localvars.keys():
         for timer in kwargs["_etape"]._localvars["__timer"]:
             log.debug("Cancel timer in out action")
-            timer.cancel()
+            try:
+                timer.cancel()
+            except Exception as e:
+                log.warning("Timer from etape {} is None.. should not be that ".format(kwargs["_etape"].uid))
     return True
 
 
