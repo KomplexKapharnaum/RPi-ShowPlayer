@@ -271,11 +271,14 @@ def save():
 def send_version():
     oscack.protocol.scenariosync.machine.append_flag(
         oscack.protocol.scenariosync.flag_timeout.get(args={"force": True}))  # Force sync
+    log.info("Send scenario from webui")
+    return 'ok'
 
 @app.route('/_TIMELINE/data/restart.php', method='POST')
 @app.route('/_SCENARIO/data/restart.php', method='POST')
-def send_version():
+def restart():
     patcher.patch(fsm.Flag("FS_TIMELINE_UPDATED").get())
+    return 'ok'
 
 @app.route('/_TIMELINE/data/shadow_edit.php', method='POST')
 @app.route('/_SCENARIO/data/shadow_edit.php', method='POST')

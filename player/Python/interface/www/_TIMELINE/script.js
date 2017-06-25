@@ -1299,4 +1299,24 @@
    }
    timelineInfo();
 
+    $('#sendGraph').click( function() {
+			$.ajax({
+					url: "data/send_version.php",
+					type: "POST"
+				}
+			).done(function(r){
+				$('#serverDisplay').html("SEND !");
+			});
+		});
+
+    $('#restartBtn').click( function() {
+			$.ajax({
+					url: "data/restart.php",
+					type: "POST"
+				}
+			).done(function(r){
+				$('#serverDisplay').html("RESTART !");
+			});
+		});
+
 });

@@ -1084,6 +1084,26 @@
 			}
 		});
 
+		$('#sendGraph').click( function() {
+			$.ajax({
+					url: "data/send_version.php",
+					type: "POST"
+				}
+			).done(function(r){
+				$('#serverDisplay').html("SEND !");
+			});
+		});
+		
+		$('#restartBtn').click( function() {
+			$.ajax({
+					url: "data/restart.php",
+					type: "POST"
+				}
+			).done(function(r){
+				$('#serverDisplay').html("RESTART !");
+			});
+		});
+
 		$('#delGraph').click( function() {
 		if (confirm("Delete "+scenarioName+" ?")) {
 				$.ajax({
@@ -1275,6 +1295,18 @@
     });
 
 		//////////////////////// GET NAME TIMELINE .///////////////////////
+
+		var shadow_edit = false;
+    $('#toggle_shadowedit').change(function(){
+      $.ajax({
+          url: "data/shadow_edit.php",
+          type: "POST",
+          data: { shadow_edit: $('#toggle_shadowedit').prop('checked')}
+      }).done(function(reponse) {
+        shadow_edit = $('#toggle_shadowedit').prop('checked');
+  		});
+    });
+
 		function timelineInfo() {
       $.ajax({
           url: "/info",
@@ -1283,9 +1315,16 @@
       .done(function(r) {
         $("#timeline_group").text(r.timeline.group);
           $("#timeline_version").html("<br />"+r.timeline.version+" UTC+0");
+        if(r.timeline.shadow_edit){
+          $('#toggle_shadowedit')[0].checked = true;
+        }
       });
     }
     timelineInfo();
+
+
+
+
 
 		//if (scenarioName !== 'noscenario') { console.log(scenarioName); setTimeout(loadGraphique, 200); }
 
