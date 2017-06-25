@@ -47,9 +47,10 @@
      }).done(function(r) {
            $("#info").empty();
            $("#info").append(r.device.name+" - "+r.timeline.scenes[r.timeline.activescene]);
-           if (teleco in r.device.state) {
-               $("#info").append(" - " + r.device.state.teleco.scenario);
-           }
+           if ( len(r.device.state.teleco.scenario[1]) > 1 &&  r.device.state.teleco.scenario[1] != r.timeline.scenes[r.timeline.activescene])
+           //if (teleco in r.device.state) {
+               $("#info").append(" - " + r.device.state.teleco.scenario[1]);
+           //}
        });
       }
    function draw() {
