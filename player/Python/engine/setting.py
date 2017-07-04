@@ -201,8 +201,7 @@ DEFAULT_SETTING["webui"] = dict()
 DEFAULT_SETTING["webui"]["autorestart"] = dict()
 DEFAULT_SETTING["webui"]["autorestart"]["enable"] = True    # Auto restart interface
 DEFAULT_SETTING["webui"]["autorestart"]["interval"] = 5     # in sec
-DEFAULT_SETTING["webui"]["shadowedit"] = True     # Auto sync scenario if edited
-#  in webui
+DEFAULT_SETTING["webui"]["shadowedit"] = False     # Auto sync scenario if edited in webui
 
 DEFAULT_SETTING["log"] = dict()
 DEFAULT_SETTING["log"]["level"] = "debug"
