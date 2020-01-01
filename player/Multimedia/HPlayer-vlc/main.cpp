@@ -72,6 +72,8 @@ int main(int argc, char* argv[])
 			if (vol >= 0 and vol <= 200) player->setVolume(vol);
 			else cout << "#ERROR_VOLUME " << argument << "\n";
 		}
+		else if (command == "volup") player->volumeUp();
+		else if (command == "voldown") player->volumeDown();
 		else {
 			cout << "Unknown command: " << command << " with arg: " << argument << "\n";
 		}
