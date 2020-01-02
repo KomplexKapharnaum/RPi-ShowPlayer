@@ -48,15 +48,15 @@ void sendStatusTeleco(){
   float tension = mycarte.checkTension();
   char mess1[17];
   char mess2[17];
-  delay(10);
+  delay(2);
   sprintf(mess1,"git %s",status.c_str());
   sprintf(mess2,"py=%s C=%s",version_py.c_str(),version_c.c_str());
   myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_GIT_VERSION);
-  delay(10);
+  delay(2);
   sprintf(mess1,"%s",carte_name.c_str());
   sprintf(mess2,"%s %.1fV",carte_ip.c_str(),tension);
   myteleco.sendString(mess1,mess2,T_MENU_ID_STATUS_AUTO_NAME_IP_VOLTAGE);
-  delay(10);
+  delay(2);
   sprintf(mess1,"%.1fV %s",tension,scene.c_str());
   sprintf(mess2,"%s",buttonline.c_str());
   myteleco.sendString(mess1,mess2,T_MENU_ID_SHOW_STATUS);
@@ -100,21 +100,23 @@ void testRoutine(int n){
 int parseInput(string input){
   if (input=="check_teleco_on_start"){
     //init teleco if already connected // ISSUE HERE
+    produce(q,"start_interrupt");
     if (digitalRead(21)==HIGH) {
     produce(q,"interrupt_teleco");
     }
-    produce(q,"start_interrupt");
-
+    
   }
 
   if(input=="start_interrupt"){
-
+    fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
+    wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
+    wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
     cout << "#HARDWAREREADY" << endl;
 
   }
 
   if (input=="interrupt_teleco") {
-    fprintf(stderr, "main - interrupt from teleco\n");
+    //fprintf(stderr, "main - interrupt from teleco\n");
     if (myteleco.fisrtView()){
       delay(20);
       //fprintf(stderr, "main - delaypass\n");
@@ -151,7 +153,7 @@ int parseInput(string input){
   }
   
   if (input=="interrupt_carte") {
-    fprintf(stderr, "main - interrupt from carte\n");
+    //fprintf(stderr, "main - interrupt from carte\n");
     mycarte.readInterrupt();
     if(mycarte.needStatusUpdate) sendStatusTeleco();
     return 0;
@@ -504,6 +506,7 @@ int parseInput(string input){
 }
 
 void produce(Queue<string>& q, string message) {
+    if(!(message=="interrupt_carte" || message=="interrupt_teleco"))fprintf(stderr, "main - prog push %s\n",message.c_str());
     q.push(message);
 }
 
@@ -573,12 +576,11 @@ int main (int argc, char * argv[]){
   
   wiringPiSetupGpio();
   pinMode (21, INPUT);
+  pinMode (20, INPUT);
 
   cout << "#INITHARDWARE" << endl;
 
-    fprintf(stderr, "main - active interrupt for CARTE et télécomande\n");
-    wiringPiISR (20, INT_EDGE_RISING, &myInterruptCARTE);
-    wiringPiISR (21, INT_EDGE_RISING, &myInterruptTELECO);
+
 
 
   readcin(q);
